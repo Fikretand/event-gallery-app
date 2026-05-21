@@ -82,7 +82,7 @@ export default async function Home({
             />
           </div>
           <div className="space-y-5">
-            <h1 className="max-w-3xl text-4xl font-semibold leading-[1.02] tracking-tight text-[var(--color-ink)] sm:text-6xl">
+            <h1 className="font-display max-w-3xl text-4xl font-semibold leading-[1.06] tracking-tight text-[var(--color-ink)] sm:text-6xl">
               Collect guest memories, deliver the polished gallery, and keep the whole event private.
             </h1>
             <p className="max-w-2xl text-base leading-7 text-black/70 sm:text-lg sm:leading-8">

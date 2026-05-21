@@ -32,7 +32,7 @@ export function EventSettingsForm({
     <Panel className="bg-white/90">
       <form action={formAction} className="grid gap-5 md:grid-cols-2">
         <div className="md:col-span-2">
-          <h2 className="text-2xl font-semibold text-[var(--color-ink)]">Event settings</h2>
+          <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">Event settings</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-black/62">
             {isCouple
               ? "Update your event details, guest upload rules, expiry, and gallery privacy without creating a new event."

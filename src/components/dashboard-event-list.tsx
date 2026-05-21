@@ -107,7 +107,7 @@ export function DashboardEventList({ events }: { events: DashboardEventItem[] })
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-moss)]">
                       {event.clientName || "Private event"}
                     </p>
-                    <h2 className="mt-2 text-2xl font-semibold text-[var(--color-ink)]">{event.title}</h2>
+                    <h2 className="mt-2 font-display text-2xl font-semibold text-[var(--color-ink)]">{event.title}</h2>
                     <p className="mt-2 text-sm text-black/55">
                       Event date: {formatDate(event.eventDate)} | Expires: {formatDate(event.expiresAt)}
                     </p>

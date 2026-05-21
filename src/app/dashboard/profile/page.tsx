@@ -39,7 +39,7 @@ export default async function DashboardProfilePage() {
         </div>
 
         <Panel className="bg-white/90">
-          <h2 className="text-2xl font-semibold text-[var(--color-ink)]">
+          <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">
             {accountType === "couple" ? "Account details" : "Public profile settings"}
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-black/62">

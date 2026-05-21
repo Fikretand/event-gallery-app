@@ -666,7 +666,7 @@ function SectionGroup({
     <div className="space-y-4">
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">{eyebrow}</p>
-        <h3 className="mt-2 text-2xl font-semibold text-[var(--color-ink)]">{title}</h3>
+        <h3 className="font-display mt-2 text-2xl font-semibold text-[var(--color-ink)]">{title}</h3>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{items.map((item) => renderCard(item))}</div>
     </div>

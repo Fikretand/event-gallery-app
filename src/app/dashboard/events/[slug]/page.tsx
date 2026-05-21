@@ -232,7 +232,7 @@ export default async function EventDetailPage({
         </div>
 
         <Panel className="bg-white/90">
-          <h2 className="text-2xl font-semibold text-[var(--color-ink)]">
+          <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">
             {isCouple ? "Upload your gallery files" : "Upload the pro gallery"}
           </h2>
           <p className="mt-2 text-sm leading-6 text-black/62">
@@ -269,7 +269,7 @@ export default async function EventDetailPage({
 
         {!isCouple ? (
           <Panel className="bg-white/90">
-            <h2 className="text-2xl font-semibold text-[var(--color-ink)]">Danger zone</h2>
+            <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">Danger zone</h2>
             <p className="mt-2 text-sm leading-6 text-black/62">
               Permanently deletes this event and all associated files from storage. This cannot be undone.
             </p>
@@ -280,7 +280,7 @@ export default async function EventDetailPage({
         ) : null}
 
         <Panel className="bg-white/90">
-          <h2 className="text-2xl font-semibold text-[var(--color-ink)]">
+          <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">
             {isCouple ? "Organize your private gallery" : "Gallery sections"}
           </h2>
           <p className="mt-2 text-sm leading-6 text-black/62">
@@ -294,7 +294,7 @@ export default async function EventDetailPage({
         </Panel>
 
         <Panel className="bg-white/90">
-          <h2 className="text-2xl font-semibold text-[var(--color-ink)]">
+          <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">
             {isCouple ? "Manage your gallery" : "Gallery manager"}
           </h2>
           <p className="mt-2 text-sm leading-6 text-black/62">
@@ -315,7 +315,7 @@ export default async function EventDetailPage({
         </Panel>
 
         <Panel className="bg-white/90">
-          <h2 className="text-2xl font-semibold text-[var(--color-ink)]">
+          <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">
             {isCouple ? "Recent changes" : "Recent activity"}
           </h2>
           <p className="mt-2 text-sm leading-6 text-black/62">

@@ -104,7 +104,7 @@ export default async function DashboardPage({
 
         {events.length === 0 ? (
           <Panel className="bg-white/90">
-            <h2 className="text-2xl font-semibold text-[var(--color-ink)]">No events yet</h2>
+            <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">No events yet</h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-black/62">
               Create your first event to generate guest upload links, a QR code, and a private gallery.
             </p>
