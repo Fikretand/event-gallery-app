@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fbf7f1;
+  --foreground: #172033;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-paper: #f2eadf;
+  --color-ink: #172033;
+  --color-accent: #e27952;
+  --color-accent-soft: #f6d3c3;
+  --color-moss: #38584d;
+  --font-sans: "Trebuchet MS", "Avenir Next", "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", monospace;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(226, 121, 82, 0.18), transparent 25%),
+    radial-gradient(circle at top right, rgba(56, 88, 77, 0.14), transparent 22%),
+    linear-gradient(180deg, #fffaf4 0%, #fbf7f1 44%, #f3ede4 100%);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+a {
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(226, 121, 82, 0.28);
+}
+
+.shell {
+  width: min(1180px, calc(100% - 2rem));
+  margin-inline: auto;
+}
+
+.mesh-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.mesh-card::after {
+  content: "";
+  position: absolute;
+  inset: auto -10% -50% auto;
+  width: 240px;
+  height: 240px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(226, 121, 82, 0.12), transparent 68%);
+  pointer-events: none;
+}
