@@ -19,7 +19,7 @@ export default async function SignupPage({
     <main className="pb-16">
       <SiteNav />
       <section className="shell grid gap-8 py-12 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="order-2 space-y-4 lg:order-1">
+        <div className="space-y-4">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">
             {isCouple ? "Create your one-time event" : "Launch the MVP"}
           </p>
@@ -54,20 +54,7 @@ export default async function SignupPage({
             .
           </p>
         </div>
-        <div className="order-1 lg:order-2">
-          <div className="mb-4 space-y-2 lg:hidden">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">
-              {isCouple ? "Create your one-time event" : "Launch the MVP"}
-            </p>
-            <h1 className="font-display text-3xl font-semibold leading-tight text-[var(--color-ink)]">
-              {isCouple ? "Create your wedding event account" : "Create your photographer account"}
-            </h1>
-            <p className="text-sm leading-6 text-black/62">
-              {isCouple
-                ? "Start with the essentials now, then share the event with guests."
-                : "Get into the dashboard quickly, then set up your first event."}
-            </p>
-          </div>
+        <div>
           <AuthForm action={signupAction} mode="signup" intent={intent} />
         </div>
       </section>
