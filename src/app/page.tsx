@@ -118,56 +118,150 @@ export default async function Home({
             <p className="mt-5 text-xs text-black/42">Free to start · No credit card required · Live in 2 minutes</p>
           </div>
 
-          {/* Right: CSS app mockup */}
-          <div className="relative flex justify-center lg:justify-end">
+          {/* Right: Realistic iPhone mockup */}
+          <div className="relative flex justify-center pb-10 lg:justify-end lg:pb-0">
             {/* Floating live notification */}
-            <div className="float-card absolute -top-4 left-4 z-10 flex items-center gap-2 rounded-full border border-black/8 bg-white py-2 pl-2.5 pr-4 text-xs font-semibold text-[var(--color-ink)] shadow-[0_8px_28px_rgba(18,24,38,0.12)]">
+            <div className="float-card absolute -top-4 left-0 z-20 flex items-center gap-2 rounded-full border border-black/8 bg-white py-2 pl-2.5 pr-4 text-xs font-semibold text-[var(--color-ink)] shadow-[0_8px_28px_rgba(18,24,38,0.12)]">
               <span className="live-dot inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#dcf3e8] text-[10px]">📸</span>
               3 new photos just uploaded
             </div>
 
-            {/* Phone frame */}
-            <div className="relative w-[248px] rounded-[40px] border-[4px] border-[var(--color-ink)]/88 bg-[#f8f3ed] p-3.5 shadow-[0_48px_120px_rgba(18,24,38,0.20),inset_0_1px_0_rgba(255,255,255,0.22)]">
-              {/* Dynamic island */}
-              <div className="mx-auto mb-3.5 h-1.5 w-14 rounded-full bg-[var(--color-ink)]/14" />
+            {/* iPhone wrapper */}
+            <div
+              className="relative rounded-[54px] shadow-[0_52px_110px_rgba(18,24,38,0.32),0_24px_48px_rgba(18,24,38,0.18)]"
+              style={{ width: "270px", height: "560px" }}
+            >
+              {/* SVG iPhone 15 frame — sits on top as overlay */}
+              <svg
+                width="270"
+                height="560"
+                viewBox="0 0 270 560"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="pointer-events-none absolute inset-0 z-10"
+              >
+                <defs>
+                  <mask id="iphoneBezelMask">
+                    {/* White = show bezel, Black = punch out screen (so HTML shows through) */}
+                    <rect x="1" y="1" width="268" height="558" rx="54" fill="white" />
+                    <rect x="11" y="11" width="248" height="538" rx="46" fill="black" />
+                  </mask>
+                  <linearGradient id="phoneBody" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#2c2c2c" />
+                    <stop offset="100%" stopColor="#0e0e0e" />
+                  </linearGradient>
+                  <linearGradient id="phoneShine" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor="rgba(255,255,255,0.24)" />
+                    <stop offset="28%" stopColor="rgba(255,255,255,0.06)" />
+                    <stop offset="72%" stopColor="rgba(255,255,255,0.02)" />
+                    <stop offset="100%" stopColor="rgba(255,255,255,0.14)" />
+                  </linearGradient>
+                </defs>
 
-              {/* Gallery app UI */}
-              <div className="overflow-hidden rounded-[26px] bg-white shadow-[0_4px_20px_rgba(18,24,38,0.08)]">
-                {/* Header */}
-                <div className="px-3.5 pb-2.5 pt-3">
-                  <p className="text-[8px] font-bold uppercase tracking-[0.26em] text-[var(--color-moss)]">Private Gallery</p>
-                  <p className="mt-0.5 text-[13px] font-semibold leading-tight text-[var(--color-ink)]">Mia & Dario&apos;s Wedding</p>
-                  <p className="mt-0.5 text-[9px] text-black/42">14 June · 247 photos</p>
-                  <div className="mt-1.5 flex gap-1.5">
-                    <span className="rounded-full bg-[var(--color-paper)] px-2 py-0.5 text-[8px] font-medium text-black/52">12 guests</span>
-                    <span className="rounded-full bg-[#e6f2ee] px-2 py-0.5 text-[8px] font-medium text-[var(--color-moss)]">PIN protected</span>
+                {/* Phone bezel only — screen area punched out so HTML content shows through */}
+                <rect x="1" y="1" width="268" height="558" rx="54" fill="url(#phoneBody)" mask="url(#iphoneBezelMask)" />
+                {/* Metallic frame border shine */}
+                <rect x="1" y="1" width="268" height="558" rx="54" fill="none" stroke="url(#phoneShine)" strokeWidth="2.5" />
+                {/* Outer edge shadow line */}
+                <rect x="0.5" y="0.5" width="269" height="559" rx="54.5" fill="none" stroke="#070707" strokeWidth="1" />
+                {/* Screen inner edge ring */}
+                <rect x="11" y="11" width="248" height="538" rx="46" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="1" />
+
+                {/* Dynamic Island pill */}
+                <rect x="89" y="21" width="92" height="30" rx="15" fill="#030303" />
+                {/* Front camera */}
+                <circle cx="163" cy="36" r="9.5" fill="#050505" />
+                <circle cx="163" cy="36" r="6" fill="#020202" />
+                <circle cx="163" cy="36" r="2.8" fill="#111" />
+                <circle cx="165.5" cy="33.5" r="1.6" fill="rgba(255,255,255,0.16)" />
+                {/* Face ID flood illuminator */}
+                <circle cx="103" cy="36" r="3.8" fill="#080808" />
+                {/* Proximity sensor */}
+                <rect x="112" y="33" width="18" height="6" rx="3" fill="#080808" />
+
+                {/* Volume up */}
+                <rect x="-1" y="118" width="4.5" height="28" rx="2.25" fill="#1e1e1e" stroke="#0a0a0a" strokeWidth="0.5" />
+                {/* Volume down */}
+                <rect x="-1" y="158" width="4.5" height="28" rx="2.25" fill="#1e1e1e" stroke="#0a0a0a" strokeWidth="0.5" />
+                {/* Action button */}
+                <rect x="-1" y="90" width="4.5" height="18" rx="2.25" fill="#1e1e1e" stroke="#0a0a0a" strokeWidth="0.5" />
+                {/* Power/side button */}
+                <rect x="266.5" y="136" width="4.5" height="50" rx="2.25" fill="#1e1e1e" stroke="#0a0a0a" strokeWidth="0.5" />
+
+                {/* Top metallic highlight (lens flare) */}
+                <path d="M 58 1.8 Q 135 0 212 1.8" stroke="rgba(255,255,255,0.22)" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+
+                {/* Home indicator */}
+                <rect x="105" y="542" width="60" height="4.5" rx="2.25" fill="rgba(255,255,255,0.28)" />
+              </svg>
+
+              {/* Screen content */}
+              <div
+                className="absolute overflow-hidden bg-[#f9f5ef]"
+                style={{ top: "11px", left: "11px", right: "11px", bottom: "11px", borderRadius: "46px" }}
+              >
+                {/* Status bar — time left, icons right, Dynamic Island in center */}
+                <div className="flex items-center justify-between px-5" style={{ height: "52px", paddingTop: "13px" }}>
+                  <span className="text-[11px] font-semibold text-[var(--color-ink)]">9:41</span>
+                  <div className="flex items-center gap-1.5">
+                    {/* WiFi */}
+                    <svg width="14" height="11" viewBox="0 0 14 11" fill="none">
+                      <circle cx="7" cy="9.5" r="1.3" fill="var(--color-ink)" />
+                      <path d="M4.2 6.8a4 4 0 015.6 0" stroke="var(--color-ink)" strokeWidth="1.3" fill="none" strokeLinecap="round" />
+                      <path d="M1.4 4a8 8 0 0111.2 0" stroke="var(--color-ink)" strokeWidth="1.3" fill="none" strokeLinecap="round" />
+                    </svg>
+                    {/* Battery */}
+                    <div className="flex items-center gap-[1px]">
+                      <div className="relative h-3.5 w-6 rounded-[3px] border border-[var(--color-ink)]/60">
+                        <div className="absolute bottom-[2px] left-[2px] top-[2px] rounded-[1px] bg-[var(--color-ink)]" style={{ right: "4px" }} />
+                      </div>
+                      <div className="h-2 w-[2px] rounded-r-sm bg-[var(--color-ink)]/40" />
+                    </div>
                   </div>
                 </div>
 
-                {/* Photo grid */}
-                <div className="grid grid-cols-3 gap-[2px] px-2 pb-3">
-                  {PHOTO_CELLS.map((cell, i) => (
-                    <div
-                      key={i}
-                      className={`rounded-[8px] ${cell.bg} ${cell.col === 2 ? "col-span-2 aspect-[2/1]" : "aspect-square"}`}
-                    />
+                {/* Gallery card */}
+                <div className="mx-3 overflow-hidden rounded-[24px] bg-white shadow-[0_4px_20px_rgba(18,24,38,0.09)]">
+                  <div className="px-3.5 pb-2.5 pt-3">
+                    <p className="text-[8px] font-bold uppercase tracking-[0.28em] text-[var(--color-moss)]">Private Gallery</p>
+                    <p className="mt-0.5 text-[13px] font-semibold leading-tight text-[var(--color-ink)]">Mia & Dario&apos;s Wedding</p>
+                    <p className="mt-0.5 text-[9px] text-black/40">14 June · 247 photos</p>
+                    <div className="mt-1.5 flex gap-1.5">
+                      <span className="rounded-full bg-[var(--color-paper)] px-2 py-0.5 text-[8px] font-medium text-black/50">12 guests</span>
+                      <span className="rounded-full bg-[#e6f2ee] px-2 py-0.5 text-[8px] font-medium text-[var(--color-moss)]">PIN protected</span>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-[2px] px-2 pb-3">
+                    {PHOTO_CELLS.map((cell, i) => (
+                      <div
+                        key={i}
+                        className={`rounded-[8px] ${cell.bg} ${cell.col === 2 ? "col-span-2 aspect-[2/1]" : "aspect-square"}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Section tabs */}
+                <div className="mt-3 flex items-center gap-2 px-4">
+                  {["All", "Ceremony", "Reception", "Guests"].map((tab, i) => (
+                    <span
+                      key={tab}
+                      className={`rounded-full px-2.5 py-1 text-[9px] font-semibold ${i === 0 ? "bg-[var(--color-ink)] text-white" : "bg-white/70 text-black/42"}`}
+                    >
+                      {tab}
+                    </span>
                   ))}
                 </div>
-              </div>
-
-              {/* Home indicator */}
-              <div className="mt-3.5 flex justify-center">
-                <span className="h-1 w-12 rounded-full bg-[var(--color-ink)]/55" />
               </div>
             </div>
 
             {/* Floating QR card */}
-            <div className="float-card-delay absolute -right-3 top-20 rounded-[22px] border border-black/8 bg-white p-3.5 shadow-[0_16px_44px_rgba(18,24,38,0.14)]">
+            <div className="float-card-delay absolute -right-3 top-24 z-20 rounded-[22px] border border-black/8 bg-white p-3.5 shadow-[0_16px_44px_rgba(18,24,38,0.14)]">
               <div className="grid grid-cols-8 gap-[2px]">
                 {QR_CELLS.map((filled, i) => (
                   <div
                     key={i}
-                    className={`h-[4.5px] w-[4.5px] rounded-[1px] transition-colors ${filled ? "bg-[var(--color-ink)]" : ""}`}
+                    className={`h-[4.5px] w-[4.5px] rounded-[1px] ${filled ? "bg-[var(--color-ink)]" : ""}`}
                   />
                 ))}
               </div>
