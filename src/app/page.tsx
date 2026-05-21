@@ -47,6 +47,28 @@ function MailIcon() {
   );
 }
 
+const QR_CELLS = [
+  1,1,1,0,1,1,1,1,
+  1,0,1,0,0,0,1,0,
+  1,1,1,0,1,1,1,0,
+  0,0,0,1,0,0,0,1,
+  1,1,0,0,1,1,0,0,
+  0,1,1,1,0,0,1,1,
+  1,1,1,0,1,0,1,0,
+  0,0,0,1,1,1,1,0,
+];
+
+const PHOTO_CELLS = [
+  { col: 1, bg: "bg-[#dcc8b8]" },
+  { col: 1, bg: "bg-[#b8ccc4]" },
+  { col: 1, bg: "bg-[#ccc0b4]" },
+  { col: 2, bg: "bg-[#b4c8c0]" },
+  { col: 1, bg: "bg-[#d8c4b4]" },
+  { col: 1, bg: "bg-[#c4d4cc]" },
+  { col: 1, bg: "bg-[#c8b8ac]" },
+  { col: 2, bg: "bg-[#ccd8d0]" },
+];
+
 export default async function Home({
   searchParams,
 }: {
@@ -66,61 +88,166 @@ export default async function Home({
     <main>
       <SiteNav />
 
-      {/* Hero */}
-      <section className="shell pb-10 pt-16 sm:pb-16 sm:pt-24">
-        <div className="mx-auto max-w-4xl text-center">
-          <div className="inline-flex rounded-full border border-[var(--color-moss)]/20 bg-white/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-moss)]">
-            Private galleries · Guest uploads · QR sharing
+      {/* ─── Hero ─────────────────────────────────────────────────── */}
+      <section className="shell pb-10 pt-14 sm:pb-16 sm:pt-20">
+        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+
+          {/* Left: copy */}
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-moss)]/22 bg-white/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-moss)]">
+              <span className="live-dot inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" />
+              Private galleries · Guest uploads · QR sharing
+            </div>
+            <h1 className="font-display mt-6 text-5xl font-semibold leading-[1.04] tracking-tight text-[var(--color-ink)] sm:text-6xl">
+              Every memory from your event, gathered in one private place.
+            </h1>
+            <p className="mt-6 max-w-xl text-base leading-7 text-black/62 sm:text-lg sm:leading-8">
+              Confetti gives photographers and couples a private gallery with guest upload, QR code sharing, and PIN-protected delivery — no app required for guests.
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <MarketingButtonLink
+                href="/signup?intent=photographer"
+                className="w-full px-8 shadow-[0_12px_32px_rgba(226,121,82,0.30)] sm:w-auto"
+              >
+                Start for free
+              </MarketingButtonLink>
+              <MarketingButtonLink href="/pricing" tone="ghost" className="w-full bg-white/70 px-8 sm:w-auto">
+                View pricing
+              </MarketingButtonLink>
+            </div>
+            <p className="mt-5 text-xs text-black/42">Free to start · No credit card required · Live in 2 minutes</p>
           </div>
-          <h1 className="font-display mt-6 text-5xl font-semibold leading-[1.05] tracking-tight text-[var(--color-ink)] sm:text-6xl lg:text-7xl">
-            Every memory from your event, gathered in one private place.
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-black/62 sm:text-lg sm:leading-8">
-            Confetti gives photographers and couples a private gallery with guest upload, QR code sharing, and PIN-protected delivery — no app required for guests.
-          </p>
-          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <MarketingButtonLink
-              href="/signup?intent=photographer"
-              className="w-full px-8 shadow-[0_12px_32px_rgba(226,121,82,0.30)] sm:w-auto"
-            >
-              Start for free
-            </MarketingButtonLink>
-            <MarketingButtonLink href="/pricing" tone="ghost" className="w-full bg-white/70 px-8 sm:w-auto">
-              View pricing
-            </MarketingButtonLink>
+
+          {/* Right: CSS app mockup */}
+          <div className="relative flex justify-center lg:justify-end">
+            {/* Floating live notification */}
+            <div className="float-card absolute -top-4 left-4 z-10 flex items-center gap-2 rounded-full border border-black/8 bg-white py-2 pl-2.5 pr-4 text-xs font-semibold text-[var(--color-ink)] shadow-[0_8px_28px_rgba(18,24,38,0.12)]">
+              <span className="live-dot inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#dcf3e8] text-[10px]">📸</span>
+              3 new photos just uploaded
+            </div>
+
+            {/* Phone frame */}
+            <div className="relative w-[248px] rounded-[40px] border-[4px] border-[var(--color-ink)]/88 bg-[#f8f3ed] p-3.5 shadow-[0_48px_120px_rgba(18,24,38,0.20),inset_0_1px_0_rgba(255,255,255,0.22)]">
+              {/* Dynamic island */}
+              <div className="mx-auto mb-3.5 h-1.5 w-14 rounded-full bg-[var(--color-ink)]/14" />
+
+              {/* Gallery app UI */}
+              <div className="overflow-hidden rounded-[26px] bg-white shadow-[0_4px_20px_rgba(18,24,38,0.08)]">
+                {/* Header */}
+                <div className="px-3.5 pb-2.5 pt-3">
+                  <p className="text-[8px] font-bold uppercase tracking-[0.26em] text-[var(--color-moss)]">Private Gallery</p>
+                  <p className="mt-0.5 text-[13px] font-semibold leading-tight text-[var(--color-ink)]">Mia & Dario&apos;s Wedding</p>
+                  <p className="mt-0.5 text-[9px] text-black/42">14 June · 247 photos</p>
+                  <div className="mt-1.5 flex gap-1.5">
+                    <span className="rounded-full bg-[var(--color-paper)] px-2 py-0.5 text-[8px] font-medium text-black/52">12 guests</span>
+                    <span className="rounded-full bg-[#e6f2ee] px-2 py-0.5 text-[8px] font-medium text-[var(--color-moss)]">PIN protected</span>
+                  </div>
+                </div>
+
+                {/* Photo grid */}
+                <div className="grid grid-cols-3 gap-[2px] px-2 pb-3">
+                  {PHOTO_CELLS.map((cell, i) => (
+                    <div
+                      key={i}
+                      className={`rounded-[8px] ${cell.bg} ${cell.col === 2 ? "col-span-2 aspect-[2/1]" : "aspect-square"}`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Home indicator */}
+              <div className="mt-3.5 flex justify-center">
+                <span className="h-1 w-12 rounded-full bg-[var(--color-ink)]/55" />
+              </div>
+            </div>
+
+            {/* Floating QR card */}
+            <div className="float-card-delay absolute -right-3 top-20 rounded-[22px] border border-black/8 bg-white p-3.5 shadow-[0_16px_44px_rgba(18,24,38,0.14)]">
+              <div className="grid grid-cols-8 gap-[2px]">
+                {QR_CELLS.map((filled, i) => (
+                  <div
+                    key={i}
+                    className={`h-[4.5px] w-[4.5px] rounded-[1px] transition-colors ${filled ? "bg-[var(--color-ink)]" : ""}`}
+                  />
+                ))}
+              </div>
+              <p className="mt-2 text-center text-[7.5px] font-bold uppercase tracking-[0.18em] text-black/38">
+                Scan to upload
+              </p>
+            </div>
           </div>
         </div>
+      </section>
 
-        {/* Feature strip */}
-        <div className="mt-14 grid gap-4 sm:grid-cols-3">
+      {/* ─── Stats strip ──────────────────────────────────────────── */}
+      <section className="shell pb-8">
+        <div className="grid grid-cols-3 divide-x divide-black/8 rounded-[28px] border border-black/8 bg-white/62 px-4 py-6 backdrop-blur sm:px-8 sm:py-7">
+          {[
+            { value: "2 min", label: "Average event setup" },
+            { value: "0 apps", label: "Required for guests" },
+            { value: "100%", label: "Private by default" },
+          ].map((stat) => (
+            <div key={stat.label} className="text-center">
+              <p className="font-display text-2xl font-semibold text-[var(--color-ink)] sm:text-3xl">{stat.value}</p>
+              <p className="mt-1 text-[10px] leading-4 text-black/50 sm:text-xs">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ─── Feature strip ────────────────────────────────────────── */}
+      <section className="shell pb-12 sm:pb-16">
+        <div className="grid gap-4 sm:grid-cols-3">
           {[
             {
               eyebrow: "Set up once",
               body: "One dashboard for event setup, guest uploads, and final delivery to clients.",
               tone: "bg-[linear-gradient(135deg,rgba(255,253,249,0.98),rgba(246,211,195,0.55))] border-[#edd5c5]",
+              icon: (
+                <svg viewBox="0 0 22 22" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7">
+                  <rect x="3" y="4" width="16" height="15" rx="2.5" />
+                  <path d="M7 2v4M15 2v4M3 10h16" />
+                  <path d="M8 15l2 2 4-4" />
+                </svg>
+              ),
             },
             {
               eyebrow: "Guests upload instantly",
               body: "Share a QR code — guests send photos and videos from their phones without installing anything.",
               tone: "bg-[linear-gradient(135deg,rgba(250,255,252,0.98),rgba(210,234,222,0.62))] border-[#c8e0d4]",
+              icon: (
+                <svg viewBox="0 0 22 22" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7">
+                  <rect x="2.5" y="2.5" width="7" height="7" rx="1.2" />
+                  <rect x="12.5" y="2.5" width="7" height="7" rx="1.2" />
+                  <rect x="2.5" y="12.5" width="7" height="7" rx="1.2" />
+                  <path d="M13 13h2v2h-2zM17 13h2v6h-2M13 17h4" />
+                </svg>
+              ),
             },
             {
               eyebrow: "Delivery stays private",
               body: "Moderate uploads, hide unwanted files, and deliver the final gallery with PIN protection.",
               tone: "bg-[linear-gradient(135deg,rgba(255,254,251,0.98),rgba(242,234,223,0.75))] border-[#ddd4c6]",
+              icon: (
+                <svg viewBox="0 0 22 22" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7">
+                  <path d="M11 2.5l6.5 2.8v4.6c0 4.6-2.9 7.6-6.5 9.2C4.4 17.5 1.5 14.5 1.5 9.9V5.3L11 2.5Z" />
+                  <path d="M8 11.5l2 2L14 9" />
+                </svg>
+              ),
             },
           ].map((item) => (
             <Panel key={item.eyebrow} className={`mesh-card ${item.tone}`}>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">
-                {item.eyebrow}
-              </p>
-              <p className="mt-3 text-sm leading-6 text-black/68">{item.body}</p>
+              <div className="inline-flex h-10 w-10 items-center justify-center rounded-[16px] bg-white/80 text-[var(--color-moss)] shadow-[0_8px_20px_rgba(18,24,38,0.07)]">
+                {item.icon}
+              </div>
+              <p className="mt-4 text-sm font-semibold text-[var(--color-ink)]">{item.eyebrow}</p>
+              <p className="mt-2 text-sm leading-6 text-black/65">{item.body}</p>
             </Panel>
           ))}
         </div>
       </section>
 
-      {/* How it works */}
+      {/* ─── How it works ─────────────────────────────────────────── */}
       <section className="shell py-12 sm:py-16">
         <div className="rounded-[36px] border border-[#22334c]/65 bg-[radial-gradient(ellipse_at_top_left,rgba(226,121,82,0.14),transparent_38%),radial-gradient(ellipse_at_bottom_right,rgba(56,88,77,0.18),transparent_40%),linear-gradient(160deg,#1e2d45,#172033)] px-6 py-10 sm:px-10 sm:py-14">
           <p className="text-center text-xs font-semibold uppercase tracking-[0.26em] text-[#a8c4b8]">
@@ -131,18 +258,74 @@ export default async function Home({
           </h2>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { n: "01", title: "Create your event", body: "Set a title, expiry date, and optional upload PIN. Takes under two minutes." },
-              { n: "02", title: "Share the QR code", body: "Print it, send it, or put it on a table. Guests tap and upload — no account needed." },
-              { n: "03", title: "Review and curate", body: "Hide, restore, or delete uploads from your dashboard. You control what stays." },
-              { n: "04", title: "Deliver the gallery", body: "Share the PIN-protected gallery link. Clients browse and download what they love." },
-            ].map((step) => (
+              {
+                n: "01",
+                title: "Create your event",
+                body: "Set a title, expiry date, and optional upload PIN. Takes under two minutes.",
+                icon: (
+                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.6">
+                    <rect x="3" y="4.5" width="18" height="16" rx="2.5" />
+                    <path d="M8 2.5v4M16 2.5v4M3 11h18" />
+                    <path d="M12 15v4M10 17h4" />
+                  </svg>
+                ),
+              },
+              {
+                n: "02",
+                title: "Share the QR code",
+                body: "Print it, send it, or put it on a table. Guests tap and upload — no account needed.",
+                icon: (
+                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.6">
+                    <rect x="3" y="3" width="8" height="8" rx="1.5" />
+                    <rect x="13" y="3" width="8" height="8" rx="1.5" />
+                    <rect x="3" y="13" width="8" height="8" rx="1.5" />
+                    <path d="M14 14h2v2h-2zM18 14h2v6h-2M14 18h4" />
+                  </svg>
+                ),
+              },
+              {
+                n: "03",
+                title: "Review and curate",
+                body: "Hide, restore, or delete uploads from your dashboard. You control what stays.",
+                icon: (
+                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.6">
+                    <rect x="3" y="5" width="18" height="14" rx="2" />
+                    <path d="M7 14.5l3-3.5 3 3 3-4.5" />
+                    <circle cx="8" cy="9" r="1.3" fill="currentColor" stroke="none" />
+                  </svg>
+                ),
+              },
+              {
+                n: "04",
+                title: "Deliver the gallery",
+                body: "Share the PIN-protected gallery link. Clients browse and download what they love.",
+                icon: (
+                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.6">
+                    <path d="M12 3l7 3v5c0 5-3.2 8.3-7 10-3.8-1.7-7-5-7-10V6l7-3z" />
+                    <path d="M9.5 12.2l1.8 1.8 3.7-4" />
+                  </svg>
+                ),
+              },
+            ].map((step, i) => (
               <div
                 key={step.n}
                 className="rounded-[24px] border border-white/10 bg-white/7 p-6"
               >
-                <p className="font-display text-4xl font-semibold text-white/20">{step.n}</p>
-                <p className="mt-4 text-base font-semibold text-white/90">{step.title}</p>
-                <p className="mt-2 text-sm leading-6 text-white/55">{step.body}</p>
+                <div className="flex items-start justify-between">
+                  <div className="inline-flex h-11 w-11 items-center justify-center rounded-[18px] bg-white/10 text-white/80">
+                    {step.icon}
+                  </div>
+                  <span className="font-display text-3xl font-semibold text-white/14">{step.n}</span>
+                </div>
+                <p className="mt-4 text-sm font-semibold text-white/90">{step.title}</p>
+                <p className="mt-2 text-sm leading-6 text-white/52">{step.body}</p>
+                {i < 3 ? (
+                  <div className="mt-4 hidden items-center gap-1 lg:flex">
+                    {[0,1,2].map((d) => (
+                      <span key={d} className="h-[2px] flex-1 rounded-full bg-white/12" />
+                    ))}
+                  </div>
+                ) : null}
               </div>
             ))}
           </div>
@@ -153,7 +336,7 @@ export default async function Home({
 
       <MarketingTestimonials />
 
-      {/* For photographers / For couples */}
+      {/* ─── For photographers / For couples ──────────────────────── */}
       <section className="shell py-12 sm:py-16">
         <div className="rounded-[34px] border border-[#23344d]/65 bg-[radial-gradient(circle_at_top_left,rgba(226,121,82,0.12),transparent_28%),radial-gradient(circle_at_top_right,rgba(104,146,128,0.14),transparent_26%),linear-gradient(180deg,#223149,#172033)] p-3 shadow-[0_30px_80px_rgba(18,24,38,0.14)] sm:p-4">
           <div className="grid gap-4 lg:grid-cols-2">
@@ -166,10 +349,7 @@ export default async function Home({
               </h2>
               <div className="mt-6 space-y-3">
                 {photographerBenefits.map((item) => (
-                  <div
-                    key={item.title}
-                    className="rounded-[20px] border border-[#cdddd4] bg-white/85 p-4"
-                  >
+                  <div key={item.title} className="rounded-[20px] border border-[#cdddd4] bg-white/85 p-4">
                     <p className="text-sm font-semibold text-[var(--color-ink)]">{item.title}</p>
                     <p className="mt-1.5 text-sm leading-6 text-black/65">{item.body}</p>
                   </div>
@@ -194,10 +374,7 @@ export default async function Home({
               </h2>
               <div className="mt-6 space-y-3">
                 {coupleBenefits.map((item) => (
-                  <div
-                    key={item.title}
-                    className="rounded-[20px] border border-[#efd8c9] bg-white/85 p-4"
-                  >
+                  <div key={item.title} className="rounded-[20px] border border-[#efd8c9] bg-white/85 p-4">
                     <p className="text-sm font-semibold text-[var(--color-ink)]">{item.title}</p>
                     <p className="mt-1.5 text-sm leading-6 text-black/65">{item.body}</p>
                   </div>
@@ -216,7 +393,7 @@ export default async function Home({
         </div>
       </section>
 
-      {/* Pricing */}
+      {/* ─── Pricing ──────────────────────────────────────────────── */}
       <section className="shell py-12 sm:py-16">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
@@ -225,10 +402,7 @@ export default async function Home({
               A plan for every kind of event.
             </h2>
           </div>
-          <Link
-            href="/pricing"
-            className="text-sm font-semibold text-[var(--color-moss)] underline-offset-4 hover:underline"
-          >
+          <Link href="/pricing" className="text-sm font-semibold text-[var(--color-moss)] underline-offset-4 hover:underline">
             Full pricing details →
           </Link>
         </div>
@@ -237,7 +411,7 @@ export default async function Home({
         </div>
       </section>
 
-      {/* Photographer spotlight */}
+      {/* ─── Photographer spotlight ───────────────────────────────── */}
       {publicPhotographers.length > 0 ? (
         <section className="shell py-12 sm:py-16">
           <div className="mb-8">
@@ -298,7 +472,7 @@ export default async function Home({
         </section>
       ) : null}
 
-      {/* FAQ */}
+      {/* ─── FAQ ──────────────────────────────────────────────────── */}
       <section className="shell py-12 sm:py-16">
         <Panel className="mesh-card border-[#d9cfc1] bg-[linear-gradient(160deg,#fffdfb,rgba(242,234,223,0.85))]">
           <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr]">
@@ -340,30 +514,40 @@ export default async function Home({
         </Panel>
       </section>
 
-      {/* Footer CTA */}
+      {/* ─── Footer CTA ───────────────────────────────────────────── */}
       <section className="shell pb-20 pt-4">
-        <div className="rounded-[32px] bg-[radial-gradient(ellipse_at_top,rgba(226,121,82,0.15),transparent_50%),linear-gradient(180deg,rgba(255,252,248,0.96),rgba(242,234,223,0.88))] px-8 py-14 text-center border border-[#e0d4c4]">
-          <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[var(--color-moss)]">
-            Ready when you are
-          </p>
-          <h2 className="font-display mt-4 text-3xl font-semibold text-[var(--color-ink)] sm:text-4xl">
-            Your next event deserves a better home.
-          </h2>
-          <p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-black/60">
-            Free to start. No credit card required. Your first event is live in under two minutes.
-          </p>
-          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <MarketingButtonLink href="/signup?intent=photographer" className="w-full px-8 shadow-[0_12px_32px_rgba(226,121,82,0.25)] sm:w-auto">
-              Create your first event
-            </MarketingButtonLink>
-            <MarketingButtonLink href="/signup?intent=couple" tone="ghost" className="w-full bg-white/70 px-8 sm:w-auto">
-              I&apos;m hosting an event
-            </MarketingButtonLink>
+        <div className="relative overflow-hidden rounded-[36px] border border-[var(--color-accent)]/18 bg-[radial-gradient(ellipse_at_top_left,rgba(226,121,82,0.22),transparent_44%),radial-gradient(ellipse_at_bottom_right,rgba(56,88,77,0.12),transparent_40%),linear-gradient(160deg,rgba(255,252,248,0.98),rgba(242,232,220,0.90))] px-8 py-16 text-center shadow-[0_30px_80px_rgba(18,24,38,0.08)]">
+          {/* Decorative blobs */}
+          <div className="pointer-events-none absolute -left-16 -top-16 h-64 w-64 rounded-full bg-[var(--color-accent)]/8 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-12 -right-12 h-56 w-56 rounded-full bg-[var(--color-moss)]/8 blur-3xl" />
+
+          <div className="relative">
+            <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-accent)]/22 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-accent)]">
+              <span className="live-dot inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" />
+              Ready when you are
+            </span>
+            <h2 className="font-display mx-auto mt-5 max-w-2xl text-4xl font-semibold leading-[1.06] tracking-tight text-[var(--color-ink)] sm:text-5xl">
+              Your next event deserves a better home.
+            </h2>
+            <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-black/58">
+              Free to start. No credit card required. Your first event is live in under two minutes.
+            </p>
+            <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+              <MarketingButtonLink
+                href="/signup?intent=photographer"
+                className="w-full px-10 py-4 text-base shadow-[0_16px_40px_rgba(226,121,82,0.30)] sm:w-auto"
+              >
+                Create your first event
+              </MarketingButtonLink>
+              <MarketingButtonLink href="/signup?intent=couple" tone="ghost" className="w-full bg-white/75 px-10 py-4 text-base sm:w-auto">
+                I&apos;m hosting an event
+              </MarketingButtonLink>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
+      {/* ─── Footer ───────────────────────────────────────────────── */}
       <footer className="border-t border-black/8 bg-[var(--color-paper)]/40">
         <div className="shell flex flex-col gap-6 py-10 sm:flex-row sm:items-center sm:justify-between">
           <div>
