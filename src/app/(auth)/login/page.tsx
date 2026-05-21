@@ -12,7 +12,7 @@ export default function LoginPage() {
       <section className="shell grid gap-8 py-12 lg:grid-cols-[0.85fr_1.15fr]">
         <div className="order-2 space-y-4 lg:order-1">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">Secure studio access</p>
-          <h1 className="text-3xl font-semibold leading-tight text-[var(--color-ink)] sm:text-4xl lg:text-5xl">
+          <h1 className="font-display text-3xl font-semibold leading-tight text-[var(--color-ink)] sm:text-4xl lg:text-5xl">
             Step back into your event control room.
           </h1>
           <p className="max-w-xl text-base leading-7 text-black/65 lg:text-lg lg:leading-8">
@@ -42,7 +42,7 @@ export default function LoginPage() {
         <div className="order-1 lg:order-2">
           <div className="mb-4 space-y-2 lg:hidden">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">Secure studio access</p>
-            <h1 className="text-3xl font-semibold leading-tight text-[var(--color-ink)]">Login to your account</h1>
+            <h1 className="font-display text-3xl font-semibold leading-tight text-[var(--color-ink)]">Login to your account</h1>
             <p className="text-sm leading-6 text-black/62">Open your dashboard and keep every event in one place.</p>
           </div>
           <AuthForm action={loginAction} mode="login" />

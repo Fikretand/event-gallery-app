@@ -18,7 +18,7 @@ export function OneTimePlanCard({ compact = false }: { compact?: boolean }) {
     >
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-moss)]">One-time plan</p>
-        <p className="mt-4 text-3xl font-semibold tracking-tight text-[var(--color-ink)]">{couplePlan.name}</p>
+        <p className="mt-4 font-display text-3xl font-semibold tracking-tight text-[var(--color-ink)]">{couplePlan.name}</p>
         <p className="mt-2 max-w-xs text-sm leading-6 text-black/62">{couplePlan.summary}</p>
       </div>
 
@@ -98,7 +98,7 @@ export function PricingShowcase() {
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-3xl font-semibold tracking-tight text-[var(--color-ink)]">{plan.name}</p>
+                  <p className="font-display text-3xl font-semibold tracking-tight text-[var(--color-ink)]">{plan.name}</p>
                   <p className="mt-2 max-w-xs text-sm leading-6 text-black/62">{plan.summary}</p>
                 </div>
                 {plan.featured ? (

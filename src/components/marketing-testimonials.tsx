@@ -13,7 +13,7 @@ export function MarketingTestimonials() {
     <section className="shell py-8 sm:py-10">
       <div className="flex flex-col gap-4 text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-moss)]">Social proof</p>
-        <h2 className="text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">
+        <h2 className="font-display text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">
           Built to feel premium on both sides of the event.
         </h2>
       </div>

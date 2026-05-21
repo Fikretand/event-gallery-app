@@ -22,7 +22,7 @@ export default async function SignupVerifyPage({
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">
             Check your email
           </p>
-          <h1 className="mt-4 text-4xl font-semibold leading-tight text-[var(--color-ink)] sm:text-5xl">
+          <h1 className="mt-4 font-display text-4xl font-semibold leading-tight text-[var(--color-ink)] sm:text-5xl">
             {isCouple ? "Confirm your email to create the wedding event." : "Confirm your email to open your workspace."}
           </h1>
           <p className="mt-4 max-w-xl text-base leading-7 text-black/68">

@@ -24,7 +24,7 @@ export default async function GalleryPage({ params }: { params: Promise<{ slug: 
       <main className="py-10">
         <section className="shell">
           <Panel className="bg-white/94">
-            <h1 className="text-3xl font-semibold text-[var(--color-ink)]">{event.title}</h1>
+            <h1 className="font-display text-3xl font-semibold text-[var(--color-ink)]">{event.title}</h1>
             <p className="mt-3 text-sm leading-6 text-[#8a1c1c]">
               This gallery is archived in cold storage and becomes available again after the photographer restores it.
             </p>
@@ -39,7 +39,7 @@ export default async function GalleryPage({ params }: { params: Promise<{ slug: 
       <main className="py-10">
         <section className="shell">
           <Panel className="bg-white/94">
-            <h1 className="text-3xl font-semibold text-[var(--color-ink)]">{event.title}</h1>
+            <h1 className="font-display text-3xl font-semibold text-[var(--color-ink)]">{event.title}</h1>
             <p className="mt-3 text-sm leading-6 text-[#8a1c1c]">This gallery has expired and is no longer available.</p>
           </Panel>
         </section>
@@ -71,7 +71,7 @@ export default async function GalleryPage({ params }: { params: Promise<{ slug: 
 
               <div className="flex flex-col justify-center">
                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">Private gallery</p>
-                <h1 className="mt-3 text-3xl font-semibold text-[var(--color-ink)]">{event.title}</h1>
+                <h1 className="mt-3 font-display text-3xl font-semibold text-[var(--color-ink)]">{event.title}</h1>
                 <p className="mt-3 text-sm leading-6 text-black/62">
                   Enter the gallery PIN to view the client-ready delivery set and any approved guest uploads.
                 </p>
@@ -106,7 +106,7 @@ export default async function GalleryPage({ params }: { params: Promise<{ slug: 
           <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
             <div className="space-y-4">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">Client gallery</p>
-              <h1 className="text-4xl font-semibold text-[var(--color-ink)]">{event.title}</h1>
+              <h1 className="font-display text-4xl font-semibold text-[var(--color-ink)]">{event.title}</h1>
               <p className="max-w-3xl text-sm leading-6 text-black/62">
                 Browse the approved pro gallery and any guest moments the photographer has chosen to keep visible.
               </p>

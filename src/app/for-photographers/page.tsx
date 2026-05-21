@@ -75,7 +75,7 @@ export default function ForPhotographersPage() {
             <p className="inline-flex rounded-full border border-[var(--color-moss)]/20 bg-white/65 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-moss)]">
               For photographers
             </p>
-            <h1 className="max-w-4xl text-4xl font-semibold leading-[1.02] tracking-tight text-[var(--color-ink)] sm:text-6xl">
+            <h1 className="font-display max-w-4xl text-4xl font-semibold leading-[1.06] tracking-tight text-[var(--color-ink)] sm:text-6xl">
               Replace scattered delivery tools with one private event workflow.
             </h1>
             <p className="max-w-3xl text-base leading-7 text-black/70 sm:text-lg sm:leading-8">
@@ -133,7 +133,7 @@ export default function ForPhotographersPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-moss)]">
                 Why photographers switch
               </p>
-              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">
+              <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">
                 Better delivery is easier to sell than another storage tool.
               </h2>
             </div>
@@ -156,7 +156,7 @@ export default function ForPhotographersPage() {
           <div className="grid gap-8 lg:grid-cols-[0.82fr_1.18fr]">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-moss)]">Workflow</p>
-              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">
+              <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">
                 A better event-day system from capture to delivery
               </h2>
               <p className="mt-4 text-sm leading-7 text-black/68">
@@ -190,7 +190,7 @@ export default function ForPhotographersPage() {
       <section id="pricing" className="shell py-10 scroll-mt-24">
         <div className="space-y-3 text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-moss)]">Pricing</p>
-          <h2 className="text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">
+          <h2 className="font-display text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">
             Choose the plan that matches your active event load.
           </h2>
           <p className="mx-auto max-w-3xl text-sm leading-6 text-black/68">

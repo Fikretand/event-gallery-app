@@ -23,7 +23,7 @@ export default async function SignupPage({
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">
             {isCouple ? "Create your one-time event" : "Launch the MVP"}
           </p>
-          <h1 className="text-3xl font-semibold leading-tight text-[var(--color-ink)] sm:text-4xl lg:text-5xl">
+          <h1 className="font-display text-3xl font-semibold leading-tight text-[var(--color-ink)] sm:text-4xl lg:text-5xl">
             {isCouple ? "Create one private wedding event for guest uploads and delivery." : "Create your first private event gallery workspace."}
           </h1>
           <p className="max-w-xl text-base leading-7 text-black/65 lg:text-lg lg:leading-8">
@@ -59,7 +59,7 @@ export default async function SignupPage({
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">
               {isCouple ? "Create your one-time event" : "Launch the MVP"}
             </p>
-            <h1 className="text-3xl font-semibold leading-tight text-[var(--color-ink)]">
+            <h1 className="font-display text-3xl font-semibold leading-tight text-[var(--color-ink)]">
               {isCouple ? "Create your wedding event account" : "Create your photographer account"}
             </h1>
             <p className="text-sm leading-6 text-black/62">

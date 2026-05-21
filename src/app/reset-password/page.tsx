@@ -12,7 +12,7 @@ export default function ResetPasswordPage() {
       <section className="shell grid gap-8 py-12 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="space-y-4">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">Recovery session</p>
-          <h1 className="text-5xl font-semibold leading-tight text-[var(--color-ink)]">Set your new account password.</h1>
+          <h1 className="font-display text-5xl font-semibold leading-tight text-[var(--color-ink)]">Set your new account password.</h1>
           <p className="max-w-xl text-lg leading-8 text-black/65">
             Use a strong password you have not used before. Once saved, you can sign in normally with the new one.
           </p>

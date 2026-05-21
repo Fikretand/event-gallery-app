@@ -27,7 +27,7 @@ export default async function UploadPage({ params }: { params: Promise<{ slug: s
         <Panel className="mesh-card bg-white/94 p-5 md:p-7">
           <div className="space-y-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--color-moss)]">Guest upload</p>
-            <h1 className="text-3xl font-semibold leading-tight text-[var(--color-ink)] md:text-5xl">{event.title}</h1>
+            <h1 className="font-display text-3xl font-semibold leading-tight text-[var(--color-ink)] md:text-5xl">{event.title}</h1>
             <p className="max-w-2xl text-sm leading-6 text-black/62 md:text-base md:leading-7">{introCopy}</p>
           </div>
         </Panel>

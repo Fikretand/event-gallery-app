@@ -12,7 +12,7 @@ export default function ForgotPasswordPage() {
       <section className="shell grid gap-8 py-12 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="space-y-4">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">Recover access</p>
-          <h1 className="text-5xl font-semibold leading-tight text-[var(--color-ink)]">Send a reset link to your email.</h1>
+          <h1 className="font-display text-5xl font-semibold leading-tight text-[var(--color-ink)]">Send a reset link to your email.</h1>
           <p className="max-w-xl text-lg leading-8 text-black/65">
             We will send you a secure recovery link so you can set a new password and get back into your dashboard.
           </p>

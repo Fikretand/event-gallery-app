@@ -11,7 +11,7 @@ export default function PricingPage() {
       <section className="shell py-10 sm:py-12">
         <div className="mx-auto max-w-4xl space-y-6 text-center">
           <p className="text-sm text-black/48">Trusted by photographers who need private delivery and guest uploads in one place.</p>
-          <h1 className="text-4xl font-semibold leading-[1.04] tracking-tight text-[var(--color-ink)] sm:text-6xl">
+          <h1 className="font-display text-4xl font-semibold leading-[1.04] tracking-tight text-[var(--color-ink)] sm:text-6xl">
             Private galleries that save more stress than they cost.
           </h1>
           <p className="mx-auto max-w-3xl text-base leading-7 text-black/68 sm:text-lg sm:leading-8">

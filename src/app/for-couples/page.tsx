@@ -42,7 +42,7 @@ export default function ForCouplesPage() {
             <p className="inline-flex rounded-full border border-[var(--color-moss)]/20 bg-white/65 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-moss)]">
               For couples
             </p>
-            <h1 className="max-w-3xl text-4xl font-semibold leading-[1.02] tracking-tight text-[var(--color-ink)] sm:text-6xl">
+            <h1 className="font-display max-w-3xl text-4xl font-semibold leading-[1.06] tracking-tight text-[var(--color-ink)] sm:text-6xl">
               Gather every wedding memory with one QR code and one private gallery.
             </h1>
             <p className="max-w-2xl text-base leading-7 text-black/70 sm:text-lg sm:leading-8">
@@ -86,7 +86,7 @@ export default function ForCouplesPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-moss)]">
                 What couples get in one event
               </p>
-              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">
+              <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">
                 One simple setup, one private place, and one less thing to worry about.
               </h2>
             </div>
