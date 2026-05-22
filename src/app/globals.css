@@ -102,3 +102,72 @@ select {
   animation: float-up 4s ease-in-out infinite;
   animation-delay: 1.2s;
 }
+
+/* ── Upload page ─────────────────────────────────────────── */
+
+@keyframes upload-float {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50%       { transform: translateY(-10px) rotate(3deg); }
+}
+.upload-icon-float {
+  animation: upload-float 3.5s ease-in-out infinite;
+}
+
+@keyframes shimmer-slide {
+  0%   { transform: translateX(-150%); }
+  100% { transform: translateX(250%); }
+}
+.shimmer-fill {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%);
+  animation: shimmer-slide 1.6s ease-in-out infinite;
+}
+
+@keyframes check-pop {
+  0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
+  65%  { transform: scale(1.2) rotate(5deg);  opacity: 1; }
+  100% { transform: scale(1)   rotate(0deg);  opacity: 1; }
+}
+.check-pop {
+  animation: check-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes confetti-fall {
+  0%   { transform: translateY(0)     rotate(0deg)   scale(1);   opacity: 1; }
+  100% { transform: translateY(110px) rotate(620deg) scale(0.4); opacity: 0; }
+}
+.confetti-particle {
+  position: absolute;
+  border-radius: 2px;
+  animation: confetti-fall 1.4s ease-in forwards;
+}
+
+@keyframes fade-up-in {
+  0%   { transform: translateY(14px); opacity: 0; }
+  100% { transform: translateY(0);    opacity: 1; }
+}
+.fade-up-in {
+  animation: fade-up-in 0.45s ease-out forwards;
+}
+.fade-up-in-delay {
+  opacity: 0;
+  animation: fade-up-in 0.45s ease-out 0.12s forwards;
+}
+.fade-up-in-delay-2 {
+  opacity: 0;
+  animation: fade-up-in 0.45s ease-out 0.26s forwards;
+}
+
+@keyframes success-ring {
+  0%   { box-shadow: 0 0 0 0   rgba(56, 88, 77, 0.45); }
+  100% { box-shadow: 0 0 0 24px rgba(56, 88, 77, 0);   }
+}
+.success-ring {
+  animation: success-ring 0.9s ease-out 0.3s 1;
+}

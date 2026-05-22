@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 
-import { Panel } from "@/components/ui/panel";
 import { UploadDropzone } from "@/components/upload-dropzone";
 import { formatDate } from "@/lib/utils";
 import { getCoupleUploadEndsAt, getEventAccountType, getPublicEventBySlug, isEventExpired, isGuestUploadWindowClosed } from "@/lib/events";
@@ -19,69 +18,88 @@ export default async function UploadPage({ params }: { params: Promise<{ slug: s
   const accountType = await getEventAccountType(event.owner_user_id);
   const uploadWindowClosed = isGuestUploadWindowClosed(event, accountType);
   const uploadWindowEndsAt = accountType === "couple" ? formatDate(getCoupleUploadEndsAt(event)) : null;
-  const introCopy = "Share your favorite moments from the day in just a few taps.";
+
+  const isClosed = expired || archived || uploadWindowClosed || settings?.allow_guest_upload === false;
 
   return (
-    <main className="pb-16 pt-6 md:pt-8">
-      <section className="shell mx-auto max-w-5xl space-y-5">
-        <Panel className="mesh-card bg-white/94 p-5 md:p-7">
-          <div className="space-y-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--color-moss)]">Guest upload</p>
-            <h1 className="font-display text-3xl font-semibold leading-tight text-[var(--color-ink)] md:text-5xl">{event.title}</h1>
-            <p className="max-w-2xl text-sm leading-6 text-black/62 md:text-base md:leading-7">{introCopy}</p>
-          </div>
-        </Panel>
+    <main className="min-h-dvh pb-24">
+      {/* Brand header */}
+      <div className="py-7 text-center">
+        <span className="font-display text-[1.1rem] font-semibold tracking-tight text-[var(--color-ink)]">
+          ✦ Confetti
+        </span>
+      </div>
 
-        <Panel className="bg-white/96 p-4 md:p-6">
-          {expired ? (
-            <div className="rounded-[24px] bg-[#fff0eb] p-6 text-sm leading-6 text-[#8a1c1c]">
-              This event has expired, so uploads are currently closed.
-            </div>
-          ) : archived ? (
-            <div className="rounded-[24px] bg-[#fff0eb] p-6 text-sm leading-6 text-[#8a1c1c]">
-              This event is archived in cold storage, so uploads are currently closed.
-            </div>
-          ) : uploadWindowClosed ? (
-            <div className="rounded-[24px] bg-[#fff0eb] p-6 text-sm leading-6 text-[#8a1c1c]">
-              Guest uploads are closed for this event. The upload window for this plan has ended.
-            </div>
-          ) : settings?.allow_guest_upload === false ? (
-            <div className="rounded-[24px] bg-[#fff0eb] p-6 text-sm leading-6 text-[#8a1c1c]">
-              Guest uploads are disabled for this event.
-            </div>
-          ) : (
-            <UploadDropzone
-              endpoint={`/api/events/${event.slug}/guest-upload-session`}
-              target="guest"
-              allowVideo={settings?.allow_guest_video ?? false}
-              pinRequired={settings?.require_pin_for_upload ?? false}
-            />
-          )}
-        </Panel>
+      {/* Event info */}
+      <div className="px-5 pb-8 text-center">
+        <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-accent)]/25 bg-[var(--color-accent-soft)]/50 px-4 py-1.5">
+          <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" />
+          <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-accent)]">
+            Guest Upload
+          </span>
+        </span>
+        <h1 className="font-display mt-4 text-3xl font-semibold leading-tight text-[var(--color-ink)] sm:text-4xl">
+          {event.title}
+        </h1>
+        {event.event_date && (
+          <p className="mt-2 text-sm text-black/45">{formatDate(event.event_date)}</p>
+        )}
+      </div>
 
-        <Panel className="bg-white/94 p-4 md:p-6">
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-[22px] border border-black/8 bg-[var(--color-paper)]/55 px-4 py-3 text-sm text-black/68">
-              <p className="font-semibold text-[var(--color-ink)]">Accepted files</p>
-              <p className="mt-1">JPG, PNG, HEIC{settings?.allow_guest_video ? ", MP4, MOV" : ""}</p>
+      {/* Main upload zone */}
+      <div className="mx-auto max-w-md px-4">
+        {isClosed ? (
+          <div className="rounded-[28px] bg-white/90 p-8 text-center shadow-[0_8px_40px_rgba(18,24,38,0.06)]">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#fff0eb] text-2xl">
+              🔒
             </div>
-            <div className="rounded-[22px] border border-black/8 bg-[var(--color-paper)]/55 px-4 py-3 text-sm text-black/68">
-              <p className="font-semibold text-[var(--color-ink)]">Max file size</p>
-              <p className="mt-1">{settings?.max_guest_upload_mb ?? 250} MB per file</p>
-            </div>
-            <div className="rounded-[22px] border border-black/8 bg-[var(--color-paper)]/55 px-4 py-3 text-sm text-black/68">
-              <p className="font-semibold text-[var(--color-ink)]">Access</p>
-              <p className="mt-1">{settings?.require_pin_for_upload ? "Host PIN required" : "No guest account needed"}</p>
-            </div>
-            {uploadWindowEndsAt ? (
-              <div className="rounded-[22px] border border-black/8 bg-[var(--color-paper)]/55 px-4 py-3 text-sm text-black/68">
-                <p className="font-semibold text-[var(--color-ink)]">Uploads open until</p>
-                <p className="mt-1">{uploadWindowEndsAt}</p>
-              </div>
-            ) : null}
+            <h2 className="font-display text-xl font-semibold text-[var(--color-ink)]">Uploads are closed</h2>
+            <p className="mt-2 text-sm leading-6 text-black/55">
+              {expired
+                ? "This event has expired and is no longer accepting new uploads."
+                : archived
+                  ? "This event is archived and no longer accepting uploads."
+                  : uploadWindowClosed
+                    ? `The upload window for this event has ended${uploadWindowEndsAt ? ` (closed ${uploadWindowEndsAt})` : ""}.`
+                    : "The event organizer has disabled guest uploads for this event."}
+            </p>
           </div>
-        </Panel>
-      </section>
+        ) : (
+          <UploadDropzone
+            endpoint={`/api/events/${event.slug}/guest-upload-session`}
+            target="guest"
+            allowVideo={settings?.allow_guest_video ?? false}
+            pinRequired={settings?.require_pin_for_upload ?? false}
+          />
+        )}
+      </div>
+
+      {/* Info chips */}
+      {!isClosed && (
+        <div className="mx-auto mt-8 max-w-md px-4">
+          <div className="flex flex-wrap justify-center gap-2">
+            <span className="rounded-full border border-black/8 bg-white/70 px-3 py-1.5 text-xs text-black/42">
+              📎 JPG, PNG, HEIC{settings?.allow_guest_video ? ", MP4, MOV" : ""}
+            </span>
+            <span className="rounded-full border border-black/8 bg-white/70 px-3 py-1.5 text-xs text-black/42">
+              📦 Max {settings?.max_guest_upload_mb ?? 250} MB per file
+            </span>
+            <span className="rounded-full border border-black/8 bg-white/70 px-3 py-1.5 text-xs text-black/42">
+              {settings?.require_pin_for_upload ? "🔑 PIN required" : "👍 No account needed"}
+            </span>
+            {uploadWindowEndsAt && (
+              <span className="rounded-full border border-black/8 bg-white/70 px-3 py-1.5 text-xs text-black/42">
+                ⏳ Open until {uploadWindowEndsAt}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Privacy note */}
+      <p className="mt-10 px-5 text-center text-xs text-black/28">
+        Your photos are stored privately and only visible to the event host.
+      </p>
     </main>
   );
 }
