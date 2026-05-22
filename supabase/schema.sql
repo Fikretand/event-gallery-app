@@ -176,6 +176,8 @@ alter table public.users add column if not exists show_on_homepage boolean not n
 alter table public.users add column if not exists public_profile_consent boolean not null default false;
 alter table public.users add column if not exists public_email_on_homepage boolean not null default false;
 alter table public.media_files add column if not exists section_id uuid references public.gallery_sections (id) on delete set null;
+alter table public.media_files add column if not exists upload_session_id uuid references public.guest_upload_sessions (id) on delete set null;
+create index if not exists idx_media_upload_session on public.media_files (upload_session_id);
 create table if not exists public.event_archives (
   event_id uuid primary key references public.events (id) on delete cascade,
   status text not null check (status in ('archiving', 'archived', 'restore_pending', 'restoring', 'failed', 'restored')),

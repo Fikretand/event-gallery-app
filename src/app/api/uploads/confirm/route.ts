@@ -20,6 +20,7 @@ export async function POST(request: Request) {
       mimeType: String(payload.mimeType),
       sizeBytes: Number(payload.sizeBytes),
       sourceType: payload.sourceType,
+      uploadSessionId: payload.uploadSessionId ? String(payload.uploadSessionId) : null,
     });
 
     await processMediaById(media.id);

@@ -349,29 +349,30 @@ export function MediaGrid({
 
   return (
     <div className="space-y-5">
-      {visibleItems.length > 0 ? (
-        <div className="sticky top-3 z-20 -mx-1 sm:top-4">
-          <div className="rounded-[26px] border border-black/10 bg-white/88 px-3 py-3 shadow-[0_18px_36px_rgba(18,24,38,0.08)] backdrop-blur md:px-4">
-            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-              <div className="-mx-1 overflow-x-auto px-1 pb-1">
-                <div className="flex min-w-max gap-2">
-                  {filterOptions.map((value) => (
-                    <button
-                      key={value}
-                      onClick={() => setFilter(value)}
-                      className={cn(
-                        "rounded-full px-4 py-2 text-sm font-semibold capitalize transition whitespace-nowrap",
-                        filter === value
-                          ? "bg-[var(--color-ink)] text-white"
-                          : "border border-black/10 bg-white text-[var(--color-ink)] hover:bg-[var(--color-paper)]",
-                      )}
-                    >
-                      {value}
-                    </button>
-                  ))}
-                </div>
+      {/* Filter bar — always visible so you can switch tabs even when the active filter returns 0 results */}
+      <div className="sticky top-3 z-20 -mx-1 sm:top-4">
+        <div className="rounded-[26px] border border-black/10 bg-white/88 px-3 py-3 shadow-[0_18px_36px_rgba(18,24,38,0.08)] backdrop-blur md:px-4">
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+            <div className="-mx-1 overflow-x-auto px-1 pb-1">
+              <div className="flex min-w-max gap-2">
+                {filterOptions.map((value) => (
+                  <button
+                    key={value}
+                    onClick={() => setFilter(value)}
+                    className={cn(
+                      "rounded-full px-4 py-2 text-sm font-semibold capitalize transition whitespace-nowrap",
+                      filter === value
+                        ? "bg-[var(--color-ink)] text-white"
+                        : "border border-black/10 bg-white text-[var(--color-ink)] hover:bg-[var(--color-paper)]",
+                    )}
+                  >
+                    {value}
+                  </button>
+                ))}
               </div>
+            </div>
 
+            {visibleItems.length > 0 ? (
               <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center xl:justify-end">
                 {filter === "deleted" ? (
                   <div className="rounded-full border border-dashed border-black/10 bg-[var(--color-paper)]/55 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-black/55">
@@ -400,10 +401,10 @@ export function MediaGrid({
                       : "Download selected"}
                 </Button>
               </div>
-            </div>
+            ) : null}
           </div>
         </div>
-      ) : null}
+      </div>
 
       {error ? <div className="rounded-2xl bg-[#fff0eb] px-4 py-3 text-sm text-[#8a1c1c]">{error}</div> : null}
 
@@ -447,7 +448,11 @@ export function MediaGrid({
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold">{activeItem.original_filename}</p>
                 <p className="text-xs uppercase tracking-[0.18em] text-white/55">
-                  {activeItem.deleted_at ? "deleted" : activeItem.source_type} · {activeIndex + 1} / {visibleItems.length}
+                  {activeItem.deleted_at ? "deleted" : activeItem.source_type}
+                  {ownerMode && !activeItem.deleted_at && activeItem.source_type === "guest" && (activeItem.guest_name ?? activeItem.guest_email)
+                    ? ` · by ${activeItem.guest_name ?? activeItem.guest_email}`
+                    : ""}
+                  {" "}· {activeIndex + 1} / {visibleItems.length}
                 </p>
               </div>
 
@@ -566,6 +571,11 @@ export function MediaGrid({
             <p className="text-xs uppercase tracking-[0.18em] text-black/45">
               {isDeleted ? "deleted" : item.source_type} · {formatBytes(item.size_bytes)}
             </p>
+            {ownerMode && !isDeleted && item.source_type === "guest" && (item.guest_name ?? item.guest_email) ? (
+              <p className="mt-1 text-xs font-medium text-[var(--color-moss)]">
+                by {item.guest_name ?? item.guest_email}
+              </p>
+            ) : null}
             {isDeleted && purgeMessage ? <p className="mt-2 text-xs text-[#8a1c1c]">{purgeMessage}</p> : null}
           </div>
 

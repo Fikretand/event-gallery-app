@@ -444,7 +444,7 @@ export async function listEventMedia(
 
   let query = admin
     .from("media_files")
-    .select("*")
+    .select("*, guest_upload_sessions(guest_name, guest_email)")
     .eq("event_id", eventId)
     .order("created_at", { ascending: options?.sortOrder === "asc" });
 
@@ -469,7 +469,16 @@ export async function listEventMedia(
   }
 
   const { data } = await query;
-  return (data ?? []) as MediaFileRecord[];
+
+  // Flatten the guest session join into the record fields
+  return (data ?? []).map((row: any) => {
+    const { guest_upload_sessions: gus, ...rest } = row;
+    return {
+      ...rest,
+      guest_name: gus?.guest_name ?? null,
+      guest_email: gus?.guest_email ?? null,
+    } as MediaFileRecord;
+  });
 }
 
 export async function listGallerySections(eventId: string) {
@@ -829,6 +838,7 @@ export async function recordCompletedUpload(input: {
   sizeBytes: number;
   sourceType: "guest" | "photographer";
   uploadedByUserId?: string | null;
+  uploadSessionId?: string | null;
 }) {
   const admin = createSupabaseAdminClient();
   if (!admin) {
@@ -849,6 +859,7 @@ export async function recordCompletedUpload(input: {
       size_bytes: input.sizeBytes,
       status: "uploaded",
       hidden_at: hiddenAt,
+      upload_session_id: input.uploadSessionId ?? null,
     })
     .select("*")
     .single();

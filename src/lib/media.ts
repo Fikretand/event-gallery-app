@@ -57,7 +57,9 @@ export async function buildUploadGrants(
   return grants;
 }
 
-export async function enrichMediaWithUrls(media: MediaFileRecord[]): Promise<MediaView[]> {
+export async function enrichMediaWithUrls<T extends MediaFileRecord>(
+  media: T[],
+): Promise<(T & { previewUrl: string | null; thumbnailUrl: string | null })[]> {
   return Promise.all(
     media.map(async (item) => {
       const previewUrl = publicMediaUrl(item.storage_key) ?? (await createSignedDownloadUrl(item.storage_key));

@@ -67,10 +67,14 @@ export type MediaFileRecord = {
   checksum: string | null;
   thumbnail_key: string | null;
   section_id: string | null;
+  upload_session_id: string | null;
   status: MediaStatus;
   hidden_at: string | null;
   deleted_at: string | null;
   created_at: string;
+  // Guest info joined from guest_upload_sessions (always null for photographer uploads)
+  guest_name?: string | null;
+  guest_email?: string | null;
 };
 
 export type GuestUploadSessionRecord = {
