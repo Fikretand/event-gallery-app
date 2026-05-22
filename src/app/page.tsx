@@ -59,14 +59,14 @@ const QR_CELLS = [
 ];
 
 const PHOTO_CELLS = [
-  { col: 1, bg: "bg-[#dcc8b8]" },
-  { col: 1, bg: "bg-[#b8ccc4]" },
-  { col: 1, bg: "bg-[#ccc0b4]" },
-  { col: 2, bg: "bg-[#b4c8c0]" },
-  { col: 1, bg: "bg-[#d8c4b4]" },
-  { col: 1, bg: "bg-[#c4d4cc]" },
-  { col: 1, bg: "bg-[#c8b8ac]" },
-  { col: 2, bg: "bg-[#ccd8d0]" },
+  { col: 1, src: "/gallery-preview/p1.jpg" },
+  { col: 1, src: "/gallery-preview/p2.jpg" },
+  { col: 1, src: "/gallery-preview/p3.jpg" },
+  { col: 2, src: "/gallery-preview/p4.jpg" },
+  { col: 1, src: "/gallery-preview/p5.jpg" },
+  { col: 1, src: "/gallery-preview/p6.jpg" },
+  { col: 1, src: "/gallery-preview/p7.jpg" },
+  { col: 2, src: "/gallery-preview/p8.jpg" },
 ];
 
 export default async function Home({
@@ -233,9 +233,12 @@ export default async function Home({
                   </div>
                   <div className="grid grid-cols-3 gap-[2px] px-2 pb-3">
                     {PHOTO_CELLS.map((cell, i) => (
-                      <div
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
                         key={i}
-                        className={`rounded-[8px] ${cell.bg} ${cell.col === 2 ? "col-span-2 aspect-[2/1]" : "aspect-square"}`}
+                        src={cell.src}
+                        alt=""
+                        className={`rounded-[8px] object-cover w-full ${cell.col === 2 ? "col-span-2 aspect-[2/1]" : "aspect-square"}`}
                       />
                     ))}
                   </div>
