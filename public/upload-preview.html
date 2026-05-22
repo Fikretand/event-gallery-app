@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Confetti — Pošalji Fotografije</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
+
+:root {
+  --paper:   #faf6f0;
+  --ink:     #172033;
+  --accent:  #e27952;
+  --accent2: #f6d3c3;
+  --moss:    #38584d;
+  --white:   #ffffff;
+  --red:     #c0392b;
+  --success: #2d7a5a;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 18px; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ── background confetti particles ─────────────────────── */
+.bg-confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.bg-confetti span {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: drift linear infinite;
+}
+@keyframes drift {
+  0%   { transform: translateY(-20px) rotate(0deg);   opacity: 0; }
+  10%  { opacity: 0.35; }
+  90%  { opacity: 0.18; }
+  100% { transform: translateY(110dvh) rotate(540deg); opacity: 0; }
+}
+
+/* ── layout ─────────────────────────────────────────────── */
+.page {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 20px 48px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+/* ── header ─────────────────────────────────────────────── */
+.header {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 28px;
+}
+.brand {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  margin-bottom: 20px;
+}
+.event-badge {
+  display: inline-block;
+  background: var(--white);
+  border: 1.5px solid rgba(23,32,51,0.1);
+  border-radius: 100px;
+  padding: 6px 18px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--moss);
+  margin-bottom: 16px;
+}
+.event-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+.event-subtitle {
+  font-size: 1rem;
+  line-height: 1.55;
+  color: rgba(23,32,51,0.58);
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+/* ── step pills ─────────────────────────────────────────── */
+.steps {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 28px;
+  width: 100%;
+  justify-content: center;
+}
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(23,32,51,0.38);
+  transition: color 0.3s;
+}
+.step-item.active { color: var(--ink); }
+.step-item.done { color: var(--success); }
+.step-num {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 2px solid rgba(23,32,51,0.18);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all 0.3s;
+  background: transparent;
+}
+.step-item.active .step-num {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: white;
+}
+.step-item.done .step-num {
+  border-color: var(--success);
+  background: var(--success);
+  color: white;
+}
+.step-line {
+  flex: 1;
+  height: 2px;
+  background: rgba(23,32,51,0.1);
+  border-radius: 2px;
+  max-width: 40px;
+}
+
+/* ── card ───────────────────────────────────────────────── */
+.card {
+  width: 100%;
+  background: var(--white);
+  border-radius: 28px;
+  border: 1.5px solid rgba(23,32,51,0.08);
+  box-shadow: 0 16px 60px rgba(23,32,51,0.08), 0 4px 16px rgba(23,32,51,0.04);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+/* ── PANEL 1: choose ────────────────────────────────────── */
+#panel-choose {
+  padding: 36px 28px 32px;
+  text-align: center;
+  transition: all 0.3s;
+}
+.choose-icon-wrap {
+  width: 96px; height: 96px;
+  margin: 0 auto 20px;
+  background: linear-gradient(135deg, #fff7f3, var(--accent2));
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  animation: icon-breathe 3s ease-in-out infinite;
+}
+@keyframes icon-breathe {
+  0%, 100% { transform: scale(1); box-shadow: 0 8px 24px rgba(226,121,82,0.20); }
+  50%       { transform: scale(1.04); box-shadow: 0 14px 36px rgba(226,121,82,0.32); }
+}
+.choose-icon-wrap svg {
+  width: 46px; height: 46px;
+  color: var(--accent);
+}
+.choose-badge {
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 30px; height: 30px;
+  background: var(--accent);
+  border-radius: 50%;
+  border: 3px solid white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+  color: white;
+  font-weight: 700;
+}
+.choose-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+.choose-desc {
+  font-size: 0.94rem;
+  line-height: 1.55;
+  color: rgba(23,32,51,0.58);
+  margin-bottom: 28px;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.btn-choose {
+  display: block;
+  width: 100%;
+  background: var(--accent);
+  color: white;
+  font-family: inherit;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 18px;
+  padding: 20px 28px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 8px 28px rgba(226,121,82,0.35);
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.01em;
+}
+.btn-choose::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.14) 0%, transparent 60%);
+  border-radius: 18px;
+}
+.btn-choose:hover   { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(226,121,82,0.42); }
+.btn-choose:active  { transform: translateY(0); }
+
+.tap-hint {
+  margin-top: 16px;
+  font-size: 0.8rem;
+  color: rgba(23,32,51,0.38);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.tap-arrow {
+  display: inline-block;
+  font-size: 1rem;
+  animation: bounce-down 1.6s ease-in-out infinite;
+}
+@keyframes bounce-down {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(4px); }
+}
+
+/* ── PANEL 2: files selected ────────────────────────────── */
+#panel-files {
+  display: none;
+  padding: 24px 24px 28px;
+}
+.files-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.files-count {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.files-reset {
+  font-size: 0.82rem;
+  color: var(--accent);
+  font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  font-family: inherit;
+}
+.file-thumbs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.thumb {
+  aspect-ratio: 1;
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+  background: var(--paper);
+}
+.thumb img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.thumb-placeholder {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem;
+}
+.thumb-more {
+  background: rgba(23,32,51,0.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(23,32,51,0.52);
+  border-radius: 14px;
+}
+
+.btn-send {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  background: var(--ink);
+  color: white;
+  font-family: inherit;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 18px;
+  padding: 20px 28px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 8px 28px rgba(23,32,51,0.22);
+  letter-spacing: 0.01em;
+}
+.btn-send:hover  { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(23,32,51,0.30); }
+.btn-send:active { transform: translateY(0); }
+.btn-send svg { width: 22px; height: 22px; flex-shrink: 0; }
+
+.add-more {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  background: none;
+  border: 1.5px dashed rgba(23,32,51,0.18);
+  border-radius: 14px;
+  padding: 14px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: rgba(23,32,51,0.52);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.add-more:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── PANEL 3: uploading ─────────────────────────────────── */
+#panel-uploading {
+  display: none;
+  padding: 36px 28px 32px;
+  text-align: center;
+}
+.upload-icon-wrap {
+  width: 80px; height: 80px;
+  margin: 0 auto 20px;
+  background: linear-gradient(135deg, #f0f7ff, #dceeff);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  animation: spin-pulse 2s linear infinite;
+}
+@keyframes spin-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(47,111,214,0.25); }
+  50%  { box-shadow: 0 0 0 14px rgba(47,111,214,0); }
+  100% { box-shadow: 0 0 0 0 rgba(47,111,214,0); }
+}
+.upload-icon-wrap svg {
+  width: 38px; height: 38px;
+  color: #2f6fd6;
+  animation: upload-bounce 1s ease-in-out infinite alternate;
+}
+@keyframes upload-bounce {
+  from { transform: translateY(2px); }
+  to   { transform: translateY(-4px); }
+}
+.uploading-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.uploading-sub {
+  font-size: 0.9rem;
+  color: rgba(23,32,51,0.52);
+  margin-bottom: 28px;
+}
+
+.progress-track {
+  width: 100%;
+  height: 12px;
+  background: rgba(23,32,51,0.07);
+  border-radius: 100px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #f0a070);
+  border-radius: 100px;
+  transition: width 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.45) 50%, transparent 100%);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+@keyframes shimmer {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(300%); }
+}
+.progress-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(23,32,51,0.50);
+}
+.progress-filename {
+  font-size: 0.78rem;
+  color: rgba(23,32,51,0.38);
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── PANEL 4: success ───────────────────────────────────── */
+#panel-success {
+  display: none;
+  padding: 40px 28px 36px;
+  text-align: center;
+}
+.success-icon {
+  width: 100px; height: 100px;
+  margin: 0 auto 24px;
+  background: linear-gradient(135deg, #e6f7ef, #c8eedd);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  animation: success-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes success-pop {
+  from { transform: scale(0.3); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+.success-icon svg {
+  width: 52px; height: 52px;
+  color: var(--success);
+}
+.success-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 10px;
+  animation: fade-up 0.5s 0.2s ease both;
+}
+.success-sub {
+  font-size: 1rem;
+  line-height: 1.55;
+  color: rgba(23,32,51,0.58);
+  margin-bottom: 28px;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+  animation: fade-up 0.5s 0.3s ease both;
+}
+.success-more {
+  display: block;
+  width: 100%;
+  background: rgba(23,32,51,0.06);
+  border: none;
+  border-radius: 16px;
+  padding: 16px;
+  font-family: inherit;
+  font-size: 0.94rem;
+  font-weight: 500;
+  color: rgba(23,32,51,0.65);
+  cursor: pointer;
+  transition: all 0.2s;
+  animation: fade-up 0.5s 0.4s ease both;
+}
+.success-more:hover { background: rgba(23,32,51,0.09); }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── confetti burst ─────────────────────────────────────── */
+.confetti-burst {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  display: none;
+}
+.confetti-burst.active { display: block; }
+.burst-piece {
+  position: absolute;
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  animation: burst 1.2s ease-out forwards;
+}
+@keyframes burst {
+  0%   { opacity: 1; transform: translate(0,0) rotate(0deg) scale(1); }
+  100% { opacity: 0; transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(0.5); }
+}
+
+/* ── info boxes ─────────────────────────────────────────── */
+.info-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+}
+.info-card {
+  background: var(--white);
+  border: 1.5px solid rgba(23,32,51,0.07);
+  border-radius: 20px;
+  padding: 16px;
+}
+.info-card-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(23,32,51,0.40);
+  margin-bottom: 6px;
+}
+.info-card-value {
+  font-size: 0.94rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+/* ── file input hidden ──────────────────────────────────── */
+#file-input { display: none; }
+
+/* ── error state ────────────────────────────────────────── */
+.error-box {
+  display: none;
+  background: #fff0eb;
+  border: 1.5px solid #f3c8c0;
+  border-radius: 18px;
+  padding: 16px 20px;
+  font-size: 0.9rem;
+  color: #8a1c1c;
+  margin-bottom: 12px;
+  width: 100%;
+}
+.error-box.show { display: block; }
+
+/* ── footer ─────────────────────────────────────────────── */
+.footer {
+  margin-top: 20px;
+  font-size: 0.78rem;
+  color: rgba(23,32,51,0.30);
+  text-align: center;
+}
+
+/* ── demo button ─────────────────────────────────────────── */
+.demo-btn {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  background: var(--ink);
+  color: white;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 100px;
+  padding: 10px 18px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(23,32,51,0.25);
+  z-index: 200;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+.demo-btn:hover { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- Animated background confetti -->
+<div class="bg-confetti" id="bg-confetti"></div>
+
+<!-- Confetti burst overlay for success -->
+<div class="confetti-burst" id="confetti-burst"></div>
+
+<!-- Hidden file input -->
+<input type="file" id="file-input" multiple accept=".jpg,.jpeg,.png,.heic,.heif,.mp4,.mov">
+
+<div class="page">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="brand">Confetti</div>
+    <div class="event-badge">Guest upload</div>
+    <h1 class="event-title">Ana & Marko's Wedding</h1>
+    <p class="event-subtitle">Podijelite vaše fotografije s nama — jednostavno, u tri koraka.</p>
+  </header>
+
+  <!-- Step indicator -->
+  <div class="steps" id="steps-indicator">
+    <div class="step-item active" data-step="1">
+      <div class="step-num">1</div>
+      <span>Odaberi</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item" data-step="2">
+      <div class="step-num">2</div>
+      <span>Pregled</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item" data-step="3">
+      <div class="step-num">3</div>
+      <span>Pošalji</span>
+    </div>
+  </div>
+
+  <!-- Error box -->
+  <div class="error-box" id="error-box">Nešto nije pošlo po planu. Pokušaj ponovo.</div>
+
+  <!-- PANEL 1: Choose photos -->
+  <div class="card" id="panel-choose">
+    <div id="panel-choose-inner">
+      <div class="choose-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+        <div class="choose-badge">+</div>
+      </div>
+
+      <h2 class="choose-title">Pritisnite i odaberite fotografije</h2>
+      <p class="choose-desc">Možete odabrati više fotografija i videa odjednom.</p>
+
+      <button class="btn-choose" onclick="openFilePicker()">
+        📷 &nbsp; Odaberi fotografije
+      </button>
+
+      <p class="tap-hint">
+        <span class="tap-arrow">↓</span>
+        Pritisnite dugme iznad
+      </p>
+    </div>
+  </div>
+
+  <!-- PANEL 2: Files selected -->
+  <div class="card" id="panel-files" style="display:none">
+    <div id="panel-files-inner" style="padding: 24px 24px 28px;">
+      <div class="files-header">
+        <span class="files-count" id="files-count-label">3 fotografije</span>
+        <button class="files-reset" onclick="resetToChoose()">Promijeni</button>
+      </div>
+
+      <div class="file-thumbs" id="file-thumbs-grid">
+        <!-- filled by JS -->
+      </div>
+
+      <button class="btn-send" onclick="startUpload()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+        Pošalji fotografije
+      </button>
+
+      <button class="add-more" onclick="openFilePicker()">
+        + Dodaj još fotografija
+      </button>
+    </div>
+  </div>
+
+  <!-- PANEL 3: Uploading -->
+  <div class="card" id="panel-uploading" style="display:none">
+    <div style="padding: 36px 28px 32px; text-align: center;">
+      <div class="upload-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 16 12 12 8 16"/>
+          <line x1="12" y1="12" x2="12" y2="21"/>
+          <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+        </svg>
+      </div>
+      <h2 class="uploading-title">Šaljemo vaše fotografije…</h2>
+      <p class="uploading-sub">Molimo vas, ne zatvarajte ovaj ekran.</p>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+      </div>
+      <p class="progress-label" id="progress-label">0%</p>
+      <p class="progress-filename" id="progress-filename">&nbsp;</p>
+    </div>
+  </div>
+
+  <!-- PANEL 4: Success -->
+  <div class="card" id="panel-success" style="display:none">
+    <div style="padding: 40px 28px 36px; text-align: center;">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <h2 class="success-title">Hvala vam! ❤️</h2>
+      <p class="success-sub">Vaše fotografije su uspješno poslate i sigurno pohranjen.</p>
+      <button class="success-more" onclick="resetToChoose()">
+        Pošalji još fotografija
+      </button>
+    </div>
+  </div>
+
+  <!-- Info cards -->
+  <div class="info-cards">
+    <div class="info-card">
+      <div class="info-card-label">Prihvaćeni fajlovi</div>
+      <div class="info-card-value">JPG, PNG, HEIC, MP4, MOV</div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-label">Max veličina</div>
+      <div class="info-card-value">250 MB po fajlu</div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-label">Pristup</div>
+      <div class="info-card-value">Bez prijave</div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-label">Upload do</div>
+      <div class="info-card-value">1. srpnja 2025.</div>
+    </div>
+  </div>
+
+  <p class="footer">Confetti · Privatna galerija događaja</p>
+</div>
+
+<!-- Demo toggle -->
+<button class="demo-btn" onclick="toggleDemo()">▶ Demo animacija</button>
+
+<script>
+// ── background confetti ───────────────────────────────────
+(function() {
+  const container = document.getElementById('bg-confetti');
+  const colors = ['#e27952','#f6d3c3','#38584d','#c8d8d0','#f2eadf','#d4c4b0'];
+  for (let i = 0; i < 22; i++) {
+    const el = document.createElement('span');
+    el.style.cssText = `
+      left: ${Math.random()*100}%;
+      background: ${colors[Math.floor(Math.random()*colors.length)]};
+      width: ${5+Math.random()*8}px;
+      height: ${5+Math.random()*8}px;
+      border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+      animation-duration: ${8+Math.random()*14}s;
+      animation-delay: ${Math.random()*12}s;
+      opacity: 0;
+    `;
+    container.appendChild(el);
+  }
+})();
+
+// ── state ────────────────────────────────────────────────
+let selectedFiles = [];
+let currentStep = 1;
+
+function setStep(n) {
+  currentStep = n;
+  document.querySelectorAll('.step-item').forEach((el, i) => {
+    el.classList.remove('active','done');
+    if (i+1 < n) el.classList.add('done');
+    else if (i+1 === n) el.classList.add('active');
+  });
+}
+
+function showPanel(id) {
+  ['panel-choose','panel-files','panel-uploading','panel-success'].forEach(p => {
+    document.getElementById(p).style.display = (p===id) ? '' : 'none';
+  });
+}
+
+// ── file picker ───────────────────────────────────────────
+document.getElementById('file-input').addEventListener('change', function(e) {
+  const files = Array.from(e.target.files || []);
+  if (!files.length) return;
+  selectedFiles = files;
+  renderFilesPanel(files);
+  showPanel('panel-files');
+  setStep(2);
+});
+
+function openFilePicker() {
+  document.getElementById('file-input').click();
+}
+
+function renderFilesPanel(files) {
+  const count = files.length;
+  document.getElementById('files-count-label').textContent =
+    count + (count === 1 ? ' fotografija' : count < 5 ? ' fotografije' : ' fotografija');
+
+  const grid = document.getElementById('file-thumbs-grid');
+  grid.innerHTML = '';
+  const preview = files.slice(0, 5);
+  const emojis = ['🌸','🌿','✨','💫','🎊','🎉','🌷','🎵'];
+
+  preview.forEach((file, idx) => {
+    const thumb = document.createElement('div');
+    thumb.className = 'thumb';
+    if (file.type.startsWith('image/')) {
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      thumb.appendChild(img);
+    } else {
+      const ph = document.createElement('div');
+      ph.className = 'thumb-placeholder';
+      ph.textContent = file.type.startsWith('video/') ? '🎬' : emojis[idx];
+      thumb.appendChild(ph);
+    }
+    grid.appendChild(thumb);
+  });
+
+  if (files.length > 5) {
+    const more = document.createElement('div');
+    more.className = 'thumb thumb-more';
+    more.textContent = '+' + (files.length - 5);
+    grid.appendChild(more);
+  }
+}
+
+// ── upload simulation ────────────────────────────────────
+function startUpload() {
+  showPanel('panel-uploading');
+  setStep(3);
+  simulateUpload();
+}
+
+function simulateUpload() {
+  const fill = document.getElementById('progress-fill');
+  const label = document.getElementById('progress-label');
+  const fname = document.getElementById('progress-filename');
+  const total = selectedFiles.length || 1;
+  let fileIdx = 0;
+  let fileProgress = 0;
+
+  function tick() {
+    fileProgress += 4 + Math.random() * 8;
+    if (fileProgress >= 100) {
+      fileProgress = 100;
+      fileIdx++;
+    }
+    const overall = Math.round(((fileIdx * 100 + fileProgress) / (total * 100)) * 100);
+    fill.style.width = overall + '%';
+    label.textContent = overall + '%';
+    const currentFile = selectedFiles[Math.min(fileIdx, total-1)];
+    fname.textContent = currentFile ? currentFile.name : '';
+
+    if (fileIdx >= total) {
+      setTimeout(showSuccess, 400);
+    } else {
+      setTimeout(tick, 80 + Math.random() * 80);
+    }
+  }
+  tick();
+}
+
+function showSuccess() {
+  showPanel('panel-success');
+  triggerConfettiBurst();
+  setStep(3);
+  // mark step 3 as done
+  document.querySelectorAll('.step-item').forEach(el => el.classList.add('done'));
+}
+
+function resetToChoose() {
+  selectedFiles = [];
+  document.getElementById('file-input').value = '';
+  document.getElementById('error-box').classList.remove('show');
+  showPanel('panel-choose');
+  setStep(1);
+}
+
+// ── confetti burst ────────────────────────────────────────
+function triggerConfettiBurst() {
+  const burst = document.getElementById('confetti-burst');
+  burst.innerHTML = '';
+  burst.classList.add('active');
+  const colors = ['#e27952','#f6d3c3','#38584d','#c8d8d0','#172033','#fbbf24','#34d399'];
+  const cx = window.innerWidth / 2;
+  const cy = window.innerHeight / 2;
+
+  for (let i = 0; i < 60; i++) {
+    const el = document.createElement('div');
+    el.className = 'burst-piece';
+    const angle = (Math.random() * 360) * (Math.PI / 180);
+    const dist = 120 + Math.random() * 260;
+    el.style.cssText = `
+      left: ${cx}px; top: ${cy}px;
+      background: ${colors[Math.floor(Math.random()*colors.length)]};
+      width: ${6+Math.random()*10}px;
+      height: ${6+Math.random()*10}px;
+      border-radius: ${Math.random() > 0.5 ? '50%' : '3px'};
+      --tx: ${Math.cos(angle)*dist}px;
+      --ty: ${Math.sin(angle)*dist}px;
+      --rot: ${-360+Math.random()*720}deg;
+      animation-duration: ${0.9+Math.random()*0.5}s;
+      animation-delay: ${Math.random()*0.15}s;
+    `;
+    burst.appendChild(el);
+  }
+  setTimeout(() => { burst.classList.remove('active'); burst.innerHTML = ''; }, 2000);
+}
+
+// ── demo ─────────────────────────────────────────────────
+let demoStep = 0;
+function toggleDemo() {
+  demoStep = (demoStep + 1) % 5;
+  if (demoStep === 0) {
+    resetToChoose(); return;
+  }
+  if (demoStep === 1) {
+    // simulate file selection
+    selectedFiles = [
+      { name: 'wedding_001.jpg', size: 3100000, type: 'image/jpeg' },
+      { name: 'wedding_002.jpg', size: 2800000, type: 'image/jpeg' },
+      { name: 'video_ceremony.mp4', size: 18000000, type: 'video/mp4' },
+    ];
+    const grid = document.getElementById('file-thumbs-grid');
+    grid.innerHTML = '';
+    const items = [{emoji:'🌸'},{emoji:'🌿'},{emoji:'🎬'}];
+    items.forEach(item => {
+      const thumb = document.createElement('div');
+      thumb.className = 'thumb';
+      const ph = document.createElement('div');
+      ph.className = 'thumb-placeholder';
+      ph.textContent = item.emoji;
+      thumb.appendChild(ph);
+      grid.appendChild(thumb);
+    });
+    document.getElementById('files-count-label').textContent = '3 fotografije';
+    showPanel('panel-files');
+    setStep(2);
+    return;
+  }
+  if (demoStep === 2) {
+    showPanel('panel-uploading');
+    document.getElementById('progress-fill').style.width = '0%';
+    document.getElementById('progress-label').textContent = '0%';
+    document.getElementById('progress-filename').textContent = 'wedding_001.jpg';
+    setStep(3);
+    return;
+  }
+  if (demoStep === 3) {
+    // animate progress to 100
+    let p = 0;
+    const fill = document.getElementById('progress-fill');
+    const label = document.getElementById('progress-label');
+    const iv = setInterval(() => {
+      p = Math.min(p + 5, 100);
+      fill.style.width = p + '%';
+      label.textContent = p + '%';
+      if (p >= 100) clearInterval(iv);
+    }, 50);
+    return;
+  }
+  if (demoStep === 4) {
+    showSuccess();
+    return;
+  }
+}
+</script>
+</body>
+</html>

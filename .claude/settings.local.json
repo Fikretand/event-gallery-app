@@ -4,7 +4,17 @@
       "Bash(git rm *)",
       "Read(//mnt/c/Users/andel/OneDrive/Documents/Playground/**)",
       "Bash(npx tsc *)",
-      "PowerShell($env:Path = [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"Machine\"\\) + \";\" + [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"User\"\\); gh auth status 2>&1)"
+      "PowerShell($env:Path = [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"Machine\"\\) + \";\" + [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"User\"\\); gh auth status 2>&1)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(dir \"C:\\\\Users\\\\andel\\\\OneDrive\\\\Desktop\\\\Novi nastavak confetti\\\\fotografije\")",
+      "Bash(node scripts/process-gallery-preview.mjs)",
+      "Bash(mkdir -p \"C:\\\\Users\\\\andel\\\\OneDrive\\\\Documents\\\\Playground\\\\event-gallery-app\\\\src\\\\app\\\\[locale]\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\andel\\\\OneDrive\\\\Documents\\\\Playground\\\\event-gallery-app\\\\src\\\\app\\\\[locale]\\\\\\(auth\\)\\\\login\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\andel\\\\OneDrive\\\\Documents\\\\Playground\\\\event-gallery-app\\\\src\\\\app\\\\[locale]\\\\\\(auth\\)\\\\signup\\\\verify\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\andel\\\\OneDrive\\\\Documents\\\\Playground\\\\event-gallery-app\\\\src\\\\app\\\\[locale]\\\\forgot-password\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\andel\\\\OneDrive\\\\Documents\\\\Playground\\\\event-gallery-app\\\\src\\\\app\\\\[locale]\\\\reset-password\")"
     ]
   }
 }

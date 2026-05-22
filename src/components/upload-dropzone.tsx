@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState, useTransition } from "react";
 
 import type { AccountType } from "@/lib/types";
+import type { Dict } from "@/lib/i18n/index";
 import { cn, formatBytes } from "@/lib/utils";
 
 type UploadStatusValue = "queued" | "requesting" | "uploading" | "confirming" | "done" | "error";
@@ -23,6 +24,8 @@ type Props = {
   allowVideo: boolean;
   pinRequired: boolean;
   audience?: AccountType;
+  /** Optional i18n strings — when omitted, English is used */
+  strings?: Partial<Dict["uploadDropzone"]>;
 };
 
 type Grant = {
@@ -92,7 +95,7 @@ function statusLabel(status: UploadStatusValue) {
   }
 }
 
-export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audience = "photographer" }: Props) {
+export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audience = "photographer", strings }: Props) {
   const [guestName, setGuestName]   = useState("");
   const [guestEmail, setGuestEmail] = useState("");
   const [pin, setPin]               = useState("");
@@ -102,39 +105,39 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
   const [isPending, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  // ─── Derived copy strings ──────────────────────────────────────────────────
+  // ─── Resolved i18n strings (fall back to English) ─────────────────────────
+  const s = useMemo(() => ({
+    stepChoose: strings?.stepChoose ?? "Choose",
+    stepReview: strings?.stepReview ?? "Review",
+    stepSend:   strings?.stepSend   ?? "Send",
+    chooseTitle:    strings?.chooseTitle    ?? (target === "guest" ? "Share your photos" : audience === "couple" ? "Upload your gallery files" : "Upload final gallery files"),
+    chooseSubtitle: strings?.chooseSubtitle ?? (target === "guest" ? "Tap the big button below to choose photos from your phone. It only takes a moment!" : audience === "couple" ? "Choose the photos and videos you want to keep in this private event space." : "Choose the finished photos and videos, then upload them to the pro gallery."),
+    selectPhotosBtn: strings?.selectPhotosBtn ?? (target === "guest" ? "Choose Photos" : "Add Files"),
+    sendBtn:        strings?.sendBtn        ?? (target === "guest" ? "Send Photos" : audience === "couple" ? "Upload to Gallery" : "Upload Files"),
+    reviewTitle:    strings?.reviewTitle    ?? (target === "guest" ? "Ready to send" : "Review before uploading"),
+    uploadingTitle: strings?.uploadingTitle ?? "Sending your photos…",
+    successTitle:   strings?.successTitle   ?? "Photos sent! 🎉",
+    successBody:    strings?.successBody    ?? (target === "guest" ? "Your photos are safely saved! The event host will see them soon." : audience === "couple" ? "Upload complete. Your files are now in the private gallery." : "Upload complete. Your files are now in the pro gallery."),
+    uploadAnotherBtn: strings?.uploadAnotherBtn ?? "Upload more photos",
+    addMoreBtn:     strings?.addMoreBtn     ?? "Add more",
+    retryBtn:       strings?.retryBtn       ?? "Retry",
+    nameLabel:      strings?.nameLabel      ?? "Your name",
+    emailLabel:     strings?.emailLabel     ?? "Email",
+    pinLabel:       strings?.pinLabel       ?? "Event PIN",
+    namePlaceholder:  strings?.namePlaceholder  ?? "e.g. Ana Kovač",
+    emailPlaceholder: strings?.emailPlaceholder ?? "ana@example.com",
+    pinPlaceholder:   strings?.pinPlaceholder   ?? "Enter the PIN from your host",
+    orClickSelect:    strings?.orClickSelect    ?? "or tap to browse",
+    partialLabel:   "Some photos were sent, but a few couldn't be uploaded. Try sending them again.",
+  }), [strings, target, audience]);
+
+  // ─── Derived copy strings (keep for backward compat) ─────────────────────
   const copy = useMemo(
-    () =>
-      target === "guest"
-        ? {
-            title:        "Share your photos",
-            subtitle:     "Tap the big button below to choose photos from your phone. It only takes a moment!",
-            chooseLabel:  "Choose Photos",
-            sendLabel:    "Send Photos",
-            pendingLabel: "Sending...",
-            successLabel: "Your photos are safely saved! The event host will see them soon. 🎉",
-            partialLabel: "Some photos were sent, but a few couldn't be uploaded. Try sending them again.",
-            queueTitle:   "Ready to send",
-            badge:        "Guest upload",
-          }
-        : {
-            title:        audience === "couple" ? "Upload your gallery files" : "Upload final gallery files",
-            subtitle:
-              audience === "couple"
-                ? "Choose the photos and videos you want to keep in this private event space."
-                : "Choose the finished photos and videos, then upload them to the pro gallery.",
-            chooseLabel:  "Add Files",
-            sendLabel:    audience === "couple" ? "Upload to Gallery" : "Upload Files",
-            pendingLabel: "Uploading...",
-            successLabel:
-              audience === "couple"
-                ? "Upload complete. Your files are now in the private gallery."
-                : "Upload complete. Your files are now in the pro gallery.",
-            partialLabel: "Some files were uploaded, but a few still need attention.",
-            queueTitle:   "Review before uploading",
-            badge:        audience === "couple" ? "Private gallery upload" : "Pro gallery upload",
-          },
-    [audience, target],
+    () => ({
+      successLabel: s.successBody,
+      partialLabel: s.partialLabel,
+    }),
+    [s],
   );
 
   // ─── Accepted file types ───────────────────────────────────────────────────
@@ -161,7 +164,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
     :                                  "choose";
 
   const activeStep = phase === "choose" ? 0 : phase === "review" ? 1 : 2;
-  const STEPS = ["Choose", "Review", "Send"] as const;
+  const STEPS = [s.stepChoose, s.stepReview, s.stepSend] as const;
 
   // ─── State helpers ─────────────────────────────────────────────────────────
   function updateItem(id: string, patch: Partial<UploadItem>) {
@@ -369,10 +372,10 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
               📷
             </div>
             <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)] md:text-3xl">
-              {copy.title}
+              {s.chooseTitle}
             </h2>
             <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-black/52">
-              {copy.subtitle}
+              {s.chooseSubtitle}
             </p>
           </div>
 
@@ -381,26 +384,26 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-medium text-[var(--color-ink)]">
-                  Your name{" "}
+                  {s.nameLabel}{" "}
                   <span className="font-normal text-black/35">(optional)</span>
                 </span>
                 <input
                   value={guestName}
                   onChange={(e) => setGuestName(e.target.value)}
                   className="rounded-2xl border border-black/10 bg-[var(--color-paper)] px-4 py-3 text-sm placeholder:text-black/28 focus:border-[var(--color-accent)] focus:outline-none"
-                  placeholder="e.g. Ana Kovač"
+                  placeholder={s.namePlaceholder}
                 />
               </label>
               <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-medium text-[var(--color-ink)]">
-                  Email{" "}
+                  {s.emailLabel}{" "}
                   <span className="font-normal text-black/35">(optional)</span>
                 </span>
                 <input
                   value={guestEmail}
                   onChange={(e) => setGuestEmail(e.target.value)}
                   className="rounded-2xl border border-black/10 bg-[var(--color-paper)] px-4 py-3 text-sm placeholder:text-black/28 focus:border-[var(--color-accent)] focus:outline-none"
-                  placeholder="ana@example.com"
+                  placeholder={s.emailPlaceholder}
                   type="email"
                 />
               </label>
@@ -415,7 +418,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
                     value={pin}
                     onChange={(e) => setPin(e.target.value)}
                     className="rounded-2xl border border-black/10 bg-[var(--color-paper)] px-4 py-3 text-sm placeholder:text-black/28 focus:border-[var(--color-accent)] focus:outline-none"
-                    placeholder="Enter the PIN from your host"
+                    placeholder={s.pinPlaceholder}
                     type="password"
                   />
                 </label>
@@ -430,7 +433,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
             className="mt-6 flex w-full items-center justify-center gap-3 rounded-[20px] bg-[var(--color-accent)] px-6 py-5 text-lg font-semibold text-white shadow-[0_8px_28px_rgba(226,121,82,0.38)] transition-all hover:brightness-105 active:scale-[0.98] md:py-4 md:text-base"
           >
             <span className="text-xl">📷</span>
-            {copy.chooseLabel}
+            {s.selectPhotosBtn}
           </button>
 
           {/* Subtle info row */}
@@ -511,7 +514,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
             className="flex w-full items-center justify-center gap-3 rounded-[20px] bg-[var(--color-accent)] px-6 py-5 text-lg font-semibold text-white shadow-[0_8px_28px_rgba(226,121,82,0.38)] transition-all hover:brightness-105 active:scale-[0.98] disabled:opacity-60 md:py-4 md:text-base"
           >
             <span className="text-xl">✉️</span>
-            {copy.sendLabel}
+            {s.sendBtn}
           </button>
 
           {/* Add more / retry */}
@@ -546,8 +549,8 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center">
               <div className="h-14 w-14 animate-spin rounded-full border-4 border-[var(--color-accent-soft)] border-t-[var(--color-accent)]" />
             </div>
-            <p className="font-semibold text-[var(--color-ink)]">Sending your photos…</p>
-            <p className="mt-1 text-xs text-black/42">Please don&apos;t close this page</p>
+            <p className="font-semibold text-[var(--color-ink)]">{s.uploadingTitle}</p>
+            <p className="mt-1 text-xs text-black/42">{strings?.stepSend ? "Molimo ne zatvarajte ovu stranicu" : "Please don't close this page"}</p>
           </div>
 
           {/* Per-file progress */}
@@ -627,7 +630,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
           </div>
 
           <h2 className="fade-up-in font-display text-2xl font-semibold text-[var(--color-ink)]">
-            Photos sent! 🎉
+            {s.successTitle}
           </h2>
           <p className="fade-up-in-delay mx-auto mt-2 max-w-xs text-sm leading-6 text-black/52">
             {success}
@@ -638,7 +641,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
             onClick={() => { setSuccess(null); setError(null); setItems([]); }}
             className="fade-up-in-delay-2 mt-6 inline-flex items-center gap-2 rounded-[16px] border border-black/10 bg-white px-6 py-3 text-sm font-semibold text-[var(--color-ink)] transition hover:border-[var(--color-accent)]/30 hover:bg-[var(--color-accent-soft)]/20"
           >
-            + Upload more photos
+            + {s.uploadAnotherBtn}
           </button>
         </div>
       )}
