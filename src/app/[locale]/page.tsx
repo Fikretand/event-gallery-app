@@ -169,7 +169,9 @@ export default async function HomePage({
           </div>
 
           {/* iPhone mockup */}
-          <div className="relative flex justify-center pb-10 lg:justify-end lg:pb-0">
+          <div className="flex justify-center pb-10 lg:justify-end lg:pb-0">
+            {/* Inner wrapper keeps float cards anchored to the phone on all viewports */}
+            <div className="relative">
             <div className="float-card absolute -top-4 left-0 z-20 flex items-center gap-2 rounded-full border border-black/8 bg-white py-2 pl-2.5 pr-4 text-xs font-semibold text-[var(--color-ink)] shadow-[0_8px_28px_rgba(18,24,38,0.12)]">
               <span className="live-dot inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#dcf3e8] text-[10px]">📸</span>
               {d.phoneNotification}
@@ -286,6 +288,7 @@ export default async function HomePage({
                 {d.qrScanLabel}
               </p>
             </div>
+            </div>{/* end inner relative wrapper */}
           </div>
         </div>
       </section>
