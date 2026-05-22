@@ -33,6 +33,7 @@ type Grant = {
   originalFilename: string;
   size: number;
   sourceType: UploadTarget;
+  confirmToken: string;
 };
 
 function uploadFile(uploadUrl: string, file: File, onProgress: (progress: number) => void) {
@@ -225,6 +226,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
                 sizeBytes: grant.size,
                 sourceType: grant.sourceType,
                 uploadSessionId: payload.uploadSessionId ?? null,
+                confirmToken: grant.confirmToken,
               }),
             });
 
