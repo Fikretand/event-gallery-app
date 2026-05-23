@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { ConfettiExplainer } from "@/components/explainer/confetti-explainer";
 import { MarketingButtonLink } from "@/components/marketing-button-link";
 import { MarketingTestimonials } from "@/components/marketing-testimonials";
 import { MarketingTrustStrip } from "@/components/marketing-trust-strip";
@@ -320,50 +321,35 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* ─── How it works ─────────────────────────────────────────── */}
+      {/* ─── How it works — explainer ─────────────────────────────── */}
       <section className="shell py-12 sm:py-16">
-        <div className="rounded-[36px] border border-[#22334c]/65 bg-[radial-gradient(ellipse_at_top_left,rgba(226,121,82,0.14),transparent_38%),radial-gradient(ellipse_at_bottom_right,rgba(56,88,77,0.18),transparent_40%),linear-gradient(160deg,#1e2d45,#172033)] px-6 py-10 sm:px-10 sm:py-14">
-          <p className="text-center text-xs font-semibold uppercase tracking-[0.26em] text-[#a8c4b8]">
+        <div className="mb-7 text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[var(--color-moss)]">
             {d.howItWorksEyebrow}
           </p>
-          <h2 className="font-display mt-4 text-center text-3xl font-semibold text-white sm:text-4xl">
+          <h2 className="font-display mt-3 text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">
             {d.howItWorksTitle}
           </h2>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {d.steps.map((step, i) => (
-              <div key={step.n} className="rounded-[24px] border border-white/10 bg-white/7 p-6">
-                <div className="flex items-start justify-between">
-                  <div className="inline-flex h-11 w-11 items-center justify-center rounded-[18px] bg-white/10 text-white/80">
-                    {STEP_ICONS[i]}
-                  </div>
-                  <span className="font-display text-3xl font-semibold text-white/14">{step.n}</span>
-                </div>
-                <p className="mt-4 text-sm font-semibold text-white/90">{step.title}</p>
-                <p className="mt-2 text-sm leading-6 text-white/52">{step.body}</p>
-                {i < 3 && (
-                  <div className="mt-4 hidden items-center gap-1 lg:flex">
-                    {[0,1,2].map((dd) => (
-                      <span key={dd} className="h-[2px] flex-1 rounded-full bg-white/12" />
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+        </div>
 
-          {/* Gallery preview strip */}
-          <div className="mt-8 grid grid-cols-4 gap-2 sm:grid-cols-8 opacity-60">
-            {PHOTO_CELLS.map((cell, i) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={i}
-                src={cell.src}
-                alt=""
-                aria-hidden="true"
-                className="aspect-square w-full rounded-2xl object-cover"
-              />
-            ))}
-          </div>
+        {/* Dark frame makes the warm explainer canvas pop */}
+        <div className="rounded-[34px] border border-[#22334c]/60 bg-[linear-gradient(160deg,#1e2d45,#172033)] p-2.5 shadow-[0_30px_80px_rgba(18,24,38,0.18)] sm:p-3.5">
+          <ConfettiExplainer />
+        </div>
+
+        {/* Slim recap of the four steps */}
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {d.steps.map((step, i) => (
+            <div key={step.n} className="flex items-start gap-3 rounded-2xl border border-black/8 bg-white/70 p-4">
+              <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--color-moss)]/10 text-[var(--color-moss)]">
+                {STEP_ICONS[i]}
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-[var(--color-ink)]">{step.title}</p>
+                <p className="mt-1 text-xs leading-5 text-black/55">{step.body}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
