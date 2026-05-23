@@ -25,7 +25,7 @@ export function DashboardHeader({
       <div className="flex flex-wrap items-center gap-3">
         {isAdmin && (
           <Link
-            href="/admin"
+            href="/admin/users"
             className="inline-flex items-center justify-center rounded-full border border-[var(--color-accent)]/25 bg-[var(--color-accent)]/8 px-4 py-2 text-sm font-semibold text-[var(--color-accent)] hover:bg-[var(--color-accent)]/14"
           >
             ⚡ Admin
