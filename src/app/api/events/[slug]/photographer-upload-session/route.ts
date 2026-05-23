@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 
 import { PHOTOGRAPHER_UPLOAD_RATE_LIMIT } from "@/lib/constants";
-import { getAccountUsage, getOwnerEventBySlug, incrementRateLimitCount } from "@/lib/events";
+import { computeTrialState, countUserMediaFiles, getAccountUsage, getOwnerEventBySlug, incrementRateLimitCount } from "@/lib/events";
+import { getUserProfile } from "@/lib/auth";
 import { buildUploadGrants } from "@/lib/media";
 import { isRateLimited } from "@/lib/rate-limit";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -47,6 +48,28 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     const payload = await request.json();
     const files = (payload.files ?? []) as UploadRequestFile[];
     validateUploadFiles(files, "photographer", event.event_settings);
+
+    // ── Trial enforcement ─────────────────────────────────────────────────────
+    const [profile, photosUsed] = await Promise.all([
+      getUserProfile(supabase, user.id),
+      countUserMediaFiles(user.id),
+    ]);
+    if (profile) {
+      const trial = computeTrialState(profile.created_at, profile.plan_tier, photosUsed);
+      if (trial.status === "expired") {
+        return NextResponse.json(
+          { error: "Your free trial has expired. Please upgrade your plan to continue uploading." },
+          { status: 403 },
+        );
+      }
+      if (trial.status === "active" && photosUsed >= trial.photosLimit) {
+        return NextResponse.json(
+          { error: `Trial photo limit reached (${trial.photosLimit} photos). Upgrade to continue uploading.` },
+          { status: 403 },
+        );
+      }
+    }
+    // ─────────────────────────────────────────────────────────────────────────
 
     const requestedBytes = files.reduce((sum, file) => sum + Number(file.size ?? 0), 0);
     const usage = await getAccountUsage(user.id);

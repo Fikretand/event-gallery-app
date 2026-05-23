@@ -6,14 +6,17 @@ import { DashboardEventList } from "@/components/dashboard-event-list";
 import { SetupNotice } from "@/components/setup-notice";
 import { Panel } from "@/components/ui/panel";
 import { resolveAccountRedirect } from "@/lib/account";
-import { getAccountTypeForUser, getRequiredUser } from "@/lib/auth";
+import { getAccountTypeForUser, getRequiredUser, getUserProfile } from "@/lib/auth";
 import { hasSupabase } from "@/lib/env";
 import {
+  computeTrialState,
+  countUserMediaFiles,
   getAccountUsage,
   getEventCoverMap,
   getEventLifecycleStatus,
   listOwnerEvents,
 } from "@/lib/events";
+import type { TrialState } from "@/lib/types";
 import { cn, formatBytes } from "@/lib/utils";
 
 export default async function DashboardPage({
@@ -39,12 +42,17 @@ export default async function DashboardPage({
     redirect(resolveAccountRedirect(accountType, { eventSlug: events[0]?.slug ?? null }));
   }
 
-  const [coverMap, usage] = await Promise.all([
+  const [coverMap, usage, profile, photosUsed] = await Promise.all([
     getEventCoverMap(events),
     getAccountUsage(user.id),
+    getUserProfile(supabase, user.id),
+    countUserMediaFiles(user.id),
   ]);
 
   const planLabel = usage.activeEventLimit === 25 ? "Pro" : "Solo";
+  const trial = profile
+    ? computeTrialState(profile.created_at, profile.plan_tier, photosUsed)
+    : null;
 
   return (
     <main className="pb-16">
@@ -67,6 +75,8 @@ export default async function DashboardPage({
             Event permanently deleted. Your storage numbers now reflect only what is still stored in the account.
           </div>
         ) : null}
+
+        {trial && <TrialBanner trial={trial} />}
 
         <div className="grid gap-4 xl:grid-cols-[1.6fr_1fr_1fr]">
           <UsageCard
@@ -99,7 +109,16 @@ export default async function DashboardPage({
                 ? "25 active events, 500 GB storage"
                 : "5 active events, 100 GB storage"
             }
-          />
+          >
+            {planLabel === "Solo" ? (
+              <Link
+                href="/pricing"
+                className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-accent)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--color-accent)] transition hover:bg-[var(--color-accent)]/18"
+              >
+                Upgrade to Pro →
+              </Link>
+            ) : null}
+          </CountCard>
         </div>
 
         {events.length === 0 ? (
@@ -187,5 +206,68 @@ function CountCard({
       <p className="mt-3 text-sm leading-6 text-black/60">{note}</p>
       {children}
     </Panel>
+  );
+}
+
+function TrialBanner({ trial }: { trial: TrialState }) {
+  if (trial.status === "none") return null;
+
+  const isExpired = trial.status === "expired";
+  const photoRatio = Math.min((trial.photosUsed / trial.photosLimit) * 100, 100);
+  const nearLimit = trial.photosUsed >= trial.photosLimit - 5;
+
+  return (
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-[24px] border px-5 py-4",
+        isExpired
+          ? "border-[#f5c6c6] bg-[linear-gradient(135deg,rgba(255,240,240,0.98),rgba(255,228,228,0.92))]"
+          : nearLimit
+            ? "border-[#f5d6b8] bg-[linear-gradient(135deg,rgba(255,248,238,0.98),rgba(255,237,215,0.92))]"
+            : "border-[#c8e0d4] bg-[linear-gradient(135deg,rgba(240,250,245,0.98),rgba(224,242,232,0.90))]",
+      )}
+    >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3">
+          <span className="mt-0.5 text-lg leading-none">
+            {isExpired ? "⏰" : "🎉"}
+          </span>
+          <div>
+            <p className={cn("text-sm font-semibold", isExpired ? "text-[#8b1a1a]" : "text-[var(--color-ink)]")}>
+              {isExpired
+                ? "Your free trial has expired"
+                : `Free trial — ${trial.daysLeft} day${trial.daysLeft === 1 ? "" : "s"} remaining`}
+            </p>
+            <p className={cn("mt-0.5 text-xs", isExpired ? "text-[#b03030]/80" : "text-black/58")}>
+              {isExpired
+                ? "Upgrade to keep uploading and managing your events."
+                : `${trial.photosUsed} / ${trial.photosLimit} photos used · Upgrade to remove all limits`}
+            </p>
+            {!isExpired && (
+              <div className="mt-2 h-1.5 w-48 max-w-full overflow-hidden rounded-full bg-black/10">
+                <div
+                  className={cn(
+                    "h-full rounded-full transition-all",
+                    nearLimit ? "bg-[var(--color-accent)]" : "bg-[var(--color-moss)]",
+                  )}
+                  style={{ width: `${photoRatio}%` }}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+        <Link
+          href="/pricing"
+          className={cn(
+            "shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition",
+            isExpired
+              ? "bg-[#8b1a1a] text-white hover:bg-[#6e1515]"
+              : "bg-[var(--color-ink)] text-white hover:bg-[var(--color-ink)]/85",
+          )}
+        >
+          Upgrade plan →
+        </Link>
+      </div>
+    </div>
   );
 }

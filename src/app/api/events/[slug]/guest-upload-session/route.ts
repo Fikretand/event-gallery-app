@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 
 import { GUEST_UPLOAD_RATE_LIMIT } from "@/lib/constants";
 import { buildUploadGrants } from "@/lib/media";
-import { createGuestUploadSession, getAccountUsage, getEventAccountType, getPublicEventBySlug, incrementRateLimitCount, isEventExpired, isGuestUploadWindowClosed } from "@/lib/events";
+import { computeTrialState, countUserMediaFiles, createGuestUploadSession, getAccountUsage, getEventAccountType, getPublicEventBySlug, incrementRateLimitCount, isEventExpired, isGuestUploadWindowClosed } from "@/lib/events";
+import { getUserProfile } from "@/lib/auth";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isRateLimited } from "@/lib/rate-limit";
 import { hashIp, verifyPin } from "@/lib/security";
 import type { UploadRequestFile } from "@/lib/types";
@@ -61,6 +63,31 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     validateUploadFiles(files, "guest", event.event_settings);
 
     if (accountType === "photographer") {
+      // ── Trial enforcement for event owner ──────────────────────────────────
+      const adminClient = createSupabaseAdminClient();
+      if (adminClient) {
+        const [ownerProfile, photosUsed] = await Promise.all([
+          adminClient.from("users").select("*").eq("id", event.owner_user_id).maybeSingle().then(r => r.data),
+          countUserMediaFiles(event.owner_user_id),
+        ]);
+        if (ownerProfile) {
+          const trial = computeTrialState(ownerProfile.created_at, ownerProfile.plan_tier, photosUsed);
+          if (trial.status === "expired") {
+            return NextResponse.json(
+              { error: "The event host's free trial has expired. Please contact the event organiser." },
+              { status: 403 },
+            );
+          }
+          if (trial.status === "active" && photosUsed >= trial.photosLimit) {
+            return NextResponse.json(
+              { error: "The event host has reached their trial photo limit. Please contact the event organiser." },
+              { status: 403 },
+            );
+          }
+        }
+      }
+      // ───────────────────────────────────────────────────────────────────────
+
       const requestedBytes = files.reduce((sum, file) => sum + Number(file.size ?? 0), 0);
       const usage = await getAccountUsage(event.owner_user_id);
       if (requestedBytes > usage.liveAvailableStorageBytes) {

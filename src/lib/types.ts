@@ -144,6 +144,18 @@ export type GallerySectionRecord = {
   created_at: string;
 };
 
+export type TrialStatus = "active" | "expired" | "none";
+
+export type TrialState = {
+  status: TrialStatus;
+  /** Days remaining in trial (0 if expired/none) */
+  daysLeft: number;
+  /** Days elapsed since account creation (capped at TRIAL_DURATION_DAYS) */
+  daysUsed: number;
+  photosUsed: number;
+  photosLimit: number;
+};
+
 export type DownloadRecord = {
   id: string;
   event_id: string;

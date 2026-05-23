@@ -9,6 +9,9 @@ export const SOLO_STORAGE_LIMIT_BYTES = 100 * 1024 * 1024 * 1024;
 export const PRO_ACTIVE_EVENT_LIMIT = 25;
 export const PRO_STORAGE_LIMIT_BYTES = 500 * 1024 * 1024 * 1024;
 export const PROFILE_AVATAR_MAX_MB = 5;
+export const TRIAL_DURATION_DAYS = 7;
+export const TRIAL_PHOTO_LIMIT = 20;
+export const TRIAL_EVENT_LIMIT = 1;
 export const GUEST_UPLOAD_RATE_LIMIT = {
   windowMs: 60_000,
   maxRequests: 20,

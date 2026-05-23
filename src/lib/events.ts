@@ -5,6 +5,8 @@ import {
   PRO_STORAGE_LIMIT_BYTES,
   SOLO_ACTIVE_EVENT_LIMIT,
   SOLO_STORAGE_LIMIT_BYTES,
+  TRIAL_DURATION_DAYS,
+  TRIAL_PHOTO_LIMIT,
 } from "@/lib/constants";
 import { env } from "@/lib/env";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -24,6 +26,7 @@ import type {
   MediaFileRecord,
   PhotographerPlanTier,
   PublicPhotographerProfile,
+  TrialState,
 } from "@/lib/types";
 import { absoluteUrl, slugify } from "@/lib/utils";
 
@@ -1085,4 +1088,74 @@ export async function generateUploadQrDataUrl(slug: string) {
       light: "#FFF8F0",
     },
   });
+}
+
+// ─── Trial system ─────────────────────────────────────────────────────────────
+
+/**
+ * Count total non-deleted, non-failed media files across all events
+ * owned by a given user. Used for trial photo limit enforcement.
+ */
+export async function countUserMediaFiles(userId: string): Promise<number> {
+  const admin = createSupabaseAdminClient();
+  if (!admin) return 0;
+
+  // Step 1: get all event IDs owned by this user
+  const { data: events } = await admin
+    .from("events")
+    .select("id")
+    .eq("owner_user_id", userId);
+
+  const eventIds = (events ?? []).map((e: { id: string }) => e.id);
+  if (eventIds.length === 0) return 0;
+
+  // Step 2: count non-deleted, non-failed media in those events
+  const { count } = await admin
+    .from("media_files")
+    .select("id", { count: "exact", head: true })
+    .in("event_id", eventIds)
+    .is("deleted_at", null)
+    .neq("status", "failed");
+
+  return count ?? 0;
+}
+
+/**
+ * Compute trial state for a photographer account.
+ * Trial = plan_tier "solo" + account created within TRIAL_DURATION_DAYS.
+ * Pro accounts are never on trial.
+ */
+export function computeTrialState(
+  createdAt: string,
+  planTier: string,
+  photosUsed: number,
+): TrialState {
+  // Pro plan users are fully paid — no trial state
+  if (planTier === "pro") {
+    return { status: "none", daysLeft: 0, daysUsed: 0, photosUsed, photosLimit: TRIAL_PHOTO_LIMIT };
+  }
+
+  const created = new Date(createdAt);
+  const now = new Date();
+  const msElapsed = now.getTime() - created.getTime();
+  const daysUsed = Math.floor(msElapsed / (24 * 60 * 60 * 1000));
+
+  if (daysUsed >= TRIAL_DURATION_DAYS) {
+    // Solo user past trial window — treat as expired trial
+    return {
+      status: "expired",
+      daysLeft: 0,
+      daysUsed: Math.min(daysUsed, TRIAL_DURATION_DAYS),
+      photosUsed,
+      photosLimit: TRIAL_PHOTO_LIMIT,
+    };
+  }
+
+  return {
+    status: "active",
+    daysLeft: TRIAL_DURATION_DAYS - daysUsed,
+    daysUsed,
+    photosUsed,
+    photosLimit: TRIAL_PHOTO_LIMIT,
+  };
 }
