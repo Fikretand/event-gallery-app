@@ -51,19 +51,35 @@ const NAV = [
   { href: "/admin/users", label: "Users", icon: <IconUsers /> },
 ];
 
+/** Strip a leading /en or /bs so route matching works regardless of locale prefix. */
+function stripLocale(pathname: string): string {
+  const m = pathname.match(/^\/(en|bs)(\/.*)?$/);
+  return m ? m[2] ?? "/" : pathname;
+}
+
+/** Detect the active locale from the pathname (defaults to "en"). */
+function detectLocale(pathname: string): string {
+  const m = pathname.match(/^\/(en|bs)(\/|$)/);
+  return m ? m[1] : "en";
+}
+
 function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+  const cleanPath = stripLocale(pathname);
+  const locale = detectLocale(pathname);
+  const lp = (href: string) => `/${locale}${href}`;
+
   return (
     <>
       <nav className="flex-1 space-y-0.5 p-2.5 pt-3">
         {NAV.map((item) => {
           const active =
             item.href === "/admin"
-              ? pathname === "/admin"
-              : pathname.startsWith(item.href);
+              ? cleanPath === "/admin"
+              : cleanPath.startsWith(item.href);
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={lp(item.href)}
               onClick={onNavigate}
               className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
                 active
@@ -79,7 +95,7 @@ function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () 
       </nav>
       <div className="border-t border-black/8 p-2.5">
         <Link
-          href="/dashboard"
+          href={lp("/dashboard")}
           onClick={onNavigate}
           className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-black/45 transition hover:bg-black/[0.05] hover:text-[var(--color-ink)]"
         >
