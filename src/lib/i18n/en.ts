@@ -101,7 +101,7 @@ export const dict: Dict = {
     forCouplesTitle: "One event page, one QR code, every guest memory in one place.",
     forPhotographersCtaPrimary: "Photographer workflow",
     forPhotographersCtaSecondary: "Compare plans",
-    forCouplesCtaPrimary: "See couples plan",
+    forCouplesCtaPrimary: "For event hosts",
     forCouplesCtaSecondary: "One-time pricing",
     phoneMockupGalleryName: "Mia & Dario's Wedding",
     phoneMockupDate: "14 June · 247 photos",
@@ -218,7 +218,7 @@ export const dict: Dict = {
   pricing: {
     eyebrow: "Trusted by photographers who need private delivery and guest uploads in one place.",
     title: "Private galleries that save more stress than they cost.",
-    body: "Pick a recurring plan for your photography business or a one-time wedding plan for a single event. Confetti keeps links stable, galleries private, and downloads simple.",
+    body: "Pick a recurring plan for your photography business or a one-time plan for a single event. Confetti keeps links stable, galleries private, and downloads simple.",
     features: [
       {
         title: "Stable links for printed QR cards",
@@ -294,7 +294,7 @@ export const dict: Dict = {
         monthlyLabel: "per month billed monthly",
         savingsLabel: "Save 20% on annual billing",
         summary:
-          "For busy wedding photographers running multiple live events and polished delivery flows.",
+          "For busy event photographers running multiple live events and polished delivery flows.",
         ctaLabel: "Start 14-day trial",
         features: [
           "Up to 25 active events",
@@ -400,7 +400,7 @@ export const dict: Dict = {
       "One protected gallery that keeps every guest memory in one private place.",
       "Simple gallery sections so you can organize moments like Ceremony, Restaurant, or Photoshoot.",
       "Simple downloads later, without hunting through chats, shared drives, or a dozen messages.",
-      "A one-time setup that feels elegant enough for a wedding, not like another generic app link.",
+      "A one-time setup elegant enough for any celebration, not just another generic app link.",
     ],
     trustBadges: [
       { label: "No app installs", sub: "Guests upload from any phone browser" },
@@ -416,7 +416,7 @@ export const dict: Dict = {
     mostPopular: "Most popular",
     includes: "Includes",
     oneTimePlan: "One-time plan",
-    oneTimePerfect: "Perfect for one private wedding or event.",
+    oneTimePerfect: "Perfect for one private event — wedding, birthday, or anything worth keeping.",
   },
   testimonialsUi: {
     sectionEyebrow: "Social proof",

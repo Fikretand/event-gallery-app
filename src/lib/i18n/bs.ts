@@ -102,7 +102,7 @@ export const dict: Dict = {
     forCouplesTitle: "Jedna stranica događaja, jedan QR kod, svaka uspomena na jednom mjestu.",
     forPhotographersCtaPrimary: "Tok rada za fotografe",
     forPhotographersCtaSecondary: "Usporedi planove",
-    forCouplesCtaPrimary: "Pogledaj plan za parove",
+    forCouplesCtaPrimary: "Za organizatore",
     forCouplesCtaSecondary: "Jednokratna cijena",
     phoneMockupGalleryName: "Vjenčanje Mia & Dario",
     phoneMockupDate: "14. juna · 247 fotografija",
@@ -217,7 +217,7 @@ export const dict: Dict = {
     usageTitle: "Korištenje naloga",
   },
   pricing: {
-    eyebrow: "Koriste fotografe koji trebaju privatnu isporuku i prijenos gostiju na jednom mjestu.",
+    eyebrow: "Koriste ga fotografi kojima treba privatna isporuka i prijenos gostiju na jednom mjestu.",
     title: "Privatne galerije koje štede više stresa nego što koštaju.",
     body: "Odaberite ponavljajući plan za vaše fotografsko poslovanje ili jednokratni plan za jedan događaj. Confetti drži linkove stabilnima, galerije privatnima, a preuzimanja jednostavnima.",
     features: [
@@ -226,7 +226,7 @@ export const dict: Dict = {
         body: "Linkovi događaja se ne mijenjaju kada preimenujete događaj, pa odštampani QR i dijeljene kartice ostaju valjani.",
       },
       {
-        title: "Privatna isporuka po defaultu",
+        title: "Privatna isporuka od početka",
         body: "Galerije zaštićene PIN-om, skriveni prijenosi gostiju i kontrole moderacije drže isporuku klijentima mirnom i kontroliranom.",
       },
       {
@@ -241,7 +241,7 @@ export const dict: Dict = {
     body: "Svaki događaj na jednom mirnom mjestu — od QR prijenosa gostiju do isporuke klijentima zaštićene PIN-om.",
     workflowEyebrow: "Confetti tok rada",
     workflowTitle: "Četiri koraka, nula žongliranja alatima.",
-    switchTitle: "Zašto fotografe prelaze na Confetti",
+    switchTitle: "Zašto fotografi prelaze na Confetti",
     ctaPrimary: "Počni besplatno",
     ctaSecondary: "Pogledaj cijene",
     workflow: [
@@ -255,7 +255,7 @@ export const dict: Dict = {
       },
       {
         title: "Moderiraj prije isporuke",
-        body: "Drži gostujuće prijenose sakrivene po defaultu, pa otkrij, obriši ili vrati dok kuriraš galeriju.",
+        body: "Drži prijenose gostiju skrivene dok ne odobriš, pa otkrij, obriši ili vrati dok kuriraš galeriju.",
       },
       {
         title: "Isporuči dotjeranu galeriju",
@@ -295,7 +295,7 @@ export const dict: Dict = {
         monthlyLabel: "mjesečno, naplata svaki mjesec",
         savingsLabel: "Uštedi 20% godišnjom naplatom",
         summary:
-          "Za zaposlene fotografe vjenčanja koji upravljaju više live događaja i dotjeranim tokovima isporuke.",
+          "Za zaposlene fotografe događaja koji upravljaju više live događaja i dotjeranim tokovima isporuke.",
         ctaLabel: "Počni 14-dnevni trial",
         features: [
           "Do 25 aktivnih događaja",
@@ -334,7 +334,7 @@ export const dict: Dict = {
         body: "Gosti skeniraju, šalju i nastavljaju. Bez aplikacije, bez naloga.",
       },
       {
-        title: "Privatno po defaultu",
+        title: "Privatno od početka",
         body: "PIN zaštita, skriveni prijenosi gostiju, kontrolovana preuzimanja.",
       },
     ],
@@ -390,24 +390,24 @@ export const dict: Dict = {
       },
     ],
     photographerSwitchReasons: [
-      "Jedan privatni tok rada umjesto krpanja linkova za upload, foldera i naknadnih poruka.",
-      "Prijenosi gostiju sakriveni po defaultu — pregledajte prvo i prikažite samo ono što pripada finalnoj galeriji.",
-      "Stabilni QR i linkovi galerije koji rade i nakon preimenovanja događaja ili štampanja signalizacije.",
-      "Premiumija predaja klijentima koja se čini kao dio vaše usluge, a ne naknadna pomisao.",
+      "Jedan privatni tok rada umjesto spajanja upload linkova, foldera i naknadnih poruka.",
+      "Prijenosi gostiju skriveni dok ih ne odobrite — pregledate prvo i prikažete samo ono što ide u finalnu galeriju.",
+      "Stabilni QR i linkovi galerije koji rade i nakon preimenovanja događaja ili štampanja natpisa.",
+      "Profesionalnija predaja klijentima koja djeluje kao dio vaše usluge, a ne kao naknadna pomisao.",
     ],
     couplePlanHighlights: [
       "Neograničeni prijenos fotografija gostiju s jednog QR koda koji gosti mogu otvoriti za sekunde.",
       "Video gostiju uključen uz razumnu upotrebu — plan ostaje jednostavan bez zastrašujućih limita.",
-      "Jedna zaštićena galerija koja čuva svako gostujuće sjećanje na jednom privatnom mjestu.",
-      "Jednostavne sekcije galerije za organizaciju trenutaka poput Ceremonije, Restorana ili Fotošutinga.",
+      "Jedna zaštićena galerija koja čuva svaku uspomenu gostiju na jednom privatnom mjestu.",
+      "Jednostavne sekcije galerije za organizaciju trenutaka poput Ceremonije, Recepcije ili Fotografisanja.",
       "Jednostavna preuzimanja naknadno — bez traženja po chatovima, dijeljenim diskovima ili porukama.",
-      "Jednokratno postavljanje koje je dovoljno elegantno za vjenčanje, ne kao još jedan generički link aplikacije.",
+      "Jednokratno postavljanje dovoljno elegantno za bilo koju proslavu, a ne kao još jedan generički link aplikacije.",
     ],
     trustBadges: [
       { label: "Bez instaliranja aplikacije", sub: "Gosti šalju iz bilo kojeg mobilnog browsera" },
       { label: "PIN zaštita", sub: "Samo pozvani klijenti vide galeriju" },
       { label: "Stabilni linkovi", sub: "QR kodovi rade i nakon preimenovanja događaja" },
-      { label: "Privatno po defaultu", sub: "Gostujući prijenosi su skriveni dok vi ne odobrite" },
+      { label: "Privatno od početka", sub: "Gostujući prijenosi su skriveni dok vi ne odobrite" },
     ],
   },
   pricingUi: {
@@ -417,7 +417,7 @@ export const dict: Dict = {
     mostPopular: "Najpopularnije",
     includes: "Uključuje",
     oneTimePlan: "Jednokratni plan",
-    oneTimePerfect: "Savršeno za jedno privatno vjenčanje ili događaj.",
+    oneTimePerfect: "Savršeno za jedan privatni događaj — vjenčanje, rođendan ili bilo šta vrijedno pamćenja.",
   },
   testimonialsUi: {
     sectionEyebrow: "Recenzije",
@@ -426,7 +426,7 @@ export const dict: Dict = {
   },
   trustStrip: [
     {
-      title: "Privatno po defaultu",
+      title: "Privatno od početka",
       body: "Galerije zaštićene PIN-om, skriveni prijenosi gostiju i kontrolirano dijeljenje drže isporuku mirnom.",
       icon: "shield",
     },
@@ -473,7 +473,7 @@ export const dict: Dict = {
     pinLabel: "PIN za prijenos",
     selectPhotosBtn: "Odaberi fotografije",
     orClickSelect: "ili tapnite za pretragu",
-    reviewTitle: "Spremo za slanje",
+    reviewTitle: "Spremno za slanje",
     sendBtn: "Pošalji fotografije",
     addMoreBtn: "Dodaj još",
     retryBtn: "Pokušaj ponovo",
