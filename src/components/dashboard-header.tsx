@@ -6,10 +6,12 @@ export function DashboardHeader({
   title,
   eyebrow,
   action,
+  isAdmin,
 }: {
   title: string;
   eyebrow?: string;
   action?: React.ReactNode;
+  isAdmin?: boolean;
 }) {
   return (
     <header className="shell flex flex-col gap-5 py-6 lg:flex-row lg:items-center lg:justify-between">
@@ -21,6 +23,14 @@ export function DashboardHeader({
         <h1 className="font-display text-3xl font-semibold text-[var(--color-ink)] sm:text-4xl">{title}</h1>
       </div>
       <div className="flex flex-wrap items-center gap-3">
+        {isAdmin && (
+          <Link
+            href="/admin"
+            className="inline-flex items-center justify-center rounded-full border border-[var(--color-accent)]/25 bg-[var(--color-accent)]/8 px-4 py-2 text-sm font-semibold text-[var(--color-accent)] hover:bg-[var(--color-accent)]/14"
+          >
+            ⚡ Admin
+          </Link>
+        )}
         <Link
           href="/dashboard/profile"
           className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white/75 px-4 py-2 text-sm font-semibold text-[var(--color-ink)] hover:bg-white"

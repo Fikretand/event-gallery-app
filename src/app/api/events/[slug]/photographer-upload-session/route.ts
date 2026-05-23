@@ -55,7 +55,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
       countUserMediaFiles(user.id),
     ]);
     if (profile) {
-      const trial = computeTrialState(profile.created_at, profile.plan_tier, photosUsed);
+      const trial = computeTrialState(profile.created_at, profile.plan_tier, photosUsed, profile.role);
       if (trial.status === "expired") {
         return NextResponse.json(
           { error: "Your free trial has expired. Please upgrade your plan to continue uploading." },

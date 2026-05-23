@@ -71,7 +71,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
           countUserMediaFiles(event.owner_user_id),
         ]);
         if (ownerProfile) {
-          const trial = computeTrialState(ownerProfile.created_at, ownerProfile.plan_tier, photosUsed);
+          const trial = computeTrialState(ownerProfile.created_at, ownerProfile.plan_tier, photosUsed, ownerProfile.role);
           if (trial.status === "expired") {
             return NextResponse.json(
               { error: "The event host's free trial has expired. Please contact the event organiser." },

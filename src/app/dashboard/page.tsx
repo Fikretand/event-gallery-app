@@ -51,7 +51,7 @@ export default async function DashboardPage({
 
   const planLabel = usage.activeEventLimit === 25 ? "Pro" : "Solo";
   const trial = profile
-    ? computeTrialState(profile.created_at, profile.plan_tier, photosUsed)
+    ? computeTrialState(profile.created_at, profile.plan_tier, photosUsed, profile.role)
     : null;
 
   return (
@@ -59,6 +59,7 @@ export default async function DashboardPage({
       <DashboardHeader
         title="Your events"
         eyebrow="Private galleries, guest uploads, and delivery links"
+        isAdmin={profile?.role === "admin"}
         action={
           <Link
             href="/dashboard/events/new"
