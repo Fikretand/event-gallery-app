@@ -178,6 +178,8 @@ export default async function EventDetailPage({
                   </Link>
                   <Link
                     href={links.galleryUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-semibold text-[var(--color-ink)]"
                   >
                     {isCouple ? "Open private gallery" : "Open client gallery"}
