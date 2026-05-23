@@ -239,6 +239,23 @@ export interface Dict {
   };
   trustStrip: Array<{ title: string; body: string; icon: string }>;
   photographerPlaceholder: string;
+  getStarted: {
+    eyebrow: string;
+    title: string;
+    body: string;
+    photographerLabel: string;
+    photographerTitle: string;
+    photographerBody: string;
+    photographerPlan: string;
+    photographerCta: string;
+    eventLabel: string;
+    eventTitle: string;
+    eventBody: string;
+    eventPlan: string;
+    eventCta: string;
+    alreadyHaveAccount: string;
+    logIn: string;
+  };
   uploadDropzone: {
     // Step indicator
     stepChoose: string;

@@ -116,7 +116,7 @@ export function SiteNav() {
             {nav.logIn}
           </Link>
           <MarketingButtonLink
-            href={localePath(locale, "/signup?intent=photographer")}
+            href={localePath(locale, "/get-started")}
             className="whitespace-nowrap shadow-[0_4px_16px_rgba(226,121,82,0.22)]"
           >
             {nav.startFree}

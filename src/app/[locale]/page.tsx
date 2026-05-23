@@ -156,7 +156,7 @@ export default async function HomePage({
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <MarketingButtonLink
-                href={lp("/signup?intent=photographer")}
+                href={lp("/get-started")}
                 className="w-full px-8 shadow-[0_12px_32px_rgba(226,121,82,0.30)] sm:w-auto"
               >
                 {d.ctaPrimary}
@@ -489,7 +489,7 @@ export default async function HomePage({
               </h2>
               <p className="mt-4 max-w-sm text-sm leading-7 text-black/62">{d.faqBody}</p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                <MarketingButtonLink href={lp("/signup?intent=photographer")} className="w-full sm:w-auto">
+                <MarketingButtonLink href={lp("/get-started")} className="w-full sm:w-auto">
                   {d.faqCtaPrimary}
                 </MarketingButtonLink>
                 <MarketingButtonLink href={lp("/pricing")} tone="ghost" className="w-full sm:w-auto">

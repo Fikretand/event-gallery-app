@@ -45,7 +45,7 @@ export default async function LoginPage({
           <p className="text-sm text-black/55">
             {d.needAccount}{" "}
             <Link
-              href={`/${locale}/signup?intent=photographer`}
+              href={`/${locale}/get-started`}
               className="font-semibold text-[var(--color-accent)]"
             >
               {d.createHere}
