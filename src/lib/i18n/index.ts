@@ -63,6 +63,10 @@ export interface Dict {
     forPhotographersCtaSecondary: string;
     forCouplesCtaPrimary: string;
     forCouplesCtaSecondary: string;
+    whoForEyebrow: string;
+    whoForTitle: string;
+    photographerCardBody: string;
+    coupleCardBody: string;
     phoneMockupGalleryName: string;
     phoneMockupDate: string;
     phoneMockupMeta: string;
@@ -186,10 +190,18 @@ export interface Dict {
     body: string;
     workflowEyebrow: string;
     workflowTitle: string;
+    workflowBody: string;
     switchTitle: string;
+    switchSubtitle: string;
     ctaPrimary: string;
     ctaSecondary: string;
     workflow: Array<{ title: string; body: string }>;
+    replacesEyebrow: string;
+    replaces: string[];
+    benefitsEyebrow: string;
+    pricingEyebrow: string;
+    pricingTitle: string;
+    pricingBody: string;
   };
   forCouples: {
     eyebrow: string;
@@ -197,6 +209,11 @@ export interface Dict {
     body: string;
     ctaPrimary: string;
     ctaSecondary: string;
+    benefitsEyebrow: string;
+    highlightsEyebrow: string;
+    highlightsTitle: string;
+    howItWorksEyebrow: string;
+    howItWorks: string[];
   };
   marketing: {
     photographerPlans: Array<{

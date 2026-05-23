@@ -4,7 +4,7 @@ import { MarketingTrustStrip } from "@/components/marketing-trust-strip";
 import { OneTimePlanCard } from "@/components/pricing-showcase";
 import { SiteNav } from "@/components/site-nav";
 import { Panel } from "@/components/ui/panel";
-import { coupleBenefits, couplePlanHighlights } from "@/lib/marketing";
+import { getDictionary, type Locale } from "@/lib/i18n/index";
 
 function CoupleBenefitIcon({ index }: { index: number }) {
   switch (index) {
@@ -32,7 +32,18 @@ function CoupleBenefitIcon({ index }: { index: number }) {
   }
 }
 
-export default function ForCouplesPage() {
+export default async function ForCouplesPage({
+  params,
+}: {
+  params: Promise<{ locale?: string }>;
+}) {
+  const resolved = await params;
+  const locale = (resolved?.locale as Locale) ?? "en";
+  const dict = getDictionary(locale);
+  const d = dict.forCouples;
+  const dm = dict.marketing;
+  const lp = (path: string) => `/${locale}${path}`;
+
   return (
     <main className="pb-16">
       <SiteNav />
@@ -40,21 +51,20 @@ export default function ForCouplesPage() {
         <div className="grid gap-6 lg:grid-cols-[1.08fr_0.92fr]">
           <div className="space-y-5 sm:space-y-6">
             <p className="inline-flex rounded-full border border-[var(--color-moss)]/20 bg-white/65 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-moss)]">
-              For couples
+              {d.eyebrow}
             </p>
             <h1 className="font-display max-w-3xl text-4xl font-semibold leading-[1.06] tracking-tight text-[var(--color-ink)] sm:text-6xl">
-              Gather every wedding memory with one QR code and one private gallery.
+              {d.title}
             </h1>
             <p className="max-w-2xl text-base leading-7 text-black/70 sm:text-lg sm:leading-8">
-              Confetti gives couples a simple one-event home for guest uploads and private sharing, without
-              forcing family and friends into another app.
+              {d.body}
             </p>
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <MarketingButtonLink
-                href="/signup?intent=couple"
+                href={lp("/signup?intent=couple")}
                 className="w-full px-7 py-4 text-base shadow-[0_20px_44px_rgba(226,121,82,0.26)] sm:w-auto"
               >
-                Create an event
+                {d.ctaPrimary}
               </MarketingButtonLink>
             </div>
           </div>
@@ -65,18 +75,23 @@ export default function ForCouplesPage() {
         </div>
       </section>
 
-      <MarketingTrustStrip />
+      <MarketingTrustStrip locale={locale} />
 
-      <section className="shell grid gap-5 py-10 md:grid-cols-3">
-        {coupleBenefits.map((item, index) => (
-          <Panel key={item.title} className="mesh-card bg-white/80">
-            <div className="inline-flex h-11 w-11 items-center justify-center rounded-[18px] bg-[linear-gradient(180deg,var(--color-accent-soft),#f8e0d3)] text-[var(--color-moss)] shadow-[0_10px_24px_rgba(226,121,82,0.16)]">
-              <CoupleBenefitIcon index={index} />
-            </div>
-            <p className="mt-4 text-lg font-semibold text-[var(--color-ink)]">{item.title}</p>
-            <p className="mt-3 text-sm leading-6 text-black/72">{item.body}</p>
-          </Panel>
-        ))}
+      <section className="shell py-8">
+        <p className="mb-5 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-moss)]">
+          {d.benefitsEyebrow}
+        </p>
+        <div className="grid gap-5 md:grid-cols-3">
+          {dm.coupleBenefits.map((item, index) => (
+            <Panel key={item.title} className="mesh-card bg-white/80">
+              <div className="inline-flex h-11 w-11 items-center justify-center rounded-[18px] bg-[linear-gradient(180deg,var(--color-accent-soft),#f8e0d3)] text-[var(--color-moss)] shadow-[0_10px_24px_rgba(226,121,82,0.16)]">
+                <CoupleBenefitIcon index={index} />
+              </div>
+              <p className="mt-4 text-lg font-semibold text-[var(--color-ink)]">{item.title}</p>
+              <p className="mt-3 text-sm leading-6 text-black/72">{item.body}</p>
+            </Panel>
+          ))}
+        </div>
       </section>
 
       <section className="shell py-10">
@@ -84,14 +99,14 @@ export default function ForCouplesPage() {
           <div className="grid gap-8 lg:grid-cols-[0.82fr_1.18fr]">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-moss)]">
-                What couples get in one event
+                {d.highlightsEyebrow}
               </p>
               <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">
-                One simple setup, one private place, and one less thing to worry about.
+                {d.highlightsTitle}
               </h2>
             </div>
             <div className="grid gap-3">
-              {couplePlanHighlights.map((item) => (
+              {dm.couplePlanHighlights.map((item) => (
                 <div
                   key={item}
                   className="rounded-[22px] border border-black/8 bg-white/84 px-4 py-4 text-sm leading-6 text-[var(--color-ink)] shadow-[0_10px_30px_rgba(18,24,38,0.04)]"
@@ -105,16 +120,15 @@ export default function ForCouplesPage() {
       </section>
 
       <section className="shell py-10">
+        <p className="mb-5 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-moss)]">
+          {d.howItWorksEyebrow}
+        </p>
         <Panel className="mesh-card bg-white/85">
           <div className="grid gap-5 md:grid-cols-3">
-            {[
-              "Create your event and generate a guest upload QR code.",
-              "Place the QR on tables, invites, or signage so everyone can send photos instantly.",
-              "Open the private gallery later and keep every guest memory together in one private place.",
-            ].map((step, index) => (
+            {d.howItWorks.map((step, index) => (
               <div key={step} className="rounded-[24px] border border-black/8 bg-white/85 p-5">
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-moss)]">
-                  Step {index + 1}
+                  {`0${index + 1}`}
                 </p>
                 <p className="mt-3 text-sm leading-6 text-black/72">{step}</p>
               </div>

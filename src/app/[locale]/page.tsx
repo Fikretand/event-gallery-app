@@ -370,60 +370,59 @@ export default async function HomePage({
       <MarketingTrustStrip locale={locale as Locale} />
       <MarketingTestimonials />
 
-      {/* ─── For photographers / For couples ──────────────────────── */}
+      {/* ─── Who it's for (router band) ───────────────────────────── */}
       <section className="shell py-12 sm:py-16">
-        <div className="rounded-[34px] border border-[#23344d]/65 bg-[radial-gradient(circle_at_top_left,rgba(226,121,82,0.12),transparent_28%),radial-gradient(circle_at_top_right,rgba(104,146,128,0.14),transparent_26%),linear-gradient(180deg,#223149,#172033)] p-3 shadow-[0_30px_80px_rgba(18,24,38,0.14)] sm:p-4">
-          <div className="grid gap-4 lg:grid-cols-2">
-            <Panel className="mesh-card border-[#dde7e1] bg-[linear-gradient(160deg,rgba(245,251,248,0.98),rgba(224,238,232,0.82))]">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-moss)]">
-                {d.forPhotographersEyebrow}
-              </p>
-              <h2 className="font-display mt-4 text-3xl font-semibold tracking-tight text-[var(--color-ink)]">
-                {d.forPhotographersTitle}
-              </h2>
-              <div className="mt-6 space-y-3">
-                {dm.photographerBenefits.map((item) => (
-                  <div key={item.title} className="rounded-[20px] border border-[#cdddd4] bg-white/85 p-4">
-                    <p className="text-sm font-semibold text-[var(--color-ink)]">{item.title}</p>
-                    <p className="mt-1.5 text-sm leading-6 text-black/65">{item.body}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                <MarketingButtonLink href={lp("/for-photographers")} tone="ink" className="w-full sm:w-auto">
-                  {d.forPhotographersCtaPrimary}
-                </MarketingButtonLink>
-                <MarketingButtonLink href={lp("/pricing")} tone="ghost" className="w-full sm:w-auto">
-                  {d.forPhotographersCtaSecondary}
-                </MarketingButtonLink>
-              </div>
-            </Panel>
+        <div className="mb-7 text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-moss)]">
+            {d.whoForEyebrow}
+          </p>
+          <h2 className="font-display mt-3 text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">
+            {d.whoForTitle}
+          </h2>
+        </div>
 
-            <Panel className="mesh-card border-[#e8d2c4] bg-[linear-gradient(160deg,rgba(255,253,250,0.98),rgba(248,230,218,0.65))]">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-moss)]">
-                {d.forCouplesEyebrow}
-              </p>
-              <h2 className="font-display mt-4 text-3xl font-semibold tracking-tight text-[var(--color-ink)]">
-                {d.forCouplesTitle}
-              </h2>
-              <div className="mt-6 space-y-3">
-                {dm.coupleBenefits.map((item) => (
-                  <div key={item.title} className="rounded-[20px] border border-[#efd8c9] bg-white/85 p-4">
-                    <p className="text-sm font-semibold text-[var(--color-ink)]">{item.title}</p>
-                    <p className="mt-1.5 text-sm leading-6 text-black/65">{item.body}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                <MarketingButtonLink href={lp("/for-couples")} className="w-full sm:w-auto">
-                  {d.forCouplesCtaPrimary}
-                </MarketingButtonLink>
-                <MarketingButtonLink href={lp("/pricing")} tone="ghost" className="w-full sm:w-auto">
-                  {d.forCouplesCtaSecondary}
-                </MarketingButtonLink>
-              </div>
-            </Panel>
-          </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          {/* Photographers */}
+          <Link
+            href={lp("/for-photographers")}
+            className="group relative overflow-hidden rounded-[28px] border border-[#cfe0d7] bg-[linear-gradient(160deg,rgba(245,251,248,0.98),rgba(222,238,231,0.85))] p-7 transition hover:shadow-[0_24px_60px_rgba(56,88,77,0.16)]"
+          >
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-[18px] bg-white/85 text-[var(--color-moss)] shadow-[0_8px_20px_rgba(18,24,38,0.07)]">
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7">
+                <rect x="3" y="6.5" width="18" height="13" rx="2.5" />
+                <path d="M8.5 6.5l1.4-2.2h4.2l1.4 2.2" />
+                <circle cx="12" cy="13" r="3.4" />
+              </svg>
+            </div>
+            <p className="mt-5 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-moss)]">
+              {d.forPhotographersEyebrow}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-black/68">{d.photographerCardBody}</p>
+            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-ink)]">
+              {d.forPhotographersCtaPrimary}
+              <span className="transition-transform group-hover:translate-x-1">→</span>
+            </span>
+          </Link>
+
+          {/* Event hosts */}
+          <Link
+            href={lp("/for-couples")}
+            className="group relative overflow-hidden rounded-[28px] border border-[#ecd5c6] bg-[linear-gradient(160deg,rgba(255,253,250,0.98),rgba(248,229,217,0.7))] p-7 transition hover:shadow-[0_24px_60px_rgba(226,121,82,0.16)]"
+          >
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-[18px] bg-white/85 text-[var(--color-accent)] shadow-[0_8px_20px_rgba(18,24,38,0.07)]">
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7">
+                <path d="M12 20.5s-7-4.3-7-9.4a3.6 3.6 0 016.999-1.2A3.6 3.6 0 0119 11.1c0 5.1-7 9.4-7 9.4z" />
+              </svg>
+            </div>
+            <p className="mt-5 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-moss)]">
+              {d.forCouplesEyebrow}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-black/68">{d.coupleCardBody}</p>
+            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-ink)]">
+              {d.forCouplesCtaPrimary}
+              <span className="transition-transform group-hover:translate-x-1">→</span>
+            </span>
+          </Link>
         </div>
       </section>
 
