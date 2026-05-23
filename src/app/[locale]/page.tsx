@@ -400,13 +400,6 @@ export default async function HomePage({
             </Panel>
 
             <Panel className="mesh-card border-[#e8d2c4] bg-[linear-gradient(160deg,rgba(255,253,250,0.98),rgba(248,230,218,0.65))]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/couple2.webp"
-                alt=""
-                aria-hidden="true"
-                className="mb-5 h-28 w-auto object-contain"
-              />
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-moss)]">
                 {d.forCouplesEyebrow}
               </p>
