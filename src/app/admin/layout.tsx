@@ -17,7 +17,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="flex min-h-screen bg-[#f4f0eb]">
       <AdminSidebar />
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex-1 p-6 lg:p-8">{children}</div>
+        {/* pt-14 offsets the fixed mobile top bar; lg:pt-0 removes it on desktop */}
+        <div className="flex-1 p-5 pt-[calc(3.5rem+1.25rem)] lg:p-8 lg:pt-8">{children}</div>
       </div>
     </div>
   );
