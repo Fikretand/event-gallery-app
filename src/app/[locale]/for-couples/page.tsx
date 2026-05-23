@@ -113,7 +113,7 @@ export default async function ForCouplesPage({
         </Panel>
       </section>
 
-      <MarketingTrustStrip />
+      <MarketingTrustStrip locale={locale as Locale} />
       <MarketingTestimonials />
     </main>
   );

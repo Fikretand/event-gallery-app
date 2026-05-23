@@ -240,7 +240,7 @@ export default async function HomePage({
                 <div className="mx-3 overflow-hidden rounded-[24px] bg-white shadow-[0_4px_20px_rgba(18,24,38,0.09)]">
                   <div className="px-3.5 pb-2.5 pt-3">
                     <p className="text-[8px] font-bold uppercase tracking-[0.28em] text-[var(--color-moss)]">
-                      {locale === "bs" ? "Privatna galerija" : "Private Gallery"}
+                      {dict.gallery.privateGallery}
                     </p>
                     <p className="mt-0.5 text-[13px] font-semibold leading-tight text-[var(--color-ink)]">
                       {d.phoneMockupGalleryName}
@@ -353,7 +353,7 @@ export default async function HomePage({
         </div>
       </section>
 
-      <MarketingTrustStrip />
+      <MarketingTrustStrip locale={locale as Locale} />
       <MarketingTestimonials />
 
       {/* ─── For photographers / For couples ──────────────────────── */}
@@ -456,7 +456,7 @@ export default async function HomePage({
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={profile.avatarPreviewUrl} alt={profile.full_name ?? "Photographer"} className="h-full w-full object-cover" />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(235,132,88,0.18),_transparent_55%),linear-gradient(135deg,_rgba(23,32,51,0.08),_rgba(255,248,240,0.92))] text-center text-[9px] font-semibold uppercase tracking-[0.18em] text-black/40">Photo</div>
+                      <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(235,132,88,0.18),_transparent_55%),linear-gradient(135deg,_rgba(23,32,51,0.08),_rgba(255,248,240,0.92))] text-center text-[9px] font-semibold uppercase tracking-[0.18em] text-black/40">{dict.photographerPlaceholder}</div>
                     )}
                   </div>
                   <div>

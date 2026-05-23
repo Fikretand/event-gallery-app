@@ -1,20 +1,30 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import { Panel } from "@/components/ui/panel";
-import { testimonials } from "@/lib/marketing";
+import { getDictionary } from "@/lib/i18n/index";
+import type { Locale } from "@/lib/i18n/index";
 import { cn } from "@/lib/utils";
+
+function extractLocale(pathname: string): Locale {
+  return pathname.startsWith("/bs") ? "bs" : "en";
+}
 
 export function MarketingTestimonials() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const locale = extractLocale(usePathname());
+  const dict = getDictionary(locale);
+  const ui = dict.testimonialsUi;
+  const testimonials = dict.marketing.testimonials;
 
   return (
     <section className="shell py-8 sm:py-10">
       <div className="flex flex-col gap-4 text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-moss)]">Social proof</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-moss)]">{ui.sectionEyebrow}</p>
         <h2 className="font-display text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">
-          Built to feel premium on both sides of the event.
+          {ui.sectionTitle}
         </h2>
       </div>
 
@@ -37,7 +47,7 @@ export function MarketingTestimonials() {
                   &ldquo;
                 </span>
                 <span className="rounded-full border border-black/8 bg-white/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-moss)]">
-                  Social proof
+                  {ui.badge}
                 </span>
               </div>
               <p className="mt-5 text-[1.02rem] leading-7 text-[var(--color-ink)]">&ldquo;{item.quote}&rdquo;</p>
@@ -73,7 +83,7 @@ export function MarketingTestimonials() {
                 &ldquo;
               </span>
               <span className="rounded-full border border-black/8 bg-white/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-moss)]">
-                Social proof
+                {ui.badge}
               </span>
             </div>
             <p className="mt-5 text-[1.02rem] leading-7 text-[var(--color-ink)]">&ldquo;{item.quote}&rdquo;</p>

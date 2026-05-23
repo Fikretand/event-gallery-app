@@ -1,22 +1,6 @@
 import { Panel } from "@/components/ui/panel";
-
-const trustItems = [
-  {
-    title: "Private by default",
-    body: "PIN-protected galleries, hidden guest uploads, and controlled sharing keep event delivery calm.",
-    icon: "shield",
-  },
-  {
-    title: "QR upload without an app",
-    body: "Guests scan once, upload from mobile, and move on without creating accounts.",
-    icon: "qr",
-  },
-  {
-    title: "Built for real handoff",
-    body: "Guest memories stay in one private event space you can revisit and download later.",
-    icon: "gallery",
-  },
-];
+import { getDictionary } from "@/lib/i18n/index";
+import type { Locale } from "@/lib/i18n/index";
 
 function TrustIcon({ kind }: { kind: string }) {
   switch (kind) {
@@ -47,11 +31,14 @@ function TrustIcon({ kind }: { kind: string }) {
   }
 }
 
-export function MarketingTrustStrip() {
+export function MarketingTrustStrip({ locale = "en" }: { locale?: Locale }) {
+  const dict = getDictionary(locale);
+  const items = dict.trustStrip;
+
   return (
     <section className="shell py-8 sm:py-10">
       <div className="grid gap-4 md:grid-cols-3">
-        {trustItems.map((item) => (
+        {items.map((item) => (
           <Panel key={item.title} className="mesh-card bg-white/80">
             <div className="inline-flex h-11 w-11 items-center justify-center rounded-[18px] bg-[linear-gradient(180deg,var(--color-accent-soft),#f8e0d3)] text-[var(--color-moss)] shadow-[0_10px_24px_rgba(226,121,82,0.16)]">
               <TrustIcon kind={item.icon} />

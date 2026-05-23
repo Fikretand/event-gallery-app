@@ -138,7 +138,7 @@ export default async function ForPhotographersPage({
         </Panel>
       </section>
 
-      <MarketingTrustStrip />
+      <MarketingTrustStrip locale={locale as Locale} />
       <MarketingTestimonials />
 
       <section className="shell py-6">

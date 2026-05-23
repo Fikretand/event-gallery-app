@@ -223,6 +223,22 @@ export interface Dict {
     couplePlanHighlights: string[];
     trustBadges: Array<{ label: string; sub: string }>;
   };
+  pricingUi: {
+    monthlyBilling: string;
+    yearlyBilling: string;
+    save20: string;
+    mostPopular: string;
+    includes: string;
+    oneTimePlan: string;
+    oneTimePerfect: string;
+  };
+  testimonialsUi: {
+    sectionEyebrow: string;
+    sectionTitle: string;
+    badge: string;
+  };
+  trustStrip: Array<{ title: string; body: string; icon: string }>;
+  photographerPlaceholder: string;
   uploadDropzone: {
     // Step indicator
     stepChoose: string;

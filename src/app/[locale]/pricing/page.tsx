@@ -33,7 +33,7 @@ export default async function PricingPage({
         <PricingShowcase />
       </section>
 
-      <MarketingTrustStrip />
+      <MarketingTrustStrip locale={locale as Locale} />
       <MarketingTestimonials />
 
       <section className="shell py-10">

@@ -410,6 +410,38 @@ export const dict: Dict = {
       { label: "Private by default", sub: "Guest uploads are hidden until you approve" },
     ],
   },
+  pricingUi: {
+    monthlyBilling: "Monthly billing",
+    yearlyBilling: "Yearly billing",
+    save20: "Save 20%",
+    mostPopular: "Most popular",
+    includes: "Includes",
+    oneTimePlan: "One-time plan",
+    oneTimePerfect: "Perfect for one private wedding or event.",
+  },
+  testimonialsUi: {
+    sectionEyebrow: "Social proof",
+    sectionTitle: "Built to feel premium on both sides of the event.",
+    badge: "Verified",
+  },
+  trustStrip: [
+    {
+      title: "Private by default",
+      body: "PIN-protected galleries, hidden guest uploads, and controlled sharing keep event delivery calm.",
+      icon: "shield",
+    },
+    {
+      title: "QR upload without an app",
+      body: "Guests scan once, upload from mobile, and move on without creating accounts.",
+      icon: "qr",
+    },
+    {
+      title: "Built for real handoff",
+      body: "Guest memories stay in one private event space you can revisit and download later.",
+      icon: "gallery",
+    },
+  ],
+  photographerPlaceholder: "Photo",
   uploadDropzone: {
     stepChoose: "Choose",
     stepReview: "Review",

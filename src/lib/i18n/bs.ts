@@ -411,6 +411,38 @@ export const dict: Dict = {
       { label: "Privatno po defaultu", sub: "Gostujući prijenosi su skriveni dok vi ne odobrite" },
     ],
   },
+  pricingUi: {
+    monthlyBilling: "Mjesečna naplata",
+    yearlyBilling: "Godišnja naplata",
+    save20: "Uštedi 20%",
+    mostPopular: "Najpopularnije",
+    includes: "Uključuje",
+    oneTimePlan: "Jednokratni plan",
+    oneTimePerfect: "Savršeno za jedno privatno vjenčanje ili događaj.",
+  },
+  testimonialsUi: {
+    sectionEyebrow: "Recenzije",
+    sectionTitle: "Napravljeno da izgleda premium s obje strane događaja.",
+    badge: "Potvrđeno",
+  },
+  trustStrip: [
+    {
+      title: "Privatno po defaultu",
+      body: "Galerije zaštićene PIN-om, skriveni prijenosi gostiju i kontrolirano dijeljenje drže isporuku mirnom.",
+      icon: "shield",
+    },
+    {
+      title: "QR prijenos bez aplikacije",
+      body: "Gosti skeniraju jednom, šalju s mobitela i nastavljaju dalje bez kreiranja naloga.",
+      icon: "qr",
+    },
+    {
+      title: "Napravljeno za pravu predaju",
+      body: "Uspomene gostiju ostaju u jednom privatnom prostoru koji možete posjetiti i preuzeti naknadno.",
+      icon: "gallery",
+    },
+  ],
+  photographerPlaceholder: "Slika",
   uploadDropzone: {
     stepChoose: "Odaberi",
     stepReview: "Pregledaj",

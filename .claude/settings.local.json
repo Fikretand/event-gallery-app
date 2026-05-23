@@ -14,7 +14,9 @@
       "Bash(mkdir -p \"C:\\\\Users\\\\andel\\\\OneDrive\\\\Documents\\\\Playground\\\\event-gallery-app\\\\src\\\\app\\\\[locale]\\\\\\(auth\\)\\\\login\")",
       "Bash(mkdir -p \"C:\\\\Users\\\\andel\\\\OneDrive\\\\Documents\\\\Playground\\\\event-gallery-app\\\\src\\\\app\\\\[locale]\\\\\\(auth\\)\\\\signup\\\\verify\")",
       "Bash(mkdir -p \"C:\\\\Users\\\\andel\\\\OneDrive\\\\Documents\\\\Playground\\\\event-gallery-app\\\\src\\\\app\\\\[locale]\\\\forgot-password\")",
-      "Bash(mkdir -p \"C:\\\\Users\\\\andel\\\\OneDrive\\\\Documents\\\\Playground\\\\event-gallery-app\\\\src\\\\app\\\\[locale]\\\\reset-password\")"
+      "Bash(mkdir -p \"C:\\\\Users\\\\andel\\\\OneDrive\\\\Documents\\\\Playground\\\\event-gallery-app\\\\src\\\\app\\\\[locale]\\\\reset-password\")",
+      "Bash(Get-ChildItem -Recurse \"C:\\\\Users\\\\andel\\\\OneDrive\\\\Documents\\\\Playground\\\\event-gallery-app\\\\src\\\\app\\\\[locale]\" -Filter \"*.tsx\")",
+      "Bash(Select-Object FullName)"
     ]
   }
 }
