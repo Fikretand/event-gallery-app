@@ -64,7 +64,7 @@ export default async function UploadPage({
           {event.title}
         </h1>
         {event.event_date && (
-          <p className="mt-2 text-sm text-black/45">{formatDate(event.event_date)}</p>
+          <p className="mt-2 text-sm text-black/60">{formatDate(event.event_date)}</p>
         )}
       </div>
 
@@ -93,17 +93,17 @@ export default async function UploadPage({
       {!isClosed && (
         <div className="mx-auto mt-8 max-w-md px-4">
           <div className="flex flex-wrap justify-center gap-2">
-            <span className="rounded-full border border-black/8 bg-white/70 px-3 py-1.5 text-xs text-black/42">
+            <span className="rounded-full border border-black/8 bg-white/70 px-3 py-1.5 text-xs text-black/60">
               {d.chipTypes}{settings?.allow_guest_video ? ", MP4, MOV" : ""}
             </span>
-            <span className="rounded-full border border-black/8 bg-white/70 px-3 py-1.5 text-xs text-black/42">
+            <span className="rounded-full border border-black/8 bg-white/70 px-3 py-1.5 text-xs text-black/60">
               {t(d.chipMaxSize, { maxMb: settings?.max_guest_upload_mb ?? 250 })}
             </span>
-            <span className="rounded-full border border-black/8 bg-white/70 px-3 py-1.5 text-xs text-black/42">
+            <span className="rounded-full border border-black/8 bg-white/70 px-3 py-1.5 text-xs text-black/60">
               {settings?.require_pin_for_upload ? d.chipPinRequired : d.chipNoAccount}
             </span>
             {uploadWindowEndsAt && (
-              <span className="rounded-full border border-black/8 bg-white/70 px-3 py-1.5 text-xs text-black/42">
+              <span className="rounded-full border border-black/8 bg-white/70 px-3 py-1.5 text-xs text-black/60">
                 {t(d.chipOpenUntil, { date: uploadWindowEndsAt })}
               </span>
             )}
@@ -112,7 +112,7 @@ export default async function UploadPage({
       )}
 
       {/* Privacy note */}
-      <p className="mt-10 px-5 text-center text-xs text-black/28">{d.privacyNote}</p>
+      <p className="mt-10 px-5 text-center text-xs text-black/55">{d.privacyNote}</p>
     </main>
   );
 }

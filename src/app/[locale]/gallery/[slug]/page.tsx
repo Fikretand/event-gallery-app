@@ -78,7 +78,7 @@ export default async function GalleryPage({
                     className="aspect-[4/5] h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex aspect-[4/5] h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(235,132,88,0.18),_transparent_55%),linear-gradient(135deg,_rgba(23,32,51,0.08),_rgba(255,248,240,0.92))] p-8 text-center text-sm leading-6 text-black/45">
+                  <div className="flex aspect-[4/5] h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(235,132,88,0.18),_transparent_55%),linear-gradient(135deg,_rgba(23,32,51,0.08),_rgba(255,248,240,0.92))] p-8 text-center text-sm leading-6 text-black/60">
                     {d.privateNoAccess}
                   </div>
                 )}
@@ -92,7 +92,7 @@ export default async function GalleryPage({
                   {event.title}
                 </h1>
                 <p className="mt-3 text-sm leading-6 text-black/62">{d.enterPin}</p>
-                <div className="mt-4 flex flex-wrap gap-2 text-xs uppercase tracking-[0.18em] text-black/45">
+                <div className="mt-4 flex flex-wrap gap-2 text-xs uppercase tracking-[0.18em] text-black/60">
                   {event.client_name ? (
                     <span className="rounded-full bg-[var(--color-paper)] px-3 py-2">
                       {event.client_name}
@@ -138,7 +138,7 @@ export default async function GalleryPage({
                 {event.title}
               </h1>
               <p className="max-w-3xl text-sm leading-6 text-black/62">{d.browseCurated}</p>
-              <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.18em] text-black/45">
+              <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.18em] text-black/60">
                 {event.client_name ? (
                   <span className="rounded-full bg-[var(--color-paper)] px-3 py-2">
                     {event.client_name}
@@ -164,7 +164,7 @@ export default async function GalleryPage({
                   className="aspect-[16/10] h-full w-full object-cover"
                 />
               ) : (
-                <div className="flex aspect-[16/10] h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(235,132,88,0.18),_transparent_55%),linear-gradient(135deg,_rgba(23,32,51,0.08),_rgba(255,248,240,0.92))] p-8 text-center text-sm leading-6 text-black/45">
+                <div className="flex aspect-[16/10] h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(235,132,88,0.18),_transparent_55%),linear-gradient(135deg,_rgba(23,32,51,0.08),_rgba(255,248,240,0.92))] p-8 text-center text-sm leading-6 text-black/60">
                   {d.browseCurated}
                 </div>
               )}
