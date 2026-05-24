@@ -178,6 +178,40 @@ export interface Dict {
     liveStorage: string;
     usageTitle: string;
   };
+  coupleDashboard: {
+    // Header
+    title: string;
+    eyebrow: string;
+    manageEventBtn: string;
+    // Event card
+    eventLabel: string;
+    // Status labels
+    statusActive: string;
+    statusExpired: string;
+    statusDraft: string;
+    // Quick links
+    guestUploadsTitle: string;
+    guestUploadsBody: string;
+    guestUploadsLink: string;
+    galleryTitle: string;
+    galleryBody: string;
+    galleryLink: string;
+    uploadLinkTitle: string;
+    uploadLinkBody: string;
+    uploadLinkCta: string;
+    // Full management panel
+    fullManageTitle: string;
+    fullManageBody: string;
+    fullManageBtn: string;
+    // Empty state
+    welcomeTitle: string;
+    welcomeEyebrow: string;
+    emptyTitle: string;
+    emptyBody: string;
+    createEventBtn: string;
+    // Steps
+    steps: Array<{ title: string; body: string }>;
+  };
   pricing: {
     eyebrow: string;
     title: string;
