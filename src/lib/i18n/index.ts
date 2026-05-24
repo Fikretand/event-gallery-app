@@ -211,6 +211,12 @@ export interface Dict {
     createEventBtn: string;
     // Steps
     steps: Array<{ title: string; body: string }>;
+    // Trial banner
+    trialActive: string;
+    trialExpired: string;
+    trialPhotosUsed: string;
+    trialExpiredBody: string;
+    trialChoosePlan: string;
   };
   pricing: {
     eyebrow: string;

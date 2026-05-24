@@ -19,11 +19,9 @@ export default async function BillingPage({
 
   const { user, supabase } = await getRequiredUser();
   const accountType = await getAccountTypeForUser(supabase, user.id, user.user_metadata?.account_type);
-  if (accountType === "couple") {
-    redirect(resolveAccountRedirect(accountType, { eventSlug: null }));
-  }
 
   const resolved = searchParams ? await searchParams : undefined;
+  const isCouple = accountType === "couple";
   const [profile, photosUsed] = await Promise.all([
     getUserProfile(supabase, user.id),
     countUserMediaFiles(user.id),
@@ -36,10 +34,14 @@ export default async function BillingPage({
     ? computeTrialState(profile.created_at, profile.plan_tier, photosUsed, profile.role, profile.subscription_status)
     : null;
 
+  // Couple with active subscription has no reason to be here
+  if (isCouple && isActiveSub) redirect("/dashboard/couple");
+
   // Human-readable current status
+  const planLabel = isCouple ? "One Event" : currentPlan === "pro" ? "Pro" : "Solo";
   const status = (() => {
     if (isAdmin) return { label: "Admin · no limits", tone: "moss" as const };
-    if (isActiveSub) return { label: `${currentPlan === "pro" ? "Pro" : "Solo"} · active`, tone: "moss" as const };
+    if (isActiveSub) return { label: `${planLabel} · active`, tone: "moss" as const };
     if (trial?.status === "active") return { label: `Free trial · ${trial.daysLeft} day${trial.daysLeft === 1 ? "" : "s"} left`, tone: "accent" as const };
     if (trial?.status === "expired") return { label: "Free trial · expired", tone: "red" as const };
     return { label: "Free trial", tone: "accent" as const };
@@ -53,7 +55,7 @@ export default async function BillingPage({
         isAdmin={isAdmin}
         action={
           <Link
-            href="/dashboard"
+            href={isCouple ? "/dashboard/couple" : "/dashboard"}
             className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white/75 px-4 py-2 text-sm font-semibold text-[var(--color-ink)] hover:bg-white"
           >
             ← Dashboard
@@ -74,7 +76,7 @@ export default async function BillingPage({
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/45">Current plan</p>
               <p className="mt-2 text-2xl font-semibold text-[var(--color-ink)]">
-                {isAdmin ? "Admin" : currentPlan === "pro" ? "Pro" : "Solo"}
+                {isAdmin ? "Admin" : planLabel}
               </p>
             </div>
             <span
@@ -105,14 +107,41 @@ export default async function BillingPage({
           )}
         </Panel>
 
-        {/* Plan chooser (hidden for admins — they already have no limits) */}
-        {!isAdmin && (
+        {/* Plan chooser */}
+        {!isAdmin && !isCouple && (
           <BillingPlans
             currentPlan={currentPlan}
             isActiveSub={isActiveSub}
             paymentsEnabled={hasPayments}
             pricing={PLAN_PRICING}
           />
+        )}
+        {!isAdmin && isCouple && (
+          <Panel className="bg-white/90">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/45">Upgrade your plan</p>
+            <div className="mt-4 rounded-[20px] border border-[#e8d2c4] bg-[linear-gradient(160deg,rgba(255,253,250,0.98),rgba(248,230,218,0.60))] p-5">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-lg font-semibold text-[var(--color-ink)]">One Event</p>
+                  <p className="mt-1 flex items-baseline gap-1">
+                    <span className="text-3xl font-semibold text-[var(--color-ink)]">€39</span>
+                    <span className="text-sm text-black/45">one-time</span>
+                  </p>
+                  <ul className="mt-3 space-y-1.5">
+                    {["1 private event", "Unlimited guest photo uploads", "Guest videos included", "Private gallery with PIN", "Gallery sections", "Download all as ZIP", "30-day upload window", "90 days of access"].map((f) => (
+                      <li key={f} className="flex items-start gap-2 text-sm text-black/65">
+                        <span className="mt-0.5 text-[var(--color-moss)]">✓</span>
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-5 rounded-xl border border-[var(--color-accent)]/20 bg-[var(--color-accent)]/8 px-4 py-3 text-sm text-[var(--color-ink)]">
+                Online checkout is being set up. Contact us to activate your plan — we'll switch it on for your account.
+              </div>
+            </div>
+          </Panel>
         )}
       </section>
     </main>

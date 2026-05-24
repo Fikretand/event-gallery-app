@@ -192,7 +192,7 @@ export async function createEventAction(_: { error?: string } | undefined | void
     if (accountType === "couple") {
       const existingEvents = await listOwnerEvents(user.id);
       if (existingEvents.length > 0) {
-        redirect(`/dashboard/events/${existingEvents[0].slug}`);
+        redirect("/dashboard/couple");
       }
     } else {
       const usage = await getAccountUsage(user.id);

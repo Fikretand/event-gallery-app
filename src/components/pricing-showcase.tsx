@@ -42,7 +42,7 @@ export function OneTimePlanCard({ compact = false }: { compact?: boolean }) {
       <p className="mt-2 text-sm text-[var(--color-moss)]">{ui.oneTimePerfect}</p>
 
       <MarketingButtonLink
-        href={lp("/signup?intent=photographer&plan=solo")}
+        href={lp("/signup?intent=couple")}
         tone="ink"
         className="mt-6 w-full rounded-[18px] py-4"
       >

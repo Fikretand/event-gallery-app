@@ -4,11 +4,12 @@ import { redirect } from "next/navigation";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { SetupNotice } from "@/components/setup-notice";
 import { Panel } from "@/components/ui/panel";
-import { getAccountTypeForUser, getRequiredUser } from "@/lib/auth";
+import { getAccountTypeForUser, getRequiredUser, getUserProfile } from "@/lib/auth";
 import { hasSupabase } from "@/lib/env";
-import { getDictionary, type Locale } from "@/lib/i18n/index";
-import { getEventLifecycleStatus, listOwnerEvents } from "@/lib/events";
-import { absoluteUrl, formatDate } from "@/lib/utils";
+import { getDictionary, t, type Locale } from "@/lib/i18n/index";
+import { computeTrialState, countUserMediaFiles, getEventLifecycleStatus, listOwnerEvents } from "@/lib/events";
+import type { TrialState } from "@/lib/types";
+import { absoluteUrl, cn, formatDate } from "@/lib/utils";
 
 export async function CoupleDashboard({ locale }: { locale: Locale }) {
   const d = getDictionary(locale).coupleDashboard;
@@ -29,8 +30,16 @@ export async function CoupleDashboard({ locale }: { locale: Locale }) {
     redirect("/dashboard");
   }
 
-  const events = await listOwnerEvents(user.id);
+  const [events, profile, photosUsed] = await Promise.all([
+    listOwnerEvents(user.id),
+    getUserProfile(supabase, user.id),
+    countUserMediaFiles(user.id),
+  ]);
   const event = events[0] ?? null;
+
+  const trial = profile
+    ? computeTrialState(profile.created_at, profile.plan_tier, photosUsed, profile.role, profile.subscription_status)
+    : null;
 
   if (event) {
     const status = getEventLifecycleStatus(event);
@@ -56,6 +65,8 @@ export async function CoupleDashboard({ locale }: { locale: Locale }) {
         />
 
         <section className="shell grid gap-5">
+          {trial && <TrialBanner trial={trial} d={d} />}
+
           {/* Event card */}
           <Panel className="bg-white/92">
             <div className="flex flex-wrap items-start justify-between gap-4">
@@ -156,6 +167,8 @@ export async function CoupleDashboard({ locale }: { locale: Locale }) {
       <DashboardHeader title={d.welcomeTitle} eyebrow={d.welcomeEyebrow} />
 
       <section className="shell grid gap-5">
+        {trial && <TrialBanner trial={trial} d={d} />}
+
         <Panel className="bg-[linear-gradient(160deg,rgba(255,253,250,0.98),rgba(248,230,218,0.60))] border-[#e8d2c4]">
           <div className="mx-auto max-w-lg py-6 text-center">
             <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-[24px] bg-[var(--color-accent)]/10 text-3xl">
@@ -197,5 +210,68 @@ export async function CoupleDashboard({ locale }: { locale: Locale }) {
         </div>
       </section>
     </main>
+  );
+}
+
+type CoupleDashboardStrings = Awaited<ReturnType<typeof getDictionary>>["coupleDashboard"];
+
+function TrialBanner({ trial, d }: { trial: TrialState; d: CoupleDashboardStrings }) {
+  if (trial.status === "none") return null;
+
+  const isExpired = trial.status === "expired";
+  const photoRatio = Math.min((trial.photosUsed / trial.photosLimit) * 100, 100);
+  const nearLimit = trial.photosUsed >= trial.photosLimit - 5;
+
+  return (
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-[24px] border px-5 py-4",
+        isExpired
+          ? "border-[#f5c6c6] bg-[linear-gradient(135deg,rgba(255,240,240,0.98),rgba(255,228,228,0.92))]"
+          : nearLimit
+            ? "border-[#f5d6b8] bg-[linear-gradient(135deg,rgba(255,248,238,0.98),rgba(255,237,215,0.92))]"
+            : "border-[#c8e0d4] bg-[linear-gradient(135deg,rgba(240,250,245,0.98),rgba(224,242,232,0.90))]",
+      )}
+    >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3">
+          <span className="mt-0.5 text-lg leading-none">{isExpired ? "⏰" : "🎉"}</span>
+          <div>
+            <p className={cn("text-sm font-semibold", isExpired ? "text-[#8b1a1a]" : "text-[var(--color-ink)]")}>
+              {isExpired
+                ? d.trialExpired
+                : t(d.trialActive, { days: String(trial.daysLeft), s: trial.daysLeft === 1 ? "" : "s" })}
+            </p>
+            <p className={cn("mt-0.5 text-xs", isExpired ? "text-[#b03030]/80" : "text-black/58")}>
+              {isExpired
+                ? d.trialExpiredBody
+                : t(d.trialPhotosUsed, { used: String(trial.photosUsed), limit: String(trial.photosLimit) })}
+            </p>
+            {!isExpired && (
+              <div className="mt-2 h-1.5 w-48 max-w-full overflow-hidden rounded-full bg-black/10">
+                <div
+                  className={cn(
+                    "h-full rounded-full transition-all",
+                    nearLimit ? "bg-[var(--color-accent)]" : "bg-[var(--color-moss)]",
+                  )}
+                  style={{ width: `${photoRatio}%` }}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+        <Link
+          href="/dashboard/billing"
+          className={cn(
+            "shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition",
+            isExpired
+              ? "bg-[#8b1a1a] text-white hover:bg-[#6e1515]"
+              : "bg-[var(--color-ink)] text-white hover:bg-[var(--color-ink)]/85",
+          )}
+        >
+          {d.trialChoosePlan}
+        </Link>
+      </div>
+    </div>
   );
 }

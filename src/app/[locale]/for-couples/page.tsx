@@ -61,7 +61,7 @@ export default async function ForCouplesPage({
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <MarketingButtonLink
-                href={lp("/signup?intent=photographer&plan=solo")}
+                href={lp("/signup?intent=couple")}
                 className="w-full px-8 shadow-[0_12px_32px_rgba(226,121,82,0.28)] sm:w-auto"
               >
                 {dm.couplePlan.trialCtaLabel}

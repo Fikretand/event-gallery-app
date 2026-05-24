@@ -249,6 +249,11 @@ export const dict: Dict = {
       { title: "Share the QR code", body: "Print or display it — guests scan and upload photos instantly, no app needed." },
       { title: "Enjoy your gallery", body: "All memories in one private, PIN-protected place you can revisit and download." },
     ],
+    trialActive: "Free trial — {{days}} day{{s}} remaining",
+    trialExpired: "Your free trial has expired",
+    trialPhotosUsed: "{{used}} / {{limit}} photos used · Upgrade to remove all limits",
+    trialExpiredBody: "Upgrade to keep uploading and accessing your event gallery.",
+    trialChoosePlan: "Upgrade now →",
   },
   pricing: {
     eyebrow: "Trusted by photographers who need private delivery and guest uploads in one place.",

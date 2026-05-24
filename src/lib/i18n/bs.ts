@@ -250,6 +250,11 @@ export const dict: Dict = {
       { title: "Podijelite QR kod", body: "Isprintajte ili prikažite — gosti skeniraju i šalju fotografije odmah, bez aplikacije." },
       { title: "Uživajte u galeriji", body: "Sva sjećanja na jednom privatnom, PIN-zaštićenom mjestu koje možete posjetiti i preuzeti." },
     ],
+    trialActive: "Besplatni trial — još {{days}} dan{{s}}",
+    trialExpired: "Vaš besplatni trial je istekao",
+    trialPhotosUsed: "{{used}} / {{limit}} fotografija iskorišteno · Nadogradite da uklonite limite",
+    trialExpiredBody: "Nadogradite da nastavite s prijenosom i pristupom galeriji.",
+    trialChoosePlan: "Nadogradi sada →",
   },
   pricing: {
     eyebrow: "Koriste ga fotografi kojima treba privatna isporuka i prijenos gostiju na jednom mjestu.",
