@@ -41,17 +41,13 @@ export function OneTimePlanCard({ compact = false }: { compact?: boolean }) {
       </div>
       <p className="mt-2 text-sm text-[var(--color-moss)]">{ui.oneTimePerfect}</p>
 
-      <MarketingButtonLink href={lp("/signup?intent=couple")} tone="ink" className="mt-6 w-full rounded-[18px] py-4">
-        {plan.ctaLabel}
-      </MarketingButtonLink>
       <MarketingButtonLink
         href={lp("/signup?intent=photographer&plan=solo")}
-        tone="accent"
-        className="mt-3 w-full rounded-[18px] py-4 shadow-[0_16px_36px_rgba(226,121,82,0.22)]"
+        tone="ink"
+        className="mt-6 w-full rounded-[18px] py-4"
       >
         {plan.trialCtaLabel}
       </MarketingButtonLink>
-      <p className="mt-2 text-center text-xs text-black/45">{ui.trialNote}</p>
 
       <div className="mt-7 border-t border-black/8 pt-6">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/45">{ui.includes}</p>
