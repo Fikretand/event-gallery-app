@@ -9,6 +9,7 @@ import { hasActiveSubscription, hasPayments, PLAN_PRICING } from "@/lib/billing"
 import { computeTrialState, countUserMediaFiles } from "@/lib/events";
 import { hasSupabase } from "@/lib/env";
 import { BillingPlans } from "./billing-plans";
+import { CoupleCheckoutButton } from "./couple-checkout-button";
 
 export default async function BillingPage({
   searchParams,
@@ -120,26 +121,29 @@ export default async function BillingPage({
           <Panel className="bg-white/90">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/45">Upgrade your plan</p>
             <div className="mt-4 rounded-[20px] border border-[#e8d2c4] bg-[linear-gradient(160deg,rgba(255,253,250,0.98),rgba(248,230,218,0.60))] p-5">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="text-lg font-semibold text-[var(--color-ink)]">One Event</p>
-                  <p className="mt-1 flex items-baseline gap-1">
-                    <span className="text-3xl font-semibold text-[var(--color-ink)]">€39</span>
-                    <span className="text-sm text-black/45">one-time</span>
-                  </p>
-                  <ul className="mt-3 space-y-1.5">
-                    {["1 private event", "Unlimited guest photo uploads", "Guest videos included", "Private gallery with PIN", "Gallery sections", "Download all as ZIP", "30-day upload window", "90 days of access"].map((f) => (
-                      <li key={f} className="flex items-start gap-2 text-sm text-black/65">
-                        <span className="mt-0.5 text-[var(--color-moss)]">✓</span>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-              <div className="mt-5 rounded-xl border border-[var(--color-accent)]/20 bg-[var(--color-accent)]/8 px-4 py-3 text-sm text-[var(--color-ink)]">
-                Online checkout is being set up. Contact us to activate your plan — we'll switch it on for your account.
-              </div>
+              <p className="text-lg font-semibold text-[var(--color-ink)]">One Event</p>
+              <p className="mt-1 flex items-baseline gap-1">
+                <span className="text-3xl font-semibold text-[var(--color-ink)]">€39</span>
+                <span className="text-sm text-black/45">one-time</span>
+              </p>
+              <ul className="mt-3 space-y-1.5">
+                {[
+                  "1 private event",
+                  "Unlimited guest photo uploads",
+                  "Guest videos included",
+                  "Private gallery with PIN",
+                  "Gallery sections",
+                  "Download all as ZIP",
+                  "30-day upload window",
+                  "90 days of access",
+                ].map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-sm text-black/65">
+                    <span className="mt-0.5 text-[var(--color-moss)]">✓</span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <CoupleCheckoutButton paymentsEnabled={hasPayments} />
             </div>
           </Panel>
         )}

@@ -21,11 +21,17 @@ export const env = {
   lemonSqueezyApiKey: optional(process.env.LEMONSQUEEZY_API_KEY),
   lemonSqueezyStoreId: optional(process.env.LEMONSQUEEZY_STORE_ID),
   lemonSqueezyWebhookSecret: optional(process.env.LEMONSQUEEZY_WEBHOOK_SECRET),
-  // Variant IDs per plan + billing cycle (from the LemonSqueezy dashboard)
   lsVariantSoloMonthly: optional(process.env.LEMONSQUEEZY_VARIANT_SOLO_MONTHLY),
   lsVariantSoloYearly: optional(process.env.LEMONSQUEEZY_VARIANT_SOLO_YEARLY),
   lsVariantProMonthly: optional(process.env.LEMONSQUEEZY_VARIANT_PRO_MONTHLY),
   lsVariantProYearly: optional(process.env.LEMONSQUEEZY_VARIANT_PRO_YEARLY),
+  // ── Payments (Payhip — active provider) ──
+  payhipWebhookSecret: optional(process.env.PAYHIP_WEBHOOK_SECRET),
+  payhipProductOneEvent: optional(process.env.PAYHIP_PRODUCT_ONE_EVENT),
+  payhipProductSoloMonthly: optional(process.env.PAYHIP_PRODUCT_SOLO_MONTHLY),
+  payhipProductSoloYearly: optional(process.env.PAYHIP_PRODUCT_SOLO_YEARLY),
+  payhipProductProMonthly: optional(process.env.PAYHIP_PRODUCT_PRO_MONTHLY),
+  payhipProductProYearly: optional(process.env.PAYHIP_PRODUCT_PRO_YEARLY),
 };
 
 export const hasSupabase = Boolean(env.supabaseUrl && env.supabaseAnonKey);
@@ -33,8 +39,8 @@ export const hasSupabaseAdmin = Boolean(hasSupabase && env.supabaseServiceRoleKe
 export const hasR2 = Boolean(
   env.r2AccountId && env.r2AccessKeyId && env.r2SecretAccessKey && env.r2Bucket,
 );
-/** True once LemonSqueezy is configured — gates the live checkout flow. */
-export const hasPayments = Boolean(env.lemonSqueezyApiKey && env.lemonSqueezyStoreId);
+/** True once Payhip webhook secret is set — gates live checkout. */
+export const hasPayments = Boolean(env.payhipWebhookSecret);
 
 export function missingEnvMessage() {
   return "Missing environment variables. Copy .env.example and provide Supabase, R2, and app secrets before using protected flows.";

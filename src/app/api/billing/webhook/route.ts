@@ -2,53 +2,54 @@ import crypto from "node:crypto";
 
 import { NextResponse } from "next/server";
 
-import { planFromVariant } from "@/lib/billing";
+import { planFromPayhipProduct } from "@/lib/billing";
 import { env } from "@/lib/env";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import type { SubscriptionStatus } from "@/lib/types";
 
 /**
- * LemonSqueezy webhook. Dormant until LEMONSQUEEZY_WEBHOOK_SECRET is set.
- * Verifies the HMAC signature, then maps subscription events onto the user's
- * plan_tier + subscription_status so paid accounts skip the free-trial limits.
+ * Payhip webhook handler.
+ * Payhip sends an application/x-www-form-urlencoded POST to this URL whenever
+ * a purchase, renewal, or cancellation occurs.
+ *
+ * Verification: compare the `security_token` field in the payload against the
+ * PAYHIP_WEBHOOK_SECRET env var (no HMAC — plain string comparison).
+ *
+ * User matching: look up the buyer by their `email` field in Supabase auth.
+ *
+ * Gate: returns 503 until PAYHIP_WEBHOOK_SECRET is set.
  */
 export async function POST(request: Request) {
-  const secret = env.lemonSqueezyWebhookSecret;
+  const secret = env.payhipWebhookSecret;
   if (!secret) {
     return NextResponse.json({ error: "Webhook not configured." }, { status: 503 });
   }
 
+  // Payhip sends form-encoded bodies
   const raw = await request.text();
-  const signature = request.headers.get("x-signature") ?? "";
+  const params = new URLSearchParams(raw);
 
-  // Verify HMAC-SHA256 of the raw body
-  const expected = crypto.createHmac("sha256", secret).update(raw).digest("hex");
+  // ── Verify security token ─────────────────────────────────────────────────
+  const securityToken = params.get("security_token") ?? "";
+  const secretBuf = Buffer.from(secret, "utf8");
+  const tokenBuf = Buffer.from(securityToken, "utf8");
   const valid =
-    signature.length === expected.length &&
-    crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
+    secretBuf.length === tokenBuf.length &&
+    crypto.timingSafeEqual(secretBuf, tokenBuf);
+
   if (!valid) {
-    return NextResponse.json({ error: "Invalid signature." }, { status: 401 });
+    return NextResponse.json({ error: "Invalid security token." }, { status: 401 });
   }
 
-  let payload: unknown;
-  try {
-    payload = JSON.parse(raw);
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON." }, { status: 400 });
-  }
+  // ── Extract payload fields ────────────────────────────────────────────────
+  const email = params.get("email")?.trim().toLowerCase() ?? "";
+  const productId = params.get("product_id") ?? "";
+  const purchaseId = params.get("purchase_id") ?? "";
+  // Payhip may send a `type` field on membership/subscription events
+  const eventType = params.get("type") ?? "payment_completed";
 
-  const p = payload as {
-    meta?: { event_name?: string; custom_data?: { user_id?: string; plan?: string } };
-    data?: { attributes?: Record<string, unknown> };
-  };
-
-  const eventName = p.meta?.event_name ?? "";
-  const userId = p.meta?.custom_data?.user_id;
-  const attrs = p.data?.attributes ?? {};
-
-  if (!userId) {
-    // Nothing to map this event to — acknowledge so LemonSqueezy stops retrying.
-    return NextResponse.json({ received: true, note: "no user_id" });
+  if (!email) {
+    // No email → can't match user; acknowledge so Payhip stops retrying.
+    return NextResponse.json({ received: true, note: "no email" });
   }
 
   const admin = createSupabaseAdminClient();
@@ -56,40 +57,51 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Admin client unavailable." }, { status: 500 });
   }
 
-  // Map provider status → our SubscriptionStatus
-  const providerStatus = String(attrs.status ?? "");
-  const statusMap: Record<string, SubscriptionStatus> = {
-    active: "active",
-    on_trial: "trialing",
-    past_due: "past_due",
-    paused: "past_due",
-    unpaid: "past_due",
-    cancelled: "canceled",
-    expired: "canceled",
-  };
-  const subscription_status: SubscriptionStatus = statusMap[providerStatus] ?? null;
+  // ── Look up user by email in public.users ────────────────────────────────
+  const { data: userData, error: userError } = await admin
+    .from("users")
+    .select("id")
+    .eq("email", email)
+    .maybeSingle();
 
-  // Resolve plan from the purchased variant (fall back to custom_data.plan)
-  const variantId = attrs.variant_id != null ? String(attrs.variant_id) : "";
-  const plan = planFromVariant(variantId) ?? (p.meta?.custom_data?.plan as "solo" | "pro" | undefined);
+  if (userError || !userData?.id) {
+    // Buyer email doesn't match any account — acknowledge cleanly.
+    return NextResponse.json({ received: true, note: "user not found" });
+  }
+  const userId = userData.id as string;
+
+  // ── Determine plan from product key ──────────────────────────────────────
+  const planInfo = planFromPayhipProduct(productId);
+
+  // ── Build the update ─────────────────────────────────────────────────────
+  const isCancellation =
+    eventType === "subscription_cancelled" || eventType === "payment_refunded";
 
   const update: Record<string, unknown> = {
-    subscription_status,
-    subscription_provider: "lemonsqueezy",
-    subscription_external_id: p.data && "id" in p.data ? String((p.data as { id?: unknown }).id ?? "") : null,
-    subscription_renews_at: (attrs.renews_at as string | null) ?? null,
+    subscription_provider: "payhip",
+    subscription_external_id: purchaseId || null,
+    subscription_status: isCancellation ? "canceled" : "active",
+    // One-time purchases have no renewal date
+    subscription_renews_at: null,
   };
 
-  // Only move plan_tier on active/trialing; on cancel/expire we keep their
-  // current tier but clear the active flag (so trial limits resume for solo).
-  if (plan && (subscription_status === "active" || subscription_status === "trialing")) {
-    update.plan_tier = plan;
+  if (!isCancellation && planInfo) {
+    // For photographer plans (solo/pro), update the plan_tier so they get the
+    // right feature set. For couple one-time, plan_tier stays as-is — the
+    // couple account type already gates the correct features.
+    if (planInfo.plan === "solo" || planInfo.plan === "pro") {
+      update.plan_tier = planInfo.plan;
+    }
   }
 
-  const { error } = await admin.from("users").update(update).eq("id", userId);
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  const { error: updateError } = await admin
+    .from("users")
+    .update(update)
+    .eq("id", userId);
+
+  if (updateError) {
+    return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
 
-  return NextResponse.json({ received: true, event: eventName });
+  return NextResponse.json({ received: true, event: eventType, plan: planInfo?.plan ?? "unknown" });
 }

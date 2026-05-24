@@ -4,12 +4,48 @@ import type { BillingCycle, UserRecord } from "@/lib/types";
 export { hasPayments };
 
 export type PlanId = "solo" | "pro";
+export type CheckoutPlanId = PlanId | "couple";
 
 /** EUR per month, by billing cycle. Mirrors the marketing pricing. */
 export const PLAN_PRICING: Record<PlanId, Record<BillingCycle, number>> = {
   solo: { monthly: 24, yearly: 19 },
   pro: { monthly: 49, yearly: 39 },
 };
+
+// ── Payhip (active provider) ─────────────────────────────────────────────────
+
+/**
+ * Build a Payhip hosted checkout URL for a given product key.
+ * Passing `email` pre-fills the buyer's email on the Payhip checkout page.
+ */
+export function payhipCheckoutUrl(productKey: string, email: string): string {
+  return `https://payhip.com/b/${productKey}?email=${encodeURIComponent(email)}`;
+}
+
+/** Product key for a given photographer plan + billing cycle, or undefined if not yet configured. */
+export function getPayhipProductKey(plan: PlanId, cycle: BillingCycle): string | undefined {
+  const map: Record<PlanId, Record<BillingCycle, string | undefined>> = {
+    solo: { monthly: env.payhipProductSoloMonthly, yearly: env.payhipProductSoloYearly },
+    pro: { monthly: env.payhipProductProMonthly, yearly: env.payhipProductProYearly },
+  };
+  return map[plan][cycle];
+}
+
+/** Reverse lookup: which plan + cycle does a Payhip product key belong to? */
+export function planFromPayhipProduct(productKey: string): {
+  plan: CheckoutPlanId;
+  cycle: BillingCycle | "one_time";
+} | null {
+  if (!productKey) return null;
+  if (productKey === env.payhipProductOneEvent) return { plan: "couple", cycle: "one_time" };
+  if (productKey === env.payhipProductSoloMonthly) return { plan: "solo", cycle: "monthly" };
+  if (productKey === env.payhipProductSoloYearly) return { plan: "solo", cycle: "yearly" };
+  if (productKey === env.payhipProductProMonthly) return { plan: "pro", cycle: "monthly" };
+  if (productKey === env.payhipProductProYearly) return { plan: "pro", cycle: "yearly" };
+  return null;
+}
+
+// ── LemonSqueezy (dormant — kept for future re-activation) ───────────────────
 
 /** LemonSqueezy variant id for a given plan + cycle (undefined until configured). */
 export function getVariantId(plan: PlanId, cycle: BillingCycle): string | undefined {
@@ -27,6 +63,8 @@ export function planFromVariant(variantId: string): PlanId | null {
   if (v === env.lsVariantProMonthly || v === env.lsVariantProYearly) return "pro";
   return null;
 }
+
+// ── Shared helpers ────────────────────────────────────────────────────────────
 
 /** Is the user a paying subscriber (active or in provider-managed trial), not just our free trial? */
 export function hasActiveSubscription(
@@ -63,7 +101,6 @@ export async function createCheckout(opts: {
         attributes: {
           checkout_data: {
             email: opts.user.email,
-            // custom data is echoed back in webhooks so we can match the user
             custom: { user_id: opts.user.id, plan: opts.plan },
           },
           product_options: { redirect_url: opts.redirectUrl },
