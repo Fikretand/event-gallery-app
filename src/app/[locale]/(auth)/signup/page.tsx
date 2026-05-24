@@ -12,7 +12,7 @@ export default async function SignupPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams?: Promise<{ intent?: string }>;
+  searchParams?: Promise<{ intent?: string; plan?: string }>;
 }) {
   const { locale } = await params;
   const dict = getDictionary(locale as Locale);
@@ -20,6 +20,7 @@ export default async function SignupPage({
 
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const intent = normalizeAccountType(resolvedSearchParams?.intent);
+  const plan = resolvedSearchParams?.plan === "pro" ? "pro" : "solo";
   const isCouple = intent === "couple";
 
   return (
@@ -58,7 +59,7 @@ export default async function SignupPage({
           </p>
         </div>
         <div>
-          <AuthForm action={signupAction} mode="signup" intent={intent} strings={d} />
+          <AuthForm action={signupAction} mode="signup" intent={intent} plan={plan} strings={d} />
         </div>
       </section>
     </main>

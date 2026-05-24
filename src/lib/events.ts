@@ -1132,10 +1132,9 @@ export function computeTrialState(
   role?: string,
   subscriptionStatus?: string | null,
 ): TrialState {
-  // Admins, pro plan, and active/trialing paid subscribers — no trial restrictions
+  // Admins and active/trialing paid subscribers — no trial restrictions
   if (
     role === "admin" ||
-    planTier === "pro" ||
     subscriptionStatus === "active" ||
     subscriptionStatus === "trialing"
   ) {

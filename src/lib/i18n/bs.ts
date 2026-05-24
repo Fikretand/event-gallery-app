@@ -324,7 +324,7 @@ export const dict: Dict = {
         savingsLabel: "Uštedi 20% godišnjom naplatom",
         summary:
           "Za zaposlene fotografe događaja koji upravljaju više live događaja i dotjeranim tokovima isporuke.",
-        ctaLabel: "Počni 14-dnevni trial",
+        ctaLabel: "Počni besplatno",
         features: [
           "Do 25 aktivnih događaja",
           "500 GB prostora",
@@ -341,6 +341,7 @@ export const dict: Dict = {
       summary:
         "Za parove i organizatore koji žele QR prijenos gostiju i jednu privatnu galeriju za zajednička sjećanja.",
       ctaLabel: "Kreiraj jedan događaj",
+      trialCtaLabel: "Počni besplatno",
       features: [
         "1 događaj",
         "Neograničeni prijenos fotografija gostiju",
@@ -446,6 +447,7 @@ export const dict: Dict = {
     includes: "Uključuje",
     oneTimePlan: "Jednokratni plan",
     oneTimePerfect: "Savršeno za jedan privatni događaj — vjenčanje, rođendan ili bilo šta vrijedno pamćenja.",
+    trialNote: "7 dana · 1 događaj · 20 fotografija",
   },
   testimonialsUi: {
     sectionEyebrow: "Recenzije",

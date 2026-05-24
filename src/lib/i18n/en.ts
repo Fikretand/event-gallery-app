@@ -323,7 +323,7 @@ export const dict: Dict = {
         savingsLabel: "Save 20% on annual billing",
         summary:
           "For busy event photographers running multiple live events and polished delivery flows.",
-        ctaLabel: "Start 14-day trial",
+        ctaLabel: "Start free",
         features: [
           "Up to 25 active events",
           "500 GB storage",
@@ -340,6 +340,7 @@ export const dict: Dict = {
       summary:
         "For couples and event hosts who want QR guest uploads and one private gallery for shared memories.",
       ctaLabel: "Create one event",
+      trialCtaLabel: "Start free",
       features: [
         "1 event",
         "Unlimited guest photo uploads",
@@ -445,6 +446,7 @@ export const dict: Dict = {
     includes: "Includes",
     oneTimePlan: "One-time plan",
     oneTimePerfect: "Perfect for one private event — wedding, birthday, or anything worth keeping.",
+    trialNote: "7 days · 1 event · 20 photos",
   },
   testimonialsUi: {
     sectionEyebrow: "Social proof",

@@ -56,11 +56,16 @@ export async function loginAction(_: { error?: string } | undefined | void, form
   redirect(resolveAccountRedirect(accountType, { eventSlug: existingEvents[0]?.slug ?? null }));
 }
 
+function normalizePlanTier(raw: FormDataEntryValue | null): "solo" | "pro" {
+  return raw === "pro" ? "pro" : "solo";
+}
+
 export async function signupAction(_: { error?: string } | undefined | void, formData: FormData) {
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
   const fullName = String(formData.get("fullName") ?? "");
   const intent = normalizeAccountType(formData.get("intent"));
+  const planTier = normalizePlanTier(formData.get("plan"));
   const supabase = await createSupabaseServerClient();
 
   if (!supabase) {
@@ -79,6 +84,7 @@ export async function signupAction(_: { error?: string } | undefined | void, for
         full_name: fullName,
         role: "photographer",
         account_type: intent,
+        plan_tier: planTier,
       },
     },
   });

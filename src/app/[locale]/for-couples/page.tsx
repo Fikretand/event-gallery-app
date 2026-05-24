@@ -61,15 +61,22 @@ export default async function ForCouplesPage({
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <MarketingButtonLink
-                href={lp("/signup?intent=couple")}
+                href={lp("/signup?intent=photographer&plan=solo")}
                 className="w-full px-8 shadow-[0_12px_32px_rgba(226,121,82,0.28)] sm:w-auto"
+              >
+                {dm.couplePlan.trialCtaLabel}
+              </MarketingButtonLink>
+              <MarketingButtonLink
+                href={lp("/signup?intent=couple")}
+                tone="ghost"
+                className="w-full bg-white/70 px-8 sm:w-auto"
               >
                 {d.ctaPrimary}
               </MarketingButtonLink>
-              <MarketingButtonLink href={lp("/pricing")} tone="ghost" className="w-full bg-white/70 px-8 sm:w-auto">
-                {d.ctaSecondary}
-              </MarketingButtonLink>
             </div>
+            <p className="text-xs text-black/45">
+              {locale === "bs" ? "7 dana · 1 događaj · 20 fotografija" : "7 days · 1 event · 20 photos"}
+            </p>
           </div>
 
           <div>

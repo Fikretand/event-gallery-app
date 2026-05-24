@@ -25,7 +25,7 @@ export const photographerPlans = [
     monthlyLabel: "per month billed monthly",
     savingsLabel: "Save 20% on annual billing",
     summary: "For busy wedding photographers running multiple live events and polished delivery flows.",
-    ctaLabel: "Start 14-day trial",
+    ctaLabel: "Start free",
     features: [
       "Up to 25 active events",
       "500 GB active storage",
@@ -44,6 +44,7 @@ export const couplePlan = {
   priceLabel: "one-time",
   summary: "A one-event plan for couples who want QR guest uploads and one private gallery for shared memories.",
   ctaLabel: "Create one event",
+  trialCtaLabel: "Start free",
   features: [
     "1 wedding event",
     "Unlimited guest photo uploads",

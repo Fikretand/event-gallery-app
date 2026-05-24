@@ -230,6 +230,7 @@ export interface Dict {
       priceLabel: string;
       summary: string;
       ctaLabel: string;
+      trialCtaLabel: string;
       features: string[];
     };
     photographerBenefits: Array<{ title: string; body: string }>;
@@ -248,6 +249,7 @@ export interface Dict {
     includes: string;
     oneTimePlan: string;
     oneTimePerfect: string;
+    trialNote: string;
   };
   testimonialsUi: {
     sectionEyebrow: string;

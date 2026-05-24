@@ -63,6 +63,7 @@ export function AuthForm({
   action,
   mode,
   intent = "photographer",
+  plan = "solo",
   strings,
 }: {
   action: (
@@ -71,6 +72,7 @@ export function AuthForm({
   ) => Promise<{ error?: string } | void>;
   mode: "login" | "signup";
   intent?: AccountType;
+  plan?: "solo" | "pro";
   strings?: Partial<AuthStrings>;
 }) {
   const pathname = usePathname();
@@ -88,6 +90,7 @@ export function AuthForm({
     <Panel className="mx-auto w-full max-w-md bg-white/92">
       <form action={formAction} className="space-y-4">
         {mode === "signup" ? <input type="hidden" name="intent" value={resolvedIntent} /> : null}
+        {mode === "signup" ? <input type="hidden" name="plan" value={plan} /> : null}
         <div className="space-y-2">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">
             {mode === "login"
