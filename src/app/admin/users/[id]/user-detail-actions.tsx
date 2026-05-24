@@ -3,7 +3,7 @@
 import { useTransition, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { adminSetPlanAction, adminSetRoleAction, adminDeleteUserAction } from "@/lib/admin-actions";
+import { adminSetPlanAction, adminSetRoleAction, adminDeleteUserAction, adminSetSubscriptionAction } from "@/lib/admin-actions";
 import type { UserRecord } from "@/lib/types";
 
 export function UserDetailActions({ user }: { user: UserRecord }) {
@@ -32,6 +32,11 @@ export function UserDetailActions({ user }: { user: UserRecord }) {
   function handleRoleToggle() {
     const next = user.role === "admin" ? "photographer" : "admin";
     run(() => adminSetRoleAction(user.id, next));
+  }
+
+  const isPaid = user.subscription_status === "active" || user.subscription_status === "trialing";
+  function handleSubscriptionToggle() {
+    run(() => adminSetSubscriptionAction(user.id, isPaid ? null : "active"));
   }
 
   function handleDelete() {
@@ -90,6 +95,25 @@ export function UserDetailActions({ user }: { user: UserRecord }) {
           >
             {user.role === "admin" ? "⚡ Admin — click to revoke" : "Grant admin access"}
           </button>
+        </div>
+
+        {/* Subscription (manual activation — bank transfer path) */}
+        <div>
+          <p className="mb-2 text-xs font-semibold text-black/55">Subscription</p>
+          <button
+            onClick={handleSubscriptionToggle}
+            disabled={pending}
+            className={`w-full rounded-xl border py-2.5 text-sm font-semibold transition ${
+              isPaid
+                ? "border-[var(--color-moss)]/30 bg-[var(--color-moss)]/8 text-[var(--color-moss)] hover:bg-[var(--color-moss)]/14"
+                : "border-black/10 bg-white text-black/55 hover:border-black/20 hover:text-[var(--color-ink)]"
+            }`}
+          >
+            {isPaid ? "✓ Active (paid) — click to revert to trial" : "Mark as paid (active subscriber)"}
+          </button>
+          <p className="mt-1.5 text-[11px] text-black/40">
+            Use after a manual/bank-transfer payment. Removes trial limits for this account.
+          </p>
         </div>
 
         {/* Delete */}

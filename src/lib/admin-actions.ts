@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 
 import { getRequiredUser } from "@/lib/auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import type { PhotographerPlanTier } from "@/lib/types";
+import type { PhotographerPlanTier, SubscriptionStatus } from "@/lib/types";
 
 async function requireAdmin() {
   const { user } = await getRequiredUser();
@@ -28,6 +28,27 @@ export async function adminSetPlanAction(targetUserId: string, planTier: Photogr
 export async function adminSetRoleAction(targetUserId: string, role: "admin" | "photographer") {
   const { admin } = await requireAdmin();
   const { error } = await admin.from("users").update({ role }).eq("id", targetUserId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin");
+}
+
+/**
+ * Manually set a user's subscription status — the BiH bank-transfer path:
+ * after a manual payment, an admin marks the account "active" so trial limits
+ * stop applying. Set to null to revert to trial behaviour.
+ */
+export async function adminSetSubscriptionAction(
+  targetUserId: string,
+  status: SubscriptionStatus,
+) {
+  const { admin } = await requireAdmin();
+  const { error } = await admin
+    .from("users")
+    .update({
+      subscription_status: status,
+      subscription_provider: status ? "manual" : null,
+    })
+    .eq("id", targetUserId);
   if (error) throw new Error(error.message);
   revalidatePath("/admin");
 }

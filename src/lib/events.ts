@@ -1123,16 +1123,22 @@ export async function countUserMediaFiles(userId: string): Promise<number> {
 /**
  * Compute trial state for a photographer account.
  * Trial = plan_tier "solo" + account created within TRIAL_DURATION_DAYS.
- * Pro accounts and admin users are never on trial.
+ * Pro accounts, admins, and paying subscribers are never on trial.
  */
 export function computeTrialState(
   createdAt: string,
   planTier: string,
   photosUsed: number,
   role?: string,
+  subscriptionStatus?: string | null,
 ): TrialState {
-  // Admin users and pro plan — no trial restrictions
-  if (role === "admin" || planTier === "pro") {
+  // Admins, pro plan, and active/trialing paid subscribers — no trial restrictions
+  if (
+    role === "admin" ||
+    planTier === "pro" ||
+    subscriptionStatus === "active" ||
+    subscriptionStatus === "trialing"
+  ) {
     return { status: "none", daysLeft: 0, daysUsed: 0, photosUsed, photosLimit: TRIAL_PHOTO_LIMIT };
   }
 

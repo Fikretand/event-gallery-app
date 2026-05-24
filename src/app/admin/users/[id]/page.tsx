@@ -25,7 +25,7 @@ async function getUserDetail(id: string) {
 
   if (!userData) return null;
   const user = userData as UserRecord;
-  const trial = computeTrialState(user.created_at, user.plan_tier, photosUsed, user.role);
+  const trial = computeTrialState(user.created_at, user.plan_tier, photosUsed, user.role, user.subscription_status);
 
   return { user, events, photosUsed, usage, trial };
 }

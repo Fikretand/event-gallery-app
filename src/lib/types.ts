@@ -4,6 +4,10 @@ export type MediaStatus = "pending" | "uploaded" | "processing" | "ready" | "fai
 export type AccountType = "photographer" | "couple";
 export type PhotographerPlanTier = "solo" | "pro";
 
+/** Persisted subscription status from the payment provider. Null/undefined = no paid subscription (trial or expired). */
+export type SubscriptionStatus = "active" | "trialing" | "past_due" | "canceled" | null;
+export type BillingCycle = "monthly" | "yearly";
+
 export type UserRecord = {
   id: string;
   email: string;
@@ -22,6 +26,11 @@ export type UserRecord = {
   public_profile_consent: boolean;
   public_email_on_homepage: boolean;
   created_at: string;
+  // ── Billing (added via migration; optional so code works before it runs) ──
+  subscription_status?: SubscriptionStatus;
+  subscription_provider?: string | null;
+  subscription_external_id?: string | null;
+  subscription_renews_at?: string | null;
 };
 
 export type EventRecord = {

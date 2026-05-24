@@ -51,7 +51,7 @@ export default async function DashboardPage({
 
   const planLabel = usage.activeEventLimit === 25 ? "Pro" : "Solo";
   const trial = profile
-    ? computeTrialState(profile.created_at, profile.plan_tier, photosUsed, profile.role)
+    ? computeTrialState(profile.created_at, profile.plan_tier, photosUsed, profile.role, profile.subscription_status)
     : null;
 
   return (
@@ -113,10 +113,10 @@ export default async function DashboardPage({
           >
             {planLabel === "Solo" ? (
               <Link
-                href="/pricing"
+                href="/dashboard/billing"
                 className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-accent)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--color-accent)] transition hover:bg-[var(--color-accent)]/18"
               >
-                Upgrade to Pro →
+                Manage plan →
               </Link>
             ) : null}
           </CountCard>
@@ -258,7 +258,7 @@ function TrialBanner({ trial }: { trial: TrialState }) {
           </div>
         </div>
         <Link
-          href="/pricing"
+          href="/dashboard/billing"
           className={cn(
             "shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition",
             isExpired
@@ -266,7 +266,7 @@ function TrialBanner({ trial }: { trial: TrialState }) {
               : "bg-[var(--color-ink)] text-white hover:bg-[var(--color-ink)]/85",
           )}
         >
-          Upgrade plan →
+          Choose a plan →
         </Link>
       </div>
     </div>
