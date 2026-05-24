@@ -20,7 +20,7 @@ export default async function NewEventPage({
     if (accountType === "couple") {
       const existingEvents = await listOwnerEvents(user.id);
       if (existingEvents.length > 0) {
-        redirect(`/dashboard/events/${existingEvents[0].slug}`);
+        redirect("/dashboard/couple");
       }
     }
   }

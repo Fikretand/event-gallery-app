@@ -39,7 +39,7 @@ export default async function DashboardPage({
   const accountType = await getAccountTypeForUser(supabase, user.id, user.user_metadata?.account_type);
 
   if (accountType === "couple") {
-    redirect(resolveAccountRedirect(accountType, { eventSlug: events[0]?.slug ?? null }));
+    redirect("/dashboard/couple");
   }
 
   const [coverMap, usage, profile, photosUsed] = await Promise.all([

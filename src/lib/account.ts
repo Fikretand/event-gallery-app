@@ -19,7 +19,7 @@ export function isValidPublicProfileUrl(value: string) {
 
 export function resolveAccountRedirect(accountType: AccountType, options?: { eventSlug?: string | null }) {
   if (accountType === "couple") {
-    return options?.eventSlug ? `/dashboard/events/${options.eventSlug}` : "/dashboard/events/new?intent=couple";
+    return "/dashboard/couple";
   }
 
   return "/dashboard";
