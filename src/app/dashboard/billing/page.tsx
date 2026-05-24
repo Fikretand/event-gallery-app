@@ -7,7 +7,7 @@ import { resolveAccountRedirect } from "@/lib/account";
 import { getAccountTypeForUser, getRequiredUser, getUserProfile } from "@/lib/auth";
 import { hasActiveSubscription, hasPayments, PLAN_PRICING } from "@/lib/billing";
 import { computeTrialState, countUserMediaFiles } from "@/lib/events";
-import { hasSupabase } from "@/lib/env";
+import { env, hasSupabase } from "@/lib/env";
 import { BillingPlans } from "./billing-plans";
 import { CoupleCheckoutButton } from "./couple-checkout-button";
 
@@ -143,7 +143,11 @@ export default async function BillingPage({
                   </li>
                 ))}
               </ul>
-              <CoupleCheckoutButton paymentsEnabled={hasPayments} />
+              <CoupleCheckoutButton
+                productKey={env.payhipProductOneEvent ?? ""}
+                userEmail={user.email ?? ""}
+                paymentsEnabled={hasPayments && Boolean(env.payhipProductOneEvent)}
+              />
             </div>
           </Panel>
         )}

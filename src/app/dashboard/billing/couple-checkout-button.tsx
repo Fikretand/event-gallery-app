@@ -1,60 +1,65 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import Script from "next/script";
 
-export function CoupleCheckoutButton({ paymentsEnabled }: { paymentsEnabled: boolean }) {
-  const [pending, startTransition] = useTransition();
-  const [notice, setNotice] = useState<string | null>(null);
-
-  function checkout() {
-    setNotice(null);
-    startTransition(async () => {
-      try {
-        const res = await fetch("/api/billing/checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ plan: "couple" }),
-        });
-        if (res.ok) {
-          const { url } = await res.json();
-          if (url) {
-            window.location.href = url;
-            return;
-          }
-        }
-        if (res.status === 503) {
-          setNotice(
-            "Online checkout is being set up. Contact us to activate your plan — we'll switch it on for your account.",
-          );
-        } else {
-          const data = await res.json().catch(() => ({}));
-          setNotice(data.error ?? "Something went wrong. Please try again.");
-        }
-      } catch {
-        setNotice("Network error. Please try again.");
-      }
-    });
-  }
+/**
+ * Payhip overlay checkout button for the One Event couple plan.
+ *
+ * Payhip's `payhip.js` intercepts clicks on `.payhip-buy-btn` elements and
+ * opens their checkout in a popup modal — the user never leaves the page.
+ *
+ * `productKey` and `userEmail` are passed as server-side props so we never
+ * expose env vars on the client bundle.
+ */
+export function CoupleCheckoutButton({
+  productKey,
+  userEmail,
+  paymentsEnabled,
+}: {
+  productKey: string;
+  userEmail: string;
+  paymentsEnabled: boolean;
+}) {
+  const canCheckout = paymentsEnabled && Boolean(productKey);
 
   return (
-    <div className="mt-5">
-      {notice && (
-        <div className="mb-4 rounded-xl border border-[var(--color-accent)]/20 bg-[var(--color-accent)]/8 px-4 py-3 text-sm text-[var(--color-ink)]">
-          {notice}
-        </div>
+    <>
+      {canCheckout && (
+        <Script
+          src="https://payhip.com/payhip.js"
+          strategy="afterInteractive"
+        />
       )}
-      <button
-        onClick={checkout}
-        disabled={pending || !paymentsEnabled}
-        className="w-full rounded-2xl bg-[var(--color-accent)] px-5 py-3 text-sm font-semibold text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {pending ? "Starting…" : "Buy One Event · €39"}
-      </button>
-      {!paymentsEnabled && (
-        <p className="mt-2 text-center text-xs text-black/45">
-          Online checkout is being set up — coming soon.
-        </p>
-      )}
-    </div>
+
+      <div className="mt-5">
+        {canCheckout ? (
+          <>
+            <a
+              href={`https://payhip.com/b/${productKey}`}
+              data-payhip-product-id={productKey}
+              data-payhip-email={userEmail}
+              className="payhip-buy-btn block w-full rounded-2xl bg-[var(--color-accent)] px-5 py-3 text-center text-sm font-semibold text-white transition hover:brightness-105"
+            >
+              Buy One Event · €39
+            </a>
+            <p className="mt-2 text-center text-xs text-black/45">
+              Secure payment via Payhip · After purchase, refresh to activate.
+            </p>
+          </>
+        ) : (
+          <>
+            <button
+              disabled
+              className="w-full cursor-not-allowed rounded-2xl bg-[var(--color-accent)] px-5 py-3 text-sm font-semibold text-white opacity-60"
+            >
+              Buy One Event · €39
+            </button>
+            <p className="mt-2 text-center text-xs text-black/45">
+              Online checkout is being set up — coming soon.
+            </p>
+          </>
+        )}
+      </div>
+    </>
   );
 }
