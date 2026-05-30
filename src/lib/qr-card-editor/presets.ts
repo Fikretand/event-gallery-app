@@ -82,7 +82,7 @@ export const CARD_PRESETS: CardPreset[] = [
     name: "Minimal Cream",
     background: C.cream,
     objects: [
-      { kind: "text", left: 0, top: 200, width: 1240, text: "DOBRODOŠLI NA", fontFamily: MONO, fontSize: 28, fill: C.moss, textAlign: "center", charSpacing: 800 },
+      { kind: "text", left: 0, top: 200, width: 1240, text: "DOBRODOŠLI NA", fontFamily: MONO, fontSize: 28, fill: C.moss, textAlign: "center", charSpacing: 280 },
       { kind: "text", left: 0, top: 300, width: 1240, text: "{{title}}", fontFamily: SERIF, fontStyle: "italic", fontWeight: 600, fontSize: 96, fill: C.ink, textAlign: "center", template: true },
       { kind: "line", left: 500, top: 440, width: 240, stroke: C.accent, strokeWidth: 3 },
       { kind: "rect", left: 320, top: 540, width: 600, height: 600, fill: C.paperLight, rx: 24 },
@@ -98,7 +98,7 @@ export const CARD_PRESETS: CardPreset[] = [
     background: C.cream,
     objects: [
       { kind: "rect", left: 0, top: 0, width: 1240, height: 440, fill: C.accent },
-      { kind: "text", left: 0, top: 145, width: 1240, text: "PRIVATNA GALERIJA", fontFamily: MONO, fontSize: 26, fill: C.cream, textAlign: "center", charSpacing: 900 },
+      { kind: "text", left: 0, top: 145, width: 1240, text: "PRIVATNA GALERIJA", fontFamily: MONO, fontSize: 26, fill: C.cream, textAlign: "center", charSpacing: 340 },
       { kind: "text", left: 0, top: 260, width: 1240, text: "{{title}}", fontFamily: SERIF, fontStyle: "italic", fontWeight: 600, fontSize: 108, fill: C.cream, textAlign: "center", template: true },
       { kind: "rect", left: 290, top: 640, width: 660, height: 660, fill: C.paperLight, rx: 32 },
       { kind: "qr-slot", left: 345, top: 695, size: 550 },
@@ -112,12 +112,12 @@ export const CARD_PRESETS: CardPreset[] = [
     name: "Polaroid",
     background: C.paper,
     objects: [
-      { kind: "text", left: 0, top: 160, width: 1240, text: "SKENIRAJ I PODIJELI", fontFamily: MONO, fontSize: 26, fill: C.moss, textAlign: "center", charSpacing: 800 },
+      { kind: "text", left: 0, top: 160, width: 1240, text: "SKENIRAJ I PODIJELI", fontFamily: MONO, fontSize: 26, fill: C.moss, textAlign: "center", charSpacing: 280 },
       { kind: "rect", left: 260, top: 540, width: 720, height: 900, fill: "#ffffff", rx: 14 },
       { kind: "rect", left: 300, top: 580, width: 640, height: 640, fill: C.paperLight },
       { kind: "qr-slot", left: 340, top: 620, size: 560 },
       { kind: "text", left: 0, top: 1280, width: 1240, text: "{{title}}", fontFamily: SERIF, fontStyle: "italic", fontWeight: 600, fontSize: 68, fill: C.ink, textAlign: "center", template: true },
-      { kind: "text", left: 0, top: 1360, width: 1240, text: "{{date}}", fontFamily: MONO, fontSize: 22, fill: C.inkSoft, textAlign: "center", charSpacing: 600, template: true },
+      { kind: "text", left: 0, top: 1360, width: 1240, text: "{{date}}", fontFamily: MONO, fontSize: 22, fill: C.inkSoft, textAlign: "center", charSpacing: 260, template: true },
       { kind: "text", left: 0, top: 1560, width: 1240, text: "Uslikaj. Dijeli. Sjećaj se.", fontFamily: SANS, fontSize: 44, fill: C.ink, textAlign: "center" },
     ],
   },
@@ -127,7 +127,7 @@ export const CARD_PRESETS: CardPreset[] = [
     background: C.cream,
     objects: [
       { kind: "rect", left: 120, top: 120, width: 1000, height: 4, fill: C.moss },
-      { kind: "text", left: 0, top: 180, width: 1240, text: "PRIVATNA GALERIJA · {{date}}", fontFamily: MONO, fontSize: 24, fill: C.moss, textAlign: "center", charSpacing: 800, template: true },
+      { kind: "text", left: 0, top: 180, width: 1240, text: "PRIVATNA GALERIJA · {{date}}", fontFamily: MONO, fontSize: 24, fill: C.moss, textAlign: "center", charSpacing: 280, template: true },
       { kind: "text", left: 0, top: 340, width: 1240, text: "{{title}}", fontFamily: SERIF, fontStyle: "italic", fontWeight: 600, fontSize: 120, fill: C.ink, textAlign: "center", template: true },
       { kind: "line", left: 540, top: 490, width: 160, stroke: C.accent, strokeWidth: 2 },
       { kind: "rect", left: 320, top: 600, width: 600, height: 600, fill: C.paperLight },

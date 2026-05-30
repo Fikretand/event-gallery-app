@@ -121,22 +121,39 @@ export function QrCardEditor({
             selectable: true,
             hasControls: true,
           });
-        case "text":
+        case "text": {
+          // Fabric Textbox auto-resizes its bounding box to the natural text
+          // width — so `textAlign: center` inside an originX='left' box at
+          // left=0 ends up rendering the text at canvas x=0 instead of the
+          // visual centre. Anchor the box explicitly via originX/originY so
+          // the centred text lands where the preset intends.
+          const align = obj.textAlign ?? "left";
+          let leftPos = obj.left;
+          let originX: "left" | "center" | "right" = "left";
+          if (align === "center") {
+            leftPos = obj.left + obj.width / 2;
+            originX = "center";
+          } else if (align === "right") {
+            leftPos = obj.left + obj.width;
+            originX = "right";
+          }
           return new fabric.Textbox(fillPlaceholders(obj.text), {
-            left: obj.left,
+            left: leftPos,
             top: obj.top,
             width: obj.width,
+            originX,
             fontFamily: obj.fontFamily,
             fontSize: obj.fontSize,
             fontStyle: obj.fontStyle ?? "normal",
             fontWeight: obj.fontWeight ?? "normal",
             fill: obj.fill,
-            textAlign: obj.textAlign ?? "left",
+            textAlign: align,
             charSpacing: obj.charSpacing ?? 0,
             editable: true,
             selectable: true,
             hasControls: true,
           });
+        }
         case "qr-slot": {
           const img = await fabric.FabricImage.fromURL(qrDataUrl, { crossOrigin: "anonymous" });
           img.set({
@@ -217,9 +234,9 @@ export function QrCardEditor({
       canvas.on("selection:updated", updateSelection);
       canvas.on("selection:cleared", () => setSelected(null));
 
-      // ── Display sizing — keep internal canvas at 1240×1754 (so exports stay
-      // crisp) but scale the CSS dimensions to fit the available stage area.
-      // Recompute on resize so the canvas always fits without overflow.
+      // ── Display sizing — design coordinates stay in 1240×1754 space; we
+      // shrink the canvas buffer to fit the stage and use setZoom so objects
+      // render at the right scale. Recompute on resize.
       const fitToStage = () => {
         if (!canvas || !stageRef.current) return;
         const stage = stageRef.current.getBoundingClientRect();
@@ -227,17 +244,16 @@ export function QrCardEditor({
         const availW = Math.max(200, stage.width - margin);
         const availH = Math.max(200, stage.height - margin);
         const aspect = CANVAS_WIDTH / CANVAS_HEIGHT;
-        // Fit by the tighter axis.
         let displayH = availH;
         let displayW = displayH * aspect;
         if (displayW > availW) {
           displayW = availW;
           displayH = displayW / aspect;
         }
-        canvas.setDimensions(
-          { width: displayW, height: displayH },
-          { cssOnly: true },
-        );
+        const scale = displayW / CANVAS_WIDTH;
+        canvas.setDimensions({ width: displayW, height: displayH });
+        canvas.setZoom(scale);
+        canvas.requestRenderAll();
       };
 
       const initial = CARD_PRESETS[0];
@@ -389,25 +405,41 @@ export function QrCardEditor({
     setSelected((prev) => (prev ? { ...prev, fontWeight: next } : prev));
   }
 
-  async function exportPng() {
+  // Render at full design resolution, then restore display zoom. Returns the
+  // high-res PNG data URL (2480×3508 = A4 @ 300 DPI).
+  function captureFullResPng(): string | null {
     const canvas = fabricRef.current;
-    if (!canvas) return;
+    if (!canvas) return null;
+    const savedZoom = canvas.getZoom();
+    const savedW = canvas.getWidth();
+    const savedH = canvas.getHeight();
+    try {
+      canvas.setZoom(1);
+      canvas.setDimensions({ width: CANVAS_WIDTH, height: CANVAS_HEIGHT });
+      // 2× → 2480 × 3508
+      return canvas.toDataURL({ format: "png", multiplier: 2, quality: 1 });
+    } finally {
+      canvas.setDimensions({ width: savedW, height: savedH });
+      canvas.setZoom(savedZoom);
+      canvas.requestRenderAll();
+    }
+  }
+
+  async function exportPng() {
     setBusy("png");
     try {
-      // 2480 × 3508 (A4 @ 300 DPI) from a 1240×1754 canvas = 2× multiplier
-      const dataUrl = canvas.toDataURL({ format: "png", multiplier: 2, quality: 1 });
-      triggerDownload(dataUrl, `confetti-${slug}-card.png`);
+      const dataUrl = captureFullResPng();
+      if (dataUrl) triggerDownload(dataUrl, `confetti-${slug}-card.png`);
     } finally {
       setBusy(null);
     }
   }
 
   async function exportPdf() {
-    const canvas = fabricRef.current;
-    if (!canvas) return;
     setBusy("pdf");
     try {
-      const dataUrl = canvas.toDataURL({ format: "png", multiplier: 2, quality: 1 });
+      const dataUrl = captureFullResPng();
+      if (!dataUrl) return;
       const res = await fetch("/api/qr-card/pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
