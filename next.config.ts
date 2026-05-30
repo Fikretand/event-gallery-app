@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "6mb",
     },
   },
+  // Native node modules can't be bundled by Turbopack (`.node` binaries fail
+  // with "non-ecmascript placeable asset"). Mark them as external so they're
+  // loaded from node_modules at runtime instead.
+  serverExternalPackages: ["@resvg/resvg-js", "sharp"],
   // The QR poster renderer loads TTF fonts from /public so Resvg can embed
   // real glyphs (Vercel's serverless image has no system fonts available).
   // Next.js wouldn't auto-trace these binary assets, so we list them
