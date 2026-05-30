@@ -69,7 +69,7 @@ export function QrPosterPicker({ slug, qrCodeDataUrl, eventTitle, eventDate }: Q
   }
 
   return (
-    <div className="space-y-5">
+    <div className="min-w-0 space-y-5">
       {/* Plain QR download button */}
       <button
         type="button"
@@ -86,7 +86,7 @@ export function QrPosterPicker({ slug, qrCodeDataUrl, eventTitle, eventDate }: Q
       </button>
 
       {/* Template gallery — horizontal scroll */}
-      <div>
+      <div className="min-w-0">
         <div className="flex items-end justify-between gap-3">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">

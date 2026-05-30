@@ -106,7 +106,7 @@ export default async function EventDetailPage({
 
       <section className="shell space-y-6">
         <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-          <Panel className="bg-white/90">
+          <Panel className="min-w-0 bg-white/90">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
               <div className="flex-1 space-y-5">
                 <div className="flex flex-wrap gap-3 text-sm text-black/60">
@@ -217,7 +217,7 @@ export default async function EventDetailPage({
             </div>
           </Panel>
 
-          <Panel className="bg-white/92">
+          <Panel className="min-w-0 bg-white/92">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">Guest QR code</p>
             <div className="mt-4 rounded-[28px] bg-[var(--color-paper)] p-6">
               <Image
