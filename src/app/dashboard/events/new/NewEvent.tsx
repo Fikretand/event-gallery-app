@@ -40,6 +40,7 @@ export async function NewEvent({
         eyebrow={isCouple ? d.create.eyebrowCouple : d.create.eyebrowPhotographer}
         strings={d.header}
         profileHref={locale === "en" ? "/dashboard/profile" : `/${locale}/dashboard/profile`}
+        locale={locale}
       />
       <section className="shell">
         {hasSupabase ? (

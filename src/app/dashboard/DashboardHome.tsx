@@ -34,7 +34,7 @@ export async function DashboardHome({
   if (!hasSupabase) {
     return (
       <main className="py-8">
-        <DashboardHeader title={h.setupTitle} eyebrow={h.setupEyebrow} strings={d.header} />
+        <DashboardHeader title={h.setupTitle} eyebrow={h.setupEyebrow} strings={d.header} locale={locale} />
         <SetupNotice />
       </main>
     );
@@ -70,6 +70,7 @@ export async function DashboardHome({
         isAdmin={profile?.role === "admin"}
         strings={d.header}
         profileHref={`${prefix}/dashboard/profile`}
+        locale={locale}
         action={
           <Link
             href={`${prefix}/dashboard/events/new`}

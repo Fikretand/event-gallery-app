@@ -85,6 +85,7 @@ export async function EventDetail({
         eyebrow={event.client_name || (isCouple ? "Your private event" : "Private event")}
         strings={d.header}
         profileHref={`${prefix}/dashboard/profile`}
+        locale={locale}
         action={
           <Link
             href={`${prefix}/dashboard`}

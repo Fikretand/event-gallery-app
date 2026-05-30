@@ -31,6 +31,7 @@ export async function DashboardProfile({ locale }: { locale: Locale }) {
         eyebrow={isCouple ? p.eyebrowCouple : p.eyebrowPhotographer}
         strings={d.header}
         profileHref={`${prefix}/dashboard/profile`}
+        locale={locale}
       />
 
       <section className="shell grid gap-5">

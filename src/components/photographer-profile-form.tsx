@@ -97,6 +97,29 @@ export function PhotographerProfileForm({
         </div>
       </div>
 
+      <div className="rounded-[24px] border border-black/10 bg-[var(--color-paper)]/55 p-5">
+        <p className="text-sm font-semibold text-[var(--color-ink)]">Dashboard language · Jezik dashboarda</p>
+        <p className="mt-1 text-xs leading-5 text-black/55">
+          Saving this choice routes you to /en or /bs automatically on every dashboard visit.
+        </p>
+        <div className="mt-3 inline-flex items-center rounded-full border border-black/10 bg-white p-0.5 text-sm font-semibold">
+          {(["en", "bs"] as const).map((loc) => (
+            <label key={loc} className="cursor-pointer">
+              <input
+                type="radio"
+                name="preferredLocale"
+                value={loc}
+                defaultChecked={(profile.preferred_locale ?? "en") === loc}
+                className="peer sr-only"
+              />
+              <span className="block rounded-full px-4 py-1.5 text-[var(--color-ink)]/70 peer-checked:bg-[var(--color-ink)] peer-checked:text-white">
+                {loc === "en" ? "English" : "Bosanski"}
+              </span>
+            </label>
+          ))}
+        </div>
+      </div>
+
       {state?.error ? <div className="rounded-2xl bg-[#fff0eb] px-4 py-3 text-sm text-[#8a1c1c]">{state.error}</div> : null}
       {state?.success ? <div className="rounded-2xl bg-[#eef9f0] px-4 py-3 text-sm text-[#1f6b35]">{state.success}</div> : null}
 

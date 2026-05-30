@@ -31,6 +31,8 @@ export type UserRecord = {
   subscription_provider?: string | null;
   subscription_external_id?: string | null;
   subscription_renews_at?: string | null;
+  // ── i18n preference (added via migration; null = follow URL/default) ──
+  preferred_locale?: "en" | "bs" | null;
 };
 
 export type EventRecord = {

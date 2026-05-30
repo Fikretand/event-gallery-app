@@ -66,6 +66,7 @@ export async function DashboardBilling({
         isAdmin={isAdmin}
         strings={d.header}
         profileHref={`${prefix}/dashboard/profile`}
+        locale={locale}
         action={
           <Link
             href={isCouple ? `${prefix}/dashboard/couple` : `${prefix}/dashboard`}

@@ -300,6 +300,9 @@ export async function updatePhotographerProfileAction(
   const showOnHomepage = formData.get("showOnHomepage") === "on";
   const publicProfileConsent = formData.get("publicProfileConsent") === "on";
   const publicEmailOnHomepage = formData.get("publicEmailOnHomepage") === "on";
+  const rawLocale = String(formData.get("preferredLocale") ?? "");
+  const preferredLocale: "en" | "bs" | null =
+    rawLocale === "en" || rawLocale === "bs" ? rawLocale : null;
 
   const { error } = await supabase
     .from("users")
@@ -315,6 +318,7 @@ export async function updatePhotographerProfileAction(
       show_on_homepage: showOnHomepage && publicProfileConsent,
       public_profile_consent: publicProfileConsent,
       public_email_on_homepage: publicProfileConsent && showOnHomepage && publicEmailOnHomepage,
+      preferred_locale: preferredLocale,
     })
     .eq("id", user.id);
 
@@ -325,6 +329,15 @@ export async function updatePhotographerProfileAction(
   revalidatePath("/");
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/profile");
+
+  // If the locale preference changed, send the user to the matching profile URL
+  // so the UI immediately reflects their choice.
+  if (preferredLocale && preferredLocale !== profile.preferred_locale) {
+    redirect(
+      preferredLocale === "en" ? "/dashboard/profile" : `/${preferredLocale}/dashboard/profile`,
+    );
+  }
+
   return { success: "Profile saved." };
 }
 
