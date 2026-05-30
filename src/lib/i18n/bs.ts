@@ -332,12 +332,9 @@ export const dict: Dict = {
     qrPicker: {
       plainDownload: "Skini QR (PNG)",
       plainPreparing: "Pripremam…",
-      printableTemplates: "Printable templates",
-      scrollHint: "Skroluj lijevo / desno · A4 300 DPI",
-      swipeHint: "← swipe →",
-      downloadError: "Download nije uspio. Pokušaj ponovo.",
-      networkError: "Greška sa mrežom. Pokušaj ponovo.",
       customize: "Prilagodi ✎",
+      customizeHint:
+        "Klikni Prilagodi da kreneš od jednog od 4 templata i izmijeniš imena, fontove, boje ili dodaš svoju sliku.",
     },
     billing: {
       title: "Plan i naplata",

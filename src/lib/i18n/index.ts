@@ -302,12 +302,8 @@ export interface Dict {
     qrPicker: {
       plainDownload: string;
       plainPreparing: string;
-      printableTemplates: string;
-      scrollHint: string;
-      swipeHint: string;
-      downloadError: string;
-      networkError: string;
       customize: string;
+      customizeHint: string;
     };
     // Billing page
     billing: {

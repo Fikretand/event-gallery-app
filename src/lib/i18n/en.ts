@@ -331,12 +331,9 @@ export const dict: Dict = {
     qrPicker: {
       plainDownload: "Download QR (PNG)",
       plainPreparing: "Preparing…",
-      printableTemplates: "Printable templates",
-      scrollHint: "Scroll left / right · A4 300 DPI",
-      swipeHint: "← swipe →",
-      downloadError: "Download failed. Please try again.",
-      networkError: "Network error. Please try again.",
       customize: "Customize ✎",
+      customizeHint:
+        "Click Customize to start from one of 4 templates and edit names, fonts, colours, or add your own image.",
     },
     billing: {
       title: "Plan & billing",

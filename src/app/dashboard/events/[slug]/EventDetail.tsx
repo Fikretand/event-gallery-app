@@ -220,11 +220,8 @@ export async function EventDetail({
               <QrPosterPicker
                 slug={event.slug}
                 qrCodeDataUrl={qrCode}
-                eventTitle={event.title || "Confetti"}
-                eventDate={event.event_date ? formatDate(event.event_date) : null}
                 strings={d.qrPicker}
                 editorHref={`${prefix}/dashboard/events/${event.slug}/qr-card-editor`}
-                customizeLabel={d.qrPicker.customize}
               />
             </div>
           </Panel>

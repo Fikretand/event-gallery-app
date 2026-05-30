@@ -50,6 +50,8 @@ const PRESET_COLORS = [
   "#fffaf2", "#f2eadf", "#b8431f", "#ffffff", "#000000",
 ];
 
+const FONT_OPTIONS = ["Playfair Display", "Inter", "JetBrains Mono"] as const;
+
 export interface QrCardEditorProps {
   slug: string;
   eventTitle: string;
@@ -69,12 +71,16 @@ export function QrCardEditor({
   const fabricRef = useRef<import("fabric").Canvas | null>(null);
   const fabricNsRef = useRef<FabricNs | null>(null);
 
+  const stageRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<"loading" | "ready">("loading");
   const [activePresetId, setActivePresetId] = useState<string>(CARD_PRESETS[0].id);
   const [selected, setSelected] = useState<{
     type: string;
     fill?: string;
     fontSize?: number;
+    fontFamily?: string;
+    fontStyle?: string;
+    fontWeight?: number | string;
   } | null>(null);
   const [busy, setBusy] = useState<"png" | "pdf" | null>(null);
 
@@ -186,7 +192,14 @@ export function QrCardEditor({
       fabricRef.current = canvas;
 
       const updateSelection = () => {
-        const active = canvas?.getActiveObject();
+        const active = canvas?.getActiveObject() as
+          | (import("fabric").FabricObject & {
+              fontSize?: number;
+              fontFamily?: string;
+              fontStyle?: string;
+              fontWeight?: number | string;
+            })
+          | undefined;
         if (!active) {
           setSelected(null);
           return;
@@ -194,21 +207,54 @@ export function QrCardEditor({
         setSelected({
           type: active.type ?? "object",
           fill: typeof active.fill === "string" ? active.fill : undefined,
-          fontSize:
-            (active as { fontSize?: number }).fontSize,
+          fontSize: active.fontSize,
+          fontFamily: active.fontFamily,
+          fontStyle: active.fontStyle,
+          fontWeight: active.fontWeight,
         });
       };
       canvas.on("selection:created", updateSelection);
       canvas.on("selection:updated", updateSelection);
       canvas.on("selection:cleared", () => setSelected(null));
 
+      // ── Display sizing — keep internal canvas at 1240×1754 (so exports stay
+      // crisp) but scale the CSS dimensions to fit the available stage area.
+      // Recompute on resize so the canvas always fits without overflow.
+      const fitToStage = () => {
+        if (!canvas || !stageRef.current) return;
+        const stage = stageRef.current.getBoundingClientRect();
+        const margin = 32;
+        const availW = Math.max(200, stage.width - margin);
+        const availH = Math.max(200, stage.height - margin);
+        const aspect = CANVAS_WIDTH / CANVAS_HEIGHT;
+        // Fit by the tighter axis.
+        let displayH = availH;
+        let displayW = displayH * aspect;
+        if (displayW > availW) {
+          displayW = availW;
+          displayH = displayW / aspect;
+        }
+        canvas.setDimensions(
+          { width: displayW, height: displayH },
+          { cssOnly: true },
+        );
+      };
+
       const initial = CARD_PRESETS[0];
       await loadPreset(initial);
+      fitToStage();
+
+      const ro = new ResizeObserver(fitToStage);
+      if (stageRef.current) ro.observe(stageRef.current);
+      // Hold the observer on the canvas so the cleanup below can stop it.
+      (canvas as unknown as { __ro?: ResizeObserver }).__ro = ro;
+
       setStatus("ready");
     })();
 
     return () => {
       cancelled = true;
+      (canvas as unknown as { __ro?: ResizeObserver })?.__ro?.disconnect();
       canvas?.dispose();
       fabricRef.current = null;
     };
@@ -309,6 +355,38 @@ export function QrCardEditor({
     (active as { set: (props: Record<string, unknown>) => void }).set({ fontSize: size });
     canvas.renderAll();
     setSelected((prev) => (prev ? { ...prev, fontSize: size } : prev));
+  }
+
+  function setFontFamily(family: string) {
+    const canvas = fabricRef.current;
+    const active = canvas?.getActiveObject();
+    if (!canvas || !active) return;
+    (active as { set: (props: Record<string, unknown>) => void }).set({ fontFamily: family });
+    canvas.renderAll();
+    setSelected((prev) => (prev ? { ...prev, fontFamily: family } : prev));
+  }
+
+  function toggleItalic() {
+    const canvas = fabricRef.current;
+    const active = canvas?.getActiveObject();
+    if (!canvas || !active) return;
+    const current = (active as { fontStyle?: string }).fontStyle ?? "normal";
+    const next = current === "italic" ? "normal" : "italic";
+    (active as { set: (props: Record<string, unknown>) => void }).set({ fontStyle: next });
+    canvas.renderAll();
+    setSelected((prev) => (prev ? { ...prev, fontStyle: next } : prev));
+  }
+
+  function toggleBold() {
+    const canvas = fabricRef.current;
+    const active = canvas?.getActiveObject();
+    if (!canvas || !active) return;
+    const current = (active as { fontWeight?: number | string }).fontWeight ?? "normal";
+    const isBold = current === "bold" || Number(current) >= 600;
+    const next = isBold ? "normal" : "bold";
+    (active as { set: (props: Record<string, unknown>) => void }).set({ fontWeight: next });
+    canvas.renderAll();
+    setSelected((prev) => (prev ? { ...prev, fontWeight: next } : prev));
   }
 
   async function exportPng() {
@@ -439,26 +517,17 @@ export function QrCardEditor({
           </p>
         </aside>
 
-        {/* Canvas viewport */}
-        <main className="flex min-w-0 flex-1 items-center justify-center overflow-auto bg-[#0f1419] p-6">
+        {/* Canvas viewport — `stageRef` is measured by the ResizeObserver so
+            the canvas always scales to fit without overflowing. */}
+        <main
+          ref={stageRef}
+          className="relative flex min-w-0 flex-1 items-center justify-center overflow-hidden bg-[#0f1419] p-4"
+        >
           {status === "loading" && (
             <p className="absolute z-10 text-sm text-white/60">Loading editor…</p>
           )}
-          <div
-            className="shrink-0 shadow-[0_24px_60px_rgba(0,0,0,0.6)]"
-            style={{
-              width: CANVAS_WIDTH / 2,
-              height: CANVAS_HEIGHT / 2,
-              transform: "scale(1)",
-            }}
-          >
-            <canvas
-              ref={canvasElRef}
-              style={{
-                width: CANVAS_WIDTH / 2,
-                height: CANVAS_HEIGHT / 2,
-              }}
-            />
+          <div className="shadow-[0_24px_60px_rgba(0,0,0,0.6)]">
+            <canvas ref={canvasElRef} />
           </div>
         </main>
 
@@ -501,6 +570,47 @@ export function QrCardEditor({
                     onChange={(e) => setFill(e.target.value)}
                     className="mt-2 h-8 w-full cursor-pointer rounded border border-white/15 bg-transparent"
                   />
+                </div>
+              )}
+
+              {selected.fontFamily !== undefined && (
+                <div>
+                  <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/55">
+                    Font
+                  </p>
+                  <select
+                    value={selected.fontFamily}
+                    onChange={(e) => setFontFamily(e.target.value)}
+                    className="w-full rounded-md border border-white/15 bg-white/5 px-2 py-1.5 text-xs text-white/90 focus:border-white/40 focus:outline-none"
+                  >
+                    {FONT_OPTIONS.map((f) => (
+                      <option key={f} value={f} className="bg-[#161b22]">
+                        {f}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="mt-2 flex gap-2">
+                    <button
+                      onClick={toggleBold}
+                      className={`flex-1 rounded-md border px-2 py-1.5 text-xs font-bold transition ${
+                        selected.fontWeight === "bold" || Number(selected.fontWeight) >= 600
+                          ? "border-white/40 bg-white/15 text-white"
+                          : "border-white/15 bg-white/5 text-white/70 hover:bg-white/10"
+                      }`}
+                    >
+                      B
+                    </button>
+                    <button
+                      onClick={toggleItalic}
+                      className={`flex-1 rounded-md border px-2 py-1.5 text-xs italic transition ${
+                        selected.fontStyle === "italic"
+                          ? "border-white/40 bg-white/15 text-white"
+                          : "border-white/15 bg-white/5 text-white/70 hover:bg-white/10"
+                      }`}
+                    >
+                      I
+                    </button>
+                  </div>
                 </div>
               )}
 
