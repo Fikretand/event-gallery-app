@@ -7,6 +7,7 @@ import { EventSettingsForm } from "@/components/event-settings-form";
 import { EventLifecyclePanel } from "@/components/event-lifecycle-panel";
 import { GallerySectionsManager } from "@/components/gallery-sections-manager";
 import { MediaGrid } from "@/components/media-grid";
+import { QrPosterPicker } from "@/components/qr-poster-picker";
 import { UploadDropzone } from "@/components/upload-dropzone";
 import { Panel } from "@/components/ui/panel";
 import { updateEventAction } from "@/lib/actions";
@@ -230,6 +231,14 @@ export default async function EventDetailPage({
             <p className="mt-4 text-sm leading-6 text-black/58">
               Share this on tables, invites, or signage so guests can upload without installing an app.
             </p>
+            <div className="mt-6 border-t border-black/8 pt-6">
+              <QrPosterPicker
+                slug={event.slug}
+                qrCodeDataUrl={qrCode}
+                eventTitle={event.title || "Confetti"}
+                eventDate={event.event_date ? formatDate(event.event_date) : null}
+              />
+            </div>
           </Panel>
         </div>
 
