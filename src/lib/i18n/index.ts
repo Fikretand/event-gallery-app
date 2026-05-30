@@ -257,6 +257,10 @@ export interface Dict {
       managerTitleCouple: string;
       managerBody: string;
       managerBodyCouple: string;
+      managerRecentLabel: string; // "Recent uploads · {{shown}} of {{total}}"
+      managerShowAll: string;     // "Show all {{n}} files"
+      managerShowFewer: string;
+      activityShowToggle: string; // "Show / Hide"
       // Activity
       activityTitle: string;
       activityTitleCouple: string;

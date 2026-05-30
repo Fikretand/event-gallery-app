@@ -6,6 +6,7 @@ import { DashboardHeader } from "@/components/dashboard-header";
 import { EventSettingsForm } from "@/components/event-settings-form";
 import { EventLifecyclePanel } from "@/components/event-lifecycle-panel";
 import { GallerySectionsManager } from "@/components/gallery-sections-manager";
+import { CollapsibleSection } from "@/components/collapsible-section";
 import { MediaGrid } from "@/components/media-grid";
 import { QrPosterPicker } from "@/components/qr-poster-picker";
 import { UploadDropzone } from "@/components/upload-dropzone";
@@ -122,7 +123,7 @@ export async function EventDetail({
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="rounded-[24px] bg-[var(--color-paper)]/65 p-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/45">{e.mediaFiles}</p>
                     <p className="mt-3 text-3xl font-semibold text-[var(--color-ink)]">{analytics.mediaCount}</p>
@@ -291,49 +292,73 @@ export async function EventDetail({
             {isCouple ? e.managerBodyCouple : e.managerBody}
           </p>
           <div className="mt-5">
-            <MediaGrid
-              media={media}
-              ownerMode
-              eventSlug={event.slug}
-              coverImageId={event.cover_image_id}
-              audience={accountType}
-              sections={sections}
-            />
+            <CollapsibleSection
+              totalCount={media.length}
+              threshold={12}
+              collapsedMaxHeight={720}
+              strings={{
+                recentLabel: e.managerRecentLabel,
+                showAll: e.managerShowAll,
+                showFewer: e.managerShowFewer,
+              }}
+            >
+              <MediaGrid
+                media={media}
+                ownerMode
+                eventSlug={event.slug}
+                coverImageId={event.cover_image_id}
+                audience={accountType}
+                sections={sections}
+              />
+            </CollapsibleSection>
           </div>
         </Panel>
 
         <Panel className="bg-white/90">
-          <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">
-            {isCouple ? e.activityTitleCouple : e.activityTitle}
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-black/62">
-            {isCouple ? e.activityBodyCouple : e.activityBody}
-          </p>
+          <details className="group">
+            <summary className="flex cursor-pointer list-none items-start justify-between gap-4">
+              <div>
+                <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">
+                  {isCouple ? e.activityTitleCouple : e.activityTitle}
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-black/62">
+                  {isCouple ? e.activityBodyCouple : e.activityBody}
+                </p>
+              </div>
+              <span
+                aria-hidden
+                className="mt-1 shrink-0 rounded-full border border-black/10 bg-white/85 px-3 py-1.5 text-xs font-semibold text-[var(--color-ink)] transition group-open:bg-[var(--color-paper)]"
+              >
+                <span className="group-open:hidden">↓</span>
+                <span className="hidden group-open:inline">↑</span>
+              </span>
+            </summary>
 
-          {activity.length === 0 ? (
-            <div className="mt-5 rounded-[24px] border border-dashed border-black/10 bg-white/70 px-6 py-10 text-center text-sm text-black/58">
-              {e.activityEmpty}
-            </div>
-          ) : (
-            <div className="mt-5 space-y-3">
-              {activity.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex flex-col gap-2 rounded-[24px] border border-black/10 bg-white px-4 py-4 md:flex-row md:items-center md:justify-between"
-                >
-                  <div>
-                    <p className="text-sm font-semibold text-[var(--color-ink)]">
-                      {activityLabel(item.action, e.activityLabels)}
-                    </p>
-                    <p className="mt-1 text-sm text-black/58">
-                      {typeof item.metadata?.filename === "string" ? item.metadata.filename : e.activityFallback}
-                    </p>
+            {activity.length === 0 ? (
+              <div className="mt-5 rounded-[24px] border border-dashed border-black/10 bg-white/70 px-6 py-10 text-center text-sm text-black/58">
+                {e.activityEmpty}
+              </div>
+            ) : (
+              <div className="mt-5 space-y-3">
+                {activity.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex flex-col gap-2 rounded-[24px] border border-black/10 bg-white px-4 py-4 md:flex-row md:items-center md:justify-between"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold text-[var(--color-ink)]">
+                        {activityLabel(item.action, e.activityLabels)}
+                      </p>
+                      <p className="mt-1 text-sm text-black/58">
+                        {typeof item.metadata?.filename === "string" ? item.metadata.filename : e.activityFallback}
+                      </p>
+                    </div>
+                    <p className="text-xs uppercase tracking-[0.18em] text-black/45">{formatDate(item.created_at)}</p>
                   </div>
-                  <p className="text-xs uppercase tracking-[0.18em] text-black/45">{formatDate(item.created_at)}</p>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </details>
         </Panel>
       </section>
     </main>
