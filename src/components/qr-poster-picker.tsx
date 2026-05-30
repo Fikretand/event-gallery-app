@@ -16,6 +16,26 @@ function triggerDownload(blob: Blob, filename: string) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+export interface QrPosterPickerStrings {
+  plainDownload: string;
+  plainPreparing: string;
+  printableTemplates: string;
+  scrollHint: string;
+  swipeHint: string;
+  downloadError: string;
+  networkError: string;
+}
+
+const DEFAULT_STRINGS: QrPosterPickerStrings = {
+  plainDownload: "Download QR (PNG)",
+  plainPreparing: "Preparing…",
+  printableTemplates: "Printable templates",
+  scrollHint: "Scroll left / right · A4 300 DPI",
+  swipeHint: "← swipe →",
+  downloadError: "Download failed. Please try again.",
+  networkError: "Network error. Please try again.",
+};
+
 interface QrPosterPickerProps {
   slug: string;
   /** Plain QR code as a data:image/png;base64,... URL for the standalone download. */
@@ -24,11 +44,20 @@ interface QrPosterPickerProps {
   eventTitle: string;
   /** Formatted event date (e.g. "14 . 06 . 26"). */
   eventDate: string | null;
+  /** Optional translations. Defaults to English. */
+  strings?: QrPosterPickerStrings;
 }
 
 type DownloadKey = `${PosterTemplate}-${PosterFormat}` | "plain";
 
-export function QrPosterPicker({ slug, qrCodeDataUrl, eventTitle, eventDate }: QrPosterPickerProps) {
+export function QrPosterPicker({
+  slug,
+  qrCodeDataUrl,
+  eventTitle,
+  eventDate,
+  strings,
+}: QrPosterPickerProps) {
+  const s = strings ?? DEFAULT_STRINGS;
   const [busy, setBusy] = useState<DownloadKey | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,12 +69,12 @@ export function QrPosterPicker({ slug, qrCodeDataUrl, eventTitle, eventDate }: Q
       const res = await fetch(`/api/events/${slug}/qr-poster?template=${template}&format=${format}`);
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error ?? "Download failed.");
+        throw new Error(data.error ?? s.downloadError);
       }
       const blob = await res.blob();
       triggerDownload(blob, `confetti-${slug}-${template}.${format}`);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Download failed.");
+      setError(e instanceof Error ? e.message : s.networkError);
     } finally {
       setBusy(null);
     }
@@ -82,7 +111,7 @@ export function QrPosterPicker({ slug, qrCodeDataUrl, eventTitle, eventDate }: Q
           <polyline points="7 10 12 15 17 10" />
           <line x1="12" y1="15" x2="12" y2="3" />
         </svg>
-        {busy === "plain" ? "Pripremam…" : "Skini QR (PNG)"}
+        {busy === "plain" ? s.plainPreparing : s.plainDownload}
       </button>
 
       {/* Template gallery — horizontal scroll */}
@@ -90,13 +119,11 @@ export function QrPosterPicker({ slug, qrCodeDataUrl, eventTitle, eventDate }: Q
         <div className="flex items-end justify-between gap-3">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">
-              Printable templates
+              {s.printableTemplates}
             </p>
-            <p className="mt-1 text-xs leading-5 text-black/55">
-              Skroluj lijevo / desno · A4 300 DPI
-            </p>
+            <p className="mt-1 text-xs leading-5 text-black/55">{s.scrollHint}</p>
           </div>
-          <span className="text-[11px] text-black/35">← swipe →</span>
+          <span className="text-[11px] text-black/35">{s.swipeHint}</span>
         </div>
 
         {error && (

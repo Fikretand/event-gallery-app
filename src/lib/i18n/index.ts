@@ -167,6 +167,7 @@ export interface Dict {
     formWorking: string;
   };
   dashboard: {
+    // Original (kept for back-compat)
     title: string;
     eyebrow: string;
     newEvent: string;
@@ -177,6 +178,150 @@ export interface Dict {
     activeEvents: string;
     liveStorage: string;
     usageTitle: string;
+    // Header chrome
+    header: {
+      profile: string;
+      signOut: string;
+      admin: string;
+      backToDashboard: string;
+      backToEvents: string;
+    };
+    // Setup notice
+    setupNotice: {
+      title: string;
+      body: string;
+    };
+    // Home page (event list)
+    home: {
+      title: string;
+      eyebrow: string;
+      newEvent: string;
+      setupTitle: string;
+      setupEyebrow: string;
+      eventDeleted: string;
+      storageUsed: string;
+      remaining: string;
+      events: string;
+      slotsLeft: string;
+      plan: string;
+      planProDesc: string;
+      planSoloDesc: string;
+      managePlan: string;
+      noEvents: string;
+      noEventsBody: string;
+      trialActive: string;        // "Free trial — {{n}} day{{s}} remaining"
+      trialExpired: string;
+      trialActiveBody: string;    // "{{used}} / {{limit}} photos used · …"
+      trialExpiredBody: string;
+      choosePlan: string;
+    };
+    // Event detail page
+    event: {
+      backToEvents: string;
+      eventDate: string;
+      expires: string;
+      guestUploadsUntil: string;
+      mediaFiles: string;
+      guestUploads: string;
+      storageUsed: string;
+      downloads: string;
+      guestUploadLink: string;
+      clientGalleryLink: string;
+      privateGalleryLink: string;
+      permanentLinksNote: string;
+      openGuestPage: string;
+      openGuestUploadPage: string;
+      openClientGallery: string;
+      openPrivateGallery: string;
+      eventExpired: string;
+      eventExpiredCouple: string;
+      coverImageHint: string;
+      coverImageHintCouple: string;
+      guestQrCode: string;
+      qrSharingHint: string;
+      uploadProTitle: string;
+      uploadYourTitle: string;
+      uploadProBody: string;
+      uploadYourBody: string;
+      savedNotice: string;
+      // Danger zone
+      dangerZone: string;
+      dangerZoneBody: string;
+      // Gallery sections
+      sectionsTitle: string;
+      sectionsTitleCouple: string;
+      sectionsBody: string;
+      sectionsBodyCouple: string;
+      // Gallery manager
+      managerTitle: string;
+      managerTitleCouple: string;
+      managerBody: string;
+      managerBodyCouple: string;
+      // Activity
+      activityTitle: string;
+      activityTitleCouple: string;
+      activityBody: string;
+      activityBodyCouple: string;
+      activityEmpty: string;
+      activityFallback: string;
+      activityLabels: {
+        media_hidden: string;
+        media_unhidden: string;
+        media_soft_deleted: string;
+        media_restored: string;
+        media_permanently_deleted: string;
+        cover_set: string;
+        cover_cleared: string;
+      };
+    };
+    // Create event page
+    create: {
+      titlePhotographer: string;
+      titleCouple: string;
+      eyebrowPhotographer: string;
+      eyebrowCouple: string;
+    };
+    // Profile page
+    profile: {
+      titlePhotographer: string;
+      titleCouple: string;
+      eyebrowPhotographer: string;
+      eyebrowCouple: string;
+      backToDashboard: string;
+      accountDetails: string;
+      publicProfileSettings: string;
+      accountDetailsBody: string;
+      publicProfileBody: string;
+    };
+    // QR poster picker
+    qrPicker: {
+      plainDownload: string;
+      plainPreparing: string;
+      printableTemplates: string;
+      scrollHint: string;
+      swipeHint: string;
+      downloadError: string;
+      networkError: string;
+    };
+    // Billing page
+    billing: {
+      title: string;
+      eyebrow: string;
+      backToDashboard: string;
+      paymentReceived: string;
+      currentPlan: string;
+      planLabelAdmin: string;
+      planLabelActive: string;       // "{{plan}} · active"
+      planLabelAdminNote: string;    // "Admin · no limits"
+      trialActiveLabel: string;      // "Free trial · {{n}} day{{s}} left"
+      trialExpired: string;
+      freeTrial: string;
+      trialPhotosUsed: string;       // "{{used}} / {{limit}} trial photos used"
+      upgradeYourPlan: string;
+      oneEvent: string;
+      oneTime: string;
+      onlineCheckoutSetup: string;
+    };
   };
   coupleDashboard: {
     // Header

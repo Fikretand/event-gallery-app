@@ -1,6 +1,14 @@
-/**
- * Locale-aware dashboard page.
- * Re-exports the main dashboard with locale context available for translated strings.
- * The heavy lifting (auth, data fetching, usage cards) is identical to the non-locale version.
- */
-export { default } from "@/app/dashboard/page";
+import { DashboardHome } from "@/app/dashboard/DashboardHome";
+import type { Locale } from "@/lib/i18n/index";
+
+export default async function DashboardLocalePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams?: Promise<{ deleted?: string }>;
+}) {
+  const { locale } = await params;
+  const resolved = searchParams ? await searchParams : undefined;
+  return <DashboardHome locale={locale as Locale} searchParams={resolved} />;
+}
