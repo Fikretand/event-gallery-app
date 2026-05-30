@@ -337,6 +337,7 @@ export const dict: Dict = {
       swipeHint: "← swipe →",
       downloadError: "Download nije uspio. Pokušaj ponovo.",
       networkError: "Greška sa mrežom. Pokušaj ponovo.",
+      customize: "Prilagodi ✎",
     },
     billing: {
       title: "Plan i naplata",

@@ -307,6 +307,7 @@ export interface Dict {
       swipeHint: string;
       downloadError: string;
       networkError: string;
+      customize: string;
     };
     // Billing page
     billing: {

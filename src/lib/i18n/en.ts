@@ -336,6 +336,7 @@ export const dict: Dict = {
       swipeHint: "← swipe →",
       downloadError: "Download failed. Please try again.",
       networkError: "Network error. Please try again.",
+      customize: "Customize ✎",
     },
     billing: {
       title: "Plan & billing",

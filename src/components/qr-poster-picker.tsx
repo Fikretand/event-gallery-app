@@ -46,6 +46,9 @@ interface QrPosterPickerProps {
   eventDate: string | null;
   /** Optional translations. Defaults to English. */
   strings?: QrPosterPickerStrings;
+  /** When provided, renders a "Customize" link to the Fabric.js card editor. */
+  editorHref?: string;
+  customizeLabel?: string;
 }
 
 type DownloadKey = `${PosterTemplate}-${PosterFormat}` | "plain";
@@ -56,6 +59,8 @@ export function QrPosterPicker({
   eventTitle,
   eventDate,
   strings,
+  editorHref,
+  customizeLabel = "Customize ✎",
 }: QrPosterPickerProps) {
   const s = strings ?? DEFAULT_STRINGS;
   const [busy, setBusy] = useState<DownloadKey | null>(null);
@@ -99,20 +104,30 @@ export function QrPosterPicker({
 
   return (
     <div className="min-w-0 space-y-5">
-      {/* Plain QR download button */}
-      <button
-        type="button"
-        onClick={downloadPlain}
-        disabled={busy !== null}
-        className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--color-ink)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-ink)]/85 disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <polyline points="7 10 12 15 17 10" />
-          <line x1="12" y1="15" x2="12" y2="3" />
-        </svg>
-        {busy === "plain" ? s.plainPreparing : s.plainDownload}
-      </button>
+      {/* Plain QR download + Customize buttons */}
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={downloadPlain}
+          disabled={busy !== null}
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--color-ink)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-ink)]/85 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          {busy === "plain" ? s.plainPreparing : s.plainDownload}
+        </button>
+        {editorHref && (
+          <a
+            href={editorHref}
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--color-ink)]/15 bg-white/85 px-5 py-2.5 text-sm font-semibold text-[var(--color-ink)] transition hover:bg-white"
+          >
+            {customizeLabel}
+          </a>
+        )}
+      </div>
 
       {/* Template gallery — horizontal scroll */}
       <div className="min-w-0">
