@@ -12,6 +12,13 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "6mb",
     },
   },
+  // The QR poster renderer loads TTF fonts from /public so Resvg can embed
+  // real glyphs (Vercel's serverless image has no system fonts available).
+  // Next.js wouldn't auto-trace these binary assets, so we list them
+  // explicitly so they ship with the serverless function bundle.
+  outputFileTracingIncludes: {
+    "/api/events/[slug]/qr-poster": ["./public/fonts/poster/**/*.ttf"],
+  },
 };
 
 export default nextConfig;

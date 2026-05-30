@@ -7,6 +7,7 @@ import {
   renderPosterSvg,
   type PosterData,
 } from "@/lib/qr-posters";
+import { getPosterFontPaths } from "@/lib/qr-posters-fonts";
 import { renderPosterPdf, renderPosterPng } from "@/lib/qr-posters-render";
 import { eventLinks, getOwnerEventBySlug } from "@/lib/events";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -71,7 +72,7 @@ export async function GET(
   };
 
   const svg = renderPosterSvg(templateParam, data);
-  const png = await renderPosterPng(svg);
+  const png = renderPosterPng(svg, getPosterFontPaths());
 
   const filenameBase = `confetti-${event.slug}-${templateParam}`;
 

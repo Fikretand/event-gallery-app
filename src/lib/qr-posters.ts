@@ -1,10 +1,12 @@
-// QR poster template definitions. Each template returns an SVG string
-// designed at viewBox 1240×1754 (A4 portrait). Sharp scales the output up to
-// 2480×3508 (A4 at 300 DPI) for print quality.
+// QR poster template definitions. Each template returns an SVG string designed
+// at viewBox 1240×1754 (A4 portrait). The renderer (qr-posters-render) feeds
+// this SVG into Resvg at 2480×3508 (A4 at 300 DPI) for print quality.
 //
-// We intentionally use generic font families ("serif", "sans-serif",
-// "monospace") because librsvg (used by sharp on Vercel) has limited custom
-// font support. Output stays consistent across environments.
+// Fonts: each template references three families — "Playfair Display" (serif,
+// for titles), "Inter" (sans, for body) and "JetBrains Mono" (mono, for kickers
+// + URLs). Resvg matches these names to the WOFF2 buffers we pass via its
+// `font.fontBuffers` option, so we never depend on system fonts being present
+// on Vercel's serverless image.
 
 export type PosterTemplate = "minimal-cream" | "confetti-burst" | "polaroid" | "editorial";
 export type PosterFormat = "png" | "pdf";
@@ -50,7 +52,7 @@ export interface PosterData {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Brand tokens (mirrors src/components/explainer/visuals — kept duplicated to
+// Brand tokens (mirror src/components/explainer/visuals — kept duplicated to
 // avoid pulling a "use client" module into a server context).
 // ─────────────────────────────────────────────────────────────────────────────
 const C = {
@@ -119,12 +121,12 @@ function renderMinimalCream(data: PosterData): string {
 
   <!-- Top kicker -->
   <text x="620" y="220" text-anchor="middle"
-        font-family="monospace" font-size="28" fill="${C.moss}"
+        font-family="JetBrains Mono" font-size="28" fill="${C.moss}"
         letter-spacing="8">DOBRODOŠLI NA</text>
 
   <!-- Title -->
   <text x="620" y="360" text-anchor="middle"
-        font-family="serif" font-style="italic" font-size="96" font-weight="600"
+        font-family="Playfair Display" font-style="italic" font-size="96" font-weight="600"
         fill="${C.ink}">${title}</text>
 
   <!-- Thin accent rule -->
@@ -137,22 +139,22 @@ function renderMinimalCream(data: PosterData): string {
 
   <!-- Subtitle -->
   <text x="620" y="1280" text-anchor="middle"
-        font-family="serif" font-size="42" fill="${C.ink}">
+        font-family="Inter" font-size="42" fill="${C.ink}">
     Skeniraj telefonom i ostavi
   </text>
   <text x="620" y="1340" text-anchor="middle"
-        font-family="serif" font-style="italic" font-size="42" fill="${C.accent}">
+        font-family="Playfair Display" font-style="italic" font-size="42" fill="${C.accent}">
     svoje fotke sa današnjeg dana.
   </text>
 
   <!-- Bottom URL -->
   <text x="620" y="1600" text-anchor="middle"
-        font-family="monospace" font-size="26" fill="${C.inkSoft}"
+        font-family="JetBrains Mono" font-size="26" fill="${C.inkSoft}"
         letter-spacing="3">${url}</text>
 
   <!-- Footer wordmark -->
   <text x="620" y="1670" text-anchor="middle"
-        font-family="serif" font-style="italic" font-size="32" fill="${C.ink}">
+        font-family="Playfair Display" font-style="italic" font-size="32" fill="${C.ink}">
     Powered by <tspan fill="${C.accent}">Confetti</tspan>
   </text>
 </svg>`;
@@ -197,11 +199,11 @@ function renderConfettiBurst(data: PosterData): string {
   <rect width="1240" height="440" fill="${C.accent}"/>
 
   <text x="620" y="170" text-anchor="middle"
-        font-family="monospace" font-size="26" fill="${C.cream}"
+        font-family="JetBrains Mono" font-size="26" fill="${C.cream}"
         letter-spacing="9">PRIVATNA GALERIJA</text>
 
   <text x="620" y="320" text-anchor="middle"
-        font-family="serif" font-style="italic" font-size="108" font-weight="600"
+        font-family="Playfair Display" font-style="italic" font-size="108" font-weight="600"
         fill="${C.cream}">${title}</text>
 
   <!-- Confetti scattered -->
@@ -214,21 +216,21 @@ function renderConfettiBurst(data: PosterData): string {
 
   <!-- Subtitle -->
   <text x="620" y="1410" text-anchor="middle"
-        font-family="serif" font-size="46" fill="${C.ink}">
+        font-family="Inter" font-size="46" fill="${C.ink}">
     Sve sa večeri —
   </text>
   <text x="620" y="1470" text-anchor="middle"
-        font-family="serif" font-style="italic" font-size="46" fill="${C.accent}">
+        font-family="Playfair Display" font-style="italic" font-size="46" fill="${C.accent}">
     na jednom mjestu.
   </text>
 
   <!-- URL -->
   <text x="620" y="1610" text-anchor="middle"
-        font-family="monospace" font-size="26" fill="${C.inkSoft}"
+        font-family="JetBrains Mono" font-size="26" fill="${C.inkSoft}"
         letter-spacing="3">${url}</text>
 
   <text x="620" y="1680" text-anchor="middle"
-        font-family="serif" font-style="italic" font-size="32" fill="${C.ink}">
+        font-family="Playfair Display" font-style="italic" font-size="32" fill="${C.ink}">
     Powered by <tspan fill="${C.accent}">Confetti</tspan>
   </text>
 </svg>`;
@@ -248,7 +250,7 @@ function renderPolaroid(data: PosterData): string {
 
   <!-- Top kicker -->
   <text x="620" y="180" text-anchor="middle"
-        font-family="monospace" font-size="26" fill="${C.moss}"
+        font-family="JetBrains Mono" font-size="26" fill="${C.moss}"
         letter-spacing="8">SKENIRAJ I PODIJELI</text>
 
   <!-- Polaroid card (centered) -->
@@ -265,26 +267,29 @@ function renderPolaroid(data: PosterData): string {
 
     <!-- Caption area (white below the photo) -->
     <text x="0" y="320" text-anchor="middle"
-          font-family="serif" font-style="italic" font-size="68" font-weight="600"
+          font-family="Playfair Display" font-style="italic" font-size="68" font-weight="600"
           fill="${C.ink}">${title}</text>
     ${
       date
         ? `<text x="0" y="400" text-anchor="middle"
-                 font-family="monospace" font-size="22" fill="${C.inkSoft}"
+                 font-family="JetBrains Mono" font-size="22" fill="${C.inkSoft}"
                  letter-spacing="6">${date}</text>`
         : ""
     }
   </g>
 
-  <!-- Bottom tagline -->
+  <!-- Bottom tagline — split into three text spans so each can use its
+       own font/style; Resvg has trouble switching font-family inside <tspan>. -->
+  <text x="350" y="1580" text-anchor="end"
+        font-family="Inter" font-size="44" fill="${C.ink}">Uslikaj.</text>
   <text x="620" y="1580" text-anchor="middle"
-        font-family="serif" font-size="44" fill="${C.ink}">
-    Uslikaj. <tspan font-style="italic" fill="${C.accent}">Dijeli.</tspan> Sjećaj se.
-  </text>
+        font-family="Playfair Display" font-style="italic" font-size="44" fill="${C.accent}">Dijeli.</text>
+  <text x="890" y="1580" text-anchor="start"
+        font-family="Inter" font-size="44" fill="${C.ink}">Sjećaj se.</text>
 
   <!-- URL -->
   <text x="620" y="1670" text-anchor="middle"
-        font-family="monospace" font-size="22" fill="${C.inkSoft}"
+        font-family="JetBrains Mono" font-size="22" fill="${C.inkSoft}"
         letter-spacing="3">${url}</text>
 </svg>`;
 }
@@ -308,12 +313,12 @@ function renderEditorial(data: PosterData): string {
 
   <!-- Kicker -->
   <text x="620" y="200" text-anchor="middle"
-        font-family="monospace" font-size="24" fill="${C.moss}"
+        font-family="JetBrains Mono" font-size="24" fill="${C.moss}"
         letter-spacing="8">${esc(dateLine)}</text>
 
   <!-- Title -->
   <text x="620" y="420" text-anchor="middle"
-        font-family="serif" font-style="italic" font-size="120" font-weight="700"
+        font-family="Playfair Display" font-style="italic" font-size="120" font-weight="600"
         fill="${C.ink}">${title}</text>
 
   <!-- Hairline accent under the title -->
@@ -326,18 +331,18 @@ function renderEditorial(data: PosterData): string {
 
   <!-- Vertical mono caption to the right of QR -->
   <text x="980" y="900" text-anchor="middle"
-        font-family="monospace" font-size="20" fill="${C.moss}"
+        font-family="JetBrains Mono" font-size="20" fill="${C.moss}"
         letter-spacing="10" transform="rotate(90 980 900)">
     SCAN · UPLOAD · REMEMBER
   </text>
 
   <!-- Subtitle -->
   <text x="620" y="1340" text-anchor="middle"
-        font-family="serif" font-size="44" fill="${C.ink}">
+        font-family="Inter" font-size="44" fill="${C.ink}">
     Skeniraj da podijeliš
   </text>
   <text x="620" y="1400" text-anchor="middle"
-        font-family="serif" font-style="italic" font-size="44" fill="${C.accent}">
+        font-family="Playfair Display" font-style="italic" font-size="44" fill="${C.accent}">
     svoje trenutke s nama.
   </text>
 
@@ -346,10 +351,10 @@ function renderEditorial(data: PosterData): string {
 
   <!-- URL + wordmark on bottom -->
   <text x="140" y="1640" text-anchor="start"
-        font-family="monospace" font-size="22" fill="${C.inkSoft}"
+        font-family="JetBrains Mono" font-size="22" fill="${C.inkSoft}"
         letter-spacing="3">${url}</text>
   <text x="1100" y="1640" text-anchor="end"
-        font-family="serif" font-style="italic" font-size="32" fill="${C.ink}">
+        font-family="Playfair Display" font-style="italic" font-size="32" fill="${C.ink}">
     <tspan fill="${C.accent}">Confetti</tspan>
   </text>
 </svg>`;
