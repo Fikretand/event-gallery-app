@@ -6,9 +6,15 @@ import { Panel } from "@/components/ui/panel";
 import { updatePhotographerProfileAction } from "@/lib/actions";
 import { getAccountTypeForUser, getRequiredUser, getUserProfile } from "@/lib/auth";
 import { getPublicProfileAvatarUrl } from "@/lib/events";
-import { getDictionary, type Locale } from "@/lib/i18n/index";
+import { getDictionary, localePrefix, type Locale } from "@/lib/i18n/index";
 
-export async function DashboardProfile({ locale }: { locale: Locale }) {
+export async function DashboardProfile({
+  locale,
+  searchParams,
+}: {
+  locale: Locale;
+  searchParams?: { saved?: string };
+}) {
   const d = getDictionary(locale).dashboard;
   const p = d.profile;
 
@@ -22,7 +28,7 @@ export async function DashboardProfile({ locale }: { locale: Locale }) {
 
   const isCouple = accountType === "couple";
   const avatarPreviewUrl = await getPublicProfileAvatarUrl(profile.avatar_url);
-  const prefix = locale === "en" ? "" : `/${locale}`;
+  const prefix = localePrefix(locale);
 
   return (
     <main className="pb-16">
@@ -31,7 +37,6 @@ export async function DashboardProfile({ locale }: { locale: Locale }) {
         eyebrow={isCouple ? p.eyebrowCouple : p.eyebrowPhotographer}
         strings={d.header}
         profileHref={`${prefix}/dashboard/profile`}
-        locale={locale}
       />
 
       <section className="shell grid gap-5">
@@ -43,6 +48,12 @@ export async function DashboardProfile({ locale }: { locale: Locale }) {
             {p.backToDashboard}
           </Link>
         </div>
+
+        {searchParams?.saved === "1" && (
+          <div className="rounded-2xl bg-[#eef9f0] px-4 py-3 text-sm text-[#1f6b35]">
+            {p.savedNotice}
+          </div>
+        )}
 
         <Panel className="bg-white/90">
           <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">

@@ -331,11 +331,11 @@ export async function updatePhotographerProfileAction(
   revalidatePath("/dashboard/profile");
 
   // If the locale preference changed, send the user to the matching profile URL
-  // so the UI immediately reflects their choice.
+  // so the UI immediately reflects their choice. ?saved=1 preserves the
+  // "Profile saved" confirmation across the redirect.
   if (preferredLocale && preferredLocale !== profile.preferred_locale) {
-    redirect(
-      preferredLocale === "en" ? "/dashboard/profile" : `/${preferredLocale}/dashboard/profile`,
-    );
+    const base = preferredLocale === "en" ? "/dashboard/profile" : `/${preferredLocale}/dashboard/profile`;
+    redirect(`${base}?saved=1`);
   }
 
   return { success: "Profile saved." };

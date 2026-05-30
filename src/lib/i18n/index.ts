@@ -292,6 +292,7 @@ export interface Dict {
       publicProfileSettings: string;
       accountDetailsBody: string;
       publicProfileBody: string;
+      savedNotice: string;
     };
     // QR poster picker
     qrPicker: {
@@ -501,6 +502,15 @@ import { dict as bsDict } from "./bs";
 
 export function getDictionary(locale: Locale): Dict {
   return locale === "bs" ? bsDict : enDict;
+}
+
+/**
+ * URL path prefix for the given locale. The default locale (`en`) maps to ""
+ * so routes stay at `/dashboard/...`; other locales prefix as `/{locale}`.
+ * Use as `${localePrefix(locale)}/dashboard/profile`.
+ */
+export function localePrefix(locale: Locale): string {
+  return locale === defaultLocale ? "" : `/${locale}`;
 }
 
 /** Tiny helper — call as t(dict.someKey, { name: "Amina" }) to replace {{name}} */

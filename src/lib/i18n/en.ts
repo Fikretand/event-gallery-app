@@ -322,6 +322,7 @@ export const dict: Dict = {
       publicProfileSettings: "Public profile settings",
       accountDetailsBody: "Keep your account details up to date.",
       publicProfileBody: "Your spotlight card can help couples discover you for their next wedding or event. Your phone stays private in v1, and you can choose whether your email appears publicly.",
+      savedNotice: "Profile saved.",
     },
     qrPicker: {
       plainDownload: "Download QR (PNG)",

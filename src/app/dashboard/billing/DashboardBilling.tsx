@@ -7,7 +7,7 @@ import { getAccountTypeForUser, getRequiredUser, getUserProfile } from "@/lib/au
 import { hasActiveSubscription, hasPayments, PLAN_PRICING } from "@/lib/billing";
 import { computeTrialState, countUserMediaFiles } from "@/lib/events";
 import { env, hasSupabase } from "@/lib/env";
-import { getDictionary, t, type Locale } from "@/lib/i18n/index";
+import { getDictionary, localePrefix, t, type Locale } from "@/lib/i18n/index";
 import { BillingPlans } from "./billing-plans";
 import { CoupleCheckoutButton } from "./couple-checkout-button";
 
@@ -20,7 +20,7 @@ export async function DashboardBilling({
 }) {
   const d = getDictionary(locale).dashboard;
   const b = d.billing;
-  const prefix = locale === "en" ? "" : `/${locale}`;
+  const prefix = localePrefix(locale);
 
   if (!hasSupabase) redirect(`${prefix}/dashboard`);
 
@@ -66,7 +66,6 @@ export async function DashboardBilling({
         isAdmin={isAdmin}
         strings={d.header}
         profileHref={`${prefix}/dashboard/profile`}
-        locale={locale}
         action={
           <Link
             href={isCouple ? `${prefix}/dashboard/couple` : `${prefix}/dashboard`}

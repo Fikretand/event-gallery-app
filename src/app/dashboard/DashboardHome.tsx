@@ -15,7 +15,7 @@ import {
   getEventLifecycleStatus,
   listOwnerEvents,
 } from "@/lib/events";
-import { getDictionary, t, type Locale } from "@/lib/i18n/index";
+import { getDictionary, localePrefix, t, type Locale } from "@/lib/i18n/index";
 import type { TrialState } from "@/lib/types";
 import { cn, formatBytes } from "@/lib/utils";
 
@@ -34,7 +34,7 @@ export async function DashboardHome({
   if (!hasSupabase) {
     return (
       <main className="py-8">
-        <DashboardHeader title={h.setupTitle} eyebrow={h.setupEyebrow} strings={d.header} locale={locale} />
+        <DashboardHeader title={h.setupTitle} eyebrow={h.setupEyebrow} strings={d.header} />
         <SetupNotice />
       </main>
     );
@@ -45,7 +45,7 @@ export async function DashboardHome({
   const accountType = await getAccountTypeForUser(supabase, user.id, user.user_metadata?.account_type);
 
   if (accountType === "couple") {
-    redirect(locale === "en" ? "/dashboard/couple" : `/${locale}/dashboard/couple`);
+    redirect(`${localePrefix(locale)}/dashboard/couple`);
   }
 
   const [coverMap, usage, profile, photosUsed] = await Promise.all([
@@ -60,7 +60,7 @@ export async function DashboardHome({
     ? computeTrialState(profile.created_at, profile.plan_tier, photosUsed, profile.role, profile.subscription_status)
     : null;
 
-  const prefix = locale === "en" ? "" : `/${locale}`;
+  const prefix = localePrefix(locale);
 
   return (
     <main className="pb-16">
@@ -70,7 +70,6 @@ export async function DashboardHome({
         isAdmin={profile?.role === "admin"}
         strings={d.header}
         profileHref={`${prefix}/dashboard/profile`}
-        locale={locale}
         action={
           <Link
             href={`${prefix}/dashboard/events/new`}

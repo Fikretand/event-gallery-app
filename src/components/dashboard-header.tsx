@@ -1,8 +1,6 @@
 import Link from "next/link";
 
-import { DashboardLocaleSwitcher } from "@/components/dashboard-locale-switcher";
 import { signOutAction } from "@/lib/actions";
-import type { Locale } from "@/lib/i18n/index";
 
 export interface DashboardHeaderStrings {
   profile: string;
@@ -23,7 +21,6 @@ export function DashboardHeader({
   isAdmin,
   strings,
   profileHref = "/dashboard/profile",
-  locale,
 }: {
   title: string;
   eyebrow?: string;
@@ -31,8 +28,6 @@ export function DashboardHeader({
   isAdmin?: boolean;
   strings?: DashboardHeaderStrings;
   profileHref?: string;
-  /** Current dashboard locale — when set, renders the EN/BS switcher pill. */
-  locale?: Locale;
 }) {
   const s = strings ?? DEFAULT_STRINGS;
   return (
@@ -45,7 +40,6 @@ export function DashboardHeader({
         <h1 className="font-display text-3xl font-semibold text-[var(--color-ink)] sm:text-4xl">{title}</h1>
       </div>
       <div className="flex flex-wrap items-center gap-3">
-        {locale ? <DashboardLocaleSwitcher current={locale} /> : null}
         {isAdmin && (
           <Link
             href="/admin/users"

@@ -8,7 +8,7 @@ import { getAccountTypeForUser, getRequiredUser } from "@/lib/auth";
 import { createEventAction } from "@/lib/actions";
 import { hasSupabase } from "@/lib/env";
 import { listOwnerEvents } from "@/lib/events";
-import { getDictionary, type Locale } from "@/lib/i18n/index";
+import { getDictionary, localePrefix, type Locale } from "@/lib/i18n/index";
 
 export async function NewEvent({
   locale,
@@ -18,6 +18,7 @@ export async function NewEvent({
   searchParams?: { intent?: string };
 }) {
   const d = getDictionary(locale).dashboard;
+  const prefix = localePrefix(locale);
 
   if (hasSupabase) {
     const { user, supabase } = await getRequiredUser();
@@ -25,7 +26,7 @@ export async function NewEvent({
     if (accountType === "couple") {
       const existingEvents = await listOwnerEvents(user.id);
       if (existingEvents.length > 0) {
-        redirect(locale === "en" ? "/dashboard/couple" : `/${locale}/dashboard/couple`);
+        redirect(`${prefix}/dashboard/couple`);
       }
     }
   }
@@ -39,8 +40,7 @@ export async function NewEvent({
         title={isCouple ? d.create.titleCouple : d.create.titlePhotographer}
         eyebrow={isCouple ? d.create.eyebrowCouple : d.create.eyebrowPhotographer}
         strings={d.header}
-        profileHref={locale === "en" ? "/dashboard/profile" : `/${locale}/dashboard/profile`}
-        locale={locale}
+        profileHref={`${prefix}/dashboard/profile`}
       />
       <section className="shell">
         {hasSupabase ? (

@@ -27,7 +27,7 @@ import {
   isEventExpired,
   listEventMedia,
 } from "@/lib/events";
-import { getDictionary, t, type Locale } from "@/lib/i18n/index";
+import { getDictionary, localePrefix, t, type Locale } from "@/lib/i18n/index";
 import { enrichMediaWithUrls } from "@/lib/media";
 import { cn, formatBytes, formatDate, statusBadgeClass } from "@/lib/utils";
 
@@ -48,7 +48,7 @@ export async function EventDetail({
 }) {
   const d = getDictionary(locale).dashboard;
   const e = d.event;
-  const prefix = locale === "en" ? "" : `/${locale}`;
+  const prefix = localePrefix(locale);
 
   if (!hasSupabase) {
     notFound();
@@ -85,7 +85,6 @@ export async function EventDetail({
         eyebrow={event.client_name || (isCouple ? "Your private event" : "Private event")}
         strings={d.header}
         profileHref={`${prefix}/dashboard/profile`}
-        locale={locale}
         action={
           <Link
             href={`${prefix}/dashboard`}
@@ -123,7 +122,7 @@ export async function EventDetail({
                   </span>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-3">
+                <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
                   <div className="rounded-[24px] bg-[var(--color-paper)]/65 p-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/45">{e.mediaFiles}</p>
                     <p className="mt-3 text-3xl font-semibold text-[var(--color-ink)]">{analytics.mediaCount}</p>

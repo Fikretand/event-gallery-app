@@ -323,6 +323,7 @@ export const dict: Dict = {
       publicProfileSettings: "Postavke javnog profila",
       accountDetailsBody: "Drži podatke naloga aktuelnim.",
       publicProfileBody: "Tvoja spotlight kartica pomaže parovima da te pronađu za svoje sljedeće vjenčanje ili događaj. Tvoj telefon ostaje privatan u v1, a možeš izabrati da li email vidljiv javno.",
+      savedNotice: "Profil sačuvan.",
     },
     qrPicker: {
       plainDownload: "Skini QR (PNG)",
