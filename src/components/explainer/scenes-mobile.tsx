@@ -126,21 +126,17 @@ function Drift({ x = 6, y = 4, speed = 0.5, rotate = 0, children, style = {} }) 
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SCENE 1 / 2 / 3 — WIDE: hero, then constellation of phones, then QR
-// Portrait layout: hero center, 4 phones top, 4 bottom, 1 each side.
 // ═══════════════════════════════════════════════════════════════════════════
 
 // Mobile canvas is 1080×1920. Hero centered at (540, 960), 380×480 card.
 // Hero bbox: x=[350,730], y=[720,1200]. Phones live OUTSIDE that box.
 const PHONE_LAYOUT = [
-  // Top band (y 60–280) — 4 phones spread across the width
   { x: 60, y: 80, w: 110, rot: -10, hue: "warm", delay: 0.05, caption: "zdravica — Lina" },
   { x: 300, y: 130, w: 105, rot: 6, hue: "paper", delay: 0.25, caption: null },
   { x: 580, y: 60, w: 118, rot: -5, hue: "cool", delay: 0.10, caption: "prvi ples — Adi" },
   { x: 860, y: 120, w: 108, rot: 9, hue: "warm", delay: 0.20, caption: null },
-  // Side phones (left + right) — fill the negative space beside the hero
   { x: 40, y: 820, w: 120, rot: -8, hue: "cool", delay: 0.30, caption: "djeca na podu" },
   { x: 900, y: 860, w: 116, rot: 10, hue: "paper", delay: 0.35, caption: "torta — Tina" },
-  // Bottom band (y 1600–1820) — 4 phones
   { x: 70, y: 1620, w: 112, rot: 7, hue: "paper", delay: 0.45, caption: null },
   { x: 310, y: 1660, w: 118, rot: -4, hue: "warm", delay: 0.50, caption: "Nana, mutna ali ❤" },
   { x: 570, y: 1620, w: 110, rot: 9, hue: "cool", delay: 0.55, caption: null },
@@ -262,7 +258,6 @@ export function WideScene() {
         const appear =
           t < inStart ? 0 : t > inEnd ? 1 : Easing.easeOutBack((t - inStart) / (inEnd - inStart));
 
-        // Converge toward portrait center (540, 960)
         const targetX = 540 - p.w / 2;
         const targetY = 960 - (p.w * (852 / 420)) / 2;
         const px = p.x * (1 - conv) + targetX * conv;
@@ -311,7 +306,7 @@ export function WideScene() {
         );
       })}
 
-      {/* ── Caption A — directly BELOW the hero card (card bottom ≈ y1410) ── */}
+      {/* ── Caption A — directly BELOW the hero card ──────────────── */}
       <LocalSprite start={0.6} end={3.6}>
         {({ localTime, duration }) => {
           const inT = clamp(localTime / 0.5, 0, 1);
@@ -338,7 +333,7 @@ export function WideScene() {
         }}
       </LocalSprite>
 
-      {/* ── Caption B — overlaid mid-canvas, clean fade + gentle rise ──── */}
+      {/* ── Caption B — frosted-glass pill mid-canvas ──────────────── */}
       <LocalSprite start={6.0} end={10.6}>
         {({ localTime, duration }) => {
           const inT = clamp(localTime / 0.6, 0, 1);
@@ -361,20 +356,24 @@ export function WideScene() {
             >
               <div
                 style={{
-                  background: "rgba(252,247,241,0.98)",
-                  borderRadius: 24,
-                  padding: "34px 44px",
-                  border: `1px solid rgba(23,32,51,0.10)`,
+                  width: "max-content",
+                  maxWidth: "100%",
+                  background: "rgba(247,239,228,0.62)",
+                  backdropFilter: "blur(24px) saturate(1.4)",
+                  WebkitBackdropFilter: "blur(24px) saturate(1.4)",
+                  borderRadius: 22,
+                  padding: "18px 36px 22px",
+                  border: "1px solid rgba(255,255,255,0.5)",
                   boxShadow:
-                    "0 24px 60px rgba(23,32,51,0.28), 0 4px 14px rgba(23,32,51,0.14)",
+                    "0 8px 30px rgba(23,32,51,0.18), inset 0 1px 1px rgba(255,255,255,0.6)",
                   opacity: op,
                   transform: `translateY(${rise}px)`,
                   willChange: "transform, opacity",
                 }}
               >
-                <Display size={92} style={{ textAlign: "center", lineHeight: 1.06 }}>
+                <Display size={62} style={{ textAlign: "center", lineHeight: 1.12 }}>
                   Ali noć je živjela<br />
-                  na <em style={{ fontStyle: "italic", color: CFI.accent }}>još 47 telefona.</em>
+                  na <em style={{ fontStyle: "italic", color: "#b8431f" }}>još 47 telefona.</em>
                 </Display>
               </div>
             </div>
@@ -457,126 +456,241 @@ export function WideScene() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// SCENE 5 — GALLERY WALL fills in (portrait 3×4 grid, sections as columns)
+// GalleryAppShell — reusable "Confetti gallery" app screen that fills the
+// 1080×1920 canvas. Used by both GalleryScene and EventTypesScene, which swap
+// content/photos for each sub-cut and keep the chrome identical.
+//
+// `progress` (0–1) drives the entrance animation: header → tabs → grid → CTA.
+// Pass shorter progress windows (event-type subs) and the whole sequence
+// completes proportionally faster.
 // ═══════════════════════════════════════════════════════════════════════════
+function GalleryAppShell({
+  progress,
+  eventTitle,
+  eventDate,
+  totalCount,
+  tabs = [],
+  photos = [],
+  avatarLetter = "·",
+  avatarColor,
+  ctaText = "Preuzmi sve",
+  showCTA = true,
+  gridRows = 3,
+  layout = "grid",
+  showShareIcon = true,
+}) {
+  const p = clamp(progress, 0, 1);
 
-// Each column = one section; 4 tiles stacked per column.
-const GALLERY_SECTIONS = [
-  { name: "Vjenčanje · 64", photos: [0, 1, 2, 3] },
-  { name: "Veselje · 138", photos: [4, 5, 6, 7] },
-  { name: "Torta i zdravice · 41", photos: [8, 9, 10, 11] },
-];
+  const headerT = clamp(p * 8, 0, 1);
+  const headerY = (1 - Easing.easeOutCubic(headerT)) * -18;
+  const tabsT = clamp((p - 0.04) * 6, 0, 1);
+  const tabsY = (1 - Easing.easeOutCubic(tabsT)) * -10;
+  const labelT = clamp((p - 0.08) * 5, 0, 1);
 
-const HUE_CYCLE = ["warm", "paper", "cool", "paper", "cool", "warm", "paper"];
-
-export function GalleryScene({ titleOverride, dateOverride, kickerOverride } = {}) {
-  const { localTime: t } = useSprite();
-
-  const headerT = clamp(t / 0.8, 0, 1);
-  const headerY = (1 - Easing.easeOutCubic(headerT)) * -40;
-
+  const sidePad = 49;
+  const gap = 14;
   const cols = 3;
-  const rows = 4;
-  const sidePad = 40;
-  const gap = 16;
-  const tileW = (1080 - sidePad * 2 - gap * (cols - 1)) / cols; // ~322
-  const tileH = (tileW * 3) / 4;
-  const gridStartX = sidePad;
-  const gridStartY = 320;
-  const sectionLabelY = gridStartY - 38;
+  const tileSize = (1080 - sidePad * 2 - gap * (cols - 1)) / cols; // ~324
+  const gridY = 380;
+
+  // Compute tile positions based on layout. Each entry: { x, y, w, h }.
+  const layoutTiles = (() => {
+    if (layout === "featured") {
+      const W = 1080 - 2 * sidePad;
+      const colW = (W - gap) / 2;
+      const bigH = 760;
+      const smallH = (bigH - gap) / 2;
+      return [
+        { x: sidePad, y: gridY, w: colW, h: bigH },
+        { x: sidePad + colW + gap, y: gridY, w: colW, h: smallH },
+        { x: sidePad + colW + gap, y: gridY + smallH + gap, w: colW, h: smallH },
+      ];
+    }
+    const out = [];
+    for (let i = 0; i < gridRows * cols; i++) {
+      const c = i % cols;
+      const r = Math.floor(i / cols);
+      out.push({
+        x: sidePad + c * (tileSize + gap),
+        y: gridY + r * (tileSize + gap),
+        w: tileSize,
+        h: tileSize,
+      });
+    }
+    return out;
+  })();
+
+  const gridH = Math.max(...layoutTiles.map((tt) => tt.y + tt.h)) - gridY;
+  const ctaY = gridY + gridH + (gridRows === 2 || layout === "featured" ? 40 : 70);
+  const ctaT = clamp((p - 0.25) * 4, 0, 1);
+  const ctaRise = (1 - Easing.easeOutBack(ctaT)) * 22;
+
+  const tilesCount = layoutTiles.length;
 
   return (
     <div style={{ position: "absolute", inset: 0 }}>
-      {/* Header band */}
+      {/* ── App header ─────────────────────────────────────────────── */}
       <div
         style={{
           position: "absolute",
-          left: 0,
-          right: 0,
-          top: 100,
-          transform: `translateY(${headerY}px)`,
-          opacity: headerT,
+          top: 108,
+          left: sidePad,
+          right: sidePad,
           display: "flex",
-          flexDirection: "column",
           alignItems: "center",
-          gap: 10,
-          padding: "66px 0px 0px",
+          justifyContent: "space-between",
+          opacity: headerT,
+          transform: `translateY(${headerY}px)`,
         }}
       >
-        <Kicker>{kickerOverride || "Privatna galerija za goste"}</Kicker>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "baseline",
-            gap: 16,
-            flexWrap: "wrap",
-            justifyContent: "center",
-          }}
-        >
-          <Display size={64}>
-            {titleOverride || (
-              <>
-                Lejla <span style={{ color: CFI.accent }}>&amp;</span> Amar
-              </>
-            )}
-          </Display>
-          <Caption
-            size={16}
+        <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+          <div
             style={{
-              fontFamily: CFI.mono,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
+              width: 66,
+              height: 66,
+              borderRadius: "50%",
+              background: avatarColor || CFI.accent,
+              color: "#fffaf2",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontFamily: CFI.display,
+              fontStyle: "italic",
+              fontSize: 30,
+              fontWeight: 600,
+              boxShadow: "0 6px 14px rgba(226,121,82,0.32)",
             }}
           >
-            {dateOverride || "14 . 06 . 26"}
-          </Caption>
+            {avatarLetter}
+          </div>
+          <div>
+            <div
+              style={{
+                fontFamily: CFI.display,
+                fontSize: 44,
+                fontStyle: "italic",
+                fontWeight: 500,
+                color: CFI.ink,
+                lineHeight: 1,
+                letterSpacing: "-0.01em",
+              }}
+            >
+              {eventTitle}
+            </div>
+            {eventDate && (
+              <div
+                style={{
+                  fontFamily: CFI.mono,
+                  fontSize: 14,
+                  letterSpacing: "0.18em",
+                  color: CFI.inkSoft,
+                  marginTop: 9,
+                  textTransform: "uppercase",
+                }}
+              >
+                {eventDate}
+              </div>
+            )}
+          </div>
         </div>
+        {showShareIcon && (
+          <div
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: "50%",
+              background: "rgba(23,32,51,0.06)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 4v12m0-12l-4 4m4-4l4 4M5 20h14"
+                stroke={CFI.ink}
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+        )}
       </div>
 
-      {/* Section labels above each column */}
-      {GALLERY_SECTIONS.map((s, i) => {
-        const centerX = gridStartX + tileW / 2 + i * (tileW + gap);
-        const appearAt = 1.2 + i * 0.18;
-        const op = clamp((t - appearAt) / 0.5, 0, 1);
-        return (
+      {/* ── Section tabs ───────────────────────────────────────────── */}
+      <div
+        style={{
+          position: "absolute",
+          top: 245,
+          left: sidePad,
+          right: sidePad,
+          display: "flex",
+          gap: 10,
+          opacity: tabsT,
+          transform: `translateY(${tabsY}px)`,
+        }}
+      >
+        {tabs.map((tab, i) => (
           <div
             key={i}
             style={{
-              position: "absolute",
-              left: centerX,
-              top: sectionLabelY,
-              transform: "translateX(-50%)",
-              opacity: op,
+              padding: "13px 22px",
+              borderRadius: 999,
+              background: tab.active ? CFI.ink : "rgba(23,32,51,0.07)",
+              color: tab.active ? "#fbf7f1" : CFI.ink,
+              fontFamily: CFI.sans,
+              fontSize: 18,
+              fontWeight: 500,
+              whiteSpace: "nowrap",
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              boxShadow: tab.active ? "0 4px 12px rgba(23,32,51,0.18)" : "none",
             }}
           >
-            <span
-              style={{
-                fontFamily: CFI.mono,
-                fontSize: 13,
-                letterSpacing: "0.18em",
-                textTransform: "uppercase",
-                color: CFI.moss,
-                whiteSpace: "nowrap",
-              }}
-            >
-              {s.name}
-            </span>
+            {tab.active && (
+              <span
+                style={{
+                  width: 7,
+                  height: 7,
+                  borderRadius: "50%",
+                  background: CFI.accent,
+                  display: "inline-block",
+                }}
+              />
+            )}
+            {tab.label}
           </div>
-        );
-      })}
+        ))}
+      </div>
 
-      {/* Tile grid (column-major: col 0 holds section 0's photos top→bottom) */}
-      {Array.from({ length: cols * rows }).map((_, i) => {
-        const col = i % cols;
-        const row = Math.floor(i / cols);
-        const x = gridStartX + col * (tileW + gap);
-        const y = gridStartY + row * (tileH + gap);
-        const srcIdx = GALLERY_SECTIONS[col].photos[row];
-        const src = ASSETS.gallery[srcIdx];
-        const hue = HUE_CYCLE[i % HUE_CYCLE.length];
+      {/* ── Small label row above grid ─────────────────────────────── */}
+      <div
+        style={{
+          position: "absolute",
+          top: 336,
+          left: sidePad,
+          right: sidePad,
+          display: "flex",
+          justifyContent: "space-between",
+          opacity: labelT,
+          fontFamily: CFI.mono,
+          fontSize: 12,
+          letterSpacing: "0.22em",
+          textTransform: "uppercase",
+          color: CFI.inkSoft,
+        }}
+      >
+        <span>najnovije</span>
+        {totalCount != null && <span>{tilesCount} od {totalCount}</span>}
+      </div>
 
-        const appearAt = 0.7 + i * 0.14;
-        const appT = clamp((t - appearAt) / 0.6, 0, 1);
+      {/* ── Photo grid ─────────────────────────────────────────────── */}
+      {Array.from({ length: tilesCount }).map((_, i) => {
+        const tile = layoutTiles[i];
+        const appearAt = 0.1 + i * 0.05;
+        const appT = clamp((p - appearAt) / 0.12, 0, 1);
         const eased = Easing.easeOutCubic(appT);
 
         return (
@@ -584,53 +698,124 @@ export function GalleryScene({ titleOverride, dateOverride, kickerOverride } = {
             key={i}
             style={{
               position: "absolute",
-              left: x,
-              top: y,
-              width: tileW,
-              height: tileH,
-              transform: `translateY(${(1 - eased) * 24}px) scale(${0.92 + 0.08 * eased})`,
+              left: tile.x,
+              top: tile.y,
+              width: tile.w,
+              height: tile.h,
+              transform: `translateY(${(1 - eased) * 20}px) scale(${0.93 + 0.07 * eased})`,
               opacity: appT,
-              borderRadius: 10,
+              borderRadius: 16,
               overflow: "hidden",
-              boxShadow:
-                "0 12px 28px rgba(23,32,51,0.10), 0 1px 3px rgba(23,32,51,0.06)",
+              boxShadow: "0 6px 18px rgba(23,32,51,0.08), 0 1px 3px rgba(23,32,51,0.05)",
+              willChange: "transform, opacity",
             }}
           >
-            <StripedPlate label={`IMG ${srcIdx + 1}`} hue={hue} src={src} />
+            <StripedPlate src={photos[i]} hue="warm" label={`IMG ${i + 1}`} />
           </div>
         );
       })}
 
-      {/* Bottom caption pill — centered around y=1530 */}
-      <LocalSprite start={6.0} end={9.5}>
+      {/* ── CTA pill ───────────────────────────────────────────────── */}
+      {showCTA && (
         <div
           style={{
             position: "absolute",
-            left: 40,
-            right: 40,
-            top: 1500,
-            display: "flex",
-            justifyContent: "center",
-            pointerEvents: "none",
+            left: "50%",
+            top: ctaY,
+            transform: `translate(-50%, ${ctaRise}px)`,
+            opacity: ctaT,
           }}
         >
           <div
             style={{
-              background: "rgba(255,250,242,0.94)",
-              backdropFilter: "blur(10px)",
-              borderRadius: 22,
-              padding: "22px 30px",
-              border: `1px solid ${CFI.rule}`,
+              padding: "20px 34px",
+              borderRadius: 999,
+              background: CFI.ink,
+              color: "#fbf7f1",
+              fontFamily: CFI.sans,
+              fontSize: 22,
+              fontWeight: 600,
+              display: "flex",
+              alignItems: "center",
+              gap: 14,
               boxShadow:
-                "0 20px 50px rgba(23,32,51,0.18), 0 2px 8px rgba(23,32,51,0.06)",
+                "0 18px 38px rgba(23,32,51,0.32), 0 2px 6px rgba(23,32,51,0.16)",
             }}
           >
-            <Display size={48} style={{ textAlign: "center", lineHeight: 1.12 }}>
-              Svaki trenutak.<br />
-              <em style={{ fontStyle: "italic", color: CFI.accent }}>Jedna privatna galerija.</em>
-            </Display>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            {ctaText}{totalCount != null ? ` · ${totalCount}` : ""}
           </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SCENE 5 — GALLERY (mock app screen via GalleryAppShell)
+// ═══════════════════════════════════════════════════════════════════════════
+export function GalleryScene({ titleOverride, dateOverride } = {}) {
+  const { localTime: t } = useSprite();
+  const progress = clamp(t / 10, 0, 1);
+
+  return (
+    <div style={{ position: "absolute", inset: 0 }}>
+      <GalleryAppShell
+        progress={progress}
+        eventTitle={
+          titleOverride || (
+            <>
+              Lejla <span style={{ color: CFI.accent, fontStyle: "normal" }}>&amp;</span> Amar
+            </>
+          )
+        }
+        eventDate={dateOverride || "14 . 06 . 26"}
+        totalCount={243}
+        avatarLetter="L"
+        tabs={[
+          { label: "Sve · 243", active: true },
+          { label: "Vjenčanje · 64" },
+          { label: "Veselje · 138" },
+        ]}
+        photos={ASSETS.gallery.slice(0, 9)}
+        ctaText="Preuzmi sve"
+        gridRows={3}
+      />
+
+      {/* Bottom caption fades in late — sits below the CTA */}
+      <LocalSprite start={6.0} end={9.5}>
+        {({ localTime, duration }) => {
+          const inT = clamp(localTime / 0.5, 0, 1);
+          const outT = clamp((duration - localTime) / 0.5, 0, 1);
+          const op = Math.min(Easing.easeOutCubic(inT), outT);
+          const rise = (1 - Easing.easeOutCubic(inT)) * 14;
+          return (
+            <div
+              style={{
+                position: "absolute",
+                left: 40,
+                right: 40,
+                bottom: 80,
+                textAlign: "center",
+                opacity: op,
+                transform: `translateY(${rise}px)`,
+              }}
+            >
+              <Display size={44} style={{ lineHeight: 1.14 }}>
+                Svaki trenutak.{" "}
+                <em style={{ fontStyle: "italic", color: CFI.accent }}>Jedna privatna galerija.</em>
+              </Display>
+            </div>
+          );
+        }}
       </LocalSprite>
     </div>
   );
@@ -665,7 +850,6 @@ export function UploadScene() {
   const successT = clamp((t - 6.2) / 0.6, 0, 1);
   const successScale = done ? Easing.easeOutBack(successT) : 0;
 
-  // Phone screen content — same as desktop but slightly tighter padding.
   const PhoneScreen = () => (
     <div
       style={{
@@ -818,7 +1002,6 @@ export function UploadScene() {
 
   return (
     <div style={{ position: "absolute", inset: 0 }}>
-      {/* Above-phone headline */}
       <LocalSprite start={1.0} end={9.5}>
         {({ localTime, duration }) => {
           const op =
@@ -849,7 +1032,6 @@ export function UploadScene() {
         }}
       </LocalSprite>
 
-      {/* Phone centered */}
       <div
         style={{
           position: "absolute",
@@ -864,7 +1046,6 @@ export function UploadScene() {
         </Drift>
       </div>
 
-      {/* Below-phone subtitle */}
       <LocalSprite start={1.6} end={9.5}>
         {({ localTime, duration }) => {
           const op =
@@ -895,15 +1076,13 @@ export function UploadScene() {
         }}
       </LocalSprite>
 
-      {/* Confetti pop on success */}
       <ConfettiBurst x={540} y={960} count={80} start={6.2} end={9.3} scale={1.3} />
     </div>
   );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// SCENE 6 — EVENT TYPES (wedding → birthday → party)
-// Portrait: MiniGalleryPreview uses a 2×3 grid (taller card).
+// SCENE 6 — EVENT TYPES (3 sub-cuts, each reusing GalleryAppShell)
 // ═══════════════════════════════════════════════════════════════════════════
 export function EventTypesScene() {
   const { localTime: t } = useSprite();
@@ -911,49 +1090,52 @@ export function EventTypesScene() {
   const subs = [
     {
       start: 0.0,
-      end: 2.4,
-      kicker: "Arminov prvi rođendan",
-      title: (
-        <>
-          Armin <span style={{ color: CFI.accent }}>puni</span> godinu
-        </>
-      ),
+      end: 2.6,
+      title: <>Armin</>,
       date: "02 . 03 . 26",
+      avatar: "A",
+      totalCount: 187,
+      tabs: [
+        { label: "Sve · 187", active: true },
+        { label: "Slavlje · 92" },
+        { label: "Torta · 41" },
+      ],
       srcs: ASSETS.birthday,
     },
     {
-      start: 2.4,
-      end: 4.8,
-      kicker: "Anin party",
-      title: (
-        <>
-          Anin <span style={{ color: CFI.accent }}>party</span>
-        </>
-      ),
+      start: 2.6,
+      end: 5.2,
+      title: <>Anin <em style={{ fontStyle: "italic", color: CFI.accent }}>party</em></>,
       date: "21 . 09 . 25",
+      avatar: "A",
+      totalCount: 94,
+      tabs: [
+        { label: "Sve · 94", active: true },
+        { label: "Ples · 52" },
+        { label: "Prijatelji · 33" },
+      ],
       srcs: ASSETS.party,
+      layout: "featured" as const,
     },
     {
-      start: 4.8,
-      end: 7.6,
-      kicker: "Sve što vrijedi pamtiti",
-      title: (
-        <>
-          Tvoj <span style={{ color: CFI.accent }}>dan</span>,<br />na jednom mjestu
-        </>
-      ),
-      date: "23 . 05 . 26",
+      start: 5.2,
+      end: 8.0,
+      title: <>Tvoj <em style={{ fontStyle: "italic", color: CFI.accent }}>dan</em></>,
+      date: null,
+      avatar: "+",
+      avatarColor: CFI.moss,
+      totalCount: null,
+      tabs: [
+        { label: "Pokreni galeriju", active: true },
+        { label: "Saznaj više" },
+      ],
       srcs: ASSETS.generic,
+      ctaText: "Pokreni Confetti",
+      showCTA: true,
     },
   ];
 
   const bannerT = clamp(t / 0.6, 0, 1);
-  // The 3rd sub-cut ("Tvoj dan") has a 2-line title → taller card. Shrink the
-  // banner and drop it lower ONLY on that slide so it clears the images.
-  const activeSub = t < 2.4 ? 0 : t < 4.8 ? 1 : 2;
-  const isTall = activeSub === 2;
-  const bannerSize = isTall ? 32 : 42;
-  const bannerBottom = isTall ? 70 : 120;
 
   return (
     <div style={{ position: "absolute", inset: 0 }}>
@@ -961,7 +1143,7 @@ export function EventTypesScene() {
         const fadeIn = clamp((t - s.start) / 0.35, 0, 1);
         const fadeOut = clamp((s.end - t) / 0.35, 0, 1);
         const op = Math.min(fadeIn, fadeOut);
-        const localT = clamp((t - s.start) / (s.end - s.start), 0, 1);
+        const subProg = clamp((t - s.start) / (s.end - s.start), 0, 1);
         return (
           <div
             key={i}
@@ -973,134 +1155,40 @@ export function EventTypesScene() {
               visibility: op > 0.001 ? "visible" : "hidden",
             }}
           >
-            <MiniGalleryPreview
-              kicker={s.kicker}
-              title={s.title}
-              date={s.date}
-              localT={localT}
-              srcs={s.srcs}
+            <GalleryAppShell
+              progress={subProg}
+              eventTitle={s.title}
+              eventDate={s.date}
+              totalCount={s.totalCount}
+              tabs={s.tabs}
+              photos={s.srcs}
+              avatarLetter={s.avatar}
+              avatarColor={s.avatarColor}
+              ctaText={s.ctaText || "Preuzmi sve"}
+              showCTA={s.showCTA !== false}
+              gridRows={2}
+              layout={s.layout || "grid"}
             />
           </div>
         );
       })}
 
-      {/* Banner below the card, multi-line for portrait */}
+      {/* Banner at very bottom — stays throughout the scene */}
       <div
         style={{
           position: "absolute",
           left: 40,
           right: 40,
-          bottom: bannerBottom,
+          bottom: 180,
           textAlign: "center",
           opacity: bannerT,
           transform: `translateY(${(1 - bannerT) * 16}px)`,
         }}
       >
-        <Display size={bannerSize} style={{ color: CFI.ink, lineHeight: 1.18 }}>
+        <Display size={32} style={{ color: CFI.ink, lineHeight: 1.22 }}>
           Vjenčanja · Rođendani · Party<br />
           <em style={{ fontStyle: "italic", color: CFI.accent }}>sve što vrijedi pamtiti.</em>
         </Display>
-      </div>
-    </div>
-  );
-}
-
-// Mini-gallery preview for the event-type sub-cuts — 2 cols × 3 rows.
-function MiniGalleryPreview({ kicker, title, date, localT, srcs = [] }) {
-  const tiles = [
-    { hue: "warm" }, { hue: "paper" },
-    { hue: "cool" }, { hue: "paper" },
-    { hue: "warm" }, { hue: "cool" },
-  ];
-
-  const panY = -Easing.easeInOutSine(localT) * 12;
-
-  return (
-    <div
-      style={{
-        position: "absolute",
-        left: "50%",
-        top: 80,
-        transform: `translateX(-50%) translateY(${panY}px)`,
-      }}
-    >
-      <div
-        style={{
-          background: "rgba(255,250,242,0.94)",
-          backdropFilter: "blur(6px)",
-          borderRadius: 28,
-          padding: 36,
-          boxShadow:
-            "0 28px 60px rgba(23,32,51,0.16), 0 4px 12px rgba(23,32,51,0.08)",
-          border: `1px solid ${CFI.rule}`,
-          width: 1000,
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 8,
-            marginBottom: 26,
-          }}
-        >
-          <Kicker>{kicker}</Kicker>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 6,
-            }}
-          >
-            <Display size={52} style={{ textAlign: "center", lineHeight: 1.1 }}>
-              {title}
-            </Display>
-            <span
-              style={{
-                fontFamily: CFI.mono,
-                fontSize: 14,
-                letterSpacing: "0.14em",
-                textTransform: "uppercase",
-                color: CFI.inkSoft,
-              }}
-            >
-              {date}
-            </span>
-          </div>
-        </div>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
-            gap: 14,
-          }}
-        >
-          {tiles.map((tile, i) => {
-            const appearAt = i * 0.05;
-            const appT = clamp((localT - appearAt) / 0.12, 0, 1);
-            const eased = Easing.easeOutCubic(appT);
-            return (
-              <div
-                key={i}
-                style={{
-                  aspectRatio: "4/3",
-                  borderRadius: 10,
-                  overflow: "hidden",
-                  boxShadow: "0 8px 20px rgba(23,32,51,0.08)",
-                  opacity: appT,
-                  transform: `translateY(${(1 - eased) * 14}px) scale(${0.94 + 0.06 * eased})`,
-                  transformOrigin: "center",
-                  willChange: "transform, opacity",
-                }}
-              >
-                <StripedPlate label={`IMG_${(i + 1) * 42}`} hue={tile.hue} src={srcs[i]} />
-              </div>
-            );
-          })}
-        </div>
       </div>
     </div>
   );
