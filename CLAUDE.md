@@ -1,26 +1,41 @@
 # CLAUDE.md — Confetti Event Gallery App
 
+_Last updated: 2026-05-31._
+
 ---
 
 ## 1. PROJECT OVERVIEW
 
-**Confetti** is a private event gallery SaaS. The core value proposition:
+**Confetti** is a private event gallery SaaS deployed on Vercel.
 
-- An event organizer (photographer or couple) creates an event and gets two links: a **guest upload URL** (shareable via QR code) and a **private gallery URL** (PIN-protected).
-- Guests upload photos/videos from their phones via QR code — no app, no account required.
-- The event owner reviews uploads, moderates them, and delivers the curated gallery to clients/family.
+- An event organizer (photographer or couple) creates an event and gets two
+  links: a **guest upload URL** (shareable via QR code) and a **private
+  gallery URL** (PIN-protected).
+- Guests upload photos/videos from their phones via QR code — no app, no
+  account required.
+- The event owner reviews uploads, moderates them, and delivers the curated
+  gallery.
 
-**Current state:** Functional MVP. Auth, event CRUD, guest upload, gallery PIN, media moderation, QR code, sections, archive, and dashboard are all implemented. No payment integration exists. Copy and visuals are wedding-centric (needs broadening). No admin panel. No i18n.
+**Current state:** Live MVP at `event-gallery-app-rho.vercel.app`. Auth,
+event CRUD, guest upload, gallery PIN, media moderation, QR posters, **full
+i18n dashboard (EN/BS) with persisted language preference**, **Payhip payment
+integration**, **admin panel**, and **Fabric.js QR card editor** are all
+shipped. Copy and visuals are still wedding-leaning in places; the data model
+is generic.
 
-**Brand name:** Confetti (used in `src/lib/env.ts` as `appName`).
+**Brand name:** Confetti (`appName` in `src/lib/env.ts`).
 
 **Architecture:**
-- Next.js 16 App Router, React Server Components for all data-fetching pages
-- Supabase for auth + PostgreSQL database
-- Cloudflare R2 for object storage (accessed via AWS S3 SDK)
-- Server Actions (`src/lib/actions.ts`) for all write operations
-- `sharp` for server-side image thumbnail generation
-- No client-side state management library — everything is server-rendered or simple React state
+- Next.js 16 App Router, React Server Components for data-fetching pages
+- Supabase for auth + PostgreSQL database (free tier — needs Pro before real
+  traffic)
+- Cloudflare R2 for object storage via `@aws-sdk/client-s3`
+- Server Actions (`src/lib/actions.ts`) for all writes
+- `sharp` for image thumbnails (server) + `@resvg/resvg-js` for SVG → PNG of
+  QR posters
+- `fabric@7` for the in-browser QR card editor
+- `pdf-lib` to wrap rasterized cards into A4 PDFs
+- No client-side state library — RSCs + simple React state
 
 ---
 
@@ -28,349 +43,376 @@
 
 | Layer | Technology | Version |
 |---|---|---|
-| Framework | Next.js (App Router) | 16.1.6 |
+| Framework | Next.js (App Router, Turbopack) | 16.1.6 |
 | UI | React | 19.2.3 |
 | Language | TypeScript | ^5 |
 | Styling | Tailwind CSS v4 | ^4 |
-| Auth + DB | Supabase (`@supabase/ssr`, `@supabase/supabase-js`) | ^0.9.0 / ^2.99.1 |
-| Object Storage | Cloudflare R2 via `@aws-sdk/client-s3` | ^3.1009.0 |
-| Presigned URLs | `@aws-sdk/s3-request-presigner` | ^3.1009.0 |
-| Image Processing | `sharp` | ^0.34.5 |
-| QR Code | `qrcode` | ^1.5.4 |
-| ZIP Download | `jszip` | ^3.10.1 |
-| Testing | Vitest | ^4.1.0 |
-| Linting | ESLint + `eslint-config-next` | ^9 / 16.1.6 |
+| Auth + DB | Supabase (`@supabase/ssr`, `@supabase/supabase-js`) | ^0.9 / ^2.99 |
+| Object storage | Cloudflare R2 via `@aws-sdk/client-s3` | ^3.1009 |
+| Image processing | `sharp` | ^0.34 |
+| SVG → PNG (posters) | `@resvg/resvg-js` | ^2.6 |
+| In-browser editor | `fabric` | ^7.4 |
+| PDF wrapping | `pdf-lib` | ^1.17 |
+| QR code | `qrcode` | ^1.5 |
+| ZIP download | `jszip` | ^3.10 |
+| Testing | Vitest | ^4.1 |
+| Linting | ESLint + `eslint-config-next` | ^9 |
 
-**No UI component library** — all components are hand-built with Tailwind v4 inline styles.
+**No UI component library** — Tailwind v4 inline styles throughout.
 
-**CSS design tokens** (defined in `src/app/globals.css`):
-- `--color-paper`: `#f2eadf` (warm off-white)
-- `--color-ink`: `#172033` (near-black)
-- `--color-accent`: `#e27952` (warm orange)
-- `--color-accent-soft`: `#f6d3c3`
-- `--color-moss`: `#38584d` (deep green)
-- Background: warm parchment gradient with subtle orange/green radial accents
-- Font: Trebuchet MS / Avenir Next / Segoe UI (system stack, no Google Fonts)
+**Brand fonts** (TTF in `/public/fonts/poster/`):
+- Playfair Display (serif, italic 600 + bold 700, latin + latin-ext)
+- Inter (sans, 500, latin + latin-ext)
+- JetBrains Mono (mono, 500, latin + latin-ext)
+
+These are loaded server-side by Resvg for the poster API, and client-side via
+`FontFace` API in the Fabric editor.
+
+**Design tokens** (`src/app/globals.css`):
+- `--color-paper`: `#f2eadf`, `--color-ink`: `#172033`
+- `--color-accent`: `#e27952`, `--color-moss`: `#38584d`
+- Background: warm parchment gradient
 
 ---
 
-## 3. CURRENT STATE
+## 3. CURRENT STATE — built and shipped
 
-### Built and working
-- **Auth flows**: signup (email confirmation), login, password reset, sign out — all via Supabase Auth + Server Actions
-- **Event CRUD**: create, update, delete (permanent), list — with slug-based routing
-- **Guest upload**: QR code, rate-limited upload sessions, PIN protection, file validation, R2 presigned URL upload
-- **Photographer upload**: direct upload from dashboard with same R2 presign flow
-- **Upload confirmation**: `POST /api/uploads/confirm` triggers media record creation + `sharp` thumbnail generation
-- **Gallery**: PIN-protected public view, sectioned by `gallery_sections`, per-file hide/unhide
-- **Media moderation**: hide, soft-delete, restore, permanent delete (all with activity log)
-- **Gallery sections**: create, rename, delete sections; assign media to sections
-- **Cover image**: set/clear cover per event
-- **QR code**: auto-generated per event in dashboard, styled with brand colors
-- **Event analytics**: media count, guest upload count, storage used, download count
-- **Download**: individual file download (signed URL), batch ZIP via `jszip`
-- **Archive system**: warm → cold storage transition, restore flow (see §8 — this is marked for removal)
-- **Dashboard**: usage cards (live storage, archive storage, event count, plan), event list
-- **Profile**: photographer public profile with avatar upload, social links, opt-in homepage listing
-- **Pricing/marketing pages**: `/`, `/pricing`, `/for-photographers`, `/for-couples`
-- **Rate limiting**: DB-backed with in-memory fallback
-- **Internal cron routes**: `/api/internal/purge-deleted-media`, `/api/internal/transition-archives`, `/api/internal/process-media`
+### Auth + accounts
+- Signup (email confirmation), login, password reset, sign out
+- Two account types: **photographer** (Solo / Pro) and **couple** (One Event)
+- Couple dashboard at `/dashboard/couple`; photographer at `/dashboard`
+- Admin role with `/admin/users` panel
 
-### Partially done / incomplete
-- **Couple account type**: implemented in DB and logic, but dashboard redirects couple users directly to their single event page (no couple-specific dashboard)
-- **Event types beyond weddings**: data model is generic (`title`, `client_name`, `event_date`) but all copy is wedding-specific
-- **Media processing for video**: `processMediaRecord` marks videos as `ready` immediately without generating thumbnails — no duration extraction
-- **`copyStoredObject`**: does full download-then-reupload instead of a server-side R2 copy (works but is inefficient for large files)
-- **Middleware**: `src/proxy.ts` implements Supabase session refresh but is named `proxy.ts` not `middleware.ts` — **the file is never executed** as Next.js middleware
+### Events
+- Create, update, list, permanently delete (slug-based routing)
+- `event_settings`, `gallery_sections`, cover image
+- Lifecycle status: draft / active / expired
 
-### Missing / not built
-- Payment integration (Stripe/Whop/Paddle/LemonSqueezy)
-- Admin panel (user/gallery/storage management)
-- Bilingual support (Bosnian/English)
-- Physical product ordering for BiH market
-- Real testimonials (current ones in `src/lib/marketing.ts` are fabricated placeholders)
-- Email notifications (post-upload, event expiry, etc.)
-- Beta/free trial plan logic
-- Vercel deployment config (no `vercel.json`, no env documentation)
+### Guest + photographer upload
+- Rate-limited guest upload sessions (`upload_sessions` table)
+- PIN protection, file validation, R2 presigned URLs
+- Photographer direct upload from dashboard
+- `POST /api/uploads/confirm` triggers record creation + thumbnail generation
+
+### Gallery
+- PIN-protected public view
+- Sectioned by `gallery_sections`
+- Per-file hide/unhide, soft-delete, restore, permanent delete (all logged in
+  `event_activity`)
+- Cover image picker
+- ZIP batch download via `jszip`
+
+### Dashboard (full i18n EN + BS)
+- `/dashboard` — photographer event list + usage cards + trial banner
+- `/dashboard/events/[slug]` — event detail + management
+- `/dashboard/events/new` — create event
+- `/dashboard/profile` — photographer public profile + language preference
+- `/dashboard/billing` — current plan + upgrade
+- `/dashboard/couple` — couple landing page
+
+Every page exists in both `/dashboard/...` (English default) and
+`/[locale]/dashboard/...` (locale-aware) forms — see §6 for the pattern.
+
+### Language preference (persisted)
+- `public.users.preferred_locale` column
+- Picker in the profile form
+- `redirectIfPreferredLocale(suffix)` helper on every non-locale wrapper
+  redirects to the user's saved locale on entry
+- Action redirects to `?saved=1` on the new locale URL after a save
+
+### QR features
+- **Plain QR PNG download** (client-side blob, no API roundtrip)
+- **Server-rendered posters** in 4 templates (Minimal Cream / Confetti Burst
+  / Polaroid / Editorial) via `GET /api/events/[slug]/qr-poster` — A4 300 DPI
+  PNG or PDF. The `qrPosterPicker` UI for these was removed (everything goes
+  through the editor now), but the API + presets stay in tree.
+- **Fabric.js QR card editor** at
+  `/dashboard/events/[slug]/qr-card-editor` — full-screen edit, drag/resize/
+  rotate, font picker (Playfair / Inter / JetBrains Mono), bold/italic,
+  colour picker, font-size slider, layer reorder, delete, +text, +image
+  (upload). Export at A4 300 DPI PNG or PDF.
+
+### Payments — Payhip (active)
+- Active provider, secret + product key set as Vercel env vars
+- One Event (€39 couple, key `6VaFA`) checkout fully working via overlay
+  (programmatic `Payhip.Checkout.open`) with hosted-checkout fallback
+- Photographer subscription products (Solo/Pro mo/yearly) not yet created in
+  Payhip — env keys are placeholders
+- Webhook at `/api/billing/webhook` — form-encoded `security_token`
+  verification, email-based user matching
+- LemonSqueezy code paths still present but dormant
+
+### Marketing / public
+- Locale-routed marketing pages `/[locale]/...`:
+  `/`, `/pricing`, `/for-photographers`, `/for-couples`,
+  `/get-started`, `/(auth)/login|signup|signup/verify`,
+  `/forgot-password`, `/reset-password`, `/gallery/[slug]`, `/upload/[slug]`
+- **Confetti Explainer** — animated portrait-mobile + landscape-desktop story
+  on the homepage, using `GalleryAppShell` mock-app screens for the Gallery
+  and EventTypes scenes
+
+### Infrastructure
+- `src/middleware.ts` (was the stale `proxy.ts` — already fixed) refreshes
+  Supabase sessions on every request
+- `outputFileTracingIncludes` in `next.config.ts` pins `/public/fonts/poster/
+  **/*.ttf` into the qr-poster lambda bundle
+- `serverExternalPackages` lists `@resvg/resvg-js` and `sharp` so Turbopack
+  doesn't try to bundle their native `.node` binaries
 
 ---
 
 ## 4. BUSINESS CONTEXT
 
-**Product:** Confetti — private event gallery platform with guest photo/video upload via QR code.
+**Product:** Confetti — private event gallery with guest photo/video upload
+via QR code.
 
-**Two customer types:**
-
-| Type | Plan | Billing | Use case |
+| Customer | Plan | Billing | Use case |
 |---|---|---|---|
-| Photographer | Solo (€19/mo annual, €24/mo monthly) or Pro (€39/mo annual, €49/mo monthly) | Subscription | Professional event/wedding photographers managing multiple client events |
-| Event host / Couple | One-time (€39) | One-time | Any individual hosting a single meaningful life event |
+| Photographer | Solo (€19/mo annual, €24/mo monthly) or Pro (€39/mo annual, €49/mo monthly) | Subscription | Pro photographers managing multiple client events |
+| Couple / event host | One Event | €39 one-time | One meaningful life event |
 
-**Expanded event scope (not weddings-only):** Birthdays, anniversaries, baptisms, graduations, corporate events, baby showers, retirement parties, quinceañeras, engagement parties. The data model already supports any event type — only the copy needs updating.
+**Event scope** is generic (data model supports any event type — only some
+marketing copy still leans wedding-centric).
 
-**Dual market strategy:**
-- **BiH (Bosnia and Herzegovina):** Local language (Bosnian), affordable pricing, physical print products
+**Dual market:**
+- **BiH:** Bosnian UI, affordable pricing, future physical print products
 - **Global:** English, premium SaaS positioning
 
-**Photographer plan limits** (from `src/lib/constants.ts`):
-- Solo: 5 active events, 100 GB live storage, 250 GB archive, 15 archived events
-- Pro: 25 active events, 500 GB live storage, 1 TB archive, 50 archived events
+**Photographer plan limits** (`src/lib/constants.ts`):
+- Solo: 5 active events, 100 GB live storage
+- Pro: 25 active events, 500 GB live storage
 
-**Couple plan limits:** 1 event, 30-day upload window, 90-day gallery access
+**Couple plan limits:** 1 event, 30-day upload window, 90-day gallery access.
 
----
-
-## 5. PRIORITIES (in order)
-
-1. **UI/UX redesign** — premium, emotional, mobile-first, minimal
-2. **Remove all archive-related code** — entire warm/cold archive system to be deleted
-3. **Production deployment on Vercel** — configure env vars, fix middleware
-4. **Supabase migration** — free → paid plan before production load
-5. **Payment integration** — evaluate Whop, Stripe, LemonSqueezy, Paddle
-6. **Admin panel** — user/gallery/storage management
-7. **Realistic pricing packages** — for photographers and couples
-8. **Dual-market strategy** — BiH (local language, affordable, physical products) and Global (English, premium SaaS)
-9. **Bilingual support** — Bosnian/English
-10. **Physical products** — for BiH market
-11. **Better copywriting** — expand beyond weddings across all event types
-12. **Better visuals/images** — landing page hero and marketing sections
-13. **Marketing strategy** — TikTok, Instagram, photographer partnerships
-14. **Beta testing** — free trial plan with real photographers and couples
+**Trial logic** (`computeTrialState`): 7 days OR 20 photos, whichever first.
+Bypassed only for admins and active/trialing subscribers.
 
 ---
 
-## 6. WHAT NOT TO TOUCH
+## 5. NEXT-UP / OPEN WORK
 
-These parts are stable and correct. Refactor only if a task explicitly requires it:
+Roughly in priority order. Numbered tasks were tracked through this session.
 
-- **`src/lib/security.ts`** — PIN hashing with `timingSafeEqual`, gallery cookie signing, IP hashing. Correct implementation.
-- **`src/lib/rate-limit.ts`** — DB-backed rate limiting with in-memory fallback. Solid pattern.
-- **`src/lib/upload-validation.ts`** — File type, size, and count validation logic.
-- **`src/lib/storage.ts`** — R2 client and all presigned URL helpers.
-- **`src/lib/supabase/`** — All three Supabase clients (browser, server, admin).
-- **`src/lib/utils.ts`** — `slugify`, `formatBytes`, `formatDate`, `cn`, `absoluteUrl`.
-- **`src/lib/env.ts`** — Environment variable parsing and availability flags.
-- **`src/components/upload-dropzone.tsx`** — The guest/photographer upload UI. Tested against the full presign → upload → confirm flow.
-- **`src/components/media-grid.tsx`** — The gallery/dashboard media display with owner moderation controls.
-- **Database schema** (inferred from queries) — Do not rename tables or columns without a migration.
+### Test + verify on prod
+1. **Run pending Supabase migrations** in the SQL editor (if not done):
+   - `supabase/migrations/add_preferred_locale_to_users.sql`
+   - `supabase/migrations/add_upload_session_id_to_media.sql` (older)
+2. **Verify the Fabric editor on Vercel** after the centering / setZoom /
+   charSpacing fix (commit `f4f40a2`). The user reported a layout bug just
+   before stepping away — the fix needs eyes on `event-gallery-app-rho`.
+3. **Test Payhip webhook end-to-end** with a real €39 purchase — the format
+   we implemented (form-encoded `security_token`) may not match what Payhip
+   actually sends; the docs describe a newer JSON+signature scheme. We
+   wanted to inspect a real payload before hardening. See
+   `src/app/api/billing/webhook/route.ts`.
 
----
+### QR card editor — V2 polish (Fabric.js)
+4. Mobile-friendly editor — current UI is desktop-only; mobile users still
+   get the "Skini QR" PNG button via `qr-poster-picker`.
+5. Shape primitives (rect / circle / line) in the +Add rail.
+6. Undo / redo (Fabric.js supports `history` module; not wired yet).
+7. Draft persistence in Supabase or localStorage (currently lost on close).
+8. More starting templates (target 10–12 — vintage, birthday playful,
+   baptism, corporate, anniversary…).
+9. "Reset to template defaults" button.
+10. Possibly an Open-in-Canva fallback (just a link + instructions; no API
+    integration).
 
-## 7. DECISION-MAKING GUIDELINES
+### Dashboard polish
+11. Translate the inner forms that are still English-only inside the
+    bilingual chrome: `EventSettingsForm`, `EventCreateForm`,
+    `PhotographerProfileForm`, `MediaGrid` action labels,
+    `GallerySectionsManager`, `BillingPlans`, `EventLifecyclePanel`.
+12. Real testimonials in `src/lib/marketing.ts:106` (currently fabricated
+    placeholders — `Studio Nova Weddings`, `Lejla & Harun`, etc.).
+13. Expand event-type copy: rename "One Wedding" wording, update `/for-couples`
+    to be event-host-generic.
 
-**Prefer simplicity over complexity.** This is MVP stage. No premature abstractions.
+### Payments
+14. Create Payhip subscription products for Solo/Pro mo/yearly + wire
+    `LEMONSQUEEZY_VARIANT_*` env vars to `PAYHIP_PRODUCT_*` (the LemonSqueezy
+    paths are dormant fallbacks).
+15. Admin "manual activate plan" action — for buyers whose Payhip checkout
+    email didn't match their account email and the webhook couldn't auto-
+    activate.
 
-**Mobile-first always.** Every UI decision defaults to the phone experience first.
+### Hardening / deploy hygiene
+16. `.env.example` documenting every var (Supabase, R2, Payhip, APP_SECRET,
+    NEXT_PUBLIC_APP_URL).
+17. `vercel.json` with function-timeout bumps if media processing exceeds
+    10s default.
+18. PIN hashing → bcrypt/argon2 (currently SHA-256 — fast / GPU-crackable;
+    4-digit PINs only 10k combinations).
+19. Auth on `/api/uploads/confirm` — still requires only that the supplied
+    object key was issued via the presign route. Tighten to a signed grant
+    or require session.
+20. APP_SECRET production presence-check at startup (gallery cookies rely on
+    it; default secret is in source).
 
-**When choosing between two approaches,** recommend both with a tradeoff explanation rather than silently picking one.
-
-**Security flags — act immediately:**
-- Never expose service role keys to the client
-- Always validate ownership before any write operation (user_id check on events/media)
-- Never trust client-supplied `eventId`, `mediaId` etc. without verifying ownership
-- Flag any new unauthenticated API endpoint
-
-**Supabase free tier limits to watch:**
-- 500 MB database — will hit this quickly with `media_files` rows at scale
-- 2 GB bandwidth — exceeded by any real traffic with image previews
-- 50,000 monthly active users — fine for MVP
-- No point-in-time recovery on free tier — data loss risk in production
-- **Action: migrate to Supabase Pro before any real user traffic**
-
-**R2 storage:** No egress fees. Appropriate choice. Keep it.
-
-**Never use `!important` in CSS.** Never override Tailwind's design tokens via inline `style={}` unless for dynamic values (e.g., progress bar widths).
-
-**Event types:** The data model is already generic. To support a new event type, only copy/marketing content needs changing — no DB schema changes.
-
----
-
-## 8. IDENTIFIED ISSUES
-
-### Critical security issues
-
-1. **`/api/uploads/confirm` has no authentication** (`src/app/api/uploads/confirm/route.ts:1`).
-   Any anonymous request can call this endpoint with an arbitrary `eventId` and `objectKey` to inject a fake media record into any event. This needs auth or at minimum a signed token from the upload grant.
-
-2. **`src/proxy.ts` is never executed as middleware.** The file is named `proxy.ts` instead of `middleware.ts`. Next.js only auto-runs `src/middleware.ts`. Sessions are not refreshed on navigation, meaning Supabase auth cookies will silently expire in production. Fix: rename to `src/middleware.ts` and re-export `proxy` as `default`.
-
-3. **`DEFAULT_SECRET = "confetti-dev-secret"` in `src/lib/security.ts:6`.** If `APP_SECRET` env var is missing in production, gallery access cookies are signed with a hardcoded secret that anyone can read from the source. Must ensure `APP_SECRET` is set in production.
-
-4. **PIN hashing uses plain SHA-256** (`src/lib/security.ts:8`). SHA-256 is fast and GPU-crackable. A 4-digit PIN has only 10,000 combinations. Use bcrypt or argon2 for PIN hashing, or enforce minimum PIN length (8+ chars).
-
-### Architecture issues
-
-5. **Archive system is entangled everywhere** — `EventArchiveRecord` type in `src/lib/types.ts`, archive functions throughout `src/lib/events.ts` (~300 lines), archive UI in `src/app/dashboard/page.tsx` and `src/app/dashboard/events/[slug]/page.tsx`, internal cron route `src/app/api/internal/transition-archives/route.ts`, Server Action `archivePhotographerEventAction` and `restoreArchivedPhotographerEventAction` in `src/lib/actions.ts`. Priority 2 in the roadmap is to remove all of this.
-
-6. **`copyStoredObject` downloads entire file to RAM before re-uploading** (`src/lib/storage.ts:133`). For large video files this will OOM a serverless function. Use R2's native CopyObject API or stream the response. (Only matters once archive restore is actually used.)
-
-7. **In-memory rate limit buckets don't survive serverless cold starts.** The `isRateLimitedInMemory` fallback in `src/lib/rate-limit.ts` is per-process. On Vercel, each invocation may be a fresh process. The DB-backed path is the correct one — ensure Supabase is always reachable.
-
-8. **`processMediaRecord` in `src/lib/media.ts:75` loads the entire image into memory via `getStoredObjectBuffer`.** For a 50 MB HEIC file this is fine; for large RAW files it could OOM. Acceptable for MVP.
-
-### Dead code / to be removed
-
-9. **All archive-related code** (per Priority 2):
-   - `src/lib/types.ts`: `EventArchiveRecord`, `EventArchiveStatus`, `EventArchiveStorageTier`
-   - `src/lib/events.ts`: `getEventArchive`, `listEventArchives`, `archiveEventBySlug`, `restoreArchivedEventBySlug`, `transitionWarmArchivesToCold`, `getArchiveLifecycleLabel`, `getArchiveStorageStatusLabel`, archive-related helpers
-   - `src/lib/actions.ts`: `archivePhotographerEventAction`, `restoreArchivedPhotographerEventAction`
-   - `src/app/api/internal/transition-archives/route.ts` — entire file
-   - `src/app/dashboard/page.tsx`: archive storage card, archive map fetching
-   - `src/app/dashboard/events/[slug]/page.tsx`: all `isWarmArchivedWorkspace` / `isColdArchivedWorkspace` branches
-   - `src/lib/env.ts`: `r2ArchiveBucket`, `r2ColdArchiveBucket`, `hasR2Archive`, `hasR2ColdArchive`
-   - `src/lib/constants.ts`: `SOLO_ARCHIVE_LIMIT_BYTES`, `PRO_ARCHIVE_LIMIT_BYTES`, `SOLO_ARCHIVED_EVENT_LIMIT`, `PRO_ARCHIVED_EVENT_LIMIT`
-
-10. **`src/lib/account.ts:27` — `resolveAccountRedirect` is thin enough to inline.** Not harmful but adds indirection.
-
-11. **`src/app/api/events/[slug]/qr/route.ts`** — check if this standalone QR route is still used or redundant with the dashboard's inline QR generation.
-
-### Copy / product issues
-
-12. **All marketing copy is wedding-centric.** "One Wedding plan", "for couples" page copy, hero text, FAQ answers all assume weddings. Must expand to all meaningful life events (birthdays, baptisms, graduations, etc.).
-
-13. **Testimonials in `src/lib/marketing.ts:106` are fake/placeholder.** "Studio Nova Weddings", "Lejla & Harun", "Mira Events" — these are fabricated. Replace before any public launch.
-
-14. **`MarketingTrustStrip` component** — verify content doesn't make false claims about user counts or endorsements.
-
-15. **`/for-couples` page only mentions weddings** — need a generic "for event hosts" angle or multiple landing pages per event type.
-
-### Minor
-
-16. **`src/app/layout.tsx:4`** — `metadata.title` still says "for photographers" only; needs to reflect the full event platform scope.
-
-17. **No `vercel.json`, no `.env.example`** — deployment docs are missing. Block before production.
-
-18. **`src/app/(auth)/signup/page.tsx`** — `intent` query param defaults to `photographer`; couple signup path exists but discoverability is unclear.
+### Future / ideas parked
+- Video thumbnail extraction (currently videos go straight to `ready` with
+  no thumbnail and no duration).
+- Email notifications (post-upload, expiry).
+- Physical print product shop (BiH market).
 
 ---
 
-## 9. RECOMMENDED NEXT STEPS
+## 6. KEY PATTERNS — please follow
 
-In the most logical order given the current codebase state:
+### i18n (dashboard pages)
+Mirror the CoupleDashboard pattern:
+- `src/app/dashboard/{foo}/{Foo}.tsx` — shared async component that takes
+  `locale: Locale` (+ optional `searchParams`) and renders everything via
+  `getDictionary(locale).dashboard.foo`.
+- `src/app/dashboard/{foo}/page.tsx` — thin wrapper, passes `locale="en"`.
+- `src/app/[locale]/dashboard/{foo}/page.tsx` — thin wrapper, awaits
+  `params.locale`, passes through.
+- Internal links inside the shared component use
+  `localePrefix(locale)` from `src/lib/i18n/index.ts` (handles `""` for `en`,
+  `/bs` for non-default).
+- New strings go in `Dict.dashboard.*` (`src/lib/i18n/index.ts`) + both
+  `en.ts` and `bs.ts`. `t()` interpolates `{{name}}` placeholders.
 
-### Step 1 — Fix critical security bugs (1–2 hours)
-1. Rename `src/proxy.ts` → `src/middleware.ts`, export `proxy` as `default export`.
-2. Add auth to `/api/uploads/confirm` — validate the `objectKey` against a signed upload grant, or require the session token.
-3. Enforce `APP_SECRET` in production env — add a startup check that throws if missing.
+### Dashboard page entry
+Non-locale wrappers call `await redirectIfPreferredLocale("/suffix")` first
+(from `src/lib/i18n/preference.ts`) so logged-in users with a non-default
+preference land on `/{pref}/dashboard/{suffix}` automatically. Locale-prefixed
+wrappers trust the URL and never redirect.
 
-### Step 2 — Remove archive system (2–4 hours)
-Delete all archive-related code listed in §8 items 9. This simplifies every major file and removes ~500 lines of dead complexity before any UI redesign starts.
+### Security guardrails
+- Never expose service-role keys client-side.
+- Always validate ownership before any write — `user_id` on events/media.
+- Don't trust client-supplied `eventId`, `mediaId`, `slug` without
+  `getOwnerEventBySlug` style verification.
+- Flag any new unauthenticated API endpoint loudly.
 
-### Step 3 — Vercel deployment + env setup (1–2 hours)
-1. Create `.env.example` documenting all required vars.
-2. Add `vercel.json` with function timeout config (media processing may exceed 10s default).
-3. Deploy to Vercel, verify all routes work.
-4. Upgrade Supabase to Pro plan.
-
-### Step 4 — Payment integration (evaluate first, then build)
-Recommended evaluation order:
-- **Stripe** — most flexible, best docs, more integration work
-- **LemonSqueezy** — handles EU VAT, simpler for SaaS, good API
-- **Paddle** — Merchant of Record (handles all tax globally), ideal for dual-market BiH + Global
-- **Whop** — community/creator focus, probably not the right fit here
-
-For dual-market strategy, **Paddle** is the strongest choice as it handles tax compliance in both BiH and global markets automatically.
-
-### Step 5 — Expand event types in copy (1 day)
-Update `src/lib/marketing.ts` and all page copy to be event-agnostic:
-- Rename "One Wedding" plan to "One Event" (or keep "Moments" / "One Celebration")
-- Update `/for-couples` to `/for-hosts` or add multiple event-type landing pages
-- Update homepage hero and FAQ to mention birthdays, baptisms, graduations etc.
-
-### Step 6 — UI/UX redesign (ongoing)
-The visual foundation is already good (warm color palette, glass-morphism panels, mobile-responsive grid). The main gaps:
-- No real hero image/video (currently a placeholder SVG `/confetti-hero.svg`)
-- Pricing cards need clearer visual hierarchy between Solo/Pro/One-time
-- Upload page could feel more celebratory/emotional for guests
-- Dashboard needs better empty state and first-run onboarding
-
-### Step 7 — Admin panel
-Simple internal dashboard at `/admin` (protected by `role === "admin"` in the users table):
-- View all users + account types
-- View storage usage per account
-- Manually adjust plan tier
-- View total media count + storage across platform
-
-### Step 8 — Bilingual support
-Next.js `i18n` routing with `bs` (Bosnian) and `en` locale. Move all copy strings in `src/lib/marketing.ts` and page files to locale-specific files. Do not use a third-party i18n library at MVP stage — Next.js built-in routing + a simple `t()` helper is sufficient.
+### Supabase free-tier ceiling
+500 MB DB + 2 GB bandwidth — exhausted by any real traffic with image
+previews. Migrate to Pro before user testing scales.
 
 ---
 
-## File map (key files only)
+## 7. WHAT NOT TO TOUCH
+
+Stable + correct; refactor only if a task explicitly requires it.
+
+- `src/lib/security.ts` — PIN hashing + `timingSafeEqual`, gallery cookie
+  signing, IP hashing.
+- `src/lib/rate-limit.ts` — DB-backed limiter + in-memory fallback.
+- `src/lib/upload-validation.ts` — file type/size/count guards.
+- `src/lib/storage.ts` — R2 client + all presigned URL helpers.
+- `src/lib/supabase/` — three clients (browser, server, admin).
+- `src/lib/utils.ts` — `slugify`, `formatBytes`, `formatDate`, `cn`,
+  `absoluteUrl`.
+- `src/lib/env.ts` — env parsing + availability flags.
+- `src/lib/i18n/{en,bs,index}.ts` — adding keys is fine; renaming the loader
+  or `Dict` shape ripples everywhere.
+- `src/components/upload-dropzone.tsx`, `src/components/media-grid.tsx` —
+  tested against the full presign → upload → confirm + moderation flow.
+- DB schema — never rename tables/columns without a `supabase/migrations/`
+  entry.
+
+---
+
+## 8. KEY FILE MAP
 
 ```
 src/
 ├── app/
-│   ├── page.tsx                          # Landing page (marketing)
-│   ├── layout.tsx                        # Root layout + metadata
-│   ├── globals.css                       # Design tokens + utility classes
-│   ├── pricing/page.tsx                  # Pricing page
-│   ├── for-photographers/page.tsx        # Photographer landing page
-│   ├── for-couples/page.tsx              # Couples/hosts landing page
-│   ├── (auth)/login/page.tsx             # Login
-│   ├── (auth)/signup/page.tsx            # Signup
-│   ├── (auth)/signup/verify/page.tsx     # Email verification pending
-│   ├── auth/confirm/route.ts             # Supabase email confirm redirect
-│   ├── forgot-password/page.tsx          # Forgot password
-│   ├── reset-password/page.tsx           # Password reset
-│   ├── dashboard/page.tsx                # Photographer dashboard (event list + usage)
-│   ├── dashboard/events/new/page.tsx     # Create event
-│   ├── dashboard/events/[slug]/page.tsx  # Event detail + management
-│   ├── dashboard/profile/page.tsx        # Photographer public profile settings
-│   ├── upload/[slug]/page.tsx            # Public guest upload page
-│   ├── gallery/[slug]/page.tsx           # Public gallery (PIN-protected)
+│   ├── [locale]/                       # Locale-aware mirrors of every
+│   │   ├── (auth)/{login,signup,…}     #   user-facing route
+│   │   ├── dashboard/{…}
+│   │   ├── admin/{…}
+│   │   ├── for-photographers, for-couples, pricing, get-started
+│   │   ├── gallery/[slug], upload/[slug]
+│   │   └── page.tsx                    # locale-aware landing
+│   ├── page.tsx                        # English landing
+│   ├── layout.tsx
+│   ├── globals.css                     # Tokens + utility classes
+│   │
+│   ├── dashboard/
+│   │   ├── page.tsx          → DashboardHome.tsx (shared)
+│   │   ├── events/
+│   │   │   ├── new/          → NewEvent.tsx (shared)
+│   │   │   └── [slug]/
+│   │   │       ├── page.tsx  → EventDetail.tsx (shared)
+│   │   │       └── qr-card-editor/page.tsx → renders QrCardEditor
+│   │   ├── profile/          → DashboardProfile.tsx (shared)
+│   │   ├── billing/          → DashboardBilling.tsx (shared)
+│   │   └── couple/           → CoupleDashboard.tsx (shared)
+│   │
+│   ├── admin/{page, users/{page, [id]/page}, layout, admin-sidebar}.tsx
+│   │
 │   └── api/
-│       ├── events/[slug]/guest-upload-session/route.ts    # Starts guest upload → presigned URLs
-│       ├── events/[slug]/photographer-upload-session/route.ts  # Starts photographer upload
-│       ├── events/[slug]/media/route.ts                   # Fetch event media
-│       ├── events/[slug]/cover/route.ts                   # Set/clear cover image
-│       ├── events/[slug]/qr/route.ts                      # QR code endpoint
-│       ├── uploads/confirm/route.ts                       # ⚠️ Post-upload confirmation (no auth)
-│       ├── media/[id]/toggle-hidden/route.ts
-│       ├── media/[id]/delete/route.ts
-│       ├── media/[id]/permanent-delete/route.ts
-│       ├── media/[id]/restore/route.ts
-│       ├── media/[id]/download/route.ts
-│       ├── media/[id]/section/route.ts
-│       ├── media/download-batch/route.ts                  # ZIP batch download
-│       └── internal/
-│           ├── process-media/route.ts                     # Worker: thumbnail generation
-│           ├── purge-deleted-media/route.ts               # Cron: hard-delete old soft-deletes
-│           └── transition-archives/route.ts               # ⚠️ TO DELETE (archive system)
+│       ├── events/[slug]/{guest-upload-session, photographer-upload-session,
+│       │                  media, cover, qr, qr-poster}/route.ts
+│       ├── uploads/confirm/route.ts      # ⚠ still no auth
+│       ├── media/[id]/{toggle-hidden,delete,permanent-delete,restore,
+│       │               download,section}/route.ts
+│       ├── media/download-batch/route.ts # ZIP
+│       ├── qr-card/pdf/route.ts          # editor → PDF wrapper
+│       ├── billing/{checkout, webhook}/route.ts
+│       └── internal/{process-media, purge-deleted-media}/route.ts
+│
 ├── lib/
-│   ├── types.ts           # All TypeScript types (DB record shapes)
-│   ├── constants.ts       # Plan limits, file type allowlists, rate limit config
-│   ├── env.ts             # Env var parsing + availability flags
-│   ├── events.ts          # Core event + media business logic (~1,500 lines)
-│   ├── actions.ts         # Next.js Server Actions (all user-triggered writes)
-│   ├── media.ts           # Upload grant building + thumbnail processing
-│   ├── storage.ts         # R2 client + all storage helpers
-│   ├── security.ts        # PIN hashing, gallery cookie, IP hashing
-│   ├── rate-limit.ts      # DB-backed rate limiting with in-memory fallback
-│   ├── upload-validation.ts # File type/size/count validation
-│   ├── auth.ts            # User profile helpers (getRequiredUser, getAccountTypeForUser)
-│   ├── account.ts         # Account type normalization + redirect resolution
-│   ├── marketing.ts       # All marketing copy (plans, benefits, FAQs, testimonials)
-│   └── utils.ts           # cn, slugify, formatBytes, formatDate, absoluteUrl
-├── proxy.ts               # ⚠️ Supabase session middleware — RENAME to middleware.ts
+│   ├── types.ts, constants.ts, env.ts, utils.ts
+│   ├── events.ts                    # ~1.5k LoC of event + media logic
+│   ├── actions.ts                   # All Server Actions
+│   ├── media.ts                     # Upload grants + thumbnails
+│   ├── storage.ts, security.ts, rate-limit.ts, upload-validation.ts
+│   ├── auth.ts, account.ts, marketing.ts
+│   ├── billing.ts                   # Payhip + LemonSqueezy helpers
+│   ├── qr-posters.ts                # 4 SVG poster templates
+│   ├── qr-posters-render.ts         # Resvg + pdf-lib pipeline
+│   ├── qr-posters-fonts.ts          # TTF paths for Resvg
+│   ├── qr-card-editor/presets.ts    # Fabric editor starting points
+│   └── i18n/
+│       ├── index.ts                 # Dict, getDictionary, t, localePrefix
+│       ├── en.ts, bs.ts             # Translations
+│       └── preference.ts            # redirectIfPreferredLocale
+│
+├── middleware.ts                    # Supabase session refresh
+│
 └── components/
-    ├── ui/button.tsx, input.tsx, panel.tsx   # Primitive UI components
-    ├── upload-dropzone.tsx                    # Guest + photographer upload UI
-    ├── media-grid.tsx                         # Gallery/dashboard media grid
-    ├── event-create-form.tsx                  # New event form
-    ├── event-settings-form.tsx                # Edit event settings
-    ├── event-lifecycle-panel.tsx              # Archive/restore/delete controls (TO DELETE)
-    ├── gallery-sections-manager.tsx           # Section CRUD in dashboard
-    ├── auth-form.tsx                          # Login/signup form
-    ├── site-nav.tsx                           # Marketing nav
-    ├── dashboard-header.tsx                   # Dashboard page header
-    ├── dashboard-event-list.tsx               # Event list in dashboard
-    ├── photographer-profile-form.tsx          # Public profile form
-    ├── pricing-showcase.tsx                   # Pricing cards component
-    ├── marketing-button-link.tsx              # CTA button with tone variants
-    ├── marketing-testimonials.tsx             # Testimonials section (PLACEHOLDER DATA)
-    ├── marketing-trust-strip.tsx              # Trust badges strip
-    ├── setup-notice.tsx                       # Shown when env vars missing
-    ├── forgot-password-form.tsx
-    └── reset-password-form.tsx
+    ├── ui/{button, input, panel}.tsx
+    ├── upload-dropzone.tsx
+    ├── media-grid.tsx
+    ├── collapsible-section.tsx      # Gallery manager collapser
+    ├── qr-poster-picker.tsx         # Plain QR + "Prilagodi" buttons
+    ├── qr-card-editor.tsx           # Fabric.js editor
+    ├── event-create-form.tsx, event-settings-form.tsx
+    ├── event-lifecycle-panel.tsx
+    ├── gallery-sections-manager.tsx
+    ├── auth-form.tsx, site-nav.tsx
+    ├── dashboard-header.tsx, dashboard-event-list.tsx
+    ├── photographer-profile-form.tsx, setup-notice.tsx
+    ├── pricing-showcase.tsx, marketing-button-link.tsx
+    ├── marketing-testimonials.tsx   # ⚠ placeholder data
+    └── marketing-trust-strip.tsx
 ```
+
+---
+
+## 9. RECENT SESSION LOG
+
+Newest first — useful for picking back up.
+
+- `f4f40a2` — Editor centering fix (originX='center' for textAlign='center'
+  text) + setZoom-based scaling + safe export (save/restore zoom around
+  high-res render) + presets charSpacing converted from SVG-px to Fabric
+  1/1000em.
+- `389e885` — Editor canvas fit-to-stage via `ResizeObserver`; font picker
+  (Playfair / Inter / JetBrains Mono) + B / I toggles; QR poster picker
+  simplified to two buttons + hint.
+- `3fa61bc` — Fabric.js QR card editor v1 (route, presets, full editor UI,
+  `/api/qr-card/pdf` wrapper).
+- `291adbe` — Stat cards locked to permanent 2-col grid; gallery manager
+  wrapped in `<CollapsibleSection>` (12-item threshold, soft fade);
+  recent-activity panel inside native `<details>`.
+- `b3661b5` — Mobile explainer scenes rebuilt around `GalleryAppShell`.
+- `1c7ec30` — Stat-card layout, removed broken header EN/BS switcher, saved
+  banner survives the locale-flip redirect.
+- `837ee3c` — Persisted dashboard language preference (migration + profile
+  picker + `redirectIfPreferredLocale`).
+- `ec31ab2` — Bilingual dashboard (option C) — five pages refactored to
+  shared async components.
