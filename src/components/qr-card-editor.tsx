@@ -26,14 +26,20 @@ let fontsReadyPromise: Promise<void> | null = null;
 function loadBrandFonts(): Promise<void> {
   if (fontsReadyPromise) return fontsReadyPromise;
   const defs: Array<[string, string, FontFaceDescriptors]> = [
-    ["Playfair Display", "/fonts/poster/playfair-italic-latin.ttf", { style: "italic", weight: "600" }],
-    ["Playfair Display", "/fonts/poster/playfair-italic-ext.ttf", { style: "italic", weight: "600" }],
-    ["Playfair Display", "/fonts/poster/playfair-bold-latin.ttf", { style: "normal", weight: "700" }],
-    ["Playfair Display", "/fonts/poster/playfair-bold-ext.ttf", { style: "normal", weight: "700" }],
+    ["Playfair Display", "/fonts/poster/playfair-italic-latin.ttf", { style: "italic", weight: "500 600" }],
+    ["Playfair Display", "/fonts/poster/playfair-italic-ext.ttf", { style: "italic", weight: "500 600" }],
+    ["Playfair Display", "/fonts/poster/playfair-bold-latin.ttf", { style: "normal", weight: "500 700" }],
+    ["Playfair Display", "/fonts/poster/playfair-bold-ext.ttf", { style: "normal", weight: "500 700" }],
     ["Inter", "/fonts/poster/inter-latin.ttf", { style: "normal", weight: "500" }],
     ["Inter", "/fonts/poster/inter-ext.ttf", { style: "normal", weight: "500" }],
     ["JetBrains Mono", "/fonts/poster/jetbrains-mono-latin.ttf", { style: "normal", weight: "500" }],
     ["JetBrains Mono", "/fonts/poster/jetbrains-mono-ext.ttf", { style: "normal", weight: "500" }],
+    ["Jost", "/fonts/poster/jost-latin-300.woff2", { style: "normal", weight: "300" }],
+    ["Jost", "/fonts/poster/jost-latin-ext-300.woff2", { style: "normal", weight: "300" }],
+    ["Jost", "/fonts/poster/jost-latin-400.woff2", { style: "normal", weight: "400" }],
+    ["Jost", "/fonts/poster/jost-latin-ext-400.woff2", { style: "normal", weight: "400" }],
+    ["Jost", "/fonts/poster/jost-latin-500.woff2", { style: "normal", weight: "500" }],
+    ["Jost", "/fonts/poster/jost-latin-ext-500.woff2", { style: "normal", weight: "500" }],
   ];
   fontsReadyPromise = Promise.all(
     defs.map(async ([family, url, descriptors]) => {
@@ -50,7 +56,7 @@ const PRESET_COLORS = [
   "#fffaf2", "#f2eadf", "#b8431f", "#ffffff", "#000000",
 ];
 
-const FONT_OPTIONS = ["Playfair Display", "Inter", "JetBrains Mono"] as const;
+const FONT_OPTIONS = ["Playfair Display", "Jost", "Inter", "JetBrains Mono"] as const;
 
 export interface QrCardEditorProps {
   slug: string;
@@ -165,6 +171,28 @@ export function QrCardEditor({
             hasControls: true,
           });
           return img;
+        }
+        case "svg": {
+          // Parse the inline SVG markup into a Fabric group so users can move
+          // and scale the decoration as one unit but still drop it like any
+          // other object onto the canvas.
+          const result = await fabric.loadSVGFromString(obj.svg);
+          const group = fabric.util.groupSVGElements(
+            result.objects.filter((o): o is import("fabric").FabricObject => o !== null),
+            result.options,
+          );
+          const naturalW = group.width ?? obj.width;
+          const naturalH = group.height ?? obj.height;
+          group.set({
+            left: obj.left,
+            top: obj.top,
+            scaleX: obj.width / naturalW,
+            scaleY: obj.height / naturalH,
+            opacity: obj.opacity ?? 1,
+            selectable: true,
+            hasControls: true,
+          });
+          return group;
         }
       }
     },
