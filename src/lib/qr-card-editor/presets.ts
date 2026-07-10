@@ -254,7 +254,8 @@ const directionA: CardPreset = {
 
     // Italic tagline + heart
     { kind: "text", left: 0, top: 700 * S, width: 1240, text: TAGLINE_COPY, fontFamily: SERIF, fontStyle: "italic", fontWeight: 400, fontSize: 15.5 * S, fill: ITALIC, textAlign: "center" },
-    { kind: "svg", left: (559 / 2 + 88) * S, top: 705 * S, width: 15 * S, height: 14 * S, svg: HEART_SVG },
+    // Heart — centred on its own line below the tagline.
+    { kind: "svg", left: (559 / 2 - 7.5) * S, top: 728 * S, width: 15 * S, height: 14 * S, svg: HEART_SVG },
   ],
 };
 
@@ -301,7 +302,8 @@ const directionB: CardPreset = {
 
     // Italic tagline + heart
     { kind: "text", left: 0, top: 728 * S, width: 1240, text: TAGLINE_COPY, fontFamily: SERIF, fontStyle: "italic", fontWeight: 400, fontSize: 15 * S, fill: ITALIC, textAlign: "center" },
-    { kind: "svg", left: (559 / 2 + 86) * S, top: 732 * S, width: 14 * S, height: 13 * S, svg: HEART_SVG },
+    // Heart — centred on its own line below the tagline.
+    { kind: "svg", left: (559 / 2 - 7) * S, top: 755 * S, width: 14 * S, height: 13 * S, svg: HEART_SVG },
   ],
 };
 
@@ -352,7 +354,8 @@ const directionC: CardPreset = {
 
     // Italic tagline + heart
     { kind: "text", left: 0, top: 723 * S, width: 1240, text: TAGLINE_COPY, fontFamily: SERIF, fontStyle: "italic", fontWeight: 400, fontSize: 15.5 * S, fill: ITALIC, textAlign: "center" },
-    { kind: "svg", left: (559 / 2 + 88) * S, top: 727 * S, width: 15 * S, height: 14 * S, svg: HEART_SVG },
+    // Heart — centred on its own line below the tagline.
+    { kind: "svg", left: (559 / 2 - 7.5) * S, top: 750 * S, width: 15 * S, height: 14 * S, svg: HEART_SVG },
   ],
 };
 
