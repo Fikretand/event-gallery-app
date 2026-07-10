@@ -14,7 +14,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (data?.role !== "admin") redirect("/dashboard");
 
   return (
-    <div className="flex min-h-screen bg-[#f4f0eb]">
+    <div className="page-wash flex min-h-screen">
       <AdminSidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         {/* pt-14 offsets the fixed mobile top bar; lg:pt-0 removes it on desktop */}

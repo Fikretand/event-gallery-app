@@ -45,7 +45,7 @@ export function AdminUsersTable({ users }: { users: UserRecord[] }) {
   ];
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-black/8 bg-white">
+    <div className="overflow-hidden rounded-2xl border border-black/8 bg-white/92 shadow-[0_18px_50px_rgba(18,24,38,0.05)] backdrop-blur">
       {/* Toolbar */}
       <div className="flex flex-col gap-3 border-b border-black/8 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-1.5">

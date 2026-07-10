@@ -61,7 +61,7 @@ export default async function AdminDashboardPage() {
 
       <div className="grid gap-5 xl:grid-cols-[1.4fr_1fr]">
         {/* Recent users */}
-        <div className="overflow-hidden rounded-2xl border border-black/8 bg-white">
+        <div className="overflow-hidden rounded-2xl border border-black/8 bg-white/92 shadow-[0_18px_50px_rgba(18,24,38,0.05)] backdrop-blur">
           <div className="flex items-center justify-between border-b border-black/8 px-5 py-4">
             <h2 className="text-sm font-semibold text-[var(--color-ink)]">Recent signups</h2>
             <Link href="/admin/users" className="text-xs font-medium text-[var(--color-moss)] hover:underline">
@@ -101,7 +101,7 @@ export default async function AdminDashboardPage() {
         </div>
 
         {/* Recent events */}
-        <div className="overflow-hidden rounded-2xl border border-black/8 bg-white">
+        <div className="overflow-hidden rounded-2xl border border-black/8 bg-white/92 shadow-[0_18px_50px_rgba(18,24,38,0.05)] backdrop-blur">
           <div className="border-b border-black/8 px-5 py-4">
             <h2 className="text-sm font-semibold text-[var(--color-ink)]">Recent events</h2>
           </div>
@@ -148,7 +148,7 @@ function StatCard({
   isText?: boolean;
 }) {
   return (
-    <div className={`rounded-2xl border px-5 py-4 ${accent ? "border-amber-200/60 bg-[linear-gradient(135deg,rgba(255,248,230,0.9),rgba(255,237,190,0.6))]" : "border-black/8 bg-white"}`}>
+    <div className={`rounded-2xl border px-5 py-4 ${accent ? "border-amber-200/60 bg-[linear-gradient(135deg,rgba(255,248,230,0.9),rgba(255,237,190,0.6))]" : "border-black/8 bg-white/92 shadow-[0_18px_50px_rgba(18,24,38,0.05)] backdrop-blur"}`}>
       <div className="flex items-start justify-between">
         <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-black/40">{label}</p>
         <span className="text-base leading-none">{icon}</span>

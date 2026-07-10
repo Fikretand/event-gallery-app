@@ -48,7 +48,7 @@ export function UserDetailActions({ user }: { user: UserRecord }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-black/8 bg-white">
+    <div className="overflow-hidden rounded-2xl border border-black/8 bg-white/92 shadow-[0_18px_50px_rgba(18,24,38,0.05)] backdrop-blur">
       <div className="border-b border-black/8 px-5 py-3.5">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-black/40">Actions</p>
       </div>

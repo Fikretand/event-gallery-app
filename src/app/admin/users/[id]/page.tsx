@@ -66,7 +66,7 @@ export default async function UserDetailPage({
 
         {/* ── Left panel: Profile ── */}
         <div className="space-y-4">
-          <div className="overflow-hidden rounded-2xl border border-black/8 bg-white">
+          <div className="overflow-hidden rounded-2xl border border-black/8 bg-white/92 shadow-[0_18px_50px_rgba(18,24,38,0.05)] backdrop-blur">
             {/* Avatar area */}
             <div className="flex flex-col items-center gap-3 bg-[var(--color-paper)]/50 px-6 py-8">
               <div className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-[var(--color-ink)] text-xl font-bold text-white shadow-lg">
@@ -115,7 +115,7 @@ export default async function UserDetailPage({
         <div className="space-y-4">
 
           {/* Plan & Trial */}
-          <div className="rounded-2xl border border-black/8 bg-white">
+          <div className="rounded-2xl border border-black/8 bg-white/92 shadow-[0_18px_50px_rgba(18,24,38,0.05)] backdrop-blur">
             <SectionHeader title="Account" />
             <div className="grid grid-cols-2 gap-px bg-black/5 sm:grid-cols-3">
               <InfoBlock label="Plan" value={user.plan_tier.charAt(0).toUpperCase() + user.plan_tier.slice(1)} accent={user.plan_tier === "pro"} />
@@ -136,7 +136,7 @@ export default async function UserDetailPage({
           </div>
 
           {/* Storage & Usage */}
-          <div className="rounded-2xl border border-black/8 bg-white">
+          <div className="rounded-2xl border border-black/8 bg-white/92 shadow-[0_18px_50px_rgba(18,24,38,0.05)] backdrop-blur">
             <SectionHeader title="Storage & Usage" />
             <div className="px-5 pb-5 pt-4">
               <div className="flex items-end justify-between text-sm">
@@ -172,7 +172,7 @@ export default async function UserDetailPage({
 
           {/* Events list */}
           {events.length > 0 && (
-            <div className="overflow-hidden rounded-2xl border border-black/8 bg-white">
+            <div className="overflow-hidden rounded-2xl border border-black/8 bg-white/92 shadow-[0_18px_50px_rgba(18,24,38,0.05)] backdrop-blur">
               <SectionHeader title={`Events (${events.length})`} />
               <div className="divide-y divide-black/5">
                 {events.slice(0, 6).map((ev) => (
