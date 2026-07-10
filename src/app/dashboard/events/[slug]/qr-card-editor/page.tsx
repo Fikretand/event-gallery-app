@@ -20,7 +20,7 @@ export default async function QrCardEditorPage({
   if (!event) notFound();
 
   const qrDataUrl = await QRCode.toDataURL(eventLinks(slug).uploadUrl, {
-    width: 800,
+    width: 1200,
     margin: 1,
     color: { dark: "#172033", light: "#fffaf2" },
   });

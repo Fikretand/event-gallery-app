@@ -245,6 +245,10 @@ export function QrCardEditor({
         height: CANVAS_HEIGHT,
         backgroundColor: "#fffaf2",
         preserveObjectStacking: true,
+        // We supersample manually (full-design-resolution backing store scaled
+        // down via CSS in fitToStage), so let Fabric keep the backing store at
+        // exactly the size we ask for instead of also multiplying by dpr.
+        enableRetinaScaling: false,
       });
       fabricRef.current = canvas;
 
@@ -290,9 +294,17 @@ export function QrCardEditor({
           displayW = availW;
           displayH = displayW / aspect;
         }
-        const scale = displayW / CANVAS_WIDTH;
-        canvas.setDimensions({ width: displayW, height: displayH });
-        canvas.setZoom(scale);
+        // Keep the backing store at full design resolution and only shrink the
+        // CSS box to fit the stage. The browser downscales a high-res raster,
+        // so text and the QR stay crisp on every device-pixel-ratio — the old
+        // path shrank the raster itself, which looked soft on non-retina
+        // screens (dpr=1 external monitors especially).
+        canvas.setDimensions({ width: CANVAS_WIDTH, height: CANVAS_HEIGHT }, { backstoreOnly: true });
+        canvas.setDimensions(
+          { width: `${Math.round(displayW)}px`, height: `${Math.round(displayH)}px` },
+          { cssOnly: true },
+        );
+        canvas.setZoom(1);
         canvas.requestRenderAll();
       };
 
@@ -315,6 +327,33 @@ export function QrCardEditor({
       fabricRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── Keyboard shortcuts — Delete/Backspace remove, Esc deselect, ⌘/Ctrl+D
+  //    duplicate. Guarded so keystrokes while editing a textbox pass through. ──
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      const canvas = fabricRef.current;
+      if (!canvas) return;
+      const active = canvas.getActiveObject() as
+        | (import("fabric").FabricObject & { isEditing?: boolean })
+        | null;
+      if (active?.isEditing) return;
+      if (e.key === "Delete" || e.key === "Backspace") {
+        if (active) {
+          e.preventDefault();
+          deleteSelected();
+        }
+      } else if (e.key === "Escape") {
+        canvas.discardActiveObject();
+        canvas.requestRenderAll();
+      } else if ((e.metaKey || e.ctrlKey) && (e.key === "d" || e.key === "D")) {
+        e.preventDefault();
+        void duplicateSelected();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
 
   // ── Toolbar actions ────────────────────────────────────────────────────────
@@ -379,6 +418,17 @@ export function QrCardEditor({
     canvas.remove(active);
     canvas.discardActiveObject();
     canvas.renderAll();
+  }
+
+  async function duplicateSelected() {
+    const canvas = fabricRef.current;
+    const active = canvas?.getActiveObject();
+    if (!canvas || !active) return;
+    const clone = await active.clone();
+    clone.set({ left: (active.left ?? 0) + 40, top: (active.top ?? 0) + 40 });
+    canvas.add(clone);
+    canvas.setActiveObject(clone);
+    canvas.requestRenderAll();
   }
 
   function bringForward() {
@@ -454,17 +504,15 @@ export function QrCardEditor({
   function captureFullResPng(): string | null {
     const canvas = fabricRef.current;
     if (!canvas) return null;
-    const savedZoom = canvas.getZoom();
-    const savedW = canvas.getWidth();
-    const savedH = canvas.getHeight();
+    // The backing store already renders at full design resolution (1240×1754)
+    // with zoom 1, so we only neutralise any pan/zoom and let the 2× multiplier
+    // give A4 @ ~300 DPI (2480×3508). No dimension juggling → no layout flash.
+    const savedVpt = canvas.viewportTransform ? ([...canvas.viewportTransform] as typeof canvas.viewportTransform) : null;
     try {
-      canvas.setZoom(1);
-      canvas.setDimensions({ width: CANVAS_WIDTH, height: CANVAS_HEIGHT });
-      // 2× → 2480 × 3508
+      canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
       return canvas.toDataURL({ format: "png", multiplier: 2, quality: 1 });
     } finally {
-      canvas.setDimensions({ width: savedW, height: savedH });
-      canvas.setZoom(savedZoom);
+      if (savedVpt) canvas.setViewportTransform(savedVpt);
       canvas.requestRenderAll();
     }
   }
@@ -590,6 +638,9 @@ export function QrCardEditor({
           </p>
           <p className="text-xs leading-5 text-white/55">
             Double-click text to edit. Drag any object to move, drag corners to resize/rotate.
+            Shortcuts: <span className="text-white/70">Delete</span> removes,{" "}
+            <span className="text-white/70">Esc</span> deselects,{" "}
+            <span className="text-white/70">⌘/Ctrl+D</span> duplicates.
           </p>
         </aside>
 
@@ -720,6 +771,13 @@ export function QrCardEditor({
                   ↓ Back
                 </button>
               </div>
+
+              <button
+                onClick={() => void duplicateSelected()}
+                className="block w-full rounded-md border border-white/15 bg-white/5 px-2 py-2 text-xs font-semibold text-white/80 hover:bg-white/10"
+              >
+                Duplicate
+              </button>
 
               <button
                 onClick={deleteSelected}
