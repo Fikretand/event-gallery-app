@@ -25,7 +25,7 @@ export function OneTimePlanCard({ compact = false }: { compact?: boolean }) {
   return (
     <section
       className={cn(
-        "rounded-[30px] border border-black/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(246,211,195,0.56))] p-7 shadow-[0_24px_80px_rgba(18,24,38,0.08)] backdrop-blur",
+        "lift-card rounded-[30px] border border-black/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(246,211,195,0.56))] p-7 shadow-[0_24px_80px_rgba(18,24,38,0.08)] backdrop-blur",
         compact ? "max-w-xl" : "",
       )}
     >
@@ -119,7 +119,7 @@ export function PricingShowcase() {
             <section
               key={plan.name}
               className={cn(
-                "rounded-[30px] border p-7 shadow-[0_24px_80px_rgba(18,24,38,0.08)] backdrop-blur",
+                "lift-card rounded-[30px] border p-7 shadow-[0_24px_80px_rgba(18,24,38,0.08)] backdrop-blur",
                 plan.featured
                   ? "relative border-[#9edffc] bg-white ring-2 ring-[#cfefff]"
                   : "border-black/10 bg-white/82",

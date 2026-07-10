@@ -290,9 +290,9 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* ─── Stats strip ──────────────────────────────────────────── */}
-      <section className="shell pb-8">
-        <div className="grid grid-cols-3 divide-x divide-black/8 rounded-[28px] border border-black/8 bg-white/62 px-4 py-6 backdrop-blur sm:px-8 sm:py-7">
+      {/* ─── Stats strip — quiet, chromeless row between the hero and features ── */}
+      <section className="shell pb-10">
+        <div className="grid grid-cols-3 divide-x divide-black/10 border-y border-black/6 py-6 sm:py-7">
           {d.stats.map((stat) => (
             <div key={stat.label} className="text-center">
               <p className="font-display text-2xl font-semibold text-[var(--color-ink)] sm:text-3xl">{stat.value}</p>
@@ -302,11 +302,11 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* ─── Feature strip ────────────────────────────────────────── */}
+      {/* ─── Feature strip — asymmetric column widths, lifted on hover ── */}
       <section className="shell pb-12 sm:pb-16">
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="stagger-children grid gap-4 sm:grid-cols-[1.15fr_1fr_1fr]">
           {d.features.map((item, i) => (
-            <Panel key={item.eyebrow} className={`mesh-card ${FEATURE_TONES[i]}`}>
+            <Panel key={item.eyebrow} className={`mesh-card lift-card ${FEATURE_TONES[i]}`}>
               <div className="inline-flex h-10 w-10 items-center justify-center rounded-[16px] bg-white/80 text-[var(--color-moss)] shadow-[0_8px_20px_rgba(18,24,38,0.07)]">
                 {FEATURE_ICONS[i]}
               </div>
@@ -317,15 +317,27 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* ─── How it works — explainer ─────────────────────────────── */}
+      {/* ─── How it works — explainer (left-anchored header, step markers right) ── */}
       <section className="shell py-12 sm:py-16">
-        <div className="mb-7 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[var(--color-moss)]">
-            {d.howItWorksEyebrow}
-          </p>
-          <h2 className="font-display mt-3 text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">
-            {d.howItWorksTitle}
-          </h2>
+        <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
+          <div className="max-w-xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[var(--color-moss)]">
+              {d.howItWorksEyebrow}
+            </p>
+            <h2 className="font-display mt-3 text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">
+              {d.howItWorksTitle}
+            </h2>
+          </div>
+          <div className="hidden items-center gap-2 pb-1 sm:flex" aria-hidden="true">
+            {d.steps.map((step) => (
+              <span
+                key={step.n}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-moss)]/25 bg-white/70 font-display text-sm font-semibold text-[var(--color-moss)]"
+              >
+                {step.n}
+              </span>
+            ))}
+          </div>
         </div>
 
         {/* Dark frame makes the warm explainer canvas pop */}
@@ -336,7 +348,7 @@ export default async function HomePage({
         {/* Slim recap of the four steps */}
         <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {d.steps.map((step, i) => (
-            <div key={step.n} className="flex items-start gap-3 rounded-2xl border border-black/8 bg-white/70 p-4">
+            <div key={step.n} className="lift-card flex items-start gap-3 rounded-2xl border border-black/8 bg-white/70 p-4">
               <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--color-moss)]/10 text-[var(--color-moss)]">
                 {STEP_ICONS[i]}
               </span>
@@ -352,9 +364,10 @@ export default async function HomePage({
       <MarketingTrustStrip locale={locale as Locale} />
       <MarketingTestimonials />
 
-      {/* ─── Who it's for (router band) ───────────────────────────── */}
-      <section className="shell py-12 sm:py-16">
-        <div className="mb-7 text-center">
+      {/* ─── Who it's for (router band) — quiet full-bleed paper band, left header ── */}
+      <section className="border-y border-black/6 bg-[var(--color-paper)]/45 py-12 sm:py-16">
+        <div className="shell">
+        <div className="mb-7 max-w-2xl">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-moss)]">
             {d.whoForEyebrow}
           </p>
@@ -363,11 +376,11 @@ export default async function HomePage({
           </h2>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-[1.06fr_0.94fr]">
           {/* Photographers */}
           <Link
             href={lp("/for-photographers")}
-            className="band-moss group relative overflow-hidden rounded-[28px] border p-7 transition hover:shadow-[0_24px_60px_rgba(56,88,77,0.16)]"
+            className="band-moss group relative overflow-hidden rounded-[28px] border p-7 transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(56,88,77,0.16)]"
           >
             <div className="inline-flex h-12 w-12 items-center justify-center rounded-[18px] bg-white/85 text-[var(--color-moss)] shadow-[0_8px_20px_rgba(18,24,38,0.07)]">
               <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7">
@@ -389,7 +402,7 @@ export default async function HomePage({
           {/* Event hosts */}
           <Link
             href={lp("/for-couples")}
-            className="band-warm group relative overflow-hidden rounded-[28px] border p-7 transition hover:shadow-[0_24px_60px_rgba(226,121,82,0.16)]"
+            className="band-warm group relative overflow-hidden rounded-[28px] border p-7 transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(226,121,82,0.16)]"
           >
             <div className="inline-flex h-12 w-12 items-center justify-center rounded-[18px] bg-white/85 text-[var(--color-accent)] shadow-[0_8px_20px_rgba(18,24,38,0.07)]">
               <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7">
@@ -405,6 +418,7 @@ export default async function HomePage({
               <span className="transition-transform group-hover:translate-x-1">→</span>
             </span>
           </Link>
+        </div>
         </div>
       </section>
 
@@ -444,7 +458,7 @@ export default async function HomePage({
           </div>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {publicPhotographers.map((profile) => (
-              <Panel key={profile.id} className="bg-white/88">
+              <Panel key={profile.id} className="lift-card bg-white/88">
                 <div className="flex items-center gap-4">
                   <div className="h-16 w-16 overflow-hidden rounded-[18px] border border-black/10 bg-[var(--color-paper)] shadow-inner">
                     {profile.avatarPreviewUrl ? (
