@@ -113,6 +113,10 @@ export function QrCardEditor({
             rx: obj.rx ?? 0,
             ry: obj.rx ?? 0,
             strokeWidth: 0,
+            // Fabric v7 defaults origin to center; presets author left/top as
+            // the object's top-left edge, so anchor there explicitly.
+            originX: "left",
+            originY: "top",
             selectable: true,
             hasControls: true,
           });
@@ -124,15 +128,16 @@ export function QrCardEditor({
             height: obj.strokeWidth,
             fill: obj.stroke,
             strokeWidth: 0,
+            originX: "left",
+            originY: "top",
             selectable: true,
             hasControls: true,
           });
         case "text": {
-          // Fabric Textbox auto-resizes its bounding box to the natural text
-          // width — so `textAlign: center` inside an originX='left' box at
-          // left=0 ends up rendering the text at canvas x=0 instead of the
-          // visual centre. Anchor the box explicitly via originX/originY so
-          // the centred text lands where the preset intends.
+          // Presets place text by the box's top-left edge, but Fabric v7
+          // defaults origin to center on both axes. Recompute the horizontal
+          // anchor from the alignment and pin originY to the top so the box
+          // lands exactly where the preset's left/top/width intend.
           const align = obj.textAlign ?? "left";
           let leftPos = obj.left;
           let originX: "left" | "center" | "right" = "left";
@@ -148,6 +153,7 @@ export function QrCardEditor({
             top: obj.top,
             width: obj.width,
             originX,
+            originY: "top",
             fontFamily: obj.fontFamily,
             fontSize: obj.fontSize,
             fontStyle: obj.fontStyle ?? "normal",
@@ -167,6 +173,8 @@ export function QrCardEditor({
             top: obj.top,
             scaleX: obj.size / (img.width ?? obj.size),
             scaleY: obj.size / (img.height ?? obj.size),
+            originX: "left",
+            originY: "top",
             selectable: true,
             hasControls: true,
           });
@@ -189,6 +197,10 @@ export function QrCardEditor({
             scaleX: obj.width / naturalW,
             scaleY: obj.height / naturalH,
             opacity: obj.opacity ?? 1,
+            // groupSVGElements returns a center-origin group; presets place it
+            // by its top-left edge, so re-anchor before positioning.
+            originX: "left",
+            originY: "top",
             selectable: true,
             hasControls: true,
           });
@@ -322,6 +334,8 @@ export function QrCardEditor({
       left: CANVAS_WIDTH / 2 - 200,
       top: CANVAS_HEIGHT / 2,
       width: 400,
+      originX: "left",
+      originY: "top",
       fontFamily: "Inter",
       fontSize: 48,
       fill: "#172033",
@@ -350,6 +364,8 @@ export function QrCardEditor({
       top: CANVAS_HEIGHT / 2 - ((img.height ?? 0) * scale) / 2,
       scaleX: scale,
       scaleY: scale,
+      originX: "left",
+      originY: "top",
     });
     canvas.add(img);
     canvas.setActiveObject(img);
