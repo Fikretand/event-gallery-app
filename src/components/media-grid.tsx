@@ -433,15 +433,18 @@ export function MediaGrid({
           ) : null}
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="stagger-children grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {visibleItems.map((item) => renderCard(item))}
         </div>
       )}
 
       {activeItem ? (
-        <div className="fixed inset-0 z-50 bg-black/84 p-3 sm:p-4" onClick={() => setActiveId(null)}>
+        <div
+          className="lightbox-backdrop-in fixed inset-0 z-50 bg-[var(--backdrop-lightbox)] p-3 backdrop-blur-sm sm:p-4"
+          onClick={() => setActiveId(null)}
+        >
           <div
-            className="mx-auto flex h-full w-full max-w-6xl flex-col overflow-hidden rounded-[28px] bg-[#10131d] text-white shadow-[0_40px_120px_rgba(0,0,0,0.45)]"
+            className="lightbox-panel-in mx-auto flex h-full w-full max-w-6xl flex-col overflow-hidden rounded-[28px] bg-[var(--color-viewer-surface)] text-white shadow-[0_40px_120px_rgba(0,0,0,0.45)]"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-4 sm:px-5">
@@ -463,62 +466,85 @@ export function MediaGrid({
                 <button
                   onClick={showPrevious}
                   disabled={activeIndex <= 0}
-                  className="rounded-full bg-white/10 px-3 py-2 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded-full border border-white/15 bg-white/8 px-4 py-2 text-xs font-semibold transition hover:border-white/25 hover:bg-[var(--color-moss)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-white/15 disabled:hover:bg-white/8"
                 >
                   Prev
                 </button>
                 <button
                   onClick={showNext}
                   disabled={activeIndex >= visibleItems.length - 1}
-                  className="rounded-full bg-white/10 px-3 py-2 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded-full border border-white/15 bg-white/8 px-4 py-2 text-xs font-semibold transition hover:border-white/25 hover:bg-[var(--color-moss)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-white/15 disabled:hover:bg-white/8"
                 >
                   Next
                 </button>
                 <button
                   onClick={() => setActiveId(null)}
-                  className="rounded-full bg-white/10 px-3 py-2 text-xs font-semibold"
+                  aria-label="Close viewer"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/8 transition hover:border-white/25 hover:bg-[var(--color-accent)]"
                 >
-                  Close
+                  <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                    <path d="m3.5 3.5 9 9M12.5 3.5l-9 9" />
+                  </svg>
                 </button>
               </div>
             </div>
 
             <div
-              className="relative flex min-h-0 flex-1 items-center justify-center bg-black"
+              className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-[var(--color-viewer-surface)]"
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
             >
+              {/* Soft blurred echo of the current photo carries the atmosphere behind the contained image */}
+              {!activeItem.mime_type.startsWith("video/") && (activeItem.thumbnailUrl ?? activeItem.previewUrl) ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={`backdrop-${activeItem.id}`}
+                  src={activeItem.thumbnailUrl ?? activeItem.previewUrl ?? undefined}
+                  alt=""
+                  aria-hidden="true"
+                  className="lightbox-media-in pointer-events-none absolute inset-0 h-full w-full scale-110 object-cover opacity-30 blur-2xl saturate-[1.15]"
+                />
+              ) : null}
+
               {activeIndex > 0 ? (
                 <button
                   onClick={showPrevious}
-                  className="absolute left-3 z-10 rounded-full bg-black/55 px-4 py-3 text-sm font-semibold text-white transition hover:bg-black/75 sm:left-4"
+                  aria-label="Previous"
+                  className="absolute left-3 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-[var(--color-ink)]/55 text-white backdrop-blur transition hover:border-white/25 hover:bg-[var(--color-moss)] sm:left-4"
                 >
-                  {"<"}
+                  <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10 3 5 8l5 5" />
+                  </svg>
                 </button>
               ) : null}
 
-              {activeItem.mime_type.startsWith("video/") ? (
-                <video src={activeItem.previewUrl ?? undefined} controls className="max-h-full w-full" />
-              ) : (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={activeItem.previewUrl ?? undefined}
-                  alt={activeItem.original_filename}
-                  className="max-h-full w-auto max-w-full select-none object-contain"
-                />
-              )}
+              <div key={activeItem.id} className="lightbox-media-in relative flex h-full min-h-0 w-full items-center justify-center">
+                {activeItem.mime_type.startsWith("video/") ? (
+                  <video src={activeItem.previewUrl ?? undefined} controls className="max-h-full w-full" />
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={activeItem.previewUrl ?? undefined}
+                    alt={activeItem.original_filename}
+                    className="max-h-full w-auto max-w-full select-none object-contain"
+                  />
+                )}
+              </div>
 
               {activeIndex < visibleItems.length - 1 ? (
                 <button
                   onClick={showNext}
-                  className="absolute right-3 z-10 rounded-full bg-black/55 px-4 py-3 text-sm font-semibold text-white transition hover:bg-black/75 sm:right-4"
+                  aria-label="Next"
+                  className="absolute right-3 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-[var(--color-ink)]/55 text-white backdrop-blur transition hover:border-white/25 hover:bg-[var(--color-moss)] sm:right-4"
                 >
-                  {">"}
+                  <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m6 3 5 5-5 5" />
+                  </svg>
                 </button>
               ) : null}
 
-              <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/80 sm:hidden">
+              <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full border border-white/12 bg-[var(--color-ink)]/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/80 backdrop-blur sm:hidden">
                 Swipe to browse
               </div>
             </div>
@@ -536,16 +562,27 @@ export function MediaGrid({
     const purgeMessage = formatDaysUntilPurge(item.deleted_at);
 
     return (
-      <article key={item.id} className="overflow-hidden rounded-[26px] border border-black/10 bg-white">
-        <button className="relative block w-full text-left" onClick={() => setActiveId(item.id)}>
+      <article
+        key={item.id}
+        className="lift-card group overflow-hidden rounded-[26px] border border-black/10 bg-white shadow-[0_10px_30px_rgba(18,24,38,0.05)]"
+      >
+        <button className="relative block w-full overflow-hidden text-left" onClick={() => setActiveId(item.id)}>
           {isVideo ? (
-            <video className="h-64 w-full bg-black object-cover" src={item.previewUrl ?? undefined} muted playsInline />
+            <video
+              className="h-64 w-full bg-[var(--color-viewer-surface)] object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+              src={item.previewUrl ?? undefined}
+              muted
+              playsInline
+            />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={item.thumbnailUrl ?? item.previewUrl ?? undefined}
               alt={item.original_filename}
-              className={cn("h-64 w-full object-cover", isDeleted && "opacity-70 grayscale-[0.2]")}
+              className={cn(
+                "h-64 w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]",
+                isDeleted && "opacity-70 grayscale-[0.2]",
+              )}
             />
           )}
           {item.hidden_at && !isDeleted ? (
@@ -678,7 +715,7 @@ function SectionGroup({
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">{eyebrow}</p>
         <h3 className="font-display mt-2 text-2xl font-semibold text-[var(--color-ink)]">{title}</h3>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{items.map((item) => renderCard(item))}</div>
+      <div className="stagger-children grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{items.map((item) => renderCard(item))}</div>
     </div>
   );
 }
