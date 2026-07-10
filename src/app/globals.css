@@ -13,6 +13,29 @@
   --font-sans: var(--font-inter), "Segoe UI", system-ui, sans-serif;
   --font-display: var(--font-playfair), Georgia, serif;
   --font-mono: "IBM Plex Mono", "SFMono-Regular", monospace;
+
+  /* Shared atmosphere gradients — tune here, not per-section */
+  --gradient-card-warm: linear-gradient(135deg, rgba(255, 253, 249, 0.98), rgba(246, 211, 195, 0.55));
+  --gradient-card-moss: linear-gradient(135deg, rgba(250, 255, 252, 0.98), rgba(210, 234, 222, 0.62));
+  --gradient-card-paper: linear-gradient(135deg, rgba(255, 254, 251, 0.98), rgba(242, 234, 223, 0.75));
+  --gradient-band-moss: linear-gradient(160deg, rgba(245, 251, 248, 0.98), rgba(222, 238, 231, 0.85));
+  --gradient-band-warm: linear-gradient(160deg, rgba(255, 253, 250, 0.98), rgba(248, 229, 217, 0.7));
+  --gradient-panel-quiet: linear-gradient(160deg, #fffdfb, rgba(242, 234, 223, 0.85));
+  --gradient-hero-glow:
+    radial-gradient(ellipse at top left, rgba(226, 121, 82, 0.22), transparent 44%),
+    radial-gradient(ellipse at bottom right, rgba(56, 88, 77, 0.12), transparent 40%),
+    linear-gradient(160deg, rgba(255, 252, 248, 0.98), rgba(242, 232, 220, 0.9));
+  --gradient-page-wash:
+    radial-gradient(circle at top left, rgba(226, 121, 82, 0.1), transparent 30%),
+    radial-gradient(circle at top right, rgba(56, 88, 77, 0.08), transparent 26%),
+    linear-gradient(180deg, #faf5ee 0%, #f4f0eb 58%, #f1ece4 100%);
+
+  --shadow-card: 0 24px 80px rgba(18, 24, 38, 0.08);
+  --shadow-card-hover: 0 18px 44px rgba(18, 24, 38, 0.14);
+
+  /* Lightbox viewer — warm-tinted dark instead of pure black */
+  --backdrop-lightbox: rgba(24, 16, 12, 0.88);
+  --color-viewer-surface: #1b1512;
 }
 
 @theme inline {
@@ -170,4 +193,88 @@ select {
 }
 .success-ring {
   animation: success-ring 0.9s ease-out 0.3s 1;
+}
+
+/* ── Atmosphere utilities (gradient + matching border tint) ── */
+
+.card-warm  { background: var(--gradient-card-warm);  border-color: #edd5c5; }
+.card-moss  { background: var(--gradient-card-moss);  border-color: #c8e0d4; }
+.card-paper { background: var(--gradient-card-paper); border-color: #ddd4c6; }
+.band-moss  { background: var(--gradient-band-moss);  border-color: #cfe0d7; }
+.band-warm  { background: var(--gradient-band-warm);  border-color: #ecd5c6; }
+.panel-quiet { background: var(--gradient-panel-quiet); border-color: #d9cfc1; }
+.hero-glow  { background: var(--gradient-hero-glow); }
+.page-wash  { background: var(--gradient-page-wash); }
+
+/* ── Hover lift for cards ── */
+
+.lift-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.lift-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* ── Staggered reveal — reuses fade-up-in on direct children ── */
+
+.stagger-children > * {
+  opacity: 0;
+  animation: fade-up-in 0.5s ease-out forwards;
+}
+.stagger-children > *:nth-child(1)  { animation-delay: 0.03s; }
+.stagger-children > *:nth-child(2)  { animation-delay: 0.08s; }
+.stagger-children > *:nth-child(3)  { animation-delay: 0.13s; }
+.stagger-children > *:nth-child(4)  { animation-delay: 0.18s; }
+.stagger-children > *:nth-child(5)  { animation-delay: 0.23s; }
+.stagger-children > *:nth-child(6)  { animation-delay: 0.28s; }
+.stagger-children > *:nth-child(7)  { animation-delay: 0.33s; }
+.stagger-children > *:nth-child(8)  { animation-delay: 0.38s; }
+.stagger-children > *:nth-child(9)  { animation-delay: 0.42s; }
+.stagger-children > *:nth-child(10) { animation-delay: 0.46s; }
+.stagger-children > *:nth-child(11) { animation-delay: 0.5s; }
+.stagger-children > *:nth-child(12) { animation-delay: 0.54s; }
+.stagger-children > *:nth-child(n + 13) { animation-delay: 0.58s; }
+
+/* ── Lightbox open + media cross-fade ── */
+
+@keyframes lightbox-backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.lightbox-backdrop-in {
+  animation: lightbox-backdrop-in 0.25s ease-out;
+}
+
+@keyframes lightbox-panel-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.985); }
+  to   { opacity: 1; transform: none; }
+}
+.lightbox-panel-in {
+  animation: lightbox-panel-in 0.32s cubic-bezier(0.22, 0.8, 0.36, 1);
+}
+
+@keyframes lightbox-media-in {
+  from { opacity: 0; transform: scale(0.985); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.lightbox-media-in {
+  animation: lightbox-media-in 0.28s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lift-card,
+  .lift-card:hover {
+    transition: none;
+    transform: none;
+  }
+  .stagger-children > * {
+    animation: none;
+    opacity: 1;
+  }
+  .lightbox-backdrop-in,
+  .lightbox-panel-in,
+  .lightbox-media-in {
+    animation: none;
+  }
 }

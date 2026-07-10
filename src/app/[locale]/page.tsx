@@ -69,11 +69,7 @@ const PHOTO_CELLS = [
   { col: 2, src: "/gallery-preview/p8.jpg" },
 ];
 
-const FEATURE_TONES = [
-  "bg-[linear-gradient(135deg,rgba(255,253,249,0.98),rgba(246,211,195,0.55))] border-[#edd5c5]",
-  "bg-[linear-gradient(135deg,rgba(250,255,252,0.98),rgba(210,234,222,0.62))] border-[#c8e0d4]",
-  "bg-[linear-gradient(135deg,rgba(255,254,251,0.98),rgba(242,234,223,0.75))] border-[#ddd4c6]",
-];
+const FEATURE_TONES = ["card-warm", "card-moss", "card-paper"];
 const FEATURE_ICONS = [
   <svg key="f1" viewBox="0 0 22 22" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7">
     <rect x="3" y="4" width="16" height="15" rx="2.5" />
@@ -371,7 +367,7 @@ export default async function HomePage({
           {/* Photographers */}
           <Link
             href={lp("/for-photographers")}
-            className="group relative overflow-hidden rounded-[28px] border border-[#cfe0d7] bg-[linear-gradient(160deg,rgba(245,251,248,0.98),rgba(222,238,231,0.85))] p-7 transition hover:shadow-[0_24px_60px_rgba(56,88,77,0.16)]"
+            className="band-moss group relative overflow-hidden rounded-[28px] border p-7 transition hover:shadow-[0_24px_60px_rgba(56,88,77,0.16)]"
           >
             <div className="inline-flex h-12 w-12 items-center justify-center rounded-[18px] bg-white/85 text-[var(--color-moss)] shadow-[0_8px_20px_rgba(18,24,38,0.07)]">
               <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7">
@@ -393,7 +389,7 @@ export default async function HomePage({
           {/* Event hosts */}
           <Link
             href={lp("/for-couples")}
-            className="group relative overflow-hidden rounded-[28px] border border-[#ecd5c6] bg-[linear-gradient(160deg,rgba(255,253,250,0.98),rgba(248,229,217,0.7))] p-7 transition hover:shadow-[0_24px_60px_rgba(226,121,82,0.16)]"
+            className="band-warm group relative overflow-hidden rounded-[28px] border p-7 transition hover:shadow-[0_24px_60px_rgba(226,121,82,0.16)]"
           >
             <div className="inline-flex h-12 w-12 items-center justify-center rounded-[18px] bg-white/85 text-[var(--color-accent)] shadow-[0_8px_20px_rgba(18,24,38,0.07)]">
               <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7">
@@ -477,7 +473,7 @@ export default async function HomePage({
 
       {/* ─── FAQ ──────────────────────────────────────────────────── */}
       <section className="shell py-12 sm:py-16">
-        <Panel className="mesh-card border-[#d9cfc1] bg-[linear-gradient(160deg,#fffdfb,rgba(242,234,223,0.85))]">
+        <Panel className="mesh-card panel-quiet">
           <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr]">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-moss)]">
@@ -517,7 +513,7 @@ export default async function HomePage({
 
       {/* ─── Footer CTA ───────────────────────────────────────────── */}
       <section className="shell pb-20 pt-4">
-        <div className="relative overflow-hidden rounded-[36px] border border-[var(--color-accent)]/18 bg-[radial-gradient(ellipse_at_top_left,rgba(226,121,82,0.22),transparent_44%),radial-gradient(ellipse_at_bottom_right,rgba(56,88,77,0.12),transparent_40%),linear-gradient(160deg,rgba(255,252,248,0.98),rgba(242,232,220,0.90))] px-8 py-16 text-center shadow-[0_30px_80px_rgba(18,24,38,0.08)]">
+        <div className="hero-glow relative overflow-hidden rounded-[36px] border border-[var(--color-accent)]/18 px-8 py-16 text-center shadow-[0_30px_80px_rgba(18,24,38,0.08)]">
           <div className="pointer-events-none absolute -left-16 -top-16 h-64 w-64 rounded-full bg-[var(--color-accent)]/8 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-12 -right-12 h-56 w-56 rounded-full bg-[var(--color-moss)]/8 blur-3xl" />
           <div className="relative">
