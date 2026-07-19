@@ -106,6 +106,32 @@ export interface Dict {
     unlocking: string;
     unlock: string;
   };
+  // Strings inside the shared MediaGrid when shown on the public gallery.
+  galleryViewer: {
+    filterAll: string;
+    filterPhotos: string;
+    filterVideos: string;
+    filterPhotographer: string;
+    filterGuest: string;
+    downloadAllZip: string; // {{count}}
+    downloadSelectedZip: string; // {{count}}
+    downloadSelected: string;
+    select: string;
+    download: string;
+    cover: string;
+    byGuest: string; // {{name}}
+    emptyTitle: string;
+    emptyBody: string;
+    swipeHint: string;
+    sectionEyebrow: string;
+    moreMoments: string;
+    everythingElse: string;
+    close: string;
+    previous: string;
+    next: string;
+    downloadFailed: string;
+    zipFailed: string;
+  };
   auth: {
     // Login page
     loginEyebrow: string;

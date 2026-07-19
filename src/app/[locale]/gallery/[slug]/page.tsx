@@ -126,19 +126,21 @@ export default async function GalleryPage({
   ]);
 
   return (
-    <main className="py-10">
-      <section className="shell space-y-6">
-        <Panel className="bg-white/94">
-          <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="space-y-4">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">
+    <main className="py-6 sm:py-10">
+      <section className="shell space-y-4 sm:space-y-6">
+        <Panel className="bg-white/94 p-5 sm:p-6">
+          <div className="grid gap-5 sm:gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+            <div className="order-2 space-y-4 lg:order-1">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)] sm:text-sm">
                 {d.clientGallery}
               </p>
-              <h1 className="font-display text-4xl font-semibold text-[var(--color-ink)]">
+              <h1 className="font-display text-3xl font-semibold leading-tight text-[var(--color-ink)] sm:text-4xl">
                 {event.title}
               </h1>
-              <p className="max-w-3xl text-sm leading-6 text-black/62">{d.browseCurated}</p>
-              <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.18em] text-black/60">
+              <p className="max-w-3xl text-sm leading-6 text-black/62 sm:text-base sm:leading-7">
+                {d.browseCurated}
+              </p>
+              <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.16em] text-black/60">
                 {event.client_name ? (
                   <span className="rounded-full bg-[var(--color-paper)] px-3 py-2">
                     {event.client_name}
@@ -149,13 +151,13 @@ export default async function GalleryPage({
                     {formatDate(event.event_date)}
                   </span>
                 ) : null}
-                <span className="rounded-full bg-[var(--color-paper)] px-3 py-2">
+                <span className="rounded-full bg-[var(--color-moss)]/10 px-3 py-2 text-[var(--color-moss)]">
                   {t(d.visibleFiles, { count: media.length })}
                 </span>
               </div>
             </div>
 
-            <div className="overflow-hidden rounded-[28px] border border-black/10 bg-[var(--color-paper)] shadow-inner">
+            <div className="order-1 overflow-hidden rounded-[24px] border border-black/10 bg-[var(--color-paper)] shadow-inner sm:rounded-[28px] lg:order-2">
               {cover ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -172,8 +174,8 @@ export default async function GalleryPage({
           </div>
         </Panel>
 
-        <Panel className="bg-white/94">
-          <MediaGrid media={media} sections={sections} />
+        <Panel className="bg-white/94 p-3 sm:p-6">
+          <MediaGrid media={media} sections={sections} strings={dict.galleryViewer} />
         </Panel>
       </section>
     </main>
