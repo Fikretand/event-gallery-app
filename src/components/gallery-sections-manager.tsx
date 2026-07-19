@@ -5,14 +5,19 @@ import { useRouter } from "next/navigation";
 
 import { createGallerySectionAction, deleteGallerySectionAction, renameGallerySectionAction } from "@/lib/actions";
 import type { GallerySectionRecord } from "@/lib/types";
+import type { Dict } from "@/lib/i18n/index";
 import { Button } from "@/components/ui/button";
+
+type SectionStrings = Dict["dashboard"]["sections"];
 
 export function GallerySectionsManager({
   slug,
   sections,
+  strings,
 }: {
   slug: string;
   sections: GallerySectionRecord[];
+  strings: SectionStrings;
 }) {
   const [createState, createAction, isCreating] = useActionState(createGallerySectionAction.bind(null, slug), undefined);
 
@@ -22,11 +27,11 @@ export function GallerySectionsManager({
         <input
           name="name"
           required
-          placeholder="Add a gallery section like Ceremony or Reception"
+          placeholder={strings.addPlaceholder}
           className="flex-1 rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm outline-none transition focus:border-[var(--color-ink)] focus:ring-4 focus:ring-[var(--color-accent)]/20"
         />
         <Button type="submit" disabled={isCreating}>
-          {isCreating ? "Adding..." : "Add section"}
+          {isCreating ? strings.adding : strings.addButton}
         </Button>
       </form>
 
@@ -34,12 +39,12 @@ export function GallerySectionsManager({
 
       {sections.length === 0 ? (
         <div className="rounded-[24px] border border-dashed border-black/10 bg-white/70 px-5 py-8 text-sm leading-6 text-black/58">
-          Create sections like Ceremony, Restaurant, or Photoshoot to organize the client-facing gallery.
+          {strings.empty}
         </div>
       ) : (
         <div className="grid gap-3">
           {sections.map((section) => (
-            <SectionRow key={section.id} slug={slug} section={section} />
+            <SectionRow key={section.id} slug={slug} section={section} strings={strings} />
           ))}
         </div>
       )}
@@ -50,9 +55,11 @@ export function GallerySectionsManager({
 function SectionRow({
   slug,
   section,
+  strings,
 }: {
   slug: string;
   section: GallerySectionRecord;
+  strings: SectionStrings;
 }) {
   const router = useRouter();
   const [isDeleting, startTransition] = useTransition();
@@ -72,12 +79,12 @@ function SectionRow({
         />
         <div className="flex flex-wrap gap-2">
           <Button type="submit" variant="secondary" disabled={isRenaming}>
-            Save name
+            {strings.saveName}
           </Button>
           <button
             type="button"
             onClick={() => {
-              if (window.confirm("Delete this section? Files will stay in the gallery and move back to the unsectioned view.")) {
+              if (window.confirm(strings.deleteConfirm)) {
                 startTransition(async () => {
                   await deleteGallerySectionAction(slug, section.id);
                   router.refresh();
@@ -87,7 +94,7 @@ function SectionRow({
             disabled={isDeleting}
             className="rounded-full border border-[#e5b7b7] bg-[#fff0eb] px-4 py-2 text-sm font-semibold text-[#8a1c1c]"
           >
-            Delete
+            {strings.deleteButton}
           </button>
         </div>
       </form>

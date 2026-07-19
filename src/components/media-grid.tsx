@@ -40,6 +40,33 @@ const DEFAULT_VIEWER_STRINGS: ViewerStrings = {
   zipFailed: "ZIP download failed. Please try again.",
 };
 
+type OwnerStrings = Dict["dashboard"]["mediaOwner"];
+
+// English fallback for owner-mode moderation labels (public gallery never
+// renders these; the dashboard passes the localized dictionary).
+const DEFAULT_OWNER_STRINGS: OwnerStrings = {
+  hidden: "Hidden",
+  deleted: "Deleted",
+  deletedAutoPurge: "Deleted files auto-purge after 7 days",
+  sectionLabel: "Section",
+  unsectioned: "Unsectioned",
+  clearCover: "Clear cover",
+  setCover: "Set as cover",
+  unhide: "Unhide",
+  hide: "Hide",
+  delete: "Delete",
+  restore: "Restore",
+  deletePermanently: "Delete permanently",
+  deleteConfirm: "Remove this file from the gallery? You can restore it for 7 days.",
+  permanentDeleteConfirm: "Permanently delete this file from storage? This cannot be undone.",
+  emptyDeletedTitle: "No deleted files right now",
+  emptyDeletedBody: "Files you soft delete will stay here for 7 days before permanent cleanup.",
+  emptyAllTitle: "No media in this gallery yet",
+  emptyBodyPhotographer: "Upload the pro gallery or review incoming guest files to start building the event story.",
+  emptyBodyCouple: "Upload your gallery files or review guest uploads to start building the full event story.",
+  emptyFilterTitle: "No {{filter}} files in this view yet",
+};
+
 const SWIPE_THRESHOLD = 48;
 
 export function MediaGrid({
@@ -50,6 +77,7 @@ export function MediaGrid({
   audience = "photographer",
   sections = [],
   strings = DEFAULT_VIEWER_STRINGS,
+  ownerStrings = DEFAULT_OWNER_STRINGS,
 }: {
   media: MediaView[];
   ownerMode?: boolean;
@@ -58,8 +86,10 @@ export function MediaGrid({
   audience?: AccountType;
   sections?: GallerySectionRecord[];
   strings?: ViewerStrings;
+  ownerStrings?: OwnerStrings;
 }) {
   const vs = strings;
+  const os = ownerStrings;
   const filterLabel = (value: Filter) =>
     value === "all"
       ? vs.filterAll
@@ -284,7 +314,7 @@ export function MediaGrid({
   }
 
   async function deleteMedia(id: string) {
-    const confirmed = window.confirm("Remove this file from the gallery? You can restore it for 7 days.");
+    const confirmed = window.confirm(os.deleteConfirm);
     if (!confirmed) {
       return;
     }
@@ -321,7 +351,7 @@ export function MediaGrid({
   }
 
   async function permanentlyDeleteMedia(id: string) {
-    const confirmed = window.confirm("Permanently delete this file from storage? This cannot be undone.");
+    const confirmed = window.confirm(os.permanentDeleteConfirm);
     if (!confirmed) {
       return;
     }
@@ -392,17 +422,17 @@ export function MediaGrid({
   const emptyTitle = !ownerMode
     ? vs.emptyTitle
     : filter === "deleted"
-      ? "No deleted files right now"
+      ? os.emptyDeletedTitle
       : filter === "all"
-        ? "No media in this gallery yet"
-        : `No ${filter} files in this view yet`;
+        ? os.emptyAllTitle
+        : t(os.emptyFilterTitle, { filter: filterLabel(filter).toLowerCase() });
   const emptyCopy = !ownerMode
     ? vs.emptyBody
     : filter === "deleted"
-      ? "Files you soft delete will stay here for 7 days before permanent cleanup."
+      ? os.emptyDeletedBody
       : audience === "couple"
-        ? "Upload your gallery files or review guest uploads to start building the full event story."
-        : "Upload the pro gallery or review incoming guest files to start building the event story.";
+        ? os.emptyBodyCouple
+        : os.emptyBodyPhotographer;
 
   const shouldGroupBySection = !ownerMode && filter !== "deleted" && visibleSections.length > 0;
 
@@ -435,7 +465,7 @@ export function MediaGrid({
               <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center xl:justify-end">
                 {filter === "deleted" ? (
                   <div className="rounded-full border border-dashed border-black/10 bg-[var(--color-paper)]/55 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-black/55">
-                    Deleted files auto-purge after 7 days
+                    {os.deletedAutoPurge}
                   </div>
                 ) : null}
                 {visibleItems.length > 1 ? (
@@ -753,12 +783,12 @@ export function MediaGrid({
           )}
           {item.hidden_at && !isDeleted ? (
             <span className="absolute left-4 top-4 rounded-full bg-black/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-white">
-              Hidden
+              {os.hidden}
             </span>
           ) : null}
           {isDeleted ? (
             <span className="absolute left-4 top-4 rounded-full bg-[#8a1c1c] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-white">
-              Deleted
+              {os.deleted}
             </span>
           ) : null}
           {isCover ? (
@@ -772,7 +802,7 @@ export function MediaGrid({
           <div>
             <p className="truncate text-sm font-semibold text-[var(--color-ink)]">{item.original_filename}</p>
             <p className="text-xs uppercase tracking-[0.18em] text-black/45">
-              {isDeleted ? "deleted" : sourceLabel(item.source_type)} · {formatBytes(item.size_bytes)}
+              {isDeleted ? os.deleted : sourceLabel(item.source_type)} · {formatBytes(item.size_bytes)}
             </p>
             {!isDeleted && item.source_type === "guest" && guestName ? (
               <p className="mt-1 text-xs font-medium text-[var(--color-moss)]">
@@ -784,14 +814,14 @@ export function MediaGrid({
 
           {ownerMode && sections.length > 0 && !isDeleted ? (
             <label className="flex flex-col gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-black/45">
-              <span>Section</span>
+              <span>{os.sectionLabel}</span>
               <select
                 className="rounded-2xl border border-black/10 bg-white px-3 py-2 text-sm font-medium normal-case tracking-normal text-[var(--color-ink)]"
                 value={item.section_id ?? ""}
                 onChange={(event) => updateMediaSection(item.id, event.target.value)}
                 disabled={busyId === item.id}
               >
-                <option value="">Unsectioned</option>
+                <option value="">{os.unsectioned}</option>
                 {sections.map((section) => (
                   <option key={section.id} value={section.id}>
                     {section.name}
@@ -827,7 +857,7 @@ export function MediaGrid({
                     onClick={() => updateCoverImage(isCover ? null : item.id)}
                     disabled={busyId === item.id || busyId === "cover"}
                   >
-                    {isCover ? "Clear cover" : "Set as cover"}
+                    {isCover ? os.clearCover : os.setCover}
                   </Button>
                 ) : null}
 
@@ -838,20 +868,20 @@ export function MediaGrid({
                       onClick={() => toggleHidden(item.id, !item.hidden_at)}
                       disabled={busyId === item.id}
                     >
-                      {item.hidden_at ? "Unhide" : "Hide"}
+                      {item.hidden_at ? os.unhide : os.hide}
                     </Button>
 
                     <Button variant="danger" onClick={() => deleteMedia(item.id)} disabled={busyId === item.id}>
-                      Delete
+                      {os.delete}
                     </Button>
                   </>
                 ) : (
                   <>
                     <Button variant="secondary" onClick={() => restoreMedia(item.id)} disabled={busyId === item.id}>
-                      Restore
+                      {os.restore}
                     </Button>
                     <Button variant="danger" onClick={() => permanentlyDeleteMedia(item.id)} disabled={busyId === item.id}>
-                      Delete permanently
+                      {os.deletePermanently}
                     </Button>
                   </>
                 )}

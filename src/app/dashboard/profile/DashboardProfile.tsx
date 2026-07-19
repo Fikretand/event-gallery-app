@@ -67,6 +67,7 @@ export async function DashboardProfile({
               profile={profile}
               action={updatePhotographerProfileAction}
               avatarPreviewUrl={avatarPreviewUrl}
+              strings={d.profileForm}
             />
           </div>
         </Panel>

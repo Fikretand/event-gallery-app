@@ -47,7 +47,8 @@ export async function EventDetail({
   slug: string;
   searchParams?: { saved?: string };
 }) {
-  const d = getDictionary(locale).dashboard;
+  const dict = getDictionary(locale);
+  const d = dict.dashboard;
   const e = d.event;
   const prefix = localePrefix(locale);
 
@@ -259,6 +260,7 @@ export async function EventDetail({
                 }
               : null
           }
+          strings={d.settings}
         />
 
         {!isCouple ? (
@@ -266,7 +268,7 @@ export async function EventDetail({
             <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">{e.dangerZone}</h2>
             <p className="mt-2 text-sm leading-6 text-black/62">{e.dangerZoneBody}</p>
             <div className="mt-5">
-              <EventLifecyclePanel slug={event.slug} />
+              <EventLifecyclePanel slug={event.slug} strings={d.lifecycle} />
             </div>
           </Panel>
         ) : null}
@@ -279,7 +281,7 @@ export async function EventDetail({
             {isCouple ? e.sectionsBodyCouple : e.sectionsBody}
           </p>
           <div className="mt-5">
-            <GallerySectionsManager slug={event.slug} sections={sections} />
+            <GallerySectionsManager slug={event.slug} sections={sections} strings={d.sections} />
           </div>
         </Panel>
 
@@ -308,6 +310,8 @@ export async function EventDetail({
                 coverImageId={event.cover_image_id}
                 audience={accountType}
                 sections={sections}
+                strings={dict.galleryViewer}
+                ownerStrings={d.mediaOwner}
               />
             </CollapsibleSection>
           </div>

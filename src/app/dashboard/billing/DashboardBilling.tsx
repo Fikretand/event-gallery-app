@@ -125,6 +125,7 @@ export async function DashboardBilling({
             isActiveSub={isActiveSub}
             paymentsEnabled={hasPayments}
             pricing={PLAN_PRICING}
+            strings={d.billingPlans}
           />
         )}
         {!isAdmin && isCouple && (

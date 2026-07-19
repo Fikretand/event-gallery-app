@@ -353,6 +353,124 @@ export interface Dict {
         submitting: string;
       };
     };
+    // Event settings form
+    settings: {
+      heading: string;
+      introPhotographer: string;
+      introCouple: string;
+      linksNote: string;
+      planWindowNote: string; // {{uploadEnds}} {{accessEnds}}
+      planWindowNoteSub: string;
+      titleLabel: string;
+      clientNameLabelPhotographer: string;
+      clientNameLabelCouple: string;
+      eventDateLabel: string;
+      eventDateHintCouple: string;
+      privateAccessTitle: string;
+      privateAccessBody: string; // {{end}}
+      privateAccessFallback: string;
+      expiresLabel: string;
+      uploadPinLabel: string;
+      galleryPinLabel: string;
+      pinKeepPlaceholder: string;
+      maxSizeLabel: string;
+      galleryPinStatus: string;
+      uploadPinStatus: string;
+      statusSet: string;
+      statusNotSet: string;
+      allowGuestUpload: string;
+      allowGuestVideo: string;
+      requirePinUpload: string;
+      requirePinGalleryPhotographer: string;
+      requirePinGalleryCouple: string;
+      savedPhotographer: string;
+      savedCouple: string;
+      saving: string;
+      save: string;
+    };
+    // Photographer profile form
+    profileForm: {
+      profileImage: string;
+      imagePlaceholder: string;
+      uploadNewImage: string;
+      imageHint: string;
+      nameLabel: string;
+      cityLabel: string;
+      phoneLabel: string;
+      emailLabel: string;
+      websiteLabel: string;
+      instagramLabel: string;
+      facebookLabel: string;
+      bioLabel: string;
+      bioPlaceholder: string;
+      spotlightTitle: string;
+      spotlightBody: string;
+      consentSpotlight: string;
+      showOnHomepage: string;
+      publicEmail: string;
+      languageTitle: string;
+      languageHint: string;
+      saving: string;
+      save: string;
+    };
+    // Gallery sections manager
+    sections: {
+      addPlaceholder: string;
+      adding: string;
+      addButton: string;
+      empty: string;
+      saveName: string;
+      deleteButton: string;
+      deleteConfirm: string;
+    };
+    // Permanent delete
+    lifecycle: {
+      deleting: string;
+      deletePermanently: string;
+      deleteConfirm: string;
+    };
+    // Billing plan picker
+    billingPlans: {
+      soloFeatures: string[];
+      proFeatures: string[];
+      yearly: string;
+      monthly: string;
+      mostPopular: string;
+      perMonth: string;
+      billedYearly: string;
+      billedMonthly: string;
+      currentPlan: string;
+      starting: string;
+      switchTo: string; // {{name}}
+      get: string; // {{name}}
+      paymentsNote: string;
+      paymentsUnavailable: string;
+      networkError: string;
+      genericError: string;
+    };
+    // MediaGrid owner-mode action labels
+    mediaOwner: {
+      hidden: string;
+      deleted: string;
+      deletedAutoPurge: string;
+      sectionLabel: string;
+      unsectioned: string;
+      clearCover: string;
+      setCover: string;
+      unhide: string;
+      hide: string;
+      delete: string;
+      restore: string;
+      deletePermanently: string;
+      deleteConfirm: string;
+      permanentDeleteConfirm: string;
+      emptyDeletedTitle: string;
+      emptyDeletedBody: string;
+      emptyAllTitle: string;
+      emptyBodyPhotographer: string;
+      emptyBodyCouple: string;
+      emptyFilterTitle: string; // {{filter}}
+    };
     // Profile page
     profile: {
       titlePhotographer: string;
