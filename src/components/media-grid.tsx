@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { Button } from "@/components/ui/button";
 import { t, type Dict } from "@/lib/i18n/index";
@@ -143,6 +144,16 @@ export function MediaGrid({
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [activeItem, activeIndex, visibleItems]);
+
+  // Lock background scroll while the full-screen viewer is open.
+  useEffect(() => {
+    if (!activeId) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [activeId]);
 
   function showPrevious() {
     if (activeIndex <= 0) {
@@ -490,9 +501,14 @@ export function MediaGrid({
         </div>
       )}
 
-      {activeItem ? (
+      {activeItem && typeof document !== "undefined"
+        ? createPortal(
+        // Rendered into <body> via a portal: any ancestor with backdrop-blur /
+        // transform (e.g. the surrounding Panel) would otherwise become the
+        // containing block for this fixed element, sizing it to the panel
+        // instead of the screen — which forced the image to overflow + scroll.
         <div
-          className="lightbox-backdrop-in fixed inset-0 z-50 bg-[var(--backdrop-lightbox)] p-3 backdrop-blur-sm sm:p-4"
+          className="lightbox-backdrop-in fixed inset-0 z-[100] flex h-[100dvh] w-screen items-center justify-center bg-[var(--backdrop-lightbox)] p-3 backdrop-blur-sm sm:p-4"
           onClick={() => setActiveId(null)}
         >
           <div
@@ -608,8 +624,10 @@ export function MediaGrid({
               </div>
             </div>
           </div>
-        </div>
-      ) : null}
+        </div>,
+        document.body,
+      )
+        : null}
     </div>
   );
 
