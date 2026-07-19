@@ -47,6 +47,10 @@ export const dict: Dict = {
         body: "Moderate uploads, hide unwanted files, and deliver the final gallery with PIN protection.",
       },
     ],
+    galleryBandEyebrow: "Every angle, one gallery",
+    galleryBandTitle: "The whole day, seen through everyone's eyes.",
+    galleryBandBody:
+      "Guests catch the moments you'd otherwise miss — candid, spontaneous, real. Every photo lands in one private gallery, ready to relive and download.",
     howItWorksEyebrow: "How it works",
     howItWorksTitle: "From setup to delivered gallery in four steps.",
     steps: [
