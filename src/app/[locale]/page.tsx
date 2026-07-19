@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { ConfettiExplainer } from "@/components/explainer/confetti-explainer";
+import { ConfettiExplainer } from "@/components/explainer/confetti-explainer-lazy";
 import { MarketingButtonLink } from "@/components/marketing-button-link";
 import { MarketingTestimonials } from "@/components/marketing-testimonials";
 import { MarketingTrustStrip } from "@/components/marketing-trust-strip";
