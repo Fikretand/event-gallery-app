@@ -310,6 +310,48 @@ export interface Dict {
       titleCouple: string;
       eyebrowPhotographer: string;
       eyebrowCouple: string;
+      // Illustrated banner + the create-event form.
+      bannerEyebrow: string;
+      bannerTitle: string;
+      bannerBody: string;
+      step1: string;
+      step2: string;
+      step3: string;
+      form: {
+        headingPhotographer: string;
+        headingCouple: string;
+        introPhotographer: string;
+        introCouple: string;
+        couplePlanNote: string;
+        couplePlanNoteSub: string;
+        titleLabel: string;
+        titlePlaceholderPhotographer: string;
+        titlePlaceholderCouple: string;
+        clientNameLabelPhotographer: string;
+        clientNameLabelCouple: string;
+        clientNamePlaceholderPhotographer: string;
+        clientNamePlaceholderCouple: string;
+        eventDateLabel: string;
+        eventDateHintCouple: string;
+        privateAccessTitle: string;
+        privateAccessBody: string;
+        expiresLabel: string;
+        expiresHint: string;
+        uploadPinLabel: string;
+        uploadPinPlaceholder: string;
+        uploadPinHint: string;
+        galleryPinLabel: string;
+        galleryPinPlaceholder: string;
+        maxSizeLabel: string;
+        allowGuestUpload: string;
+        allowGuestVideo: string;
+        requirePinUpload: string;
+        requirePinGalleryPhotographer: string;
+        requirePinGalleryCouple: string;
+        submitPhotographer: string;
+        submitCouple: string;
+        submitting: string;
+      };
     };
     // Profile page
     profile: {
