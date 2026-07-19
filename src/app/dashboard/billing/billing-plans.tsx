@@ -2,20 +2,14 @@
 
 import { useState, useTransition } from "react";
 
+import { t, type Dict } from "@/lib/i18n/index";
+
 type PlanId = "solo" | "pro";
 type Cycle = "monthly" | "yearly";
 
-const PLAN_META: Record<PlanId, { name: string; features: string[]; accent: boolean }> = {
-  solo: {
-    name: "Solo",
-    accent: false,
-    features: ["Up to 5 active events", "100 GB storage", "Guest uploads with QR", "Private gallery with PIN", "Download all as ZIP"],
-  },
-  pro: {
-    name: "Pro",
-    accent: true,
-    features: ["Up to 25 active events", "500 GB storage", "Guest photo & video uploads", "Event cover branding", "Full moderation controls"],
-  },
+const PLAN_META: Record<PlanId, { name: string; accent: boolean }> = {
+  solo: { name: "Solo", accent: false },
+  pro: { name: "Pro", accent: true },
 };
 
 export function BillingPlans({
@@ -23,12 +17,16 @@ export function BillingPlans({
   isActiveSub,
   paymentsEnabled,
   pricing,
+  strings,
 }: {
   currentPlan: PlanId;
   isActiveSub: boolean;
   paymentsEnabled: boolean;
   pricing: Record<PlanId, Record<Cycle, number>>;
+  strings: Dict["dashboard"]["billingPlans"];
 }) {
+  const s = strings;
+  const features: Record<PlanId, string[]> = { solo: s.soloFeatures, pro: s.proFeatures };
   const [cycle, setCycle] = useState<Cycle>("yearly");
   const [pending, startTransition] = useTransition();
   const [busyPlan, setBusyPlan] = useState<PlanId | null>(null);
@@ -52,15 +50,13 @@ export function BillingPlans({
           }
         }
         if (res.status === 503) {
-          setNotice(
-            "Online payments aren't live yet. Contact us to activate your plan via bank transfer — we'll switch it on for your account.",
-          );
+          setNotice(s.paymentsNote);
         } else {
-          const { error } = await res.json().catch(() => ({ error: "Something went wrong." }));
-          setNotice(error ?? "Something went wrong.");
+          const { error } = await res.json().catch(() => ({ error: s.genericError }));
+          setNotice(error ?? s.genericError);
         }
       } catch {
-        setNotice("Network error. Please try again.");
+        setNotice(s.networkError);
       } finally {
         setBusyPlan(null);
       }
@@ -78,11 +74,11 @@ export function BillingPlans({
             <button
               key={c}
               onClick={() => setCycle(c)}
-              className={`rounded-full px-4 py-1.5 font-semibold capitalize transition ${
+              className={`rounded-full px-4 py-1.5 font-semibold transition ${
                 cycle === c ? "bg-[var(--color-ink)] text-white" : "text-black/55 hover:text-[var(--color-ink)]"
               }`}
             >
-              {c === "yearly" ? "Yearly · save ~20%" : "Monthly"}
+              {c === "yearly" ? s.yearly : s.monthly}
             </button>
           ))}
         </div>
@@ -97,6 +93,7 @@ export function BillingPlans({
       <div className="grid gap-4 md:grid-cols-2">
         {plans.map((plan) => {
           const meta = PLAN_META[plan];
+          const planFeatures = features[plan];
           const price = pricing[plan][cycle];
           const isCurrent = isActiveSub && currentPlan === plan;
           const isBusy = pending && busyPlan === plan;
@@ -112,20 +109,20 @@ export function BillingPlans({
             >
               {meta.accent && (
                 <span className="absolute right-5 top-5 rounded-full bg-amber-200/70 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
-                  Most popular
+                  {s.mostPopular}
                 </span>
               )}
               <p className="text-lg font-semibold text-[var(--color-ink)]">{meta.name}</p>
               <p className="mt-2 flex items-baseline gap-1">
                 <span className="text-3xl font-semibold text-[var(--color-ink)]">€{price}</span>
-                <span className="text-sm text-black/45">/mo</span>
+                <span className="text-sm text-black/45">{s.perMonth}</span>
               </p>
               <p className="mt-0.5 text-xs text-black/45">
-                {cycle === "yearly" ? "billed yearly" : "billed monthly"}
+                {cycle === "yearly" ? s.billedYearly : s.billedMonthly}
               </p>
 
               <ul className="mt-4 space-y-2">
-                {meta.features.map((f) => (
+                {planFeatures.map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm text-black/65">
                     <span className="mt-0.5 text-[var(--color-moss)]">✓</span>
                     {f}
@@ -145,12 +142,12 @@ export function BillingPlans({
                 }`}
               >
                 {isCurrent
-                  ? "Current plan"
+                  ? s.currentPlan
                   : isBusy
-                    ? "Starting…"
+                    ? s.starting
                     : isActiveSub
-                      ? `Switch to ${meta.name}`
-                      : `Get ${meta.name}`}
+                      ? t(s.switchTo, { name: meta.name })
+                      : t(s.get, { name: meta.name })}
               </button>
             </div>
           );
@@ -158,9 +155,7 @@ export function BillingPlans({
       </div>
 
       {!paymentsEnabled && (
-        <p className="text-center text-xs text-black/45">
-          Online checkout is being set up. Choosing a plan will show how to activate it in the meantime.
-        </p>
+        <p className="text-center text-xs text-black/45">{s.paymentsUnavailable}</p>
       )}
     </div>
   );

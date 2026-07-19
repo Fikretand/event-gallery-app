@@ -4,12 +4,19 @@ import { useTransition } from "react";
 
 import { permanentlyDeleteEventAction } from "@/lib/actions";
 import { Button } from "@/components/ui/button";
+import type { Dict } from "@/lib/i18n/index";
 
-export function EventLifecyclePanel({ slug }: { slug: string }) {
+export function EventLifecyclePanel({
+  slug,
+  strings,
+}: {
+  slug: string;
+  strings: Dict["dashboard"]["lifecycle"];
+}) {
   const [isPending, startTransition] = useTransition();
 
   function handlePermanentDelete() {
-    const confirmed = window.confirm("Permanently delete this event and all files from storage? This cannot be undone.");
+    const confirmed = window.confirm(strings.deleteConfirm);
     if (!confirmed) {
       return;
     }
@@ -22,7 +29,7 @@ export function EventLifecyclePanel({ slug }: { slug: string }) {
   return (
     <div>
       <Button variant="danger" disabled={isPending} onClick={handlePermanentDelete}>
-        {isPending ? "Deleting..." : "Delete permanently"}
+        {isPending ? strings.deleting : strings.deletePermanently}
       </Button>
     </div>
   );
