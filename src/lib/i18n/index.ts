@@ -34,6 +34,9 @@ export interface Dict {
     heroCaveat: string;
     stats: Array<{ value: string; label: string }>;
     features: Array<{ eyebrow: string; body: string }>;
+    galleryBandEyebrow: string;
+    galleryBandTitle: string;
+    galleryBandBody: string;
     howItWorksEyebrow: string;
     howItWorksTitle: string;
     steps: Array<{ n: string; title: string; body: string }>;

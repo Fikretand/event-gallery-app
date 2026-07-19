@@ -69,6 +69,19 @@ const PHOTO_CELLS = [
   { col: 2, src: "/gallery-preview/p8.jpg" },
 ];
 
+// Editorial photo mosaic for the landing — real event photos from /public.
+// `span` drives the bento rhythm; `grid-flow-dense` keeps it gap-free.
+const GALLERY_MOSAIC: { src: string; span: string }[] = [
+  { src: "/explainer/assets/gallery-ceremony-1.jpg", span: "col-span-2 row-span-2" },
+  { src: "/explainer/assets/party-2.jpg", span: "" },
+  { src: "/explainer/assets/gallery-cake-1.jpg", span: "" },
+  { src: "/explainer/assets/gallery-toasts-1.jpg", span: "row-span-2" },
+  { src: "/explainer/assets/generic-1.jpg", span: "" },
+  { src: "/explainer/assets/gallery-reception-1.jpg", span: "col-span-2" },
+  { src: "/explainer/assets/party-4.jpg", span: "" },
+  { src: "/explainer/assets/generic-3.jpg", span: "" },
+];
+
 const FEATURE_TONES = ["card-warm", "card-moss", "card-paper"];
 const FEATURE_ICONS = [
   <svg key="f1" viewBox="0 0 22 22" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7">
@@ -314,6 +327,38 @@ export default async function HomePage({
               <p className="mt-2 text-sm leading-6 text-black/65">{item.body}</p>
             </Panel>
           ))}
+        </div>
+      </section>
+
+      {/* ─── Photo mosaic band — real galleries break up the text-heavy flow ── */}
+      <section className="shell pb-14 sm:pb-20">
+        <div className="grid gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:items-center">
+          <div className="max-w-md">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-accent)]">
+              {d.galleryBandEyebrow}
+            </p>
+            <h2 className="font-display mt-3 text-3xl font-semibold leading-tight tracking-tight text-[var(--color-ink)] sm:text-4xl">
+              {d.galleryBandTitle}
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-black/60 sm:text-base">{d.galleryBandBody}</p>
+          </div>
+
+          <div className="stagger-children grid auto-rows-[112px] grid-flow-row-dense grid-cols-2 gap-2.5 sm:auto-rows-[132px] sm:grid-cols-4 sm:gap-3 lg:auto-rows-[150px]">
+            {GALLERY_MOSAIC.map((tile) => (
+              <div
+                key={tile.src}
+                className={`lift-card overflow-hidden rounded-[18px] border border-black/5 bg-[var(--color-paper)] shadow-[0_10px_30px_rgba(18,24,38,0.06)] sm:rounded-[22px] ${tile.span}`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={tile.src}
+                  alt=""
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-500 ease-out hover:scale-[1.05]"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

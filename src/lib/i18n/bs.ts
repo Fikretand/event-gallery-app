@@ -47,6 +47,10 @@ export const dict: Dict = {
         body: "Moderiraj prijenose, sakrij neželjene fajlove i isporuči finalnu galeriju sa PIN-zaštitom.",
       },
     ],
+    galleryBandEyebrow: "Svaki ugao, jedna galerija",
+    galleryBandTitle: "Cijeli dan, viđen očima svih prisutnih.",
+    galleryBandBody:
+      "Gosti uhvate trenutke koje biste inače propustili — spontane, iskrene, stvarne. Svaka fotografija završi u jednoj privatnoj galeriji, spremna da je iznova proživite i preuzmete.",
     howItWorksEyebrow: "Kako funkcioniše",
     howItWorksTitle: "Od postavljanja do isporučene galerije u četiri koraka.",
     steps: [
