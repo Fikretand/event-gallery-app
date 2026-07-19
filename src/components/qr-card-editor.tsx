@@ -59,7 +59,7 @@ const PRESET_COLORS = [
 
 const FONT_OPTIONS = ["Playfair Display", "Jost", "Inter", "JetBrains Mono"] as const;
 
-const SNAP_THRESHOLD = 7; // design-px tolerance for centre snapping
+const SNAP_THRESHOLD = 10; // design-px tolerance for centre snapping
 const HISTORY_LIMIT = 60;
 
 // ── Draft persistence (localStorage, keyed by event slug) ────────────────────
@@ -351,17 +351,19 @@ export function QrCardEditor({
   const snapObject = useCallback((target: FO) => {
     const cx = CANVAS_WIDTH / 2;
     const cy = CANVAS_HEIGHT / 2;
-    const rect = target.getBoundingRect();
-    const objCx = rect.left + rect.width / 2;
-    const objCy = rect.top + rect.height / 2;
+    // getCenterPoint() computes the live centre from the object's current
+    // position on every drag tick — unlike getBoundingRect(), whose cached box
+    // can lag and made vertical snapping effectively never fire (objects that
+    // start horizontally centred masked it as "only horizontal snap works").
+    const c = target.getCenterPoint();
     const v: number[] = [];
     const h: number[] = [];
-    if (Math.abs(objCx - cx) <= SNAP_THRESHOLD) {
-      target.set({ left: (target.left ?? 0) + (cx - objCx) });
+    if (Math.abs(c.x - cx) <= SNAP_THRESHOLD) {
+      target.set({ left: (target.left ?? 0) + (cx - c.x) });
       v.push(cx);
     }
-    if (Math.abs(objCy - cy) <= SNAP_THRESHOLD) {
-      target.set({ top: (target.top ?? 0) + (cy - objCy) });
+    if (Math.abs(c.y - cy) <= SNAP_THRESHOLD) {
+      target.set({ top: (target.top ?? 0) + (cy - c.y) });
       h.push(cy);
     }
     target.setCoords();
