@@ -3,10 +3,41 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { t, type Dict } from "@/lib/i18n/index";
 import type { AccountType, GallerySectionRecord, MediaView } from "@/lib/types";
 import { cn, formatBytes, formatDaysUntilPurge } from "@/lib/utils";
 
 type Filter = "all" | "photos" | "videos" | "photographer" | "guest" | "deleted";
+
+type ViewerStrings = Dict["galleryViewer"];
+
+// English fallback — dashboard/owner usages render without a `strings` prop and
+// stay English; the public gallery passes the visitor's localized dictionary.
+const DEFAULT_VIEWER_STRINGS: ViewerStrings = {
+  filterAll: "All",
+  filterPhotos: "Photos",
+  filterVideos: "Videos",
+  filterPhotographer: "Photographer",
+  filterGuest: "Guests",
+  downloadAllZip: "Download all · ZIP ({{count}})",
+  downloadSelectedZip: "Download {{count}} · ZIP",
+  downloadSelected: "Download selected",
+  select: "Select",
+  download: "Download",
+  cover: "Cover",
+  byGuest: "by {{name}}",
+  emptyTitle: "Nothing to show here yet",
+  emptyBody: "The photographer hasn't shared anything in this view yet — check back soon.",
+  swipeHint: "Swipe to browse",
+  sectionEyebrow: "Section",
+  moreMoments: "More moments",
+  everythingElse: "Everything else",
+  close: "Close",
+  previous: "Previous",
+  next: "Next",
+  downloadFailed: "Download failed. Please try again.",
+  zipFailed: "ZIP download failed. Please try again.",
+};
 
 const SWIPE_THRESHOLD = 48;
 
@@ -17,6 +48,7 @@ export function MediaGrid({
   coverImageId,
   audience = "photographer",
   sections = [],
+  strings = DEFAULT_VIEWER_STRINGS,
 }: {
   media: MediaView[];
   ownerMode?: boolean;
@@ -24,7 +56,23 @@ export function MediaGrid({
   coverImageId?: string | null;
   audience?: AccountType;
   sections?: GallerySectionRecord[];
+  strings?: ViewerStrings;
 }) {
+  const vs = strings;
+  const filterLabel = (value: Filter) =>
+    value === "all"
+      ? vs.filterAll
+      : value === "photos"
+        ? vs.filterPhotos
+        : value === "videos"
+          ? vs.filterVideos
+          : value === "photographer"
+            ? vs.filterPhotographer
+            : value === "guest"
+              ? vs.filterGuest
+              : "Deleted";
+  const sourceLabel = (source: string) =>
+    source === "guest" ? vs.filterGuest : vs.filterPhotographer;
   const [filter, setFilter] = useState<Filter>("all");
   const [selected, setSelected] = useState<string[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -158,7 +206,7 @@ export function MediaGrid({
 
       if (!response.ok) {
         const payload = await response.json();
-        setError(payload.error ?? "ZIP download failed.");
+        setError(payload.error ?? vs.zipFailed);
         return;
       }
 
@@ -186,7 +234,7 @@ export function MediaGrid({
       const payload = await response.json();
 
       if (!response.ok) {
-        setError(payload.error ?? "Download failed.");
+        setError(payload.error ?? vs.downloadFailed);
         return;
       }
 
@@ -330,20 +378,20 @@ export function MediaGrid({
     setBusyId(null);
   }
 
-  const emptyTitle =
-    filter === "deleted"
+  const emptyTitle = !ownerMode
+    ? vs.emptyTitle
+    : filter === "deleted"
       ? "No deleted files right now"
       : filter === "all"
         ? "No media in this gallery yet"
         : `No ${filter} files in this view yet`;
-  const emptyCopy =
-    filter === "deleted"
+  const emptyCopy = !ownerMode
+    ? vs.emptyBody
+    : filter === "deleted"
       ? "Files you soft delete will stay here for 7 days before permanent cleanup."
-      : ownerMode
-        ? audience === "couple"
-          ? "Upload your gallery files or review guest uploads to start building the full event story."
-          : "Upload the pro gallery or review incoming guest files to start building the event story."
-        : "The photographer has not published any files in this section yet.";
+      : audience === "couple"
+        ? "Upload your gallery files or review guest uploads to start building the full event story."
+        : "Upload the pro gallery or review incoming guest files to start building the event story.";
 
   const shouldGroupBySection = !ownerMode && filter !== "deleted" && visibleSections.length > 0;
 
@@ -360,13 +408,13 @@ export function MediaGrid({
                     key={value}
                     onClick={() => setFilter(value)}
                     className={cn(
-                      "rounded-full px-4 py-2 text-sm font-semibold capitalize transition whitespace-nowrap",
+                      "rounded-full px-4 py-2 text-sm font-semibold transition whitespace-nowrap",
                       filter === value
-                        ? "bg-[var(--color-ink)] text-white"
+                        ? "bg-[var(--color-ink)] text-white shadow-[0_8px_20px_rgba(18,24,38,0.12)]"
                         : "border border-black/10 bg-white text-[var(--color-ink)] hover:bg-[var(--color-paper)]",
                     )}
                   >
-                    {value}
+                    {filterLabel(value)}
                   </button>
                 ))}
               </div>
@@ -381,7 +429,7 @@ export function MediaGrid({
                 ) : null}
                 {visibleItems.length > 1 ? (
                   <Button variant="ghost" className="w-full sm:w-auto" onClick={() => handleDownload(visibleItems.map((item) => item.id))}>
-                    Download all as ZIP ({visibleItems.length})
+                    {t(vs.downloadAllZip, { count: visibleItems.length })}
                   </Button>
                 ) : null}
                 <Button
@@ -395,10 +443,8 @@ export function MediaGrid({
                   aria-hidden={selectedVisibleIds.length === 0}
                 >
                   {selectedVisibleIds.length > 1
-                    ? `Download selected as ZIP (${selectedVisibleIds.length})`
-                    : selectedVisibleIds.length === 1
-                      ? "Download selected"
-                      : "Download selected"}
+                    ? t(vs.downloadSelectedZip, { count: selectedVisibleIds.length })
+                    : vs.downloadSelected}
                 </Button>
               </div>
             ) : null}
@@ -419,21 +465,27 @@ export function MediaGrid({
             <SectionGroup
               key={section.id}
               title={section.name}
+              eyebrow={vs.sectionEyebrow}
               items={visibleItems.filter((item) => item.section_id === section.id)}
               renderCard={renderCard}
             />
           ))}
           {visibleItems.some((item) => !item.section_id) ? (
             <SectionGroup
-              title="Everything else"
-              eyebrow="More moments"
+              title={vs.everythingElse}
+              eyebrow={vs.moreMoments}
               items={visibleItems.filter((item) => !item.section_id)}
               renderCard={renderCard}
             />
           ) : null}
         </div>
       ) : (
-        <div className="stagger-children grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div
+          className={cn(
+            "stagger-children grid gap-3 sm:gap-4",
+            ownerMode ? "sm:grid-cols-2 xl:grid-cols-3" : "grid-cols-2 lg:grid-cols-3",
+          )}
+        >
           {visibleItems.map((item) => renderCard(item))}
         </div>
       )}
@@ -447,40 +499,47 @@ export function MediaGrid({
             className="lightbox-panel-in mx-auto flex h-full w-full max-w-6xl flex-col overflow-hidden rounded-[28px] bg-[var(--color-viewer-surface)] text-white shadow-[0_40px_120px_rgba(0,0,0,0.45)]"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-4 sm:px-5">
+            <div className="flex items-center justify-between gap-3 border-b border-white/10 px-3 py-3 sm:px-5 sm:py-4">
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold">{activeItem.original_filename}</p>
-                <p className="text-xs uppercase tracking-[0.18em] text-white/55">
-                  {activeItem.deleted_at ? "deleted" : activeItem.source_type}
-                  {ownerMode && !activeItem.deleted_at && activeItem.source_type === "guest" && (activeItem.guest_name ?? activeItem.guest_email)
-                    ? ` · by ${activeItem.guest_name ?? activeItem.guest_email}`
+                {ownerMode ? (
+                  <p className="truncate text-sm font-semibold">{activeItem.original_filename}</p>
+                ) : (
+                  <p className="text-sm font-semibold tabular-nums">
+                    {activeIndex + 1}
+                    <span className="text-white/45"> / {visibleItems.length}</span>
+                  </p>
+                )}
+                <p className="truncate text-xs uppercase tracking-[0.18em] text-white/55">
+                  {activeItem.deleted_at ? "deleted" : sourceLabel(activeItem.source_type)}
+                  {!activeItem.deleted_at && activeItem.source_type === "guest" && (activeItem.guest_name ?? activeItem.guest_email)
+                    ? ` · ${t(vs.byGuest, { name: activeItem.guest_name ?? activeItem.guest_email ?? "" })}`
                     : ""}
-                  {" "}· {activeIndex + 1} / {visibleItems.length}
+                  {ownerMode ? ` · ${activeIndex + 1} / ${visibleItems.length}` : ""}
                 </p>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2">
-                <Button variant="secondary" onClick={() => handleDownload([activeItem.id])}>
-                  Download
+              <div className="flex shrink-0 items-center gap-2">
+                <Button
+                  variant="secondary"
+                  className="hidden sm:inline-flex"
+                  onClick={() => handleDownload([activeItem.id])}
+                >
+                  {vs.download}
                 </Button>
+                {/* Compact icon download on mobile */}
                 <button
-                  onClick={showPrevious}
-                  disabled={activeIndex <= 0}
-                  className="rounded-full border border-white/15 bg-white/8 px-4 py-2 text-xs font-semibold transition hover:border-white/25 hover:bg-[var(--color-moss)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-white/15 disabled:hover:bg-white/8"
+                  onClick={() => handleDownload([activeItem.id])}
+                  aria-label={vs.download}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/8 transition hover:border-white/25 hover:bg-[var(--color-moss)] sm:hidden"
                 >
-                  Prev
-                </button>
-                <button
-                  onClick={showNext}
-                  disabled={activeIndex >= visibleItems.length - 1}
-                  className="rounded-full border border-white/15 bg-white/8 px-4 py-2 text-xs font-semibold transition hover:border-white/25 hover:bg-[var(--color-moss)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-white/15 disabled:hover:bg-white/8"
-                >
-                  Next
+                  <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10 3v10m0 0 4-4m-4 4-4-4M4 16h12" />
+                  </svg>
                 </button>
                 <button
                   onClick={() => setActiveId(null)}
-                  aria-label="Close viewer"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/8 transition hover:border-white/25 hover:bg-[var(--color-accent)]"
+                  aria-label={vs.close}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/8 transition hover:border-white/25 hover:bg-[var(--color-accent)]"
                 >
                   <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
                     <path d="m3.5 3.5 9 9M12.5 3.5l-9 9" />
@@ -510,8 +569,8 @@ export function MediaGrid({
               {activeIndex > 0 ? (
                 <button
                   onClick={showPrevious}
-                  aria-label="Previous"
-                  className="absolute left-3 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-[var(--color-ink)]/55 text-white backdrop-blur transition hover:border-white/25 hover:bg-[var(--color-moss)] sm:left-4"
+                  aria-label={vs.previous}
+                  className="absolute left-2 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-[var(--color-ink)]/55 text-white backdrop-blur transition hover:border-white/25 hover:bg-[var(--color-moss)] sm:left-4"
                 >
                   <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M10 3 5 8l5 5" />
@@ -535,8 +594,8 @@ export function MediaGrid({
               {activeIndex < visibleItems.length - 1 ? (
                 <button
                   onClick={showNext}
-                  aria-label="Next"
-                  className="absolute right-3 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-[var(--color-ink)]/55 text-white backdrop-blur transition hover:border-white/25 hover:bg-[var(--color-moss)] sm:right-4"
+                  aria-label={vs.next}
+                  className="absolute right-2 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-[var(--color-ink)]/55 text-white backdrop-blur transition hover:border-white/25 hover:bg-[var(--color-moss)] sm:right-4"
                 >
                   <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <path d="m6 3 5 5-5 5" />
@@ -545,7 +604,7 @@ export function MediaGrid({
               ) : null}
 
               <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full border border-white/12 bg-[var(--color-ink)]/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/80 backdrop-blur sm:hidden">
-                Swipe to browse
+                {vs.swipeHint}
               </div>
             </div>
           </div>
@@ -560,6 +619,95 @@ export function MediaGrid({
     const isCover = coverImageId === item.id;
     const isDeleted = Boolean(item.deleted_at);
     const purgeMessage = formatDaysUntilPurge(item.deleted_at);
+    const guestName = item.guest_name ?? item.guest_email;
+
+    // ── Public gallery: a clean photo tile — image fills the card, select +
+    //    download live as unobtrusive overlays, no technical filename chrome. ──
+    if (!ownerMode) {
+      return (
+        <article
+          key={item.id}
+          className="lift-card group relative overflow-hidden rounded-[22px] border border-black/10 bg-white shadow-[0_10px_30px_rgba(18,24,38,0.05)]"
+        >
+          <button
+            className="relative block aspect-[4/5] w-full overflow-hidden"
+            onClick={() => setActiveId(item.id)}
+            aria-label={item.original_filename}
+          >
+            {isVideo ? (
+              <video
+                className="h-full w-full bg-[var(--color-viewer-surface)] object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05]"
+                src={item.previewUrl ?? undefined}
+                muted
+                playsInline
+              />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={item.thumbnailUrl ?? item.previewUrl ?? undefined}
+                alt={item.original_filename}
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05]"
+              />
+            )}
+            {/* Legibility wash for overlays */}
+            <span className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/45 via-black/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            {isVideo ? (
+              <span className="pointer-events-none absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur">
+                <svg viewBox="0 0 24 24" className="ml-0.5 h-5 w-5" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+              </span>
+            ) : null}
+            {isCover ? (
+              <span className="absolute right-2 top-2 rounded-full bg-[var(--color-accent)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white shadow-sm">
+                {vs.cover}
+              </span>
+            ) : null}
+            {guestName ? (
+              <span className="pointer-events-none absolute inset-x-2 bottom-2 truncate rounded-full bg-black/45 px-3 py-1 text-[11px] font-medium text-white/90 opacity-0 backdrop-blur transition-opacity duration-300 group-hover:opacity-100">
+                {t(vs.byGuest, { name: guestName })}
+              </span>
+            ) : null}
+          </button>
+
+          {/* Select toggle */}
+          <label
+            className={cn(
+              "absolute left-2 top-2 z-10 inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border backdrop-blur transition",
+              checked
+                ? "border-[var(--color-accent)] bg-[var(--color-accent)] text-white"
+                : "border-white/70 bg-white/60 text-transparent hover:bg-white/85",
+            )}
+            title={vs.select}
+          >
+            <input
+              type="checkbox"
+              className="sr-only"
+              checked={checked}
+              onChange={(event) =>
+                setSelected((current) =>
+                  event.target.checked ? [...current, item.id] : current.filter((value) => value !== item.id),
+                )
+              }
+            />
+            <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m3.5 8.5 3 3 6-7" />
+            </svg>
+          </label>
+
+          {/* Download */}
+          <button
+            onClick={() => handleDownload([item.id])}
+            aria-label={vs.download}
+            title={vs.download}
+            className="absolute bottom-2 right-2 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full border border-black/5 bg-white/85 text-[var(--color-ink)] shadow-sm backdrop-blur transition hover:bg-white"
+          >
+            <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M10 3v10m0 0 4-4m-4 4-4-4M4 16h12" />
+            </svg>
+          </button>
+        </article>
+      );
+    }
 
     return (
       <article
@@ -597,7 +745,7 @@ export function MediaGrid({
           ) : null}
           {isCover ? (
             <span className="absolute right-4 top-4 rounded-full bg-[var(--color-accent)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-white">
-              Cover
+              {vs.cover}
             </span>
           ) : null}
         </button>
@@ -606,11 +754,11 @@ export function MediaGrid({
           <div>
             <p className="truncate text-sm font-semibold text-[var(--color-ink)]">{item.original_filename}</p>
             <p className="text-xs uppercase tracking-[0.18em] text-black/45">
-              {isDeleted ? "deleted" : item.source_type} · {formatBytes(item.size_bytes)}
+              {isDeleted ? "deleted" : sourceLabel(item.source_type)} · {formatBytes(item.size_bytes)}
             </p>
-            {ownerMode && !isDeleted && item.source_type === "guest" && (item.guest_name ?? item.guest_email) ? (
+            {!isDeleted && item.source_type === "guest" && guestName ? (
               <p className="mt-1 text-xs font-medium text-[var(--color-moss)]">
-                by {item.guest_name ?? item.guest_email}
+                {t(vs.byGuest, { name: guestName })}
               </p>
             ) : null}
             {isDeleted && purgeMessage ? <p className="mt-2 text-xs text-[#8a1c1c]">{purgeMessage}</p> : null}
@@ -646,11 +794,11 @@ export function MediaGrid({
                   )
                 }
               />
-              Select
+              {vs.select}
             </label>
 
             <Button variant="secondary" onClick={() => handleDownload([item.id])}>
-              Download
+              {vs.download}
             </Button>
 
             {ownerMode ? (
@@ -715,7 +863,7 @@ function SectionGroup({
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">{eyebrow}</p>
         <h3 className="font-display mt-2 text-2xl font-semibold text-[var(--color-ink)]">{title}</h3>
       </div>
-      <div className="stagger-children grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{items.map((item) => renderCard(item))}</div>
+      <div className="stagger-children grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">{items.map((item) => renderCard(item))}</div>
     </div>
   );
 }
