@@ -26,6 +26,9 @@ function zipFilename(eventSlug: string) {
   return `${eventSlug}-gallery.zip`;
 }
 
+// Media/render work (sharp, resvg, pdf, zip) can exceed the 10s default.
+export const maxDuration = 60;
+
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as { ids?: string[] };

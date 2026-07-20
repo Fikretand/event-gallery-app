@@ -1,4 +1,3 @@
-import { MarketingTestimonials } from "@/components/marketing-testimonials";
 import { MarketingTrustStrip } from "@/components/marketing-trust-strip";
 import { SiteNav } from "@/components/site-nav";
 import { Panel } from "@/components/ui/panel";
@@ -34,7 +33,6 @@ export default async function PricingPage({
       </section>
 
       <MarketingTrustStrip locale={locale as Locale} />
-      <MarketingTestimonials />
 
       <section className="shell py-10">
         <Panel className="mesh-card bg-white/82">

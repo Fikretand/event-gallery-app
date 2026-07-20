@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import { ConfettiExplainer } from "@/components/explainer/confetti-explainer-lazy";
 import { ConfettiHeroAnimation } from "@/components/hero-animation/confetti-hero-animation-lazy";
 import { MarketingButtonLink } from "@/components/marketing-button-link";
-import { MarketingTestimonials } from "@/components/marketing-testimonials";
 import { MarketingTrustStrip } from "@/components/marketing-trust-strip";
 import { PricingShowcase } from "@/components/pricing-showcase";
 import { Panel } from "@/components/ui/panel";
@@ -408,7 +407,6 @@ export default async function HomePage({
       </section>
 
       <MarketingTrustStrip locale={locale as Locale} />
-      <MarketingTestimonials />
 
       {/* ─── Who it's for (router band) — quiet full-bleed paper band, left header ── */}
       <section className="border-y border-black/6 bg-[var(--color-paper)]/45 py-12 sm:py-16">

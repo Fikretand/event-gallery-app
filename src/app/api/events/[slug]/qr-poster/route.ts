@@ -22,6 +22,9 @@ import { formatDate } from "@/lib/utils";
  *
  * Auth: required + must own the event.
  */
+// Media/render work (sharp, resvg, pdf, zip) can exceed the 10s default.
+export const maxDuration = 60;
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ slug: string }> },

@@ -1,5 +1,4 @@
 import { MarketingButtonLink } from "@/components/marketing-button-link";
-import { MarketingTestimonials } from "@/components/marketing-testimonials";
 import { MarketingTrustStrip } from "@/components/marketing-trust-strip";
 import { PricingShowcase } from "@/components/pricing-showcase";
 import { SiteNav } from "@/components/site-nav";
@@ -139,7 +138,6 @@ export default async function ForPhotographersPage({
       </section>
 
       <MarketingTrustStrip locale={locale as Locale} />
-      <MarketingTestimonials />
 
       <section className="shell py-6">
         <PricingShowcase />

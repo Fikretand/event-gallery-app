@@ -4,6 +4,9 @@ import { env } from "@/lib/env";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { processMediaById } from "@/lib/events";
 
+// Media/render work (sharp, resvg, pdf, zip) can exceed the 10s default.
+export const maxDuration = 60;
+
 export async function POST(request: Request) {
   const secret = request.headers.get("x-worker-secret");
   if (!env.mediaWorkerSecret || secret !== env.mediaWorkerSecret) {

@@ -10,6 +10,9 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
  * rendered + supplied by the same logged-in user; we're only providing the
  * wrapper service).
  */
+// Media/render work (sharp, resvg, pdf, zip) can exceed the 10s default.
+export const maxDuration = 60;
+
 export async function POST(request: Request) {
   const supabase = await createSupabaseServerClient();
   if (!supabase) {

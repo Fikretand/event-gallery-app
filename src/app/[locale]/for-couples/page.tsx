@@ -1,5 +1,4 @@
 import { MarketingButtonLink } from "@/components/marketing-button-link";
-import { MarketingTestimonials } from "@/components/marketing-testimonials";
 import { MarketingTrustStrip } from "@/components/marketing-trust-strip";
 import { OneTimePlanCard } from "@/components/pricing-showcase";
 import { SiteNav } from "@/components/site-nav";
@@ -121,7 +120,6 @@ export default async function ForCouplesPage({
       </section>
 
       <MarketingTrustStrip locale={locale as Locale} />
-      <MarketingTestimonials />
     </main>
   );
 }
