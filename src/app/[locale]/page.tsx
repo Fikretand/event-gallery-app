@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { ConfettiExplainer } from "@/components/explainer/confetti-explainer-lazy";
+import { ConfettiHeroAnimation } from "@/components/hero-animation/confetti-hero-animation-lazy";
 import { MarketingButtonLink } from "@/components/marketing-button-link";
 import { MarketingTestimonials } from "@/components/marketing-testimonials";
 import { MarketingTrustStrip } from "@/components/marketing-trust-strip";
@@ -576,6 +577,10 @@ export default async function HomePage({
           <div className="pointer-events-none absolute -left-16 -top-16 h-64 w-64 rounded-full bg-[var(--color-accent)]/8 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-12 -right-12 h-56 w-56 rounded-full bg-[var(--color-moss)]/8 blur-3xl" />
           <div className="relative">
+            {/* 3D hero loop — QR → camera → Confetti wordmark (lazy, transparent) */}
+            <div className="mx-auto -mt-2 mb-1 h-[clamp(200px,52vw,320px)] w-[clamp(200px,52vw,320px)]">
+              <ConfettiHeroAnimation className="h-full w-full" />
+            </div>
             <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-accent)]/22 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-accent)]">
               <span className="live-dot inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" />
               {d.footerCtaBadge}
