@@ -89,6 +89,8 @@ export const dict: Dict = {
       { label: "For couples", href: "/for-couples" },
       { label: "Pricing", href: "/pricing" },
       { label: "Log in", href: "/login" },
+      { label: "Privacy", href: "/privacy" },
+      { label: "Terms", href: "/terms" },
     ],
     photographerSpotlightEyebrow: "Photographer spotlight",
     photographerSpotlightTitle: "Photographers you may want to book.",

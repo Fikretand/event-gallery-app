@@ -90,6 +90,8 @@ export const dict: Dict = {
       { label: "Za parove", href: "/for-couples" },
       { label: "Cijene", href: "/pricing" },
       { label: "Prijava", href: "/login" },
+      { label: "Privatnost", href: "/privacy" },
+      { label: "Uslovi", href: "/terms" },
     ],
     photographerSpotlightEyebrow: "Istaknuti fotografe",
     photographerSpotlightTitle: "Fotografe koje možda želite rezervisati.",
