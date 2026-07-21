@@ -118,6 +118,10 @@ export type UploadGrant = {
   size: number;
   sourceType: MediaSourceType;
   confirmToken: string;
+  // For videos only: a presigned slot for a client-extracted poster frame.
+  thumbnailObjectKey?: string;
+  thumbnailUploadUrl?: string;
+  thumbnailConfirmToken?: string;
 };
 
 export type MediaView = MediaFileRecord & {

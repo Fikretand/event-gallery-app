@@ -36,6 +36,9 @@ type Grant = {
   size: number;
   sourceType: UploadTarget;
   confirmToken: string;
+  thumbnailObjectKey?: string;
+  thumbnailUploadUrl?: string;
+  thumbnailConfirmToken?: string;
 };
 
 // Confetti burst particles (defined outside component — stable reference)
@@ -53,6 +56,60 @@ const CONFETTI_PIECES = [
   { color: "#f6d3c3", x: 82, y: 38, delay: 0.2,  w: 6,  h: 10 },
   { color: "#e27952", x: 30, y: 8,  delay: 0.07, w: 8,  h: 8  },
 ];
+
+// Extract a poster frame from a video, client-side, as a JPEG blob. Seeks a
+// little past the start to avoid a black first frame. Best-effort: resolves
+// null on any failure so the upload proceeds without a thumbnail.
+function extractVideoThumbnail(file: File): Promise<Blob | null> {
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = (blob: Blob | null) => {
+      if (settled) return;
+      settled = true;
+      URL.revokeObjectURL(url);
+      resolve(blob);
+    };
+    let url = "";
+    try {
+      url = URL.createObjectURL(file);
+      const video = document.createElement("video");
+      video.muted = true;
+      video.playsInline = true;
+      video.preload = "metadata";
+      video.src = url;
+      const timer = window.setTimeout(() => finish(null), 8000);
+      video.onerror = () => finish(null);
+      video.onloadedmetadata = () => {
+        const target = Number.isFinite(video.duration) ? Math.min(1, video.duration / 2) : 0;
+        video.currentTime = target;
+      };
+      video.onseeked = () => {
+        try {
+          const maxW = 1200;
+          const scale = video.videoWidth > maxW ? maxW / video.videoWidth : 1;
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.max(1, Math.round(video.videoWidth * scale));
+          canvas.height = Math.max(1, Math.round(video.videoHeight * scale));
+          const ctx = canvas.getContext("2d");
+          if (!ctx) return finish(null);
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob(
+            (blob) => {
+              window.clearTimeout(timer);
+              finish(blob);
+            },
+            "image/jpeg",
+            0.82,
+          );
+        } catch {
+          finish(null);
+        }
+      };
+    } catch {
+      finish(null);
+    }
+  });
+}
 
 function uploadFile(uploadUrl: string, file: File, onProgress: (progress: number) => void) {
   return new Promise<void>((resolve, reject) => {
@@ -227,6 +284,30 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
 
             updateItem(currentItem.id, { status: "confirming", progress: 100 });
 
+            // Videos: extract a poster frame and upload it to the presigned
+            // thumbnail slot. Best-effort — failures leave the video without a
+            // thumbnail rather than blocking the upload.
+            let thumbnailKey: string | undefined;
+            let thumbnailConfirmToken: string | undefined;
+            if (grant.thumbnailUploadUrl && grant.contentType.startsWith("video/")) {
+              const posterBlob = await extractVideoThumbnail(currentItem.file);
+              if (posterBlob) {
+                try {
+                  const putResponse = await fetch(grant.thumbnailUploadUrl, {
+                    method: "PUT",
+                    headers: { "Content-Type": "image/jpeg" },
+                    body: posterBlob,
+                  });
+                  if (putResponse.ok) {
+                    thumbnailKey = grant.thumbnailObjectKey;
+                    thumbnailConfirmToken = grant.thumbnailConfirmToken;
+                  }
+                } catch {
+                  // ignore — proceed without a thumbnail
+                }
+              }
+            }
+
             const confirmResponse = await fetch("/api/uploads/confirm", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -239,6 +320,8 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
                 sourceType:      grant.sourceType,
                 uploadSessionId: payload.uploadSessionId ?? null,
                 confirmToken:    grant.confirmToken,
+                thumbnailKey,
+                thumbnailConfirmToken,
               }),
             });
 

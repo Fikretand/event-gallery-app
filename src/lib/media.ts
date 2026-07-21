@@ -43,7 +43,7 @@ export async function buildUploadGrants(
       throw new Error("R2 is not configured. Please add R2 credentials to the environment.");
     }
 
-    grants.push({
+    const grant: UploadGrant = {
       objectKey,
       uploadUrl,
       contentType: file.type,
@@ -51,7 +51,21 @@ export async function buildUploadGrants(
       size: file.size,
       sourceType,
       confirmToken: signUploadConfirmToken(objectKey),
-    });
+    };
+
+    // Videos have no server-side thumbnail (no ffmpeg on serverless), so hand
+    // the client a presigned slot to upload a poster frame it extracts.
+    if (file.type.startsWith("video/")) {
+      const thumbnailObjectKey = `events/${event.id}/thumbs/vid-${randomUUID()}.jpg`;
+      const thumbnailUploadUrl = await createSignedUploadUrl(thumbnailObjectKey, "image/jpeg");
+      if (thumbnailUploadUrl) {
+        grant.thumbnailObjectKey = thumbnailObjectKey;
+        grant.thumbnailUploadUrl = thumbnailUploadUrl;
+        grant.thumbnailConfirmToken = signUploadConfirmToken(thumbnailObjectKey);
+      }
+    }
+
+    grants.push(grant);
   }
 
   return grants;
@@ -81,7 +95,8 @@ export async function processMediaRecord(media: MediaFileRecord) {
     return {
       width: null,
       height: null,
-      thumbnailKey: null,
+      // Preserve a client-supplied poster frame (videos) instead of clearing it.
+      thumbnailKey: media.thumbnail_key ?? null,
       durationSeconds: null,
       status: "ready" as const,
     };

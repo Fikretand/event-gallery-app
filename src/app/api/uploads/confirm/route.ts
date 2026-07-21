@@ -37,6 +37,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid upload metadata." }, { status: 400 });
     }
 
+    // Optional client-extracted video poster frame. Accept only if its own
+    // signed grant verifies and it belongs to the same event; otherwise ignore
+    // it (the upload still succeeds, just without a thumbnail).
+    let thumbnailKey: string | null = null;
+    const rawThumbKey = payload.thumbnailKey ? String(payload.thumbnailKey) : "";
+    const rawThumbToken = payload.thumbnailConfirmToken ? String(payload.thumbnailConfirmToken) : "";
+    if (
+      rawThumbKey &&
+      rawThumbToken &&
+      rawThumbKey.startsWith(`events/${eventId}/`) &&
+      verifyUploadConfirmToken(rawThumbKey, rawThumbToken)
+    ) {
+      thumbnailKey = rawThumbKey;
+    }
+
     const media = await recordCompletedUpload({
       eventId,
       objectKey,
@@ -45,6 +60,7 @@ export async function POST(request: Request) {
       sizeBytes,
       sourceType,
       uploadSessionId: payload.uploadSessionId ? String(payload.uploadSessionId) : null,
+      thumbnailKey,
     });
 
     await processMediaById(media.id);

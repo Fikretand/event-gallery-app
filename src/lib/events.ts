@@ -842,6 +842,7 @@ export async function recordCompletedUpload(input: {
   sourceType: "guest" | "photographer";
   uploadedByUserId?: string | null;
   uploadSessionId?: string | null;
+  thumbnailKey?: string | null;
 }) {
   const admin = createSupabaseAdminClient();
   if (!admin) {
@@ -863,6 +864,7 @@ export async function recordCompletedUpload(input: {
       status: "uploaded",
       hidden_at: hiddenAt,
       upload_session_id: input.uploadSessionId ?? null,
+      thumbnail_key: input.thumbnailKey ?? null,
     })
     .select("*")
     .single();

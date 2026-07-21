@@ -682,7 +682,7 @@ export function MediaGrid({
             onClick={() => setActiveId(item.id)}
             aria-label={item.original_filename}
           >
-            {isVideo ? (
+            {isVideo && !item.thumbnail_key ? (
               <video
                 className="h-full w-full bg-[var(--color-viewer-surface)] object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05]"
                 src={item.previewUrl ?? undefined}
@@ -763,7 +763,7 @@ export function MediaGrid({
         className="lift-card group overflow-hidden rounded-[26px] border border-black/10 bg-white shadow-[0_10px_30px_rgba(18,24,38,0.05)]"
       >
         <button className="relative block w-full overflow-hidden text-left" onClick={() => setActiveId(item.id)}>
-          {isVideo ? (
+          {isVideo && !item.thumbnail_key ? (
             <video
               className="h-64 w-full bg-[var(--color-viewer-surface)] object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
               src={item.previewUrl ?? undefined}
