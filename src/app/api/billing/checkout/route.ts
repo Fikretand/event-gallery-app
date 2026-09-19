@@ -2,8 +2,11 @@ import { NextResponse } from "next/server";
 
 import {
   createCheckout,
+  createPolarCheckout,
   getPayhipProductKey,
+  getPolarProductId,
   hasPayments,
+  hasPolar,
   payhipCheckoutUrl,
   type CheckoutPlanId,
   type PlanId,
@@ -34,6 +37,24 @@ export async function POST(request: Request) {
     const plan = body.plan as CheckoutPlanId;
     const cycle = (body.cycle ?? "yearly") as BillingCycle;
     const email = user.email ?? "";
+    const baseUrl = env.appUrl.replace(/\/$/, "");
+    const successUrl = `${baseUrl}/dashboard/billing?success=1`;
+
+    // ── Polar (Merchant of Record) — preferred when configured ───────────
+    // Works for every plan; the buyer's account id rides along in metadata so
+    // the webhook can activate the right account regardless of payment email.
+    if (hasPolar) {
+      const polarProductId = getPolarProductId(plan, cycle);
+      if (polarProductId) {
+        const url = await createPolarCheckout({
+          productId: polarProductId,
+          user: { id: user.id, email },
+          successUrl,
+        });
+        return NextResponse.json({ url });
+      }
+      // No Polar product for this plan yet — fall through to the legacy paths.
+    }
 
     // ── Couple: one-time Payhip purchase ─────────────────────────────────
     if (plan === "couple") {
@@ -59,12 +80,11 @@ export async function POST(request: Request) {
     }
 
     // Fallback: LemonSqueezy (dormant until configured)
-    const baseUrl = env.appUrl.replace(/\/$/, "");
     const url = await createCheckout({
       plan: plan as PlanId,
       cycle,
       user: { id: user.id, email },
-      redirectUrl: `${baseUrl}/dashboard/billing?success=1`,
+      redirectUrl: successUrl,
     });
 
     return NextResponse.json({ url });

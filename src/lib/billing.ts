@@ -1,10 +1,18 @@
-import { env, hasPayments } from "@/lib/env";
+import { Polar } from "@polar-sh/sdk";
+
+import { env, hasPayments, hasPolar } from "@/lib/env";
 import type { BillingCycle, UserRecord } from "@/lib/types";
 
-export { hasPayments };
+export { hasPayments, hasPolar };
 
 export type PlanId = "solo" | "pro";
 export type CheckoutPlanId = PlanId | "couple";
+
+/**
+ * Displayed price of the One Event plan, per provider. Polar sells it in BAM
+ * (79,00 KM ≈ €39); the legacy Payhip product is still priced in EUR.
+ */
+export const ONE_EVENT_PRICE = { polar: "79,00 KM", payhip: "€39" } as const;
 
 /** EUR per month, by billing cycle. Mirrors the marketing pricing. */
 export const PLAN_PRICING: Record<PlanId, Record<BillingCycle, number>> = {
@@ -43,6 +51,62 @@ export function planFromPayhipProduct(productKey: string): {
   if (productKey === env.payhipProductProMonthly) return { plan: "pro", cycle: "monthly" };
   if (productKey === env.payhipProductProYearly) return { plan: "pro", cycle: "yearly" };
   return null;
+}
+
+// ── Polar (Merchant of Record) ───────────────────────────────────────────────
+
+function polarClient() {
+  if (!env.polarAccessToken) throw new Error("PAYMENTS_NOT_CONFIGURED");
+  return new Polar({ accessToken: env.polarAccessToken, server: env.polarServer });
+}
+
+/** Polar product id for a plan + cycle, or undefined when not configured. */
+export function getPolarProductId(plan: CheckoutPlanId, cycle: BillingCycle): string | undefined {
+  if (plan === "couple") return env.polarProductOneEvent;
+  const map: Record<PlanId, Record<BillingCycle, string | undefined>> = {
+    solo: { monthly: env.polarProductSoloMonthly, yearly: env.polarProductSoloYearly },
+    pro: { monthly: env.polarProductProMonthly, yearly: env.polarProductProYearly },
+  };
+  return map[plan][cycle];
+}
+
+/** Reverse lookup: which plan + cycle does a Polar product id belong to? */
+export function planFromPolarProduct(productId: string): {
+  plan: CheckoutPlanId;
+  cycle: BillingCycle | "one_time";
+} | null {
+  if (!productId) return null;
+  if (productId === env.polarProductOneEvent) return { plan: "couple", cycle: "one_time" };
+  if (productId === env.polarProductSoloMonthly) return { plan: "solo", cycle: "monthly" };
+  if (productId === env.polarProductSoloYearly) return { plan: "solo", cycle: "yearly" };
+  if (productId === env.polarProductProMonthly) return { plan: "pro", cycle: "monthly" };
+  if (productId === env.polarProductProYearly) return { plan: "pro", cycle: "yearly" };
+  return null;
+}
+
+/**
+ * Create a Polar checkout session and return its hosted URL.
+ *
+ * The buyer's account id travels in `metadata` and `externalCustomerId`, so the
+ * webhook activates the exact account that started the purchase. This is the
+ * main reason to prefer Polar over Payhip here: Payhip carried no metadata, so
+ * activation depended on the buyer happening to pay with their account email.
+ */
+export async function createPolarCheckout(opts: {
+  productId: string;
+  user: { id: string; email: string };
+  successUrl: string;
+}): Promise<string> {
+  const checkout = await polarClient().checkouts.create({
+    products: [opts.productId],
+    customerEmail: opts.user.email || undefined,
+    externalCustomerId: opts.user.id,
+    metadata: { userId: opts.user.id },
+    successUrl: opts.successUrl,
+  });
+
+  if (!checkout.url) throw new Error("Checkout URL missing in Polar response.");
+  return checkout.url;
 }
 
 // ── LemonSqueezy (dormant — kept for future re-activation) ───────────────────

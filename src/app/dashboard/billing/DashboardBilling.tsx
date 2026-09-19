@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { Panel } from "@/components/ui/panel";
 import { getAccountTypeForUser, getRequiredUser, getUserProfile } from "@/lib/auth";
-import { hasActiveSubscription, hasPayments, PLAN_PRICING } from "@/lib/billing";
+import { hasActiveSubscription, hasPayments, hasPolar, ONE_EVENT_PRICE, PLAN_PRICING } from "@/lib/billing";
 import { computeTrialState, countUserMediaFiles } from "@/lib/events";
 import { env, hasSupabase } from "@/lib/env";
 import { getDictionary, localePrefix, t, type Locale } from "@/lib/i18n/index";
@@ -41,6 +41,11 @@ export async function DashboardBilling({
     : null;
 
   if (isCouple && isActiveSub) redirect(`${prefix}/dashboard/couple`);
+
+  // Polar is preferred for the One Event purchase when its product is set up;
+  // otherwise fall back to the legacy Payhip overlay.
+  const oneEventProvider = hasPolar && env.polarProductOneEvent ? "polar" : "payhip";
+  const oneEventPrice = ONE_EVENT_PRICE[oneEventProvider];
 
   const planLabel = isCouple ? b.oneEvent : currentPlan === "pro" ? "Pro" : "Solo";
   const status = (() => {
@@ -134,20 +139,11 @@ export async function DashboardBilling({
             <div className="mt-4 rounded-[20px] border border-[#e8d2c4] bg-[linear-gradient(160deg,rgba(255,253,250,0.98),rgba(248,230,218,0.60))] p-5">
               <p className="text-lg font-semibold text-[var(--color-ink)]">{b.oneEvent}</p>
               <p className="mt-1 flex items-baseline gap-1">
-                <span className="text-3xl font-semibold text-[var(--color-ink)]">€39</span>
+                <span className="text-3xl font-semibold text-[var(--color-ink)]">{oneEventPrice}</span>
                 <span className="text-sm text-black/45">{b.oneTime}</span>
               </p>
               <ul className="mt-3 space-y-1.5">
-                {[
-                  "1 private event",
-                  "Unlimited guest photo uploads",
-                  "Guest videos included",
-                  "Private gallery with PIN",
-                  "Gallery sections",
-                  "Download all as ZIP",
-                  "30-day upload window",
-                  "90 days of access",
-                ].map((f) => (
+                {b.oneEventFeatures.map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm text-black/65">
                     <span className="mt-0.5 text-[var(--color-moss)]">✓</span>
                     {f}
@@ -155,9 +151,16 @@ export async function DashboardBilling({
                 ))}
               </ul>
               <CoupleCheckoutButton
+                provider={oneEventProvider}
                 productKey={env.payhipProductOneEvent ?? ""}
                 userEmail={user.email ?? ""}
-                paymentsEnabled={hasPayments && Boolean(env.payhipProductOneEvent)}
+                paymentsEnabled={
+                  oneEventProvider === "polar"
+                    ? true
+                    : hasPayments && Boolean(env.payhipProductOneEvent)
+                }
+                priceLabel={oneEventPrice}
+                strings={b}
               />
             </div>
           </Panel>

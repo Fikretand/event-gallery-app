@@ -511,7 +511,14 @@ export interface Dict {
       upgradeYourPlan: string;
       oneEvent: string;
       oneTime: string;
+      oneEventFeatures: string[];
+      buyOneEvent: string;           // "Buy One Event · {{price}}"
+      checkoutOpening: string;
+      checkoutSecure: string;
+      checkoutEmailHint: string;     // "Use {{email}} at checkout…"
+      checkoutError: string;
       onlineCheckoutSetup: string;
+      checkoutComingSoon: string;
     };
   };
   coupleDashboard: {

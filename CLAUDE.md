@@ -18,8 +18,8 @@ _Last updated: 2026-09-19._
 
 **Current state:** Live MVP at `event-gallery-app-rho.vercel.app`. Auth,
 event CRUD, guest upload, gallery PIN, media moderation, QR posters, **full
-i18n (EN/BS) across dashboard _and_ the inner forms**, **Payhip payment
-integration**, **admin panel** (incl. manual plan activation), and a
+i18n (EN/BS) across dashboard _and_ the inner forms**, **Polar + Payhip
+payment integration**, **admin panel** (incl. manual plan activation), and a
 **Fabric.js QR card editor** (10 templates, undo/redo, centre snapping,
 shapes, draft autosave, mobile layout) are all shipped.
 
@@ -63,6 +63,7 @@ Copy is now event-generic; the data model always was.
 | PDF wrapping | `pdf-lib` | ^1.17 |
 | QR code | `qrcode` | ^1.5 |
 | ZIP download | `jszip` | ^3.10 |
+| Payments (MoR) | `@polar-sh/sdk` | ^0.49 |
 | Testing | Vitest | ^4.1 |
 | Linting | ESLint + `eslint-config-next` | ^9 |
 
@@ -143,15 +144,28 @@ Every page exists in both `/dashboard/...` (English default) and
   `src/lib/qr-card-editor/presets.ts`, geometry-guarded by `presets.test.ts`.
   Export at A4 300 DPI PNG or PDF.
 
-### Payments — Payhip (active)
-- Active provider, secret + product key set as Vercel env vars
-- One Event (€39 couple, key `6VaFA`) checkout fully working via overlay
-  (programmatic `Payhip.Checkout.open`) with hosted-checkout fallback
-- Photographer subscription products (Solo/Pro mo/yearly) not yet created in
-  Payhip — env keys are placeholders
-- Webhook at `/api/billing/webhook` — form-encoded `security_token`
-  verification, email-based user matching
-- LemonSqueezy code paths still present but dormant
+### Payments — Polar (preferred) + Payhip (fallback)
+
+**Polar** (Merchant of Record — handles VAT/invoicing) is the provider the code
+now prefers. `POST /api/billing/checkout` creates a Polar checkout via
+`@polar-sh/sdk` whenever `POLAR_ACCESS_TOKEN` **and** a product id for the
+requested plan are set, and falls through to Payhip / LemonSqueezy otherwise.
+
+- The buyer's account id travels in `metadata.userId` + `externalCustomerId`,
+  so the webhook activates the exact account — no email-matching guesswork.
+- Webhook: `/api/billing/polar/webhook`, signature-verified with
+  `validateEvent` from `@polar-sh/sdk/webhooks.js` (503 until
+  `POLAR_WEBHOOK_SECRET` is set). Handles `order.paid` / `order.refunded` and
+  the `subscription.*` lifecycle; anything else is acknowledged and ignored.
+- One Event is **79,00 KM** on Polar (`ONE_EVENT_PRICE` in `billing.ts`);
+  Solo/Pro subscription products are not created there yet.
+- Env: `POLAR_ACCESS_TOKEN`, `POLAR_WEBHOOK_SECRET`, `POLAR_SERVER`
+  (`sandbox` while testing), `POLAR_PRODUCT_{ONE_EVENT,SOLO_*,PRO_*}`.
+
+**Payhip** stays wired as the fallback: One Event (€39, key `6VaFA`) via the
+`Payhip.Checkout.open` overlay, webhook at `/api/billing/webhook` with
+form-encoded `security_token` verification and email-based user matching.
+LemonSqueezy code paths are present but dormant.
 
 ### Marketing / public
 - Locale-routed marketing pages `/[locale]/...`:
@@ -210,12 +224,19 @@ thumbnails) is **done**. What is genuinely left:
 ### Blocking launch — owner action, not code
 1. **Run pending Supabase migrations** in the SQL editor if not already done:
    `add_preferred_locale_to_users.sql`, `add_upload_session_id_to_media.sql`.
-2. **Payhip:** create the Solo/Pro subscription products and put their keys in
-   `PAYHIP_PRODUCT_*`. Then run one real purchase and inspect the webhook
-   payload — our verification assumes a form-encoded `security_token` and the
-   docs describe a newer JSON+signature scheme. See
-   `src/app/api/billing/webhook/route.ts`. Until then photographers cannot pay;
-   the €39 One Event product does work.
+2. **Polar:** set `POLAR_ACCESS_TOKEN`, `POLAR_WEBHOOK_SECRET` and
+   `POLAR_PRODUCT_ONE_EVENT` in Vercel, and register the webhook endpoint
+   `<APP_URL>/api/billing/polar/webhook` in Polar (subscribe at minimum to
+   `order.paid`, `order.refunded`, `subscription.active`,
+   `subscription.canceled`, `subscription.revoked`). Test with
+   `POLAR_SERVER=sandbox` first. Still to create in Polar: the Solo/Pro
+   subscription products → `POLAR_PRODUCT_{SOLO,PRO}_{MONTHLY,YEARLY}`.
+   Also confirm Bosnia and Herzegovina is on Polar's supported-payout-country
+   list — that was never verified from here.
+   Payhip remains the fallback (the €39 One Event product works); its Solo/Pro
+   products were never created either, and its webhook verification assumes a
+   form-encoded `security_token` while the docs describe a newer
+   JSON+signature scheme — see `src/app/api/billing/webhook/route.ts`.
 3. **Supabase free → Pro** before any real traffic (500 MB DB / 2 GB bandwidth
    is spent quickly by image previews).
 4. **Legal:** `src/lib/legal.ts` is a reviewed-by-nobody draft. Fill every
@@ -342,7 +363,7 @@ src/
 │       │               download,section}/route.ts
 │       ├── media/download-batch/route.ts # ZIP
 │       ├── qr-card/pdf/route.ts          # editor → PDF wrapper
-│       ├── billing/{checkout, webhook}/route.ts
+│       ├── billing/{checkout, webhook, polar/webhook}/route.ts
 │       └── internal/{process-media, purge-deleted-media}/route.ts
 │
 ├── lib/
@@ -352,7 +373,7 @@ src/
 │   ├── media.ts                     # Upload grants + thumbnails
 │   ├── storage.ts, security.ts, rate-limit.ts, upload-validation.ts
 │   ├── auth.ts, account.ts, marketing.ts
-│   ├── billing.ts                   # Payhip + LemonSqueezy helpers
+│   ├── billing.ts                   # Polar + Payhip + LemonSqueezy helpers
 │   ├── qr-posters.ts                # 4 SVG poster templates
 │   ├── qr-posters-render.ts         # Resvg + pdf-lib pipeline
 │   ├── qr-posters-fonts.ts          # TTF paths for Resvg
@@ -393,6 +414,14 @@ src/
 
 Newest first — useful for picking back up.
 
+- _(this session)_ — Polar checkout + signature-verified webhook; checkout
+  route prefers Polar and falls back to Payhip; couple checkout button is
+  provider-aware and fully bilingual (incl. the One Event feature list);
+  One Event shown at 79,00 KM when Polar is live.
+- `c76ccb1` — Rule-of-React repairs; lint clean.
+- `a1ee86a` — ZIP download memory ceiling (no more OOM on big galleries).
+- `c87ef08` — Presigned URLs were expiring mid-upload and mid-gallery; editor
+  history/draft memory bounded.
 - `ee86269` — 7 event-type card templates (10 total), rect/circle/line
   primitives in the editor, `presets.test.ts` geometry guard; dropped the
   ignored `eventSlug` option on `resolveAccountRedirect` + the redundant

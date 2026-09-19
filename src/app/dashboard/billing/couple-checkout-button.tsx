@@ -1,7 +1,7 @@
 "use client";
 
 import Script from "next/script";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 type PayhipCheckout = {
   open: (opts: {
@@ -18,34 +18,87 @@ declare global {
   }
 }
 
+export type CoupleCheckoutStrings = {
+  buyOneEvent: string;
+  checkoutOpening: string;
+  checkoutSecure: string;
+  checkoutEmailHint: string;
+  checkoutError: string;
+  checkoutComingSoon: string;
+};
+
+const FALLBACK: CoupleCheckoutStrings = {
+  buyOneEvent: "Buy One Event · {{price}}",
+  checkoutOpening: "Opening checkout…",
+  checkoutSecure: "Secure payment — card or bank, invoice sent by email.",
+  checkoutEmailHint: "Use {{email}} at checkout so we can activate your plan automatically.",
+  checkoutError: "We couldn't open the checkout. Please try again in a moment.",
+  checkoutComingSoon: "Online checkout is being set up — coming soon.",
+};
+
+function fill(template: string, values: Record<string, string>) {
+  return template.replace(/\{\{(\w+)\}\}/g, (_, key: string) => values[key] ?? "");
+}
+
 /**
- * Payhip overlay checkout button for the One Event couple plan.
+ * Checkout button for the One Event couple plan.
  *
- * Uses Payhip's programmatic API — `window.Payhip.Checkout.open({ product })` —
- * so the checkout opens in a popup overlay on click. This is more reliable in a
- * Next.js SPA than the auto-bound `.payhip-buy-button` markup, which depends on
- * the SDK scanning the DOM at load time (and fails after client-side nav).
+ * Two providers, chosen server-side:
  *
- * `productKey` and `userEmail` come from the server so no env var hits the
- * client bundle. If the SDK hasn't loaded yet, we fall back to the hosted
- * checkout URL (which supports `?email=` prefill).
+ * - **Polar** (preferred): POST to `/api/billing/checkout`, which creates a
+ *   Polar checkout carrying the buyer's account id, then redirect to the
+ *   returned hosted URL. Because the account id rides along in the checkout
+ *   metadata, the webhook activates the right account no matter which email
+ *   the buyer pays with — so no email hint is needed.
+ * - **Payhip** (legacy): `window.Payhip.Checkout.open({ product })` opens the
+ *   overlay in place. Payhip's overlay has no email-prefill option and its
+ *   webhooks carry no custom metadata, so the buyer MUST use their account
+ *   email for automatic activation — hence the hint under the button.
  *
- * NOTE: Payhip's overlay has no email-prefill option and webhooks carry no
- * custom metadata, so the buyer MUST use their account email at checkout for
- * automatic activation — hence the hint shown below the button.
+ * `productKey` and `userEmail` come from the server so no env var reaches the
+ * client bundle.
  */
 export function CoupleCheckoutButton({
+  provider,
   productKey,
   userEmail,
   paymentsEnabled,
+  priceLabel,
+  strings = FALLBACK,
 }: {
+  provider: "polar" | "payhip";
   productKey: string;
   userEmail: string;
   paymentsEnabled: boolean;
+  priceLabel: string;
+  strings?: CoupleCheckoutStrings;
 }) {
-  const canCheckout = paymentsEnabled && Boolean(productKey);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const openCheckout = useCallback(() => {
+  const isPolar = provider === "polar";
+  const canCheckout = paymentsEnabled && (isPolar || Boolean(productKey));
+  const label = fill(strings.buyOneEvent, { price: priceLabel });
+
+  const openPolarCheckout = useCallback(async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/billing/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: "couple", cycle: "one_time" }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json?.url) throw new Error(json?.error ?? "checkout failed");
+      window.location.href = json.url as string;
+    } catch {
+      setError(strings.checkoutError);
+      setBusy(false);
+    }
+  }, [strings.checkoutError]);
+
+  const openPayhipCheckout = useCallback(() => {
     const checkout = window.Payhip?.Checkout;
     if (checkout) {
       checkout.open({
@@ -65,34 +118,31 @@ export function CoupleCheckoutButton({
           disabled
           className="w-full cursor-not-allowed rounded-2xl bg-[var(--color-accent)] px-5 py-3 text-sm font-semibold text-white opacity-60"
         >
-          Buy One Event · €39
+          {label}
         </button>
-        <p className="mt-2 text-center text-xs text-black/45">
-          Online checkout is being set up — coming soon.
-        </p>
+        <p className="mt-2 text-center text-xs text-black/45">{strings.checkoutComingSoon}</p>
       </div>
     );
   }
 
   return (
     <>
-      <Script src="https://payhip.com/payhip.js" strategy="afterInteractive" />
+      {!isPolar && <Script src="https://payhip.com/payhip.js" strategy="afterInteractive" />}
       <div className="mt-5">
         <button
-          onClick={openCheckout}
-          className="w-full rounded-2xl bg-[var(--color-accent)] px-5 py-3 text-sm font-semibold text-white transition hover:brightness-105"
+          onClick={isPolar ? openPolarCheckout : openPayhipCheckout}
+          disabled={busy}
+          className="w-full rounded-2xl bg-[var(--color-accent)] px-5 py-3 text-sm font-semibold text-white transition hover:brightness-105 disabled:cursor-wait disabled:opacity-70"
         >
-          Buy One Event · €39
+          {busy ? strings.checkoutOpening : label}
         </button>
-        <p className="mt-2 text-center text-xs text-black/45">
-          Secure payment via Payhip — opens right here, no redirect.
-        </p>
-        {userEmail && (
+        <p className="mt-2 text-center text-xs text-black/45">{strings.checkoutSecure}</p>
+        {!isPolar && userEmail && (
           <p className="mt-1 text-center text-xs text-black/45">
-            Use <span className="font-semibold">{userEmail}</span> at checkout so we
-            can activate your plan automatically.
+            {fill(strings.checkoutEmailHint, { email: userEmail })}
           </p>
         )}
+        {error && <p className="mt-2 text-center text-xs font-medium text-red-600">{error}</p>}
       </div>
     </>
   );

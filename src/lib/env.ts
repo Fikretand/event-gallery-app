@@ -32,6 +32,18 @@ export const env = {
   payhipProductSoloYearly: optional(process.env.PAYHIP_PRODUCT_SOLO_YEARLY),
   payhipProductProMonthly: optional(process.env.PAYHIP_PRODUCT_PRO_MONTHLY),
   payhipProductProYearly: optional(process.env.PAYHIP_PRODUCT_PRO_YEARLY),
+  // ── Payments (Polar — Merchant of Record) ──
+  polarAccessToken: optional(process.env.POLAR_ACCESS_TOKEN),
+  polarWebhookSecret: optional(process.env.POLAR_WEBHOOK_SECRET),
+  polarProductOneEvent: optional(process.env.POLAR_PRODUCT_ONE_EVENT),
+  polarProductSoloMonthly: optional(process.env.POLAR_PRODUCT_SOLO_MONTHLY),
+  polarProductSoloYearly: optional(process.env.POLAR_PRODUCT_SOLO_YEARLY),
+  polarProductProMonthly: optional(process.env.POLAR_PRODUCT_PRO_MONTHLY),
+  polarProductProYearly: optional(process.env.POLAR_PRODUCT_PRO_YEARLY),
+  /** "sandbox" while testing, "production" once live. */
+  polarServer: (optional(process.env.POLAR_SERVER) === "sandbox" ? "sandbox" : "production") as
+    | "sandbox"
+    | "production",
 };
 
 export const hasSupabase = Boolean(env.supabaseUrl && env.supabaseAnonKey);
@@ -39,8 +51,10 @@ export const hasSupabaseAdmin = Boolean(hasSupabase && env.supabaseServiceRoleKe
 export const hasR2 = Boolean(
   env.r2AccountId && env.r2AccessKeyId && env.r2SecretAccessKey && env.r2Bucket,
 );
-/** True once Payhip webhook secret is set — gates live checkout. */
-export const hasPayments = Boolean(env.payhipWebhookSecret);
+/** Polar can create checkouts once an access token is present. */
+export const hasPolar = Boolean(env.polarAccessToken);
+/** True once any payment provider is configured — gates live checkout. */
+export const hasPayments = Boolean(env.payhipWebhookSecret || env.polarAccessToken);
 
 export function missingEnvMessage() {
   return "Missing environment variables. Copy .env.example and provide Supabase, R2, and app secrets before using protected flows.";
