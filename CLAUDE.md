@@ -444,10 +444,23 @@ src/
 
 Newest first — useful for picking back up.
 
-- _(this session)_ — Polar checkout + signature-verified webhook; checkout
-  route prefers Polar and falls back to Payhip; couple checkout button is
-  provider-aware and fully bilingual (incl. the One Event feature list);
-  One Event shown at 79,00 KM when Polar is live.
+- _(this session)_ — Polar checkout + signature-verified webhook, **proven end
+  to end in sandbox**: click → hosted checkout → `order.created` +
+  `order.paid` → `users.subscription_status = 'active'`, `provider = 'polar'`,
+  order id stored. The account was matched by `metadata.userId`, not by email.
+  Getting there also fixed three unrelated faults that each looked like the
+  payment bug: Vercel Authentication blocking the whole site at the edge, the
+  four billing columns never having been created, and the SDK's signature
+  helper being unusable against Standard Webhooks endpoints.
+  Checkout route prefers Polar and falls back to Payhip; the couple checkout
+  button is provider-aware and fully bilingual (incl. the One Event feature
+  list); One Event shows 79,00 KM when Polar is live.
+  **Vercel is currently pointed at the Polar sandbox** — `POLAR_SERVER=sandbox`,
+  sandbox token, sandbox webhook secret, sandbox product id (each env var
+  carries a comment saying so). Production One Event product is
+  `18348a4c-3bec-4da7-8792-4b7dcbdf4f42`, and its webhook endpoint is disabled
+  in Polar after the run of 403s. Switch all four back together, then re-enable
+  that endpoint.
 - `c76ccb1` — Rule-of-React repairs; lint clean.
 - `a1ee86a` — ZIP download memory ceiling (no more OOM on big galleries).
 - `c87ef08` — Presigned URLs were expiring mid-upload and mid-gallery; editor
