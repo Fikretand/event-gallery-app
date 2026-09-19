@@ -494,6 +494,13 @@ export interface Dict {
       customize: string;
       customizeHint: string;
     };
+    // Shown on the dashboard after returning from the payment provider
+    paymentBanner: {
+      activatedTitle: string;
+      activatedBody: string;   // "{{plan}}"
+      pendingTitle: string;
+      pendingBody: string;
+    };
     // Billing page
     billing: {
       title: string;

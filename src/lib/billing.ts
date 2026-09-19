@@ -20,6 +20,29 @@ export const PLAN_PRICING: Record<PlanId, Record<BillingCycle, number>> = {
   pro: { monthly: 49, yearly: 39 },
 };
 
+/**
+ * The same plans in BAM, which is what Polar actually charges.
+ *
+ * Per month, as displayed; a yearly plan bills twelve of these at once, so
+ * Solo yearly is 468 KM and Pro yearly is 948 KM per charge. Rounded to whole
+ * marketing numbers the same way One Event is (€39 → 79 KM), not converted
+ * exactly.
+ */
+export const PLAN_PRICING_BAM: Record<PlanId, Record<BillingCycle, number>> = {
+  solo: { monthly: 49, yearly: 39 },
+  pro: { monthly: 99, yearly: 79 },
+};
+
+/** Which currency the dashboard should quote, given the active provider. */
+export function planPricingFor(provider: "polar" | "payhip"): {
+  pricing: Record<PlanId, Record<BillingCycle, number>>;
+  currency: "BAM" | "EUR";
+} {
+  return provider === "polar"
+    ? { pricing: PLAN_PRICING_BAM, currency: "BAM" }
+    : { pricing: PLAN_PRICING, currency: "EUR" };
+}
+
 // ── Payhip (active provider) ─────────────────────────────────────────────────
 
 /**

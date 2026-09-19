@@ -17,12 +17,15 @@ export function BillingPlans({
   isActiveSub,
   paymentsEnabled,
   pricing,
+  currency,
   strings,
 }: {
   currentPlan: PlanId;
   isActiveSub: boolean;
   paymentsEnabled: boolean;
   pricing: Record<PlanId, Record<Cycle, number>>;
+  /** Polar bills in BAM; the legacy providers bill in EUR. */
+  currency: "BAM" | "EUR";
   strings: Dict["dashboard"]["billingPlans"];
 }) {
   const s = strings;
@@ -114,7 +117,9 @@ export function BillingPlans({
               )}
               <p className="text-lg font-semibold text-[var(--color-ink)]">{meta.name}</p>
               <p className="mt-2 flex items-baseline gap-1">
-                <span className="text-3xl font-semibold text-[var(--color-ink)]">€{price}</span>
+                <span className="text-3xl font-semibold text-[var(--color-ink)]">
+                  {currency === "BAM" ? `${price} KM` : `\u20AC${price}`}
+                </span>
                 <span className="text-sm text-black/45">{s.perMonth}</span>
               </p>
               <p className="mt-0.5 text-xs text-black/45">

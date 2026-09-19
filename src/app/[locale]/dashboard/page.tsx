@@ -6,7 +6,7 @@ export default async function DashboardLocalePage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams?: Promise<{ deleted?: string }>;
+  searchParams?: Promise<{ deleted?: string; paid?: string }>;
 }) {
   const { locale } = await params;
   const resolved = searchParams ? await searchParams : undefined;

@@ -2,17 +2,26 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { DashboardHeader } from "@/components/dashboard-header";
+import { PaymentSuccessBanner } from "@/components/payment-success-banner";
 import { SetupNotice } from "@/components/setup-notice";
 import { Panel } from "@/components/ui/panel";
 import { getAccountTypeForUser, getRequiredUser, getUserProfile } from "@/lib/auth";
+import { hasActiveSubscription } from "@/lib/billing";
 import { hasSupabase } from "@/lib/env";
 import { getDictionary, t, type Locale } from "@/lib/i18n/index";
 import { computeTrialState, countUserMediaFiles, getEventLifecycleStatus, listOwnerEvents } from "@/lib/events";
 import type { TrialState } from "@/lib/types";
 import { absoluteUrl, cn, formatDate } from "@/lib/utils";
 
-export async function CoupleDashboard({ locale }: { locale: Locale }) {
-  const d = getDictionary(locale).coupleDashboard;
+export async function CoupleDashboard({
+  locale,
+  searchParams,
+}: {
+  locale: Locale;
+  searchParams?: { paid?: string };
+}) {
+  const dict = getDictionary(locale);
+  const d = dict.coupleDashboard;
 
   if (!hasSupabase) {
     return (
@@ -36,6 +45,16 @@ export async function CoupleDashboard({ locale }: { locale: Locale }) {
     countUserMediaFiles(user.id),
   ]);
   const event = events[0] ?? null;
+
+  // Rendered in whichever of the two states below applies.
+  const paymentBanner =
+    searchParams?.paid === "1" ? (
+      <PaymentSuccessBanner
+        activated={profile ? hasActiveSubscription(profile) : false}
+        planLabel={dict.dashboard.billing.oneEvent}
+        strings={dict.dashboard.paymentBanner}
+      />
+    ) : null;
 
   const trial = profile
     ? computeTrialState(profile.created_at, profile.plan_tier, photosUsed, profile.role, profile.subscription_status)
@@ -65,6 +84,7 @@ export async function CoupleDashboard({ locale }: { locale: Locale }) {
         />
 
         <section className="shell grid gap-5">
+          {paymentBanner}
           {trial && <TrialBanner trial={trial} d={d} />}
 
           {/* Event card */}
@@ -167,6 +187,7 @@ export async function CoupleDashboard({ locale }: { locale: Locale }) {
       <DashboardHeader title={d.welcomeTitle} eyebrow={d.welcomeEyebrow} />
 
       <section className="shell grid gap-5">
+        {paymentBanner}
         {trial && <TrialBanner trial={trial} d={d} />}
 
         <Panel className="bg-[linear-gradient(160deg,rgba(255,253,250,0.98),rgba(248,230,218,0.60))] border-[#e8d2c4]">

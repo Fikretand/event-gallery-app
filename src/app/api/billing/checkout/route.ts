@@ -47,7 +47,8 @@ export async function POST(request: Request) {
     const baseUrl = configuredBase.startsWith("http://localhost")
       ? requestOrigin
       : configuredBase;
-    const successUrl = `${baseUrl}/dashboard/billing?success=1`;
+    // Land on the dashboard home; couples are forwarded to theirs, flag intact.
+    const successUrl = `${baseUrl}/dashboard?paid=1`;
 
     // ── Polar (Merchant of Record) — preferred when configured ───────────
     // Works for every plan; the buyer's account id rides along in metadata so

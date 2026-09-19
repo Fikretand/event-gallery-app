@@ -525,6 +525,12 @@ export const dict: Dict = {
       customizeHint:
         "Click Customize to start from one of 4 templates and edit names, fonts, colours, or add your own image.",
     },
+    paymentBanner: {
+      activatedTitle: "Payment received — you're all set.",
+      activatedBody: "Your {{plan}} plan is active. Trial limits no longer apply.",
+      pendingTitle: "Payment received — activating your plan.",
+      pendingBody: "This usually takes a few seconds. The page refreshes on its own.",
+    },
     billing: {
       title: "Plan & billing",
       eyebrow: "Choose a plan, upgrade, or manage your subscription",

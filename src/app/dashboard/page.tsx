@@ -4,7 +4,7 @@ import { DashboardHome } from "./DashboardHome";
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ deleted?: string }>;
+  searchParams?: Promise<{ deleted?: string; paid?: string }>;
 }) {
   await redirectIfPreferredLocale("");
   const resolved = searchParams ? await searchParams : undefined;

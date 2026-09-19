@@ -4,7 +4,13 @@ import { redirect } from "next/navigation";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { Panel } from "@/components/ui/panel";
 import { getAccountTypeForUser, getRequiredUser, getUserProfile } from "@/lib/auth";
-import { hasActiveSubscription, hasPayments, hasPolar, ONE_EVENT_PRICE, PLAN_PRICING } from "@/lib/billing";
+import {
+  hasActiveSubscription,
+  hasPayments,
+  hasPolar,
+  ONE_EVENT_PRICE,
+  planPricingFor,
+} from "@/lib/billing";
 import { computeTrialState, countUserMediaFiles } from "@/lib/events";
 import { env, hasSupabase } from "@/lib/env";
 import { getDictionary, localePrefix, t, type Locale } from "@/lib/i18n/index";
@@ -46,6 +52,9 @@ export async function DashboardBilling({
   // otherwise fall back to the legacy Payhip overlay.
   const oneEventProvider = hasPolar && env.polarProductOneEvent ? "polar" : "payhip";
   const oneEventPrice = ONE_EVENT_PRICE[oneEventProvider];
+  // Photographer plans follow whichever provider will take the payment.
+  const subscriptionProvider = hasPolar && env.polarProductSoloMonthly ? "polar" : "payhip";
+  const { pricing: planPricing, currency: planCurrency } = planPricingFor(subscriptionProvider);
 
   const planLabel = isCouple ? b.oneEvent : currentPlan === "pro" ? "Pro" : "Solo";
   const status = (() => {
@@ -129,7 +138,8 @@ export async function DashboardBilling({
             currentPlan={currentPlan}
             isActiveSub={isActiveSub}
             paymentsEnabled={hasPayments}
-            pricing={PLAN_PRICING}
+            pricing={planPricing}
+            currency={planCurrency}
             strings={d.billingPlans}
           />
         )}

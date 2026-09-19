@@ -2,10 +2,12 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { DashboardHeader } from "@/components/dashboard-header";
+import { PaymentSuccessBanner } from "@/components/payment-success-banner";
 import { DashboardEventList } from "@/components/dashboard-event-list";
 import { SetupNotice } from "@/components/setup-notice";
 import { Panel } from "@/components/ui/panel";
 import { getAccountTypeForUser, getRequiredUser, getUserProfile } from "@/lib/auth";
+import { hasActiveSubscription } from "@/lib/billing";
 import { hasSupabase } from "@/lib/env";
 import {
   computeTrialState,
@@ -26,7 +28,7 @@ export async function DashboardHome({
   searchParams,
 }: {
   locale: Locale;
-  searchParams?: { deleted?: string };
+  searchParams?: { deleted?: string; paid?: string };
 }) {
   const d = getDictionary(locale).dashboard;
   const h = d.home;
@@ -45,7 +47,9 @@ export async function DashboardHome({
   const accountType = await getAccountTypeForUser(supabase, user.id, user.user_metadata?.account_type);
 
   if (accountType === "couple") {
-    redirect(`${localePrefix(locale)}/dashboard/couple`);
+    // Keep the post-payment flag across the hop so the banner still shows.
+    const paid = searchParams?.paid === "1" ? "?paid=1" : "";
+    redirect(`${localePrefix(locale)}/dashboard/couple${paid}`);
   }
 
   const [coverMap, usage, profile, photosUsed] = await Promise.all([
@@ -81,6 +85,13 @@ export async function DashboardHome({
       />
 
       <section className="shell grid gap-4">
+        {searchParams?.paid === "1" && (
+          <PaymentSuccessBanner
+            activated={profile ? hasActiveSubscription(profile) : false}
+            planLabel={planLabel}
+            strings={d.paymentBanner}
+          />
+        )}
         {searchParams?.deleted === "1" ? (
           <div className="rounded-2xl bg-[#eef9f0] px-4 py-3 text-sm text-[#1f6b35]">{h.eventDeleted}</div>
         ) : null}

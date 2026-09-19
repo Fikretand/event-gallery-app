@@ -527,6 +527,12 @@ export const dict: Dict = {
       customizeHint:
         "Klikni Prilagodi da kreneš od jednog od 4 templata i izmijeniš imena, fontove, boje ili dodaš svoju sliku.",
     },
+    paymentBanner: {
+      activatedTitle: "Uplata primljena — sve je spremno.",
+      activatedBody: "Vaš {{plan}} plan je aktivan. Ograničenja probnog perioda više ne važe.",
+      pendingTitle: "Uplata primljena — aktiviramo vaš plan.",
+      pendingBody: "Obično traje par sekundi. Stranica se sama osvježava.",
+    },
     billing: {
       title: "Plan i naplata",
       eyebrow: "Odaberi plan, nadogradi ili upravljaj pretplatom",
