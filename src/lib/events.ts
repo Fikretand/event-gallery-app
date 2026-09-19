@@ -8,7 +8,6 @@ import {
   TRIAL_DURATION_DAYS,
   TRIAL_PHOTO_LIMIT,
 } from "@/lib/constants";
-import { env } from "@/lib/env";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { grantGalleryAccess, hasGalleryAccess, hashPin, randomSlugSuffix, verifyPin } from "@/lib/security";
@@ -474,7 +473,11 @@ export async function listEventMedia(
   const { data } = await query;
 
   // Flatten the guest session join into the record fields
-  return (data ?? []).map((row: any) => {
+  type JoinedRow = Record<string, unknown> & {
+    guest_upload_sessions?: { guest_name: string | null; guest_email: string | null } | null;
+  };
+
+  return ((data ?? []) as JoinedRow[]).map((row) => {
     const { guest_upload_sessions: gus, ...rest } = row;
     return {
       ...rest,

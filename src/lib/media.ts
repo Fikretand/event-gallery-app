@@ -8,7 +8,6 @@ import type {
   EventRecord,
   MediaFileRecord,
   MediaSourceType,
-  MediaView,
   UploadGrant,
   UploadRequestFile,
 } from "@/lib/types";

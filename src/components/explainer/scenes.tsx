@@ -1,5 +1,5 @@
-// @ts-nocheck
 /* eslint-disable */
+// @ts-nocheck
 // Ported verbatim from the Confetti explainer's scenes.jsx. Only changes:
 //   • module imports instead of window globals
 //   • ASSETS paths now point at /explainer/assets/* (served from /public)

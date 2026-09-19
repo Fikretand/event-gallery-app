@@ -1,5 +1,5 @@
-// @ts-nocheck
 /* eslint-disable */
+// @ts-nocheck
 // Ported verbatim from the Confetti explainer's visuals.jsx. Only the module
 // wiring changed (imports instead of window globals). Visual logic is unchanged.
 

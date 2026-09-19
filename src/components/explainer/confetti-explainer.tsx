@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 
 import { Sprite, TimelineContext } from "./animations";
 import { PaperBackground } from "./visuals";
@@ -61,6 +61,16 @@ function SceneTree({ mod }: { mod: SceneModule }) {
   );
 }
 
+const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+
+function subscribeReducedMotion(onChange: () => void) {
+  const mq = window.matchMedia(REDUCED_MOTION_QUERY);
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+}
+const getReducedMotion = () => window.matchMedia(REDUCED_MOTION_QUERY).matches;
+const getReducedMotionOnServer = () => false;
+
 export function ConfettiExplainer() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [mode, setMode] = useState<Mode | null>(null);
@@ -68,7 +78,14 @@ export function ConfettiExplainer() {
   const [time, setTime] = useState(0);
   const [mounted, setMounted] = useState(false);
   const inViewRef = useRef(false);
-  const reduceRef = useRef(false);
+  // `ctx` reads this during render, so it cannot live in a ref. Subscribing to
+  // the media query keeps it SSR-safe, avoids a cascading render, and lets the
+  // animation react live if the OS setting is toggled.
+  const reducedMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    getReducedMotion,
+    getReducedMotionOnServer,
+  );
 
   // Pick portrait (mobile) vs landscape (desktop) layout.
   useEffect(() => {
@@ -112,14 +129,9 @@ export function ConfettiExplainer() {
   useEffect(() => {
     if (!mounted) return;
 
-    reduceRef.current =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    if (reduceRef.current) {
-      setTime(REDUCED_MOTION_FRAME);
-      return;
-    }
+    // Reduced motion: never start the clock. The frame shown is derived
+    // below rather than written into state.
+    if (reducedMotion) return;
 
     const el = wrapRef.current;
     let raf = 0;
@@ -149,11 +161,15 @@ export function ConfettiExplainer() {
       cancelAnimationFrame(raf);
       io.disconnect();
     };
-  }, [mounted]);
+  }, [mounted, reducedMotion]);
+
+  // Derived, not stored: with reduced motion we simply render a
+  // representative still instead of driving `time`.
+  const displayTime = reducedMotion ? REDUCED_MOTION_FRAME : time;
 
   const ctx = useMemo(
-    () => ({ time, duration: DURATION, playing: !reduceRef.current, setTime, setPlaying: () => {} }),
-    [time],
+    () => ({ time: displayTime, duration: DURATION, playing: !reducedMotion, setTime, setPlaying: () => {} }),
+    [displayTime, reducedMotion],
   );
 
   const dims = mode ? DIMS[mode] : DIMS.desktop;

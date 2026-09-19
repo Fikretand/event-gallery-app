@@ -1,5 +1,5 @@
-// @ts-nocheck
 /* eslint-disable */
+// @ts-nocheck
 // Ported verbatim from the Confetti explainer's animations.jsx — timeline
 // primitives only (Stage/PlaybackBar dropped; the landing page provides its
 // own contained player). Logic is unchanged so the rendered output matches

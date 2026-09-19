@@ -74,7 +74,6 @@ export interface CardPreset {
 // ─────────────────────────────────────────────────────────────────────────────
 const GOLD = "#C9A86A";       // primary accent
 const PAPER = "#FBF8F3";      // cream background
-const BORDER = "#EFE6D6";     // outer card border
 const INK = "#4F4131";        // h1 deep brown
 const BODY = "#7A6A52";       // body text
 const KICKER = "#8A7657";     // small caps

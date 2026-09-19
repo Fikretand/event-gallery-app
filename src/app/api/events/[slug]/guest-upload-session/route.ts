@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 import { GUEST_UPLOAD_RATE_LIMIT } from "@/lib/constants";
 import { buildUploadGrants } from "@/lib/media";
 import { computeTrialState, countUserMediaFiles, createGuestUploadSession, getAccountUsage, getEventAccountType, getPublicEventBySlug, incrementRateLimitCount, isEventExpired, isGuestUploadWindowClosed } from "@/lib/events";
-import { getUserProfile } from "@/lib/auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isRateLimited } from "@/lib/rate-limit";
 import { hashIp, verifyPin } from "@/lib/security";

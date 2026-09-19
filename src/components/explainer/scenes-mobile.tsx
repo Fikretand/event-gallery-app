@@ -1,5 +1,5 @@
-// @ts-nocheck
 /* eslint-disable */
+// @ts-nocheck
 // scenes-mobile.tsx — Portrait (1080×1920) re-layout of the Confetti explainer.
 // Same scene names + exports as the desktop version (./scenes.tsx); only the
 // spatial arrangement differs.

@@ -17,21 +17,24 @@ async function getDashboardData() {
   ]);
 
   const allUsers = (users ?? []) as UserRecord[];
+  // One clock read for the whole snapshot, so every derived age is consistent
+  // and nothing impure runs while rendering.
+  const now = Date.now();
   const totalUsers = allUsers.length;
   const proUsers = allUsers.filter((u) => u.plan_tier === "pro").length;
-  const admins = allUsers.filter((u) => u.role === "admin").length;
   const trialUsers = allUsers.filter((u) => {
     if (u.plan_tier === "pro" || u.role === "admin") return false;
-    const daysOld = (Date.now() - new Date(u.created_at).getTime()) / 86400000;
-    return daysOld < 7;
+    return (now - new Date(u.created_at).getTime()) / 86400000 < 7;
   }).length;
   const totalStorageBytes = (mediaAgg ?? []).reduce((s, r) => s + Number(r.size_bytes ?? 0), 0);
 
   return {
-    recentUsers: allUsers.slice(0, 6),
+    recentUsers: allUsers.slice(0, 6).map((u) => ({
+      ...u,
+      daysOld: Math.floor((now - new Date(u.created_at).getTime()) / 86400000),
+    })),
     totalUsers,
     proUsers,
-    admins,
     trialUsers,
     totalStorageBytes,
     recentEvents: events ?? [],
@@ -42,7 +45,7 @@ export default async function AdminDashboardPage() {
   const data = await getDashboardData();
   if (!data) return <p className="text-sm text-black/50">Could not load admin data.</p>;
 
-  const { recentUsers, totalUsers, proUsers, admins, trialUsers, totalStorageBytes, recentEvents } = data;
+  const { recentUsers, totalUsers, proUsers, trialUsers, totalStorageBytes, recentEvents } = data;
 
   return (
     <div className="space-y-6">
@@ -71,7 +74,6 @@ export default async function AdminDashboardPage() {
           <div className="divide-y divide-black/[0.05]">
             {recentUsers.map((u) => {
               const initials = (u.full_name ?? u.email).split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
-              const daysOld = Math.floor((Date.now() - new Date(u.created_at).getTime()) / 86400000);
               return (
                 <Link
                   key={u.id}
@@ -89,7 +91,7 @@ export default async function AdminDashboardPage() {
                     <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${u.plan_tier === "pro" ? "bg-amber-100 text-amber-700" : "bg-black/6 text-black/50"}`}>
                       {u.plan_tier}
                     </span>
-                    <span className="text-xs text-black/30">{daysOld === 0 ? "Today" : `${daysOld}d ago`}</span>
+                    <span className="text-xs text-black/30">{u.daysOld === 0 ? "Today" : `${u.daysOld}d ago`}</span>
                   </div>
                 </Link>
               );
