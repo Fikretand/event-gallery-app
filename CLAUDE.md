@@ -168,8 +168,16 @@ requested plan are set, and falls through to Payhip / LemonSqueezy otherwise.
   with the SDK's key purely to reuse its typed parsing. Confirmed against a
   real sandbox delivery: 403 under the SDK derivations, 200 once
   `base64(bare)` was included.
-- One Event is **79,00 KM** on Polar (`ONE_EVENT_PRICE` in `billing.ts`);
-  Solo/Pro subscription products are not created there yet.
+- Prices are quoted in the currency the active provider charges. One Event is
+  **79,00 KM** (`ONE_EVENT_PRICE`); Solo and Pro come from `PLAN_PRICING_BAM`
+  — 49 / 39 KM and 99 / 79 KM per month, yearly billing twelve of those at
+  once. `planPricingFor()` picks the BAM or EUR table so the plan chooser can
+  never quote a price the checkout will not charge.
+- After paying, the buyer returns to `/dashboard?paid=1` (couples are
+  forwarded to theirs with the flag intact). `PaymentSuccessBanner` reports
+  the account's **real** state rather than assuming success: the webhook
+  usually lands a beat after the redirect, so until it does the banner says
+  "activating" and re-checks the server a few times.
 - Env: `POLAR_ACCESS_TOKEN`, `POLAR_WEBHOOK_SECRET`, `POLAR_SERVER`
   (`sandbox` while testing), `POLAR_PRODUCT_{ONE_EVENT,SOLO_*,PRO_*}`.
 
@@ -455,12 +463,15 @@ Newest first — useful for picking back up.
   Checkout route prefers Polar and falls back to Payhip; the couple checkout
   button is provider-aware and fully bilingual (incl. the One Event feature
   list); One Event shows 79,00 KM when Polar is live.
+  Refund verified the same way: `order.refunded` → 200 → `canceled`.
   **Vercel is currently pointed at the Polar sandbox** — `POLAR_SERVER=sandbox`,
-  sandbox token, sandbox webhook secret, sandbox product id (each env var
-  carries a comment saying so). Production One Event product is
-  `18348a4c-3bec-4da7-8792-4b7dcbdf4f42`, and its webhook endpoint is disabled
-  in Polar after the run of 403s. Switch all four back together, then re-enable
-  that endpoint.
+  sandbox token, sandbox webhook secret, and sandbox ids for all five products
+  (each env var carries a comment saying so). The sandbox org `confetti` holds
+  One Event plus Solo/Pro monthly and yearly, all in BAM.
+  Production so far has only One Event, `18348a4c-3bec-4da7-8792-4b7dcbdf4f42`,
+  and its webhook endpoint is disabled in Polar after the run of 403s. Going
+  live means creating the four subscription products there, switching every
+  `POLAR_*` var back together, and re-enabling that endpoint.
 - `c76ccb1` — Rule-of-React repairs; lint clean.
 - `a1ee86a` — ZIP download memory ceiling (no more OOM on big galleries).
 - `c87ef08` — Presigned URLs were expiring mid-upload and mid-gallery; editor
