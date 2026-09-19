@@ -238,8 +238,13 @@ thumbnails) is **done**. What is genuinely left:
    account + DSN.
 9. **Video duration.** Poster frames are extracted client-side; `duration` is
    not plumbed through and is not displayed anywhere yet.
-10. Email notifications (post-upload, expiry).
-11. Physical print product shop (BiH market).
+10. **Streaming ZIP.** `/api/media/download-batch` assembles the archive in
+    memory (every original buffered, plus the finished ZIP), so it is capped at
+    300 MB per request and tells the user to download in batches above that.
+    A real wedding gallery exceeds that. The fix is streaming from R2 into a
+    streamed ZIP response, or moving the job off the request path.
+11. Email notifications (post-upload, expiry).
+12. Physical print product shop (BiH market).
 
 ## 6. KEY PATTERNS — please follow
 

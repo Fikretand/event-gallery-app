@@ -29,6 +29,11 @@ function zipFilename(eventSlug: string) {
 // Media/render work (sharp, resvg, pdf, zip) can exceed the 10s default.
 export const maxDuration = 60;
 
+// Ceiling on a single ZIP request. The route buffers every original *and* the
+// finished archive, so peak memory is ~2x this — keep it comfortably inside
+// the serverless memory limit.
+const ZIP_MAX_TOTAL_BYTES = 300 * 1024 * 1024;
+
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as { ids?: string[] };
@@ -77,6 +82,23 @@ export async function POST(request: Request) {
       }
     }
 
+    // The archive is assembled entirely in memory: every original is buffered,
+    // then JSZip builds the finished ZIP alongside them. Peak usage is roughly
+    // twice the selection, so a large gallery would OOM the function and
+    // surface as an opaque failure. Refuse oversized selections up front,
+    // using the sizes already on the records (no I/O), and say so clearly.
+    const totalBytes = resolvedMedia.reduce((sum, item) => sum + (item.size_bytes ?? 0), 0);
+    if (totalBytes > ZIP_MAX_TOTAL_BYTES) {
+      const totalMb = Math.round(totalBytes / (1024 * 1024));
+      const limitMb = Math.round(ZIP_MAX_TOTAL_BYTES / (1024 * 1024));
+      return NextResponse.json(
+        {
+          error: `This selection is ${totalMb} MB, over the ${limitMb} MB ZIP limit. Select fewer files and download in batches.`,
+        },
+        { status: 413 },
+      );
+    }
+
     const zip = new JSZip();
     const usedNames = new Map<string, number>();
 
@@ -95,10 +117,15 @@ export async function POST(request: Request) {
       });
     }
 
-    const archive = await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE", compressionOptions: { level: 6 } });
+    // Generate straight to a Uint8Array — going via nodebuffer and re-wrapping
+    // it copied the whole archive a second time.
+    const archive = await zip.generateAsync({ type: "uint8array", compression: "DEFLATE", compressionOptions: { level: 6 } });
     const filename = zipFilename(resolvedMedia[0].event.slug);
 
-    return new NextResponse(new Uint8Array(archive), {
+    // A Uint8Array is a valid response body at runtime; the cast only works
+    // around lib.dom typing BodyInit as Uint8Array<ArrayBuffer>. Re-wrapping
+    // it to satisfy the type would copy the whole archive again.
+    return new NextResponse(archive as unknown as BodyInit, {
       status: 200,
       headers: {
         "Content-Type": "application/zip",
