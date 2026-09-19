@@ -17,7 +17,11 @@ export function isValidPublicProfileUrl(value: string) {
   }
 }
 
-export function resolveAccountRedirect(accountType: AccountType, options?: { eventSlug?: string | null }) {
+/**
+ * Where an account lands after login / email confirmation. Couples get their
+ * own dashboard, which already handles both "no event yet" and "event exists".
+ */
+export function resolveAccountRedirect(accountType: AccountType) {
   if (accountType === "couple") {
     return "/dashboard/couple";
   }

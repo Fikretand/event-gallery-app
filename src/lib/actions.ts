@@ -52,8 +52,7 @@ export async function loginAction(_: { error?: string } | undefined | void, form
   }
 
   const accountType = await getAccountTypeForUser(supabase, data.user.id, data.user.user_metadata?.account_type);
-  const existingEvents = accountType === "couple" ? await listOwnerEvents(data.user.id) : [];
-  redirect(resolveAccountRedirect(accountType, { eventSlug: existingEvents[0]?.slug ?? null }));
+  redirect(resolveAccountRedirect(accountType));
 }
 
 function normalizePlanTier(raw: FormDataEntryValue | null): "solo" | "pro" {

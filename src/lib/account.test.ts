@@ -14,7 +14,8 @@ describe("account helpers", () => {
 
   it("resolves redirect targets by account type", () => {
     expect(resolveAccountRedirect("photographer")).toBe("/dashboard");
-    expect(resolveAccountRedirect("couple")).toBe("/dashboard/events/new?intent=couple");
-    expect(resolveAccountRedirect("couple", { eventSlug: "amina-wedding-123" })).toBe("/dashboard/events/amina-wedding-123");
+    // Couples land on their own dashboard, which handles both the
+    // "no event yet" and "event already created" states.
+    expect(resolveAccountRedirect("couple")).toBe("/dashboard/couple");
   });
 });

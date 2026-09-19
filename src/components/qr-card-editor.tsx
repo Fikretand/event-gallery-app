@@ -601,6 +601,64 @@ export function QrCardEditor({
     canvas.renderAll();
   }
 
+  /**
+   * Shape primitives. A line is a thin Rect rather than fabric.Line — it keeps
+   * a sane bounding box when dragged/resized and matches how the presets
+   * already build their rules.
+   */
+  function addShape(kind: "rect" | "circle" | "line") {
+    const fabric = fabricNsRef.current;
+    const canvas = fabricRef.current;
+    if (!fabric || !canvas) return;
+
+    const common = {
+      fill: "#172033",
+      originX: "left" as const,
+      originY: "top" as const,
+      selectable: true,
+      hasControls: true,
+    };
+
+    let shape: import("fabric").FabricObject;
+    if (kind === "circle") {
+      const radius = 140;
+      shape = new fabric.Circle({
+        ...common,
+        radius,
+        left: CANVAS_WIDTH / 2 - radius,
+        top: CANVAS_HEIGHT / 2 - radius,
+      });
+    } else if (kind === "line") {
+      const width = 480;
+      const height = 6;
+      shape = new fabric.Rect({
+        ...common,
+        width,
+        height,
+        left: CANVAS_WIDTH / 2 - width / 2,
+        top: CANVAS_HEIGHT / 2 - height / 2,
+        strokeWidth: 0,
+      });
+    } else {
+      const width = 400;
+      const height = 260;
+      shape = new fabric.Rect({
+        ...common,
+        width,
+        height,
+        rx: 12,
+        ry: 12,
+        left: CANVAS_WIDTH / 2 - width / 2,
+        top: CANVAS_HEIGHT / 2 - height / 2,
+        strokeWidth: 0,
+      });
+    }
+
+    canvas.add(shape);
+    canvas.setActiveObject(shape);
+    canvas.requestRenderAll();
+  }
+
   async function addImageFromFile(file: File) {
     const fabric = fabricNsRef.current;
     const canvas = fabricRef.current;
@@ -832,6 +890,28 @@ export function QrCardEditor({
             }}
           />
         </label>
+
+        {/* Shape primitives */}
+        <div className="grid grid-cols-3 gap-2 pt-1">
+          {([
+            { kind: "rect", label: "Rectangle", icon: <rect x="3.5" y="5" width="17" height="14" rx="2.5" /> },
+            { kind: "circle", label: "Circle", icon: <circle cx="12" cy="12" r="7.5" /> },
+            { kind: "line", label: "Line", icon: <path d="M4 12h16" /> },
+          ] as const).map((shape) => (
+            <button
+              key={shape.kind}
+              onClick={() => addShape(shape.kind)}
+              title={shape.label}
+              aria-label={shape.label}
+              className="flex flex-col items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2 py-2.5 text-[10px] font-medium text-white/70 transition hover:bg-white/10 hover:text-white"
+            >
+              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
+                {shape.icon}
+              </svg>
+              {shape.label}
+            </button>
+          ))}
+        </div>
       </div>
       <p className="mb-2 mt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">Tip</p>
       <p className="text-xs leading-5 text-white/55">

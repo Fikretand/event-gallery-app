@@ -202,6 +202,27 @@ const TAGLINE_COPY = "Hvala što ste dio naše priče";
 // Scale: design canvas was 559×794, ours is 1240×1754.
 const S = 1240 / 559; // ≈ 2.218
 
+// ── Event-type card copy (generic — not wedding-specific) ──────────────────
+const BODY_BIRTHDAY =
+  "Skenirajte QR kod i pošaljite fotografije i snimke s proslave. Najbolji kadrovi su uvijek oni koje uhvate gosti — neka ne ostanu samo na vašem telefonu.";
+const BODY_PARTY =
+  "Skenirajte QR kod i ubacite sve s večeri. Bez aplikacije i bez registracije — sve završi u jednoj galeriji.";
+const BODY_BAPTISM =
+  "Skenirajte QR kod i podijelite fotografije s nama. Svaki osmijeh i svaki trenutak koji ste zabilježili čuvamo na jednom mjestu.";
+const BODY_CORPORATE =
+  "Skenirajte QR kod i pošaljite fotografije s današnjeg događaja. Bez aplikacije i bez registracije — svi materijali stižu u jednu zajedničku galeriju.";
+const BODY_ANNIVERSARY =
+  "Skenirajte QR kod i podijelite svoje fotografije s nama. Voljeli bismo da ovu večer vidimo i vašim očima.";
+const BODY_MINIMAL =
+  "Skenirajte QR kod i pošaljite svoje fotografije. Sve završi u jednoj privatnoj galeriji.";
+const BODY_VINTAGE =
+  "Skenirajte QR kod i pošaljite fotografije i snimke koje ste zabilježili. Zajedno ćemo složiti album ovog dana.";
+
+/** Left offset that horizontally centres an element of width `w` on the card. */
+function CX_SVG(w: number) {
+  return (1240 - w) / 2;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Direction A — Classic Centered
 // Double inner gold border, eucalyptus sprig top-left + bottom-right, camera
@@ -368,7 +389,283 @@ function rotateSvg(svg: string, deg: number, w: number, h: number): string {
   );
 }
 
-export const CARD_PRESETS: CardPreset[] = [directionA, directionB, directionC];
+// ═══════════════════════════════════════════════════════════════════════════
+// EVENT-TYPE DIRECTIONS
+// The three directions above are wedding-first and share one cream/gold
+// palette. The set below covers the rest of the product's event types, each
+// with its own palette, layout rhythm and event-appropriate copy — authored
+// directly in the 1240×1754 canvas (no 559×794 scaling).
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Shared vertical rhythm for the event-type cards.
+const QR_PLATE = { left: 300, top: 700, size: 640 };
+const QR_INNER_PAD = 16;
+const QR_SLOT_PAD = 36;
+
+/** Centred QR plate: white card + hairline inner border + the QR slot. */
+function qrPlate(plateFill: string, borderColor: string, innerColor: string): PresetObject[] {
+  const { left, top, size } = QR_PLATE;
+  return [
+    { kind: "rect", left, top, width: size, height: size, fill: plateFill, stroke: borderColor, strokeWidth: 3, rx: 16 },
+    {
+      kind: "rect",
+      left: left + QR_INNER_PAD,
+      top: top + QR_INNER_PAD,
+      width: size - QR_INNER_PAD * 2,
+      height: size - QR_INNER_PAD * 2,
+      fill: "transparent",
+      stroke: innerColor,
+      strokeWidth: 2,
+      rx: 10,
+    },
+    { kind: "qr-slot", left: left + QR_SLOT_PAD, top: top + QR_SLOT_PAD, size: size - QR_SLOT_PAD * 2 },
+  ];
+}
+
+const SCAN_ROW = "SKENIRAJ ◆ POŠALJI ◆ PODIJELI";
+
+// ── Direction D — Birthday, playful ────────────────────────────────────────
+const B_BG = "#FFF9F0";
+const B_INK = "#2B2118";
+const B_BODY = "#6E5D45";
+const B_ACCENT = "#E27952";
+const B_AMBER = "#F0C25C";
+const B_MOSS = "#38584D";
+
+const directionBirthday: CardPreset = {
+  id: "birthday-confetti",
+  name: "Rođendan — veselo",
+  background: B_BG,
+  objects: [
+    // Confetti dots scattered in the margins (rx = half → circles/pills).
+    { kind: "rect", left: 96, top: 150, width: 18, height: 18, fill: B_ACCENT, rx: 9 },
+    { kind: "rect", left: 1130, top: 214, width: 14, height: 14, fill: B_AMBER, rx: 7 },
+    { kind: "rect", left: 160, top: 330, width: 22, height: 10, fill: B_AMBER, rx: 5 },
+    { kind: "rect", left: 1070, top: 400, width: 16, height: 16, fill: B_MOSS, rx: 8 },
+    { kind: "rect", left: 74, top: 520, width: 14, height: 14, fill: B_MOSS, rx: 7 },
+    { kind: "rect", left: 1146, top: 600, width: 20, height: 9, fill: B_ACCENT, rx: 4 },
+    { kind: "rect", left: 120, top: 1180, width: 16, height: 16, fill: B_AMBER, rx: 8 },
+    { kind: "rect", left: 1100, top: 1240, width: 18, height: 18, fill: B_ACCENT, rx: 9 },
+    { kind: "rect", left: 200, top: 1600, width: 14, height: 14, fill: B_MOSS, rx: 7 },
+    { kind: "rect", left: 1020, top: 1640, width: 22, height: 10, fill: B_AMBER, rx: 5 },
+
+    { kind: "svg", left: CX_SVG(56), top: 120, width: 56, height: 56, svg: SPARKLE_SVG },
+
+    { kind: "text", left: 0, top: 210, width: 1240, text: "{{title}}", fontFamily: SANS, fontWeight: 500, fontSize: 30, fill: B_ACCENT, textAlign: "center", charSpacing: 330, template: true },
+    { kind: "text", left: 0, top: 262, width: 1240, text: "{{date}}", fontFamily: SANS, fontWeight: 400, fontSize: 22, fill: B_BODY, textAlign: "center", charSpacing: 260, template: true },
+
+    { kind: "text", left: 0, top: 320, width: 1240, text: "Uhvati svaki trenutak", fontFamily: SERIF, fontWeight: 600, fontSize: 82, fill: B_INK, textAlign: "center" },
+
+    { kind: "rect", left: 560, top: 452, width: 120, height: 5, fill: B_ACCENT, rx: 3 },
+
+    { kind: "text", left: 210, top: 500, width: 820, text: BODY_BIRTHDAY, fontFamily: SANS, fontWeight: 300, fontSize: 27, fill: B_BODY, textAlign: "center" },
+
+    ...qrPlate("#ffffff", B_ACCENT, "#F3DCCE"),
+
+    { kind: "text", left: 0, top: 1420, width: 1240, text: SCAN_ROW, fontFamily: SANS, fontWeight: 500, fontSize: 26, fill: B_BODY, textAlign: "center", charSpacing: 340 },
+    { kind: "text", left: 0, top: 1490, width: 1240, text: "Hvala što slavite s nama", fontFamily: SERIF, fontStyle: "italic", fontWeight: 400, fontSize: 34, fill: B_INK, textAlign: "center" },
+  ],
+};
+
+// ── Direction E — Party, dark ──────────────────────────────────────────────
+const P_BG = "#171E2B";
+const P_TEXT = "#F7EFE2";
+const P_MUTED = "#AFA694";
+
+const directionParty: CardPreset = {
+  id: "party-night",
+  name: "Party — tamna",
+  background: P_BG,
+  objects: [
+    // Gold corner brackets on the dark field.
+    { kind: "svg", left: 70, top: 70, width: 58, height: 58, svg: L_BRACKET_LARGE_SVG, opacity: 0.8 },
+    { kind: "svg", left: 1112, top: 70, width: 58, height: 58, svg: rotateSvg(L_BRACKET_LARGE_SVG, 90, 26, 26), opacity: 0.8 },
+    { kind: "svg", left: 1112, top: 1626, width: 58, height: 58, svg: rotateSvg(L_BRACKET_LARGE_SVG, 180, 26, 26), opacity: 0.8 },
+    { kind: "svg", left: 70, top: 1626, width: 58, height: 58, svg: rotateSvg(L_BRACKET_LARGE_SVG, 270, 26, 26), opacity: 0.8 },
+
+    { kind: "svg", left: CX_SVG(48), top: 150, width: 48, height: 48, svg: SPARKLE_SVG },
+
+    { kind: "text", left: 0, top: 222, width: 1240, text: "{{title}}", fontFamily: SANS, fontWeight: 500, fontSize: 30, fill: GOLD, textAlign: "center", charSpacing: 420, template: true },
+    { kind: "text", left: 0, top: 274, width: 1240, text: "{{date}}", fontFamily: SANS, fontWeight: 400, fontSize: 22, fill: P_MUTED, textAlign: "center", charSpacing: 300, template: true },
+
+    { kind: "text", left: 0, top: 336, width: 1240, text: "Noć koju pamtimo", fontFamily: SERIF, fontWeight: 500, fontSize: 84, fill: P_TEXT, textAlign: "center" },
+
+    { kind: "svg", left: CX_SVG(20), top: 466, width: 20, height: 20, svg: DIAMOND_SVG, opacity: 0.85 },
+
+    { kind: "text", left: 210, top: 518, width: 820, text: BODY_PARTY, fontFamily: SANS, fontWeight: 300, fontSize: 27, fill: P_MUTED, textAlign: "center" },
+
+    // QR stays on a white plate — dark plates do not scan reliably.
+    ...qrPlate("#ffffff", GOLD, "#E6D9BC"),
+
+    { kind: "text", left: 0, top: 1420, width: 1240, text: SCAN_ROW, fontFamily: SANS, fontWeight: 500, fontSize: 26, fill: GOLD, textAlign: "center", charSpacing: 340 },
+    { kind: "text", left: 0, top: 1492, width: 1240, text: "Podijeli kadrove koje samo ti imaš", fontFamily: SERIF, fontStyle: "italic", fontWeight: 400, fontSize: 32, fill: P_TEXT, textAlign: "center" },
+  ],
+};
+
+// ── Direction F — Baptism / christening, soft ──────────────────────────────
+const C_BG = "#F7FAFB";
+const C_INK = "#33424E";
+const C_BODY = "#5E7182";
+const C_ACCENT = "#8FB0C4";
+
+const directionBaptism: CardPreset = {
+  id: "baptism-soft",
+  name: "Krštenje — nježno",
+  background: C_BG,
+  objects: [
+    { kind: "rect", left: 60, top: 60, width: 1120, height: 1634, fill: "transparent", stroke: C_ACCENT, strokeWidth: 2, opacity: 0.5, rx: 18 },
+
+    { kind: "svg", left: 84, top: 96, width: 230, height: 292, svg: EUCALYPTUS_SVG, opacity: 0.32 },
+    { kind: "svg", left: 926, top: 1366, width: 230, height: 292, svg: EUCALYPTUS_MIRROR_BOTH_SVG, opacity: 0.32 },
+
+    { kind: "text", left: 0, top: 236, width: 1240, text: "{{title}}", fontFamily: SANS, fontWeight: 500, fontSize: 28, fill: C_ACCENT, textAlign: "center", charSpacing: 380, template: true },
+    { kind: "text", left: 0, top: 286, width: 1240, text: "{{date}}", fontFamily: SANS, fontWeight: 400, fontSize: 22, fill: C_BODY, textAlign: "center", charSpacing: 280, template: true },
+
+    { kind: "text", left: 0, top: 344, width: 1240, text: "Prvi dan pun ljubavi", fontFamily: SERIF, fontStyle: "italic", fontWeight: 500, fontSize: 76, fill: C_INK, textAlign: "center" },
+
+    { kind: "rect", left: 520, top: 474, width: 200, height: 2, fill: C_ACCENT, opacity: 0.7 },
+
+    { kind: "text", left: 220, top: 516, width: 800, text: BODY_BAPTISM, fontFamily: SANS, fontWeight: 300, fontSize: 26, fill: C_BODY, textAlign: "center" },
+
+    ...qrPlate("#ffffff", C_ACCENT, "#DCE8EF"),
+
+    { kind: "text", left: 0, top: 1424, width: 1240, text: SCAN_ROW, fontFamily: SANS, fontWeight: 500, fontSize: 25, fill: C_BODY, textAlign: "center", charSpacing: 330 },
+    { kind: "svg", left: CX_SVG(34), top: 1500, width: 34, height: 32, svg: HEART_SVG, opacity: 0.8 },
+  ],
+};
+
+// ── Direction G — Corporate, restrained ────────────────────────────────────
+const K_BG = "#FFFFFF";
+const K_INK = "#172033";
+const K_BODY = "#55606E";
+const K_ACCENT = "#38584D";
+
+const directionCorporate: CardPreset = {
+  id: "corporate-clean",
+  name: "Korporativno — čisto",
+  background: K_BG,
+  objects: [
+    { kind: "rect", left: 0, top: 0, width: 1240, height: 14, fill: K_ACCENT },
+
+    { kind: "text", left: 0, top: 216, width: 1240, text: "{{title}}", fontFamily: SANS, fontWeight: 500, fontSize: 30, fill: K_ACCENT, textAlign: "center", charSpacing: 360, template: true },
+    { kind: "text", left: 0, top: 268, width: 1240, text: "{{date}}", fontFamily: SANS, fontWeight: 400, fontSize: 22, fill: K_BODY, textAlign: "center", charSpacing: 280, template: true },
+
+    { kind: "text", left: 0, top: 336, width: 1240, text: "Podijelite fotografije s događaja", fontFamily: SANS, fontWeight: 500, fontSize: 62, fill: K_INK, textAlign: "center" },
+
+    { kind: "rect", left: 500, top: 470, width: 240, height: 2, fill: K_INK, opacity: 0.25 },
+
+    { kind: "text", left: 220, top: 512, width: 800, text: BODY_CORPORATE, fontFamily: SANS, fontWeight: 300, fontSize: 26, fill: K_BODY, textAlign: "center" },
+
+    ...qrPlate("#ffffff", "#D7DCE2", "#EDF0F3"),
+
+    { kind: "text", left: 0, top: 1424, width: 1240, text: "SKENIRAJTE KAMEROM TELEFONA", fontFamily: SANS, fontWeight: 500, fontSize: 25, fill: K_BODY, textAlign: "center", charSpacing: 330 },
+    { kind: "rect", left: 0, top: 1740, width: 1240, height: 14, fill: K_ACCENT },
+  ],
+};
+
+// ── Direction H — Anniversary, deep green + gold ───────────────────────────
+const A_BG = "#2C3A33";
+const A_TEXT = "#EBDFC4";
+const A_MUTED = "#A7B3A6";
+
+const directionAnniversary: CardPreset = {
+  id: "anniversary-gold",
+  name: "Godišnjica — zlatna",
+  background: A_BG,
+  objects: [
+    { kind: "rect", left: 54, top: 54, width: 1132, height: 1646, fill: "transparent", stroke: GOLD, strokeWidth: 2, opacity: 0.55, rx: 12 },
+    { kind: "rect", left: 68, top: 68, width: 1104, height: 1618, fill: "transparent", stroke: GOLD, strokeWidth: 1, opacity: 0.3, rx: 8 },
+
+    { kind: "svg", left: CX_SVG(44), top: 148, width: 44, height: 38, svg: CAMERA_SVG },
+
+    { kind: "text", left: 0, top: 232, width: 1240, text: "{{title}}", fontFamily: SANS, fontWeight: 500, fontSize: 29, fill: GOLD, textAlign: "center", charSpacing: 400, template: true },
+    { kind: "text", left: 0, top: 284, width: 1240, text: "{{date}}", fontFamily: SANS, fontWeight: 400, fontSize: 22, fill: A_MUTED, textAlign: "center", charSpacing: 290, template: true },
+
+    { kind: "text", left: 0, top: 344, width: 1240, text: "Još jedna godina zajedno", fontFamily: SERIF, fontStyle: "italic", fontWeight: 500, fontSize: 74, fill: A_TEXT, textAlign: "center" },
+
+    { kind: "svg", left: CX_SVG(18), top: 476, width: 18, height: 18, svg: DIAMOND_SVG, opacity: 0.9 },
+
+    { kind: "text", left: 215, top: 526, width: 810, text: BODY_ANNIVERSARY, fontFamily: SANS, fontWeight: 300, fontSize: 26, fill: A_MUTED, textAlign: "center" },
+
+    ...qrPlate("#ffffff", GOLD, "#E6D9BC"),
+
+    { kind: "text", left: 0, top: 1420, width: 1240, text: SCAN_ROW, fontFamily: SANS, fontWeight: 500, fontSize: 25, fill: GOLD, textAlign: "center", charSpacing: 340 },
+    { kind: "text", left: 0, top: 1492, width: 1240, text: "Hvala što ste dio naše priče", fontFamily: SERIF, fontStyle: "italic", fontWeight: 400, fontSize: 32, fill: A_TEXT, textAlign: "center" },
+  ],
+};
+
+// ── Direction I — Minimal, left-aligned editorial ──────────────────────────
+const M_BG = "#FBFAF8";
+const M_INK = "#1A1A1A";
+const M_BODY = "#6B6B6B";
+
+const directionMinimal: CardPreset = {
+  id: "minimal-modern",
+  name: "Minimal — moderno",
+  background: M_BG,
+  objects: [
+    { kind: "text", left: 150, top: 200, width: 940, text: "{{title}}", fontFamily: SANS, fontWeight: 500, fontSize: 28, fill: M_INK, textAlign: "left", charSpacing: 420, template: true },
+    { kind: "rect", left: 150, top: 258, width: 80, height: 3, fill: M_INK },
+
+    { kind: "text", left: 150, top: 320, width: 940, text: "Podijeli\nsvoje kadrove", fontFamily: SERIF, fontWeight: 500, fontSize: 96, fill: M_INK, textAlign: "left" },
+
+    { kind: "text", left: 150, top: 560, width: 760, text: BODY_MINIMAL, fontFamily: SANS, fontWeight: 300, fontSize: 26, fill: M_BODY, textAlign: "left" },
+
+    ...qrPlate("#ffffff", "#E4E1DC", "#F1EFEB"),
+
+    { kind: "text", left: 150, top: 1430, width: 940, text: "{{date}}", fontFamily: SANS, fontWeight: 400, fontSize: 24, fill: M_BODY, textAlign: "left", charSpacing: 300, template: true },
+    { kind: "rect", left: 150, top: 1492, width: 940, height: 2, fill: M_INK, opacity: 0.15 },
+    { kind: "text", left: 150, top: 1518, width: 940, text: "Skeniraj kamerom telefona", fontFamily: SANS, fontWeight: 400, fontSize: 24, fill: M_BODY, textAlign: "left" },
+  ],
+};
+
+// ── Direction J — Vintage, warm kraft ──────────────────────────────────────
+const V_BG = "#F2E8D5";
+const V_INK = "#4A3B2A";
+const V_BODY = "#6B5842";
+const V_GOLD = "#B08D57";
+
+const directionVintage: CardPreset = {
+  id: "vintage-sepia",
+  name: "Vintage — toplo",
+  background: V_BG,
+  objects: [
+    { kind: "rect", left: 48, top: 48, width: 1144, height: 1658, fill: "transparent", stroke: V_GOLD, strokeWidth: 4, rx: 4 },
+    { kind: "rect", left: 66, top: 66, width: 1108, height: 1622, fill: "transparent", stroke: V_GOLD, strokeWidth: 1, opacity: 0.6, rx: 2 },
+
+    { kind: "svg", left: CX_SVG(46), top: 146, width: 46, height: 39, svg: CAMERA_SVG },
+
+    { kind: "text", left: 0, top: 230, width: 1240, text: "{{title}}", fontFamily: SERIF, fontWeight: 500, fontSize: 30, fill: V_GOLD, textAlign: "center", charSpacing: 440, template: true },
+
+    { kind: "rect", left: 420, top: 290, width: 160, height: 2, fill: V_GOLD, opacity: 0.7 },
+    { kind: "svg", left: CX_SVG(16), top: 283, width: 16, height: 16, svg: DIAMOND_SVG, opacity: 0.8 },
+    { kind: "rect", left: 660, top: 290, width: 160, height: 2, fill: V_GOLD, opacity: 0.7 },
+
+    { kind: "text", left: 0, top: 330, width: 1240, text: "Uspomene u jednom albumu", fontFamily: SERIF, fontWeight: 600, fontSize: 70, fill: V_INK, textAlign: "center" },
+
+    { kind: "text", left: 0, top: 452, width: 1240, text: "{{date}}", fontFamily: SANS, fontWeight: 400, fontSize: 24, fill: V_BODY, textAlign: "center", charSpacing: 320, template: true },
+
+    { kind: "text", left: 215, top: 520, width: 810, text: BODY_VINTAGE, fontFamily: SANS, fontWeight: 300, fontSize: 26, fill: V_BODY, textAlign: "center" },
+
+    ...qrPlate("#FDF9F1", V_GOLD, "#E3D2B4"),
+
+    { kind: "text", left: 0, top: 1424, width: 1240, text: SCAN_ROW, fontFamily: SANS, fontWeight: 500, fontSize: 25, fill: V_BODY, textAlign: "center", charSpacing: 340 },
+    { kind: "text", left: 0, top: 1496, width: 1240, text: "Hvala što ste s nama", fontFamily: SERIF, fontStyle: "italic", fontWeight: 400, fontSize: 32, fill: V_INK, textAlign: "center" },
+  ],
+};
+
+export const CARD_PRESETS: CardPreset[] = [
+  directionA,
+  directionB,
+  directionC,
+  directionBirthday,
+  directionParty,
+  directionAnniversary,
+  directionBaptism,
+  directionCorporate,
+  directionMinimal,
+  directionVintage,
+];
 
 export const CANVAS_WIDTH = 1240;
 export const CANVAS_HEIGHT = 1754;
