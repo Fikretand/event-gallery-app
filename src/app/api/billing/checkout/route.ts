@@ -37,7 +37,16 @@ export async function POST(request: Request) {
     const plan = body.plan as CheckoutPlanId;
     const cycle = (body.cycle ?? "yearly") as BillingCycle;
     const email = user.email ?? "";
-    const baseUrl = env.appUrl.replace(/\/$/, "");
+
+    // NEXT_PUBLIC_APP_URL wins when it is really configured. It falls back to
+    // localhost, which a provider will reject as a return URL, so on a
+    // deployment without it (e.g. a Vercel preview) use the request's own
+    // origin instead of sending the buyer to localhost.
+    const configuredBase = env.appUrl.replace(/\/$/, "");
+    const requestOrigin = new URL(request.url).origin;
+    const baseUrl = configuredBase.startsWith("http://localhost")
+      ? requestOrigin
+      : configuredBase;
     const successUrl = `${baseUrl}/dashboard/billing?success=1`;
 
     // ── Polar (Merchant of Record) — preferred when configured ───────────
@@ -90,6 +99,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ url });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to start checkout.";
+    // The provider's own error (wrong environment, unknown product, bad return
+    // URL) is the only thing that explains a failed checkout, and the browser
+    // never sees it — log it so it lands in the deployment logs.
+    console.error("[checkout] failed", {
+      message,
+      polarServer: env.polarServer,
+      detail: error instanceof Error ? (error.cause ?? error.stack?.slice(0, 500)) : error,
+    });
     const status = message.includes("NOT_CONFIGURED") ? 503 : 400;
     return NextResponse.json({ error: message }, { status });
   }
