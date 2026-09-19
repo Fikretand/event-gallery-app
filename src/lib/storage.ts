@@ -40,7 +40,12 @@ export async function createSignedUploadUrl(key: string, contentType: string) {
       Key: key,
       ContentType: contentType,
     }),
-    { expiresIn: 60 * 5 },
+    // A batch is presigned up front (up to 150 files, 1 GB each) and then
+    // uploaded sequentially, so this has to cover the whole transfer — at 5
+    // minutes every file whose turn came late failed with a 403. The URL is
+    // scoped to one random-UUID key with a fixed content type, so a longer
+    // window is a cheap trade for uploads that actually finish.
+    { expiresIn: 60 * 60 * 2 },
   );
 }
 
@@ -63,7 +68,10 @@ export async function createSignedDownloadUrl(key: string, downloadName?: string
         ? `attachment; filename="${downloadName.replace(/"/g, "")}"`
         : undefined,
     }),
-    { expiresIn: 60 * 5 },
+    // Gallery tiles are lazy-loaded, so a URL minted at page load may not be
+    // requested until the visitor scrolls to it. At 5 minutes those images
+    // 403'd on any gallery left open or browsed slowly.
+    { expiresIn: 60 * 60 },
   );
 }
 

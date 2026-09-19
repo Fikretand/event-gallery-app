@@ -61,6 +61,13 @@ const FONT_OPTIONS = ["Playfair Display", "Jost", "Inter", "JetBrains Mono"] as 
 
 const SNAP_THRESHOLD = 10; // design-px tolerance for centre snapping
 const HISTORY_LIMIT = 60;
+// A snapshot is the whole canvas serialized, and any image the user uploads
+// lives inside it as a base64 data URL. Sixty snapshots taken after a 3 MB
+// photo upload would retain hundreds of MB, so bound the stack by bytes too.
+const HISTORY_MAX_BYTES = 24_000_000;
+// localStorage gives us ~5 MB; stay well under it rather than throwing on
+// every keystroke once a big image is on the canvas.
+const DRAFT_MAX_BYTES = 3_000_000;
 
 // ── Draft persistence (localStorage, keyed by event slug) ────────────────────
 type DraftShape = { presetId: string; canvas: unknown };
@@ -77,11 +84,17 @@ function readDraft(slug: string): DraftShape | null {
     return null;
   }
 }
-function writeDraft(slug: string, draft: DraftShape) {
+/** Returns whether the draft actually reached storage. */
+function writeDraft(slug: string, draft: DraftShape): boolean {
   try {
-    window.localStorage.setItem(draftKey(slug), JSON.stringify(draft));
+    const payload = JSON.stringify(draft);
+    // Oversized canvases (a big uploaded image) would throw on every save.
+    if (payload.length > DRAFT_MAX_BYTES) return false;
+    window.localStorage.setItem(draftKey(slug), payload);
+    return true;
   } catch {
-    /* quota / private mode — drafts are best-effort */
+    // Quota exceeded / private mode — drafts are best-effort.
+    return false;
   }
 }
 function clearDraft(slug: string) {
@@ -288,8 +301,12 @@ export function QrCardEditor({
     saveTimerRef.current = window.setTimeout(() => {
       const canvas = fabricRef.current;
       if (!canvas) return;
-      writeDraft(slug, { presetId: activePresetIdRef.current, canvas: canvas.toJSON() });
-      setHasDraft(true);
+      const saved = writeDraft(slug, { presetId: activePresetIdRef.current, canvas: canvas.toJSON() });
+      // Only claim a draft exists when one really does — otherwise the "Reset
+      // to template" affordance would promise work that a reload will lose.
+      // A failed save leaves any previously stored draft intact, so never
+      // flip this back to false here.
+      if (saved) setHasDraft(true);
     }, 500);
   }, [slug]);
 
@@ -314,7 +331,12 @@ export function QrCardEditor({
     h.stack = h.stack.slice(0, h.index + 1);
     if (h.stack[h.index] === json) return; // nothing actually changed
     h.stack.push(json);
-    if (h.stack.length > HISTORY_LIMIT) h.stack.shift();
+    // Trim by count *and* by total bytes — see HISTORY_MAX_BYTES.
+    let bytes = h.stack.reduce((sum, entry) => sum + entry.length, 0);
+    while (h.stack.length > 1 && (h.stack.length > HISTORY_LIMIT || bytes > HISTORY_MAX_BYTES)) {
+      bytes -= h.stack[0].length;
+      h.stack.shift();
+    }
     h.index = h.stack.length - 1;
     syncHist();
     scheduleSave();

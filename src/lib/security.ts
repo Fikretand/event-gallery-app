@@ -96,7 +96,9 @@ export function hashIp(value: string | null) {
 // leaked token can't be replayed indefinitely. The object key itself encodes
 // `events/{eventId}/{guest|photographer}/…`, so the confirm route derives the
 // event + source from the (signed) key instead of trusting the client.
-const CONFIRM_TTL_MS = 15 * 60 * 1000; // uploads confirm within seconds; 15 min is generous
+// Must outlast the presigned upload URL it is issued alongside (2h), since a
+// batch is granted up front and confirmed file-by-file as each finishes.
+const CONFIRM_TTL_MS = 3 * 60 * 60 * 1000;
 
 export function signUploadConfirmToken(objectKey: string, expiresAt?: number): string {
   const exp = expiresAt ?? Date.now() + CONFIRM_TTL_MS;
