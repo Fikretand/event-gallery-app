@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { validateEvent, WebhookVerificationError } from "@polar-sh/sdk/webhooks.js";
 
-import { planFromPolarProduct } from "@/lib/billing";
+import { planFromPolarProduct, polarSecretCandidates } from "@/lib/billing";
 import { env } from "@/lib/env";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { SubscriptionStatus } from "@/lib/types";
@@ -48,14 +48,34 @@ export async function POST(request: Request) {
     headers[key] = value;
   });
 
-  let event: ReturnType<typeof validateEvent>;
-  try {
-    event = validateEvent(raw, headers, secret);
-  } catch (error) {
-    if (error instanceof WebhookVerificationError) {
-      return NextResponse.json({ error: "Invalid signature." }, { status: 403 });
+  const candidates = polarSecretCandidates(secret);
+
+  let event: ReturnType<typeof validateEvent> | null = null;
+  let verificationError: unknown = null;
+
+  for (const candidate of candidates) {
+    try {
+      event = validateEvent(raw, headers, candidate);
+      break;
+    } catch (error) {
+      if (error instanceof WebhookVerificationError) {
+        verificationError = error;
+        continue;
+      }
+      throw error;
     }
-    throw error;
+  }
+
+  if (!event) {
+    // Never log the secret. Its length and ends are enough to spot a truncated
+    // or mis-pasted copy against what the Polar dashboard shows.
+    console.error("[polar-webhook] signature rejected", {
+      secretLength: secret.length,
+      secretHead: secret.slice(0, 10),
+      secretTail: secret.slice(-4),
+      message: verificationError instanceof Error ? verificationError.message : null,
+    });
+    return NextResponse.json({ error: "Invalid signature." }, { status: 403 });
   }
 
   // ── Map the event onto a single account update ───────────────────────────

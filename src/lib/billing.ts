@@ -85,6 +85,21 @@ export function planFromPolarProduct(productId: string): {
 }
 
 /**
+ * The forms of the webhook signing secret worth trying, most likely first.
+ *
+ * Polar displays the secret with a `whsec_` prefix but signs with the bare
+ * value, so handing the dashboard string straight to `validateEvent` rejects
+ * every delivery with a 403. Both candidates derive from the same configured
+ * secret, so accepting either loosens nothing.
+ */
+export function polarSecretCandidates(secret: string): string[] {
+  const PREFIX = "whsec_";
+  return secret.startsWith(PREFIX)
+    ? [secret.slice(PREFIX.length), secret]
+    : [secret, `${PREFIX}${secret}`];
+}
+
+/**
  * Create a Polar checkout session and return its hosted URL.
  *
  * The buyer's account id travels in `metadata` and `externalCustomerId`, so the
