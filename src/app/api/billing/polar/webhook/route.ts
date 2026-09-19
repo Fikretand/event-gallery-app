@@ -177,6 +177,14 @@ export async function POST(request: Request) {
 
   const { error: updateError } = await admin.from("users").update(update).eq("id", userId);
   if (updateError) {
+    // A paid order that did not activate the account. The most common cause is
+    // a missing billing column — see supabase/migrations.
+    console.error("[polar-webhook] account update failed", {
+      event: event.type,
+      userId,
+      message: updateError.message,
+      details: updateError.details,
+    });
     return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
 

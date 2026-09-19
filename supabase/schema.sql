@@ -17,8 +17,22 @@ create table if not exists public.users (
   show_on_homepage boolean not null default false,
   public_profile_consent boolean not null default false,
   public_email_on_homepage boolean not null default false,
+  -- Billing. NULL status means no paid plan (free trial or expired).
+  subscription_status text check (
+    subscription_status is null
+    or subscription_status in ('active', 'trialing', 'past_due', 'canceled')
+  ),
+  subscription_provider text,
+  subscription_external_id text,
+  subscription_renews_at timestamptz,
+  -- Dashboard UI language. NULL means "follow the URL / default".
+  preferred_locale text check (preferred_locale is null or preferred_locale in ('en', 'bs')),
   created_at timestamptz not null default now()
 );
+
+create index if not exists users_subscription_external_id_idx
+  on public.users (subscription_external_id)
+  where subscription_external_id is not null;
 
 create table if not exists public.events (
   id uuid primary key default gen_random_uuid(),

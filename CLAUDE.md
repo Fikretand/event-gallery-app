@@ -223,7 +223,10 @@ thumbnails) is **done**. What is genuinely left:
 
 ### Blocking launch — owner action, not code
 1. **Run pending Supabase migrations** in the SQL editor if not already done:
-   `add_preferred_locale_to_users.sql`, `add_upload_session_id_to_media.sql`.
+   `add_billing_columns_to_users.sql`, `add_preferred_locale_to_users.sql`,
+   `add_upload_session_id_to_media.sql`. The billing one is not optional —
+   without it every payment webhook and the admin "mark as paid" action fail
+   silently and paying customers stay on the free trial.
 2. **Polar:** set `POLAR_ACCESS_TOKEN`, `POLAR_WEBHOOK_SECRET` and
    `POLAR_PRODUCT_ONE_EVENT` in Vercel, and register the webhook endpoint
    `<APP_URL>/api/billing/polar/webhook` in Polar (subscribe at minimum to
