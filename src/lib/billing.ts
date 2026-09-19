@@ -85,20 +85,42 @@ export function planFromPolarProduct(productId: string): {
 }
 
 /**
- * The forms of the webhook signing secret worth trying.
+ * Every HMAC key a Polar signing secret could plausibly stand for.
  *
- * Polar's dashboard shows the secret with a `whsec_` prefix, and whether it
- * signs with that prefix or with the bare value is not something this codebase
- * has confirmed — the two produce different HMAC keys, so guessing wrong
- * rejects every delivery. Trying both removes the question. Both candidates
- * derive from the same configured secret, so accepting either loosens nothing:
- * a caller still has to know the secret.
+ * Polar's dashboard shows the secret as `whsec_<base64>`, and there are three
+ * conventions in circulation for turning that display string into a key:
+ *
+ *  - `utf8(prefixed)` — the bytes of the string as the dashboard shows it,
+ *    `whsec_` included. This is what `validateEvent` in Polar's own SDK uses.
+ *  - `utf8(bare)`     — the same, with the `whsec_` prefix stripped.
+ *  - `base64(bare)`   — the Standard Webhooks convention: strip the prefix,
+ *    then base64-decode, so the key is the 32 raw random bytes.
+ *
+ * They produce completely different keys, and picking the wrong one rejects
+ * every delivery with no way to tell that from a wrong secret. Rather than bet
+ * on one, the webhook route tries all three, whichever form the secret happens
+ * to be configured in. They all derive from the same configured secret, so
+ * accepting any of them loosens nothing — a caller still has to know the
+ * secret to forge a signature under any convention.
  */
-export function polarSecretCandidates(secret: string): string[] {
+export function polarWebhookKeys(secret: string): { label: string; key: Buffer }[] {
   const PREFIX = "whsec_";
-  return secret.startsWith(PREFIX)
-    ? [secret.slice(PREFIX.length), secret]
-    : [secret, `${PREFIX}${secret}`];
+  const bare = secret.startsWith(PREFIX) ? secret.slice(PREFIX.length) : secret;
+
+  const candidates = [
+    { label: "utf8(prefixed)", key: Buffer.from(`${PREFIX}${bare}`, "utf8") },
+    { label: "utf8(bare)", key: Buffer.from(bare, "utf8") },
+    { label: "base64(bare)", key: Buffer.from(bare, "base64") },
+  ];
+
+  const seen = new Set<string>();
+  return candidates.filter(({ key }) => {
+    if (key.length === 0) return false;
+    const fingerprint = key.toString("base64");
+    if (seen.has(fingerprint)) return false;
+    seen.add(fingerprint);
+    return true;
+  });
 }
 
 /**

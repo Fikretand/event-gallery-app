@@ -1,8 +1,10 @@
+import { createHmac, timingSafeEqual } from "node:crypto";
+
 import { NextResponse } from "next/server";
 
-import { validateEvent, WebhookVerificationError } from "@polar-sh/sdk/webhooks.js";
+import { validateEvent } from "@polar-sh/sdk/webhooks.js";
 
-import { planFromPolarProduct, polarSecretCandidates } from "@/lib/billing";
+import { planFromPolarProduct, polarWebhookKeys } from "@/lib/billing";
 import { env } from "@/lib/env";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { SubscriptionStatus } from "@/lib/types";
@@ -10,10 +12,16 @@ import type { SubscriptionStatus } from "@/lib/types";
 /**
  * Polar webhook handler.
  *
- * Verification: Polar signs every delivery (Standard Webhooks). `validateEvent`
- * checks the signature against POLAR_WEBHOOK_SECRET and throws
- * WebhookVerificationError on a mismatch, so an unsigned POST can never reach
- * the account update below.
+ * Verification: Polar signs every delivery (Standard Webhooks). The signature
+ * is checked here rather than by handing the secret to the SDK's
+ * `validateEvent`, because that helper commits to one interpretation of the
+ * secret and there are three in circulation — see `polarWebhookKeys`. An
+ * unsigned or wrongly signed POST can never reach the account update below.
+ *
+ * Once a delivery is proven authentic, it is re-signed with the key the SDK
+ * expects and passed through `validateEvent` anyway. That is only to reuse its
+ * parsing: the raw payload is snake_case JSON and the handlers below want the
+ * SDK's typed, camelCased models with real Date objects.
  *
  * User matching: the checkout carries the buyer's account id in
  * `metadata.userId` and in `externalCustomerId`, so activation lands on the
@@ -36,6 +44,45 @@ function asMetadataUserId(metadata: Record<string, unknown> | undefined | null):
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
+/** Standard Webhooks signs `${id}.${timestamp}.${body}` and base64s the MAC. */
+function sign(key: Buffer, id: string, timestamp: string, body: string): string {
+  return createHmac("sha256", key).update(`${id}.${timestamp}.${body}`).digest("base64");
+}
+
+function equals(a: string, b: string): boolean {
+  const left = Buffer.from(a, "utf8");
+  const right = Buffer.from(b, "utf8");
+  return left.length === right.length && timingSafeEqual(left, right);
+}
+
+/**
+ * Check the delivery against every key the secret could stand for, and report
+ * which one matched so the convention Polar actually uses stops being a guess.
+ */
+function verifyDelivery(
+  secret: string,
+  id: string,
+  timestamp: string,
+  body: string,
+  signatureHeader: string,
+): string | null {
+  // The header is a space-separated list of `v<version>,<base64 mac>`.
+  const provided = signatureHeader
+    .split(" ")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => (part.includes(",") ? part.slice(part.indexOf(",") + 1) : part));
+
+  for (const { label, key } of polarWebhookKeys(secret)) {
+    const expected = sign(key, id, timestamp, body);
+    if (provided.some((candidate) => equals(expected, candidate))) return label;
+  }
+  return null;
+}
+
+/** Replays are pointless beyond this, and the SDK enforces the same window. */
+const TIMESTAMP_TOLERANCE_SECONDS = 5 * 60;
+
 export async function POST(request: Request) {
   const secret = env.polarWebhookSecret;
   if (!secret) {
@@ -48,39 +95,50 @@ export async function POST(request: Request) {
     headers[key] = value;
   });
 
-  const candidates = polarSecretCandidates(secret);
+  const webhookId = headers["webhook-id"] ?? "";
+  const webhookTimestamp = headers["webhook-timestamp"] ?? "";
+  const webhookSignature = headers["webhook-signature"] ?? "";
 
-  let event: ReturnType<typeof validateEvent> | null = null;
-  let verificationError: unknown = null;
-
-  for (const candidate of candidates) {
-    try {
-      event = validateEvent(raw, headers, candidate);
-      break;
-    } catch (error) {
-      if (error instanceof WebhookVerificationError) {
-        verificationError = error;
-        continue;
-      }
-      throw error;
-    }
+  if (!webhookId || !webhookTimestamp || !webhookSignature) {
+    return NextResponse.json({ error: "Missing signature headers." }, { status: 400 });
   }
 
-  if (!event) {
+  const sentAt = Number(webhookTimestamp);
+  if (!Number.isFinite(sentAt) || Math.abs(Date.now() / 1000 - sentAt) > TIMESTAMP_TOLERANCE_SECONDS) {
+    return NextResponse.json({ error: "Stale or invalid timestamp." }, { status: 403 });
+  }
+
+  const matchedKey = verifyDelivery(secret, webhookId, webhookTimestamp, raw, webhookSignature);
+
+  if (!matchedKey) {
     // Never log the secret. Its length and ends are enough to spot a truncated
     // or mis-pasted copy against what the Polar dashboard shows.
-    console.error("[polar-webhook] signature rejected", {
+    console.error("[polar-webhook] signature rejected by every key derivation", {
       secretLength: secret.length,
       secretHead: secret.slice(0, 10),
       secretTail: secret.slice(-4),
-      message: verificationError instanceof Error ? verificationError.message : null,
+      triedKeys: polarWebhookKeys(secret).map((candidate) => candidate.label),
     });
     return NextResponse.json({ error: "Invalid signature." }, { status: 403 });
   }
 
-  // Low-volume endpoint, and knowing which events actually arrive is the only
-  // way to tell "handled" apart from "silently ignored" after the fact.
-  console.log("[polar-webhook] received", event.type);
+  // Authentic. Re-sign with the key the SDK derives so it will parse the body
+  // into its typed models rather than reject a signature it cannot reproduce.
+  const sdkKey = Buffer.from(secret, "utf8");
+  const event = validateEvent(
+    raw,
+    {
+      "webhook-id": webhookId,
+      "webhook-timestamp": webhookTimestamp,
+      "webhook-signature": `v1,${sign(sdkKey, webhookId, webhookTimestamp, raw)}`,
+    },
+    secret,
+  );
+
+  // Low-volume endpoint, and knowing which events actually arrive — and which
+  // key derivation Polar signs with — is the only way to tell "handled" apart
+  // from "silently ignored" after the fact.
+  console.log("[polar-webhook] received", event.type, "via", matchedKey);
 
   // ── Map the event onto a single account update ───────────────────────────
   let resolved: Resolution | null = null;
