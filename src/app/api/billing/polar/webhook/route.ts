@@ -78,15 +78,29 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid signature." }, { status: 403 });
   }
 
+  // Low-volume endpoint, and knowing which events actually arrive is the only
+  // way to tell "handled" apart from "silently ignored" after the fact.
+  console.log("[polar-webhook] received", event.type);
+
   // ── Map the event onto a single account update ───────────────────────────
   let resolved: Resolution | null = null;
   let email: string | null = null;
 
   switch (event.type) {
+    case "order.created":
     case "order.paid":
     case "order.refunded": {
       const order = event.data;
       const refunded = event.type === "order.refunded";
+
+      // `order.created` also fires for orders that are not settled yet, so it
+      // is only acted on once the order says it is paid. A fully discounted
+      // order (a 100% coupon) costs nothing to settle, and Polar appears to
+      // announce it here rather than through `order.paid`.
+      if (event.type === "order.created" && !order.paid) {
+        return NextResponse.json({ received: true, event: event.type, note: "unpaid" });
+      }
+
       email = order.customer?.email?.trim().toLowerCase() || null;
       resolved = {
         userId: asMetadataUserId(order.metadata) ?? order.customer?.externalId ?? null,
