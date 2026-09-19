@@ -1,6 +1,6 @@
 # CLAUDE.md — Confetti Event Gallery App
 
-_Last updated: 2026-05-31._
+_Last updated: 2026-09-19._
 
 ---
 
@@ -18,10 +18,18 @@ _Last updated: 2026-05-31._
 
 **Current state:** Live MVP at `event-gallery-app-rho.vercel.app`. Auth,
 event CRUD, guest upload, gallery PIN, media moderation, QR posters, **full
-i18n dashboard (EN/BS) with persisted language preference**, **Payhip payment
-integration**, **admin panel**, and **Fabric.js QR card editor** are all
-shipped. Copy and visuals are still wedding-leaning in places; the data model
-is generic.
+i18n (EN/BS) across dashboard _and_ the inner forms**, **Payhip payment
+integration**, **admin panel** (incl. manual plan activation), and a
+**Fabric.js QR card editor** (10 templates, undo/redo, centre snapping,
+shapes, draft autosave, mobile layout) are all shipped.
+
+Also shipped: redesigned public gallery (bilingual, photo-tile grid,
+portalled full-screen viewer), landing photo mosaic, a 3D Three.js hero loop
+and the Confetti explainer (both lazy-loaded), client-extracted video poster
+thumbnails, branded error/404 pages, draft legal pages, and a pre-launch
+security pass (scrypt PINs, expiring signed upload grants).
+
+Copy is now event-generic; the data model always was.
 
 **Brand name:** Confetti (`appName` in `src/lib/env.ts`).
 
@@ -128,9 +136,12 @@ Every page exists in both `/dashboard/...` (English default) and
   through the editor now), but the API + presets stay in tree.
 - **Fabric.js QR card editor** at
   `/dashboard/events/[slug]/qr-card-editor` — full-screen edit, drag/resize/
-  rotate, font picker (Playfair / Inter / JetBrains Mono), bold/italic,
-  colour picker, font-size slider, layer reorder, delete, +text, +image
-  (upload). Export at A4 300 DPI PNG or PDF.
+  rotate, font picker, bold/italic, colour picker, font-size slider, layer
+  reorder, delete, +text, +image, +shapes (rect/circle/line). Undo/redo,
+  centre-snap guides, localStorage draft autosave + reset, and a mobile
+  layout (bottom sheets). **10 templates** across event types — see
+  `src/lib/qr-card-editor/presets.ts`, geometry-guarded by `presets.test.ts`.
+  Export at A4 300 DPI PNG or PDF.
 
 ### Payments — Payhip (active)
 - Active provider, secret + product key set as Vercel env vars
@@ -191,71 +202,44 @@ Bypassed only for admins and active/trialing subscribers.
 
 ## 5. NEXT-UP / OPEN WORK
 
-Roughly in priority order. Numbered tasks were tracked through this session.
+Everything numbered in earlier revisions of this file (bilingual inner forms,
+QR-editor undo/redo + drafts + templates + mobile, `.env.example`, function
+timeouts, PIN hashing, upload-confirm auth, admin manual activation, video
+thumbnails) is **done**. What is genuinely left:
 
-### Test + verify on prod
-1. **Run pending Supabase migrations** in the SQL editor (if not done):
-   - `supabase/migrations/add_preferred_locale_to_users.sql`
-   - `supabase/migrations/add_upload_session_id_to_media.sql` (older)
-2. **Verify the Fabric editor on Vercel** after the centering / setZoom /
-   charSpacing fix (commit `f4f40a2`). The user reported a layout bug just
-   before stepping away — the fix needs eyes on `event-gallery-app-rho`.
-3. **Test Payhip webhook end-to-end** with a real €39 purchase — the format
-   we implemented (form-encoded `security_token`) may not match what Payhip
-   actually sends; the docs describe a newer JSON+signature scheme. We
-   wanted to inspect a real payload before hardening. See
-   `src/app/api/billing/webhook/route.ts`.
+### Blocking launch — owner action, not code
+1. **Run pending Supabase migrations** in the SQL editor if not already done:
+   `add_preferred_locale_to_users.sql`, `add_upload_session_id_to_media.sql`.
+2. **Payhip:** create the Solo/Pro subscription products and put their keys in
+   `PAYHIP_PRODUCT_*`. Then run one real purchase and inspect the webhook
+   payload — our verification assumes a form-encoded `security_token` and the
+   docs describe a newer JSON+signature scheme. See
+   `src/app/api/billing/webhook/route.ts`. Until then photographers cannot pay;
+   the €39 One Event product does work.
+3. **Supabase free → Pro** before any real traffic (500 MB DB / 2 GB bandwidth
+   is spent quickly by image previews).
+4. **Legal:** `src/lib/legal.ts` is a reviewed-by-nobody draft. Fill every
+   `[bracketed]` placeholder (entity, address, contact email, governing law),
+   have a lawyer read it, then delete the `draftNotice` field from each doc so
+   the amber banner disappears.
+5. **Confirm `APP_SECRET`** in Vercel is a strong random value (the app refuses
+   to boot in production without it, but not without a *good* one).
 
-### QR card editor — V2 polish (Fabric.js)
-4. Mobile-friendly editor — current UI is desktop-only; mobile users still
-   get the "Skini QR" PNG button via `qr-poster-picker`.
-5. Shape primitives (rect / circle / line) in the +Add rail.
-6. Undo / redo (Fabric.js supports `history` module; not wired yet).
-7. Draft persistence in Supabase or localStorage (currently lost on close).
-8. More starting templates (target 10–12 — vintage, birthday playful,
-   baptism, corporate, anniversary…).
-9. "Reset to template defaults" button.
-10. Possibly an Open-in-Canva fallback (just a link + instructions; no API
-    integration).
+### Needs eyes on a real device (cannot be checked from CI)
+6. Fabric QR card editor, the Three.js hero loop in the footer CTA, video
+   poster extraction on a real upload, and the gallery viewer on iOS Safari.
 
-### Dashboard polish
-11. Translate the inner forms that are still English-only inside the
-    bilingual chrome: `EventSettingsForm`, `EventCreateForm`,
-    `PhotographerProfileForm`, `MediaGrid` action labels,
-    `GallerySectionsManager`, `BillingPlans`, `EventLifecyclePanel`.
-12. Real testimonials in `src/lib/marketing.ts:106` (currently fabricated
-    placeholders — `Studio Nova Weddings`, `Lejla & Harun`, etc.).
-13. Expand event-type copy: rename "One Wedding" wording, update `/for-couples`
-    to be event-host-generic.
-
-### Payments
-14. Create Payhip subscription products for Solo/Pro mo/yearly + wire
-    `LEMONSQUEEZY_VARIANT_*` env vars to `PAYHIP_PRODUCT_*` (the LemonSqueezy
-    paths are dormant fallbacks).
-15. Admin "manual activate plan" action — for buyers whose Payhip checkout
-    email didn't match their account email and the webhook couldn't auto-
-    activate.
-
-### Hardening / deploy hygiene
-16. `.env.example` documenting every var (Supabase, R2, Payhip, APP_SECRET,
-    NEXT_PUBLIC_APP_URL).
-17. `vercel.json` with function-timeout bumps if media processing exceeds
-    10s default.
-18. PIN hashing → bcrypt/argon2 (currently SHA-256 — fast / GPU-crackable;
-    4-digit PINs only 10k combinations).
-19. Auth on `/api/uploads/confirm` — still requires only that the supplied
-    object key was issued via the presign route. Tighten to a signed grant
-    or require session.
-20. APP_SECRET production presence-check at startup (gallery cookies rely on
-    it; default secret is in source).
-
-### Future / ideas parked
-- Video thumbnail extraction (currently videos go straight to `ready` with
-  no thumbnail and no duration).
-- Email notifications (post-upload, expiry).
-- Physical print product shop (BiH market).
-
----
+### Code work still open
+7. **Real testimonials.** The fabricated ones were removed from every page;
+   `marketing-testimonials.tsx` + its data stay in tree so the section can be
+   restored once real quotes exist.
+8. **Sentry (or similar).** `src/instrumentation.ts` already implements
+   `onRequestError` and logs structured context — forwarding it needs an
+   account + DSN.
+9. **Video duration.** Poster frames are extracted client-side; `duration` is
+   not plumbed through and is not displayed anywhere yet.
+10. Email notifications (post-upload, expiry).
+11. Physical print product shop (BiH market).
 
 ## 6. KEY PATTERNS — please follow
 
@@ -296,8 +280,9 @@ previews. Migrate to Pro before user testing scales.
 
 Stable + correct; refactor only if a task explicitly requires it.
 
-- `src/lib/security.ts` — PIN hashing + `timingSafeEqual`, gallery cookie
-  signing, IP hashing.
+- `src/lib/security.ts` — salted **scrypt** PIN hashing (with a backward-
+  compatible path for legacy SHA-256 hashes), gallery cookie signing, IP
+  hashing, and the expiring HMAC upload-confirm grant.
 - `src/lib/rate-limit.ts` — DB-backed limiter + in-memory fallback.
 - `src/lib/upload-validation.ts` — file type/size/count guards.
 - `src/lib/storage.ts` — R2 client + all presigned URL helpers.
@@ -329,6 +314,7 @@ src/
 │   ├── page.tsx                        # English landing
 │   ├── layout.tsx
 │   ├── globals.css                     # Tokens + utility classes
+│   ├── error.tsx, global-error.tsx, not-found.tsx   # Branded fallbacks
 │   │
 │   ├── dashboard/
 │   │   ├── page.tsx          → DashboardHome.tsx (shared)
@@ -346,7 +332,7 @@ src/
 │   └── api/
 │       ├── events/[slug]/{guest-upload-session, photographer-upload-session,
 │       │                  media, cover, qr, qr-poster}/route.ts
-│       ├── uploads/confirm/route.ts      # ⚠ still no auth
+│       ├── uploads/confirm/route.ts      # signed grant + expiry
 │       ├── media/[id]/{toggle-hidden,delete,permanent-delete,restore,
 │       │               download,section}/route.ts
 │       ├── media/download-batch/route.ts # ZIP
@@ -365,13 +351,15 @@ src/
 │   ├── qr-posters.ts                # 4 SVG poster templates
 │   ├── qr-posters-render.ts         # Resvg + pdf-lib pipeline
 │   ├── qr-posters-fonts.ts          # TTF paths for Resvg
-│   ├── qr-card-editor/presets.ts    # Fabric editor starting points
+│   ├── qr-card-editor/presets.ts    # 10 card templates (+ presets.test.ts)
+│   ├── legal.ts                     # Privacy + Terms content (EN/BS, DRAFT)
 │   └── i18n/
 │       ├── index.ts                 # Dict, getDictionary, t, localePrefix
 │       ├── en.ts, bs.ts             # Translations
 │       └── preference.ts            # redirectIfPreferredLocale
 │
 ├── middleware.ts                    # Supabase session refresh
+├── instrumentation.ts               # onRequestError → structured logs
 │
 └── components/
     ├── ui/{button, input, panel}.tsx
@@ -387,7 +375,10 @@ src/
     ├── dashboard-header.tsx, dashboard-event-list.tsx
     ├── photographer-profile-form.tsx, setup-notice.tsx
     ├── pricing-showcase.tsx, marketing-button-link.tsx
-    ├── marketing-testimonials.tsx   # ⚠ placeholder data
+    ├── explainer/                   # Stage/Sprite scenes + lazy wrapper
+    ├── hero-animation/              # Three.js QR→camera→wordmark loop (lazy)
+    ├── legal-doc-view.tsx           # Renders a LegalDoc
+    ├── marketing-testimonials.tsx   # ⚠ fabricated data — render removed
     └── marketing-trust-strip.tsx
 ```
 
@@ -396,6 +387,27 @@ src/
 ## 9. RECENT SESSION LOG
 
 Newest first — useful for picking back up.
+
+- `ee86269` — 7 event-type card templates (10 total), rect/circle/line
+  primitives in the editor, `presets.test.ts` geometry guard; dropped the
+  ignored `eventSlug` option on `resolveAccountRedirect` + the redundant
+  per-login events query it forced.
+- `aaf4737` — Client-extracted video poster thumbnails (presigned thumb slot,
+  best-effort `<video>`+`<canvas>` capture, grid renders the poster).
+- `a0e7d41` — Branded error/404 pages + `onRequestError` logging.
+- `063e6b4` — Pre-launch hardening: scrypt PINs (legacy-compatible), expiring
+  upload grants + event/source derived from the signed key, fabricated
+  testimonials removed, `.env.example`, 60s media-route timeouts.
+- `e07c39c` — Draft Privacy + Terms pages (EN/BS) wired into the footer.
+- `4731e39` — Three.js hero loop in the footer CTA (lazy, transparent).
+- `c379214` — Lazy-load the explainer to shrink first-load JS.
+- `cddf88f` — Confetti Explainer Mobile remix ported from Claude Design.
+- `98bfbc0` — Landing photo mosaic band.
+- `3188c38` — Remaining dashboard forms translated (EN/BS).
+- `90b26a8` — Bilingual create-event form + illustrated banner.
+- `2492c73` / `cfe5a8c` — Gallery UX pass: warm copy, bilingual viewer, photo
+  tiles, mobile grid; viewer portalled to `<body>` so it fills the screen.
+- `1dd9714` — QR editor: undo/redo, centre snapping, draft autosave, mobile.
 
 - `f4f40a2` — Editor centering fix (originX='center' for textAlign='center'
   text) + setZoom-based scaling + safe export (save/restore zoom around

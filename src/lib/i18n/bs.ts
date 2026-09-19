@@ -203,7 +203,7 @@ export const dict: Dict = {
     logIn: "Prijavite se",
     verifyEyebrow: "Provjerite email",
     verifyPhotographerTitle: "Potvrdite email da otvorite radni prostor.",
-    verifyCoupleTitle: "Potvrdite email da kreirate događaj vjenčanja.",
+    verifyCoupleTitle: "Potvrdite email da kreirate svoj događaj.",
     verifyBody:
       "Poslali smo link za potvrdu na {{email}}. Otvorite taj email i potvrdite adresu za nastavak.",
     verifyNote: "Nakon potvrde, odvest ćemo vas pravo na dashboard.",
@@ -226,7 +226,7 @@ export const dict: Dict = {
     formStartCoupleEvent: "Pokrenite jednokratni događaj",
     formLoginTitle: "Prijavite se na nalog",
     formCreatePhotographerTitle: "Kreirajte fotograf nalog",
-    formCreateCoupleTitle: "Kreirajte nalog za vjenčanje",
+    formCreateCoupleTitle: "Kreirajte nalog za događaj",
     formYourName: "Vaše ime",
     formFullName: "Puno ime",
     formNamePlaceholderCouple: "Amina & Ajdin",

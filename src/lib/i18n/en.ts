@@ -190,7 +190,7 @@ export const dict: Dict = {
     signupPhotographerEyebrow: "Launch the MVP",
     signupCoupleEyebrow: "Create your one-time event",
     signupPhotographerTitle: "Create your first private event gallery workspace.",
-    signupCoupleTitle: "Create one private wedding event for guest uploads and delivery.",
+    signupCoupleTitle: "Create one private event for guest uploads and delivery.",
     signupPhotographerBody:
       "Build guest upload links, QR code sharing, and a protected delivery gallery for every event.",
     signupCoupleBody:
@@ -201,7 +201,7 @@ export const dict: Dict = {
     logIn: "Log in",
     verifyEyebrow: "Check your email",
     verifyPhotographerTitle: "Confirm your email to open your workspace.",
-    verifyCoupleTitle: "Confirm your email to create the wedding event.",
+    verifyCoupleTitle: "Confirm your email to create your event.",
     verifyBody:
       "We sent a confirmation link to {{email}}. Open that email and confirm your address to continue.",
     verifyNote: "After you confirm, we will take you straight into your dashboard.",
@@ -224,7 +224,7 @@ export const dict: Dict = {
     formStartCoupleEvent: "Start your one-time event",
     formLoginTitle: "Login to your account",
     formCreatePhotographerTitle: "Create photographer account",
-    formCreateCoupleTitle: "Create your wedding event account",
+    formCreateCoupleTitle: "Create your event account",
     formYourName: "Your name",
     formFullName: "Full name",
     formNamePlaceholderCouple: "Amina & Ajdin",
