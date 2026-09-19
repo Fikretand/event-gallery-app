@@ -153,10 +153,21 @@ requested plan are set, and falls through to Payhip / LemonSqueezy otherwise.
 
 - The buyer's account id travels in `metadata.userId` + `externalCustomerId`,
   so the webhook activates the exact account — no email-matching guesswork.
-- Webhook: `/api/billing/polar/webhook`, signature-verified with
-  `validateEvent` from `@polar-sh/sdk/webhooks.js` (503 until
-  `POLAR_WEBHOOK_SECRET` is set). Handles `order.paid` / `order.refunded` and
-  the `subscription.*` lifecycle; anything else is acknowledged and ignored.
+- Webhook: `/api/billing/polar/webhook` (503 until `POLAR_WEBHOOK_SECRET` is
+  set). Handles `order.created` (only once paid), `order.paid`,
+  `order.refunded` and the `subscription.*` lifecycle; anything else is
+  acknowledged and ignored. A 100%-discount test order announces itself
+  through `order.created` and never `order.paid`, hence the first case.
+- **Do not verify with the SDK's `validateEvent` alone.** Polar's endpoints
+  report `uses_standard_webhook_signature: true`, meaning the HMAC key is the
+  base64-*decoded* secret (32 raw bytes). `validateEvent` instead keys on
+  `utf8(secret)`, so it rejects every delivery from such an endpoint — a 403
+  that looks exactly like a wrong secret. The route therefore does Standard
+  Webhooks verification itself with `node:crypto`, trying all three key
+  derivations in `polarWebhookKeys` and logging which matched, then re-signs
+  with the SDK's key purely to reuse its typed parsing. Confirmed against a
+  real sandbox delivery: 403 under the SDK derivations, 200 once
+  `base64(bare)` was included.
 - One Event is **79,00 KM** on Polar (`ONE_EVENT_PRICE` in `billing.ts`);
   Solo/Pro subscription products are not created there yet.
 - Env: `POLAR_ACCESS_TOKEN`, `POLAR_WEBHOOK_SECRET`, `POLAR_SERVER`
