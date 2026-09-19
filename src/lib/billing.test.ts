@@ -3,10 +3,10 @@ import { describe, expect, it } from "vitest";
 import { polarSecretCandidates } from "@/lib/billing";
 
 /**
- * Polar's dashboard shows the webhook signing secret as `whsec_<base64>`, but
- * it signs deliveries with the bare `<base64>`. Passing the displayed string
- * straight to `validateEvent` therefore 403s every delivery — which is exactly
- * what happened in production. Both forms have to be tried.
+ * Polar's dashboard shows the webhook signing secret as `whsec_<base64>`.
+ * Whether it signs with the prefix or with the bare value produces different
+ * HMAC keys, and picking the wrong one rejects every delivery, so the webhook
+ * route tries both rather than betting on one.
  */
 describe("polarSecretCandidates", () => {
   const BARE = "zGzQX/wd46m6uaQwjcZfCM8iX4gdnbDGd/qPB73PNkI=";

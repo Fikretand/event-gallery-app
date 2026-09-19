@@ -85,12 +85,14 @@ export function planFromPolarProduct(productId: string): {
 }
 
 /**
- * The forms of the webhook signing secret worth trying, most likely first.
+ * The forms of the webhook signing secret worth trying.
  *
- * Polar displays the secret with a `whsec_` prefix but signs with the bare
- * value, so handing the dashboard string straight to `validateEvent` rejects
- * every delivery with a 403. Both candidates derive from the same configured
- * secret, so accepting either loosens nothing.
+ * Polar's dashboard shows the secret with a `whsec_` prefix, and whether it
+ * signs with that prefix or with the bare value is not something this codebase
+ * has confirmed — the two produce different HMAC keys, so guessing wrong
+ * rejects every delivery. Trying both removes the question. Both candidates
+ * derive from the same configured secret, so accepting either loosens nothing:
+ * a caller still has to know the secret.
  */
 export function polarSecretCandidates(secret: string): string[] {
   const PREFIX = "whsec_";

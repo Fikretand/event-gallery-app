@@ -176,6 +176,22 @@ LemonSqueezy code paths are present but dormant.
   on the homepage, using `GalleryAppShell` mock-app screens for the Gallery
   and EventTypes scenes
 
+### Vercel deployment protection — a trap worth knowing
+
+The project had **Vercel Authentication** (`ssoProtection`) set to
+`all_except_custom_domains`. `event-gallery-app-rho.vercel.app` is a
+Vercel-assigned domain, not a custom one, so the whole production site was
+behind Vercel's login: the edge answered **403** before any request reached a
+function. It looked fine in the owner's browser, which carries the Vercel SSO
+cookie — but no guest could open an upload or gallery link, and every Polar
+webhook delivery was rejected at the edge, which made a run of app-level
+"fixes" look ineffective.
+
+Now set to `preview`: previews stay private, production is public. If webhooks
+or guest links ever 403 again with nothing in the runtime logs, check this
+setting first — a request blocked at the edge never reaches the code, so no
+amount of application logging will show it.
+
 ### Infrastructure
 - `src/middleware.ts` (was the stale `proxy.ts` — already fixed) refreshes
   Supabase sessions on every request
