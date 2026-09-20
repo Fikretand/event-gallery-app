@@ -1,9 +1,11 @@
+import type { Metadata } from "next";
 import { MarketingButtonLink } from "@/components/marketing-button-link";
 import { MarketingTrustStrip } from "@/components/marketing-trust-strip";
 import { OneTimePlanCard } from "@/components/pricing-showcase";
 import { SiteNav } from "@/components/site-nav";
 import { Panel } from "@/components/ui/panel";
 import { getDictionary, type Locale } from "@/lib/i18n/index";
+import { publicMetadata } from "@/lib/seo";
 
 function CoupleBenefitIcon({ index }: { index: number }) {
   switch (index) {
@@ -29,6 +31,22 @@ function CoupleBenefitIcon({ index }: { index: number }) {
         </svg>
       );
   }
+}
+
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const seo = getDictionary(locale as Locale).seo.forCouples;
+  return publicMetadata({
+    locale: locale as Locale,
+    path: "/for-couples",
+    title: seo.title,
+    description: seo.description,
+  });
 }
 
 export default async function ForCouplesPage({

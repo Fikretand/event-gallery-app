@@ -632,6 +632,16 @@ export interface Dict {
     couplePlanHighlights: string[];
     trustBadges: Array<{ label: string; sub: string }>;
   };
+  /** Page titles and descriptions as they appear in search results. */
+  seo: {
+    home: { title: string; description: string };
+    pricing: { title: string; description: string };
+    forPhotographers: { title: string; description: string };
+    forCouples: { title: string; description: string };
+    getStarted: { title: string; description: string };
+    privacy: { title: string; description: string };
+    terms: { title: string; description: string };
+  };
   pricingUi: {
     monthlyBilling: string;
     yearlyBilling: string;

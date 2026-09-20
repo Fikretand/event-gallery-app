@@ -195,6 +195,31 @@ LemonSqueezy code paths are present but dormant.
   on the homepage, using `GalleryAppShell` mock-app screens for the Gallery
   and EventTypes scenes
 
+### SEO
+
+- `src/lib/seo.ts` is the only place that builds page metadata.
+  `publicMetadata({ locale, path, title, description })` returns the canonical
+  URL plus `hreflang` alternates for every language — the site publishes each
+  marketing page twice (`/en/...`, `/bs/...`), so without those two copies
+  compete with each other. `x-default` points at the English copy, not at `/`,
+  because `/` only redirects by `Accept-Language`.
+- `privateMetadata()` is the counterpart, and **everything private must use
+  it**: dashboards, admin, `/gallery/[slug]`, `/upload/[slug]`, auth screens.
+  Those pages carry real people's photographs. `robots.ts` disallows the paths
+  too, but a disallowed URL can still be listed if someone links to it — only
+  `noindex` keeps it out.
+- `robots.ts` and `sitemap.ts` are generated; the sitemap lists marketing
+  routes only, each with its language alternates.
+- `opengraph-image.tsx` draws the share card with `ImageResponse`, in plain
+  Latin text so it renders in the default font everywhere. This is what shows
+  when a link is pasted into WhatsApp or Viber, which is how the product
+  mostly travels in BiH.
+- Titles and descriptions live in `Dict.seo.*` (EN + BS), so search snippets
+  are translated like everything else.
+- The root `<html lang>` is `"en"` because both languages nest under one root
+  layout; `[locale]/layout.tsx` marks the subtree with `<div lang={locale}
+  className="contents">`, which is what a screen reader actually reads.
+
 ### Vercel deployment protection — a trap worth knowing
 
 The project had **Vercel Authentication** (`ssoProtection`) set to

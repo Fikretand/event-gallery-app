@@ -19,5 +19,14 @@ export default async function LocaleLayout({
     notFound();
   }
 
-  return <>{children}</>;
+  // The root <html lang> is fixed at "en" because both languages are nested
+  // under the same root layout. Marking the subtree here is what actually
+  // reaches assistive technology: a screen reader switches voice on any
+  // element carrying `lang`. `display: contents` keeps the wrapper out of the
+  // layout entirely, so no styling changes.
+  return (
+    <div lang={locale} className="contents">
+      {children}
+    </div>
+  );
 }

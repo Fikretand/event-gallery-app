@@ -1,9 +1,11 @@
+import type { Metadata } from "next";
 import { MarketingButtonLink } from "@/components/marketing-button-link";
 import { MarketingTrustStrip } from "@/components/marketing-trust-strip";
 import { PricingShowcase } from "@/components/pricing-showcase";
 import { SiteNav } from "@/components/site-nav";
 import { Panel } from "@/components/ui/panel";
 import { getDictionary, type Locale } from "@/lib/i18n/index";
+import { publicMetadata } from "@/lib/seo";
 
 const WORKFLOW_ICONS = ["spark", "qr", "shield", "frame"] as const;
 
@@ -39,6 +41,22 @@ function WorkflowIcon({ type }: { type: typeof WORKFLOW_ICONS[number] }) {
         </svg>
       );
   }
+}
+
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const seo = getDictionary(locale as Locale).seo.forPhotographers;
+  return publicMetadata({
+    locale: locale as Locale,
+    path: "/for-photographers",
+    title: seo.title,
+    description: seo.description,
+  });
 }
 
 export default async function ForPhotographersPage({

@@ -828,6 +828,41 @@ export const dict: Dict = {
       { label: "Privatno od početka", sub: "Gostujući prijenosi su skriveni dok vi ne odobrite" },
     ],
   },
+  seo: {
+    home: {
+      title: "Privatne galerije za događaje uz QR prijenos gostiju",
+      description:
+        "Sakupite svaku fotografiju koju gosti naprave kroz jedan QR kod, čuvajte je u galeriji zaštićenoj PIN-om i preuzmite sve kao ZIP. Gostima ne treba aplikacija. Od 79 KM za jedan događaj.",
+    },
+    pricing: {
+      title: "Cijene",
+      description:
+        "Jedan događaj košta 79 KM jednokratno. Fotografi plaćaju od 39 KM mjesečno za Solo ili 79 KM za Pro, uz godišnju naplatu. Počnite besplatno — kartica nije potrebna.",
+    },
+    forPhotographers: {
+      title: "Za fotografe",
+      description:
+        "Vodite klijentske događaje od početka do kraja: prijenos gostiju putem QR koda, moderacija prije nego se išta prikaže i galerija sa PIN-om koju predajete klijentu. Do 25 događaja istovremeno na Pro planu.",
+    },
+    forCouples: {
+      title: "Za parove i organizatore",
+      description:
+        "Vaši gosti snime ono što vi nikad nećete vidjeti. Jedan QR kod sve to sakupi u privatnu galeriju koja vam ostaje 90 dana. 79 KM, plaćeno jednom.",
+    },
+    getStarted: {
+      title: "Kako početi",
+      description:
+        "Odaberite plan za fotografe ili jedan događaj i pokrenite prvu galeriju za manje od dvije minute.",
+    },
+    privacy: {
+      title: "Politika privatnosti",
+      description: "Kako Confetti postupa sa fotografijama događaja, prijenosima gostiju i podacima naloga.",
+    },
+    terms: {
+      title: "Uslovi korištenja",
+      description: "Uslovi koji važe za Confetti naloge, događaje i prijenose gostiju.",
+    },
+  },
   pricingUi: {
     monthlyBilling: "Mjesečna naplata",
     yearlyBilling: "Godišnja naplata",

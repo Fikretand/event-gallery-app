@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -10,6 +11,7 @@ import { Panel } from "@/components/ui/panel";
 import { SiteNav } from "@/components/site-nav";
 import { listPublicPhotographers } from "@/lib/events";
 import { getDictionary, type Locale } from "@/lib/i18n/index";
+import { publicMetadata } from "@/lib/seo";
 
 // ─── Static icons ─────────────────────────────────────────────────────────────
 
@@ -122,6 +124,22 @@ const STEP_ICONS = [
     <path d="M9.5 12.2l1.8 1.8 3.7-4" />
   </svg>,
 ];
+
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const seo = getDictionary(locale as Locale).seo.home;
+  return publicMetadata({
+    locale: locale as Locale,
+    path: "/",
+    title: seo.title,
+    description: seo.description,
+  });
+}
 
 export default async function HomePage({
   params,

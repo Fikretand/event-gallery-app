@@ -1,8 +1,13 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { getRequiredUser } from "@/lib/auth";
+import { privateMetadata } from "@/lib/seo";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { AdminSidebar } from "./admin-sidebar";
+
+/** The admin panel has no business in a search index. */
+export const metadata: Metadata = privateMetadata();
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user } = await getRequiredUser();

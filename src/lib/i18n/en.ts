@@ -826,6 +826,41 @@ export const dict: Dict = {
       { label: "Private by default", sub: "Guest uploads are hidden until you approve" },
     ],
   },
+  seo: {
+    home: {
+      title: "Private event galleries with QR guest uploads",
+      description:
+        "Collect every photo your guests take through one QR code, keep it in a PIN-protected gallery, and download it all as a ZIP. No app for guests. From 79 KM for a single event.",
+    },
+    pricing: {
+      title: "Pricing",
+      description:
+        "One Event costs 79 KM once. Photographers pay from 39 KM a month for Solo or 79 KM for Pro, billed yearly. Start free — no card needed.",
+    },
+    forPhotographers: {
+      title: "For photographers",
+      description:
+        "Run client events end to end: guest uploads by QR, moderation before anything is shown, and a PIN-protected gallery you hand over. Up to 25 events at once on Pro.",
+    },
+    forCouples: {
+      title: "For couples and event hosts",
+      description:
+        "Your guests photograph the parts you will never see. One QR code gathers all of it into a private gallery you keep for 90 days. 79 KM, paid once.",
+    },
+    getStarted: {
+      title: "Get started",
+      description:
+        "Pick a photographer plan or a single event, and have your first gallery live in under two minutes.",
+    },
+    privacy: {
+      title: "Privacy policy",
+      description: "How Confetti handles event photos, guest uploads and account data.",
+    },
+    terms: {
+      title: "Terms of service",
+      description: "The terms that apply to Confetti accounts, events and guest uploads.",
+    },
+  },
   pricingUi: {
     monthlyBilling: "Monthly billing",
     yearlyBilling: "Yearly billing",

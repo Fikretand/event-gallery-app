@@ -1,8 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { MarketingButtonLink } from "@/components/marketing-button-link";
 import { SiteNav } from "@/components/site-nav";
 import { getDictionary, type Locale } from "@/lib/i18n/index";
+import { publicMetadata } from "@/lib/seo";
 
 function CameraIcon() {
   return (
@@ -40,6 +42,22 @@ const EVENT_FEATURES = {
   en: ["1 event, no subscription", "Unlimited guest photo uploads", "Private gallery with PIN", "30-day upload window", "90 days of gallery access"],
   bs: ["1 događaj, bez pretplate", "Neograničen prijenos gostiju", "Privatna galerija s PIN-om", "30 dana prozora za prijenos", "90 dana pristupa galeriji"],
 };
+
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const seo = getDictionary(locale as Locale).seo.getStarted;
+  return publicMetadata({
+    locale: locale as Locale,
+    path: "/get-started",
+    title: seo.title,
+    description: seo.description,
+  });
+}
 
 export default async function GetStartedPage({
   params,
