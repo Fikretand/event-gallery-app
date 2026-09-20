@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useState, useMemo } from "react";
 
+import { BILLING_TONE_CLASS, describeBilling } from "@/lib/billing-status";
 import type { UserRecord } from "@/lib/types";
 
-type Filter = "all" | "photographer" | "couple" | "pro" | "solo" | "admin";
+type Filter = "all" | "photographer" | "couple" | "paying" | "canceled" | "admin";
 
 export function AdminUsersTable({ users }: { users: UserRecord[] }) {
   const [search, setSearch] = useState("");
@@ -16,8 +17,9 @@ export function AdminUsersTable({ users }: { users: UserRecord[] }) {
     return users.filter((u) => {
       if (filter === "photographer" && u.account_type !== "photographer") return false;
       if (filter === "couple" && u.account_type !== "couple") return false;
-      if (filter === "pro" && u.plan_tier !== "pro") return false;
-      if (filter === "solo" && u.plan_tier !== "solo") return false;
+      const paying = u.subscription_status === "active" || u.subscription_status === "trialing";
+      if (filter === "paying" && !paying) return false;
+      if (filter === "canceled" && u.subscription_status !== "canceled") return false;
       if (filter === "admin" && u.role !== "admin") return false;
       if (!q) return true;
       return (
@@ -31,8 +33,10 @@ export function AdminUsersTable({ users }: { users: UserRecord[] }) {
     all: users.length,
     photographer: users.filter((u) => u.account_type === "photographer").length,
     couple: users.filter((u) => u.account_type === "couple").length,
-    pro: users.filter((u) => u.plan_tier === "pro").length,
-    solo: users.filter((u) => u.plan_tier === "solo").length,
+    paying: users.filter(
+      (u) => u.subscription_status === "active" || u.subscription_status === "trialing",
+    ).length,
+    canceled: users.filter((u) => u.subscription_status === "canceled").length,
     admin: users.filter((u) => u.role === "admin").length,
   }), [users]);
 
@@ -40,7 +44,8 @@ export function AdminUsersTable({ users }: { users: UserRecord[] }) {
     { key: "all", label: `All (${counts.all})` },
     { key: "photographer", label: `Photographers (${counts.photographer})` },
     { key: "couple", label: `Couples (${counts.couple})` },
-    { key: "pro", label: `Pro (${counts.pro})` },
+    { key: "paying", label: `Paying (${counts.paying})` },
+    { key: "canceled", label: `Canceled (${counts.canceled})` },
     { key: "admin", label: `Admin (${counts.admin})` },
   ];
 
@@ -83,7 +88,7 @@ export function AdminUsersTable({ users }: { users: UserRecord[] }) {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-black/[0.02]">
-              {["User", "Type", "Plan", "Role", "Joined", ""].map((h) => (
+              {["User", "Type", "Plan", "Billing", "Role", "Joined", ""].map((h) => (
                 <th key={h} className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.14em] text-black/38">
                   {h}
                 </th>
@@ -94,6 +99,7 @@ export function AdminUsersTable({ users }: { users: UserRecord[] }) {
             {filtered.map((user) => {
               const initials = (user.full_name ?? user.email)
                 .split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
+              const billing = describeBilling(user);
 
               return (
                 <tr key={user.id} className="group transition hover:bg-black/[0.015]">
@@ -123,15 +129,27 @@ export function AdminUsersTable({ users }: { users: UserRecord[] }) {
                     </span>
                   </td>
 
-                  {/* Plan */}
+                  {/* Plan — "solo" is meaningless on a couple account */}
                   <td className="px-5 py-3.5">
-                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${
-                      user.plan_tier === "pro"
+                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                      billing.plan === "Pro"
                         ? "bg-amber-100 text-amber-700"
                         : "bg-black/6 text-black/50"
                     }`}>
-                      {user.plan_tier}
+                      {billing.plan}
                     </span>
+                  </td>
+
+                  {/* Billing */}
+                  <td className="px-5 py-3.5">
+                    <span
+                      className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${BILLING_TONE_CLASS[billing.tone]}`}
+                    >
+                      {billing.status}
+                    </span>
+                    {billing.provider && (
+                      <span className="ml-1.5 text-[11px] text-black/35">{billing.provider}</span>
+                    )}
                   </td>
 
                   {/* Role */}
@@ -156,7 +174,7 @@ export function AdminUsersTable({ users }: { users: UserRecord[] }) {
                   <td className="px-5 py-3.5">
                     <Link
                       href={`/admin/users/${user.id}`}
-                      className="rounded-lg border border-black/10 bg-white px-3 py-1.5 text-xs font-medium text-black/50 opacity-0 transition hover:border-black/20 hover:text-[var(--color-ink)] group-hover:opacity-100"
+                      className="rounded-lg border border-black/10 bg-white px-3 py-1.5 text-xs font-medium text-black/50 transition hover:border-black/20 hover:text-[var(--color-ink)]"
                     >
                       View →
                     </Link>
@@ -167,7 +185,7 @@ export function AdminUsersTable({ users }: { users: UserRecord[] }) {
 
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-5 py-12 text-center text-sm text-black/30">
+                <td colSpan={7} className="px-5 py-12 text-center text-sm text-black/30">
                   No users match this filter.
                 </td>
               </tr>

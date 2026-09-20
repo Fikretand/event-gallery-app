@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { describeBilling } from "@/lib/billing-status";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { computeTrialState, countUserMediaFiles, getAccountUsage, listOwnerEvents } from "@/lib/events";
 import { formatBytes } from "@/lib/utils";
@@ -40,6 +41,7 @@ export default async function UserDetailPage({
   if (!detail) notFound();
 
   const { user, events, photosUsed, usage, trial } = detail;
+  const billing = describeBilling(user);
 
   const initials = (user.full_name ?? user.email)
     .split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
@@ -117,8 +119,14 @@ export default async function UserDetailPage({
           {/* Plan & Trial */}
           <div className="rounded-2xl border border-black/8 bg-white/92 shadow-[0_18px_50px_rgba(18,24,38,0.05)] backdrop-blur">
             <SectionHeader title="Account" />
-            <div className="grid grid-cols-2 gap-px bg-black/5 sm:grid-cols-3">
-              <InfoBlock label="Plan" value={user.plan_tier.charAt(0).toUpperCase() + user.plan_tier.slice(1)} accent={user.plan_tier === "pro"} />
+            <div className="grid grid-cols-2 gap-px bg-black/5 sm:grid-cols-4">
+              <InfoBlock label="Plan" value={billing.plan} accent={billing.plan === "Pro"} />
+              <InfoBlock
+                label="Billing"
+                value={billing.provider ? `${billing.status} · ${billing.provider}` : billing.status}
+                accent={billing.tone === "paid" || billing.tone === "admin"}
+                danger={billing.tone === "overdue"}
+              />
               <InfoBlock label="Role" value={user.role === "admin" ? "Admin" : "User"} accent={user.role === "admin"} />
               <InfoBlock
                 label="Trial"

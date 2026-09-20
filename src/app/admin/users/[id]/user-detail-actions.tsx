@@ -58,7 +58,19 @@ export function UserDetailActions({ user }: { user: UserRecord }) {
           <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>
         )}
 
-        {/* Plan */}
+        {/* Plan — photographer tiers only; a couple account has no tier */}
+        {user.account_type === "couple" ? (
+          <div>
+            <p className="mb-2 text-xs font-semibold text-black/55">Plan</p>
+            <div className="rounded-xl border border-black/10 bg-[var(--color-paper)]/60 px-4 py-2.5 text-sm font-semibold text-[var(--color-ink)]">
+              One Event
+            </div>
+            <p className="mt-1.5 text-[11px] text-black/40">
+              Couple accounts buy a single event. Solo and Pro are photographer tiers and
+              do not apply here.
+            </p>
+          </div>
+        ) : (
         <div>
           <p className="mb-2 text-xs font-semibold text-black/55">Change plan</p>
           <div className="flex gap-2">
@@ -80,6 +92,7 @@ export function UserDetailActions({ user }: { user: UserRecord }) {
             ))}
           </div>
         </div>
+        )}
 
         {/* Admin role */}
         <div>
