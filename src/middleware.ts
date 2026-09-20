@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 import { env, hasSupabase } from "@/lib/env";
-import { locales, defaultLocale, type Locale } from "@/lib/i18n/index";
+import { locales, defaultLocale, primaryLocale, type Locale } from "@/lib/i18n/index";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -26,8 +26,8 @@ function detectLocale(request: NextRequest): Locale {
   const acceptLang = request.headers.get("accept-language") ?? "";
   if (/^(bs|hr)[-,;\s]|[,;\s](bs|hr)[-,;\s]/i.test(acceptLang + " ")) return "bs";
 
-  // 3. Default
-  return defaultLocale;
+  // 3. Nothing stated: serve the market this product sells to.
+  return primaryLocale;
 }
 
 /** Run Supabase session refresh and return the response. */

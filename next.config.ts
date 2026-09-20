@@ -23,6 +23,46 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/api/events/[slug]/qr-poster": ["./public/fonts/poster/**/*.ttf"],
   },
+  async headers() {
+    // Galleries and guest upload pages are reachable by link alone, so assume
+    // the link will eventually leak — into a group chat, a screenshot, a
+    // forwarded message. These headers decide what happens when it does.
+    //
+    // The pages already render `noindex` through `privateMetadata`. The header
+    // repeats it because a crawler that fetches the URL without executing the
+    // page — or fetches a file rather than a document — never sees the meta
+    // tag. Belt and braces, and they cost nothing.
+    const privatePaths = [
+      "/gallery/:path*",
+      "/upload/:path*",
+      "/dashboard/:path*",
+      "/admin/:path*",
+      "/:locale(en|bs)/gallery/:path*",
+      "/:locale(en|bs)/upload/:path*",
+      "/:locale(en|bs)/dashboard/:path*",
+      "/:locale(en|bs)/admin/:path*",
+    ];
+
+    const noIndex = {
+      key: "X-Robots-Tag",
+      value: "noindex, nofollow, noimageindex, noarchive",
+    };
+
+    // Without this, clicking any outbound link from a gallery hands the
+    // destination the full secret URL in the Referer header. A gallery link is
+    // the only thing protecting those photographs when no PIN is set.
+    const noReferrer = { key: "Referrer-Policy", value: "no-referrer" };
+
+    return [
+      ...privatePaths.map((source) => ({ source, headers: [noIndex, noReferrer] })),
+      {
+        // The marketing pages are meant to be indexed, but still should not
+        // leak full URLs to third parties they link out to.
+        source: "/:path*",
+        headers: [{ key: "Referrer-Policy", value: "strict-origin-when-cross-origin" }],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

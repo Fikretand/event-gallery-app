@@ -79,8 +79,20 @@ export async function hasGalleryAccess(slug: string, pinHash: string | null) {
   return store.get(`gallery_access_${slug}`)?.value === galleryCookieValue(slug, pinHash);
 }
 
+/**
+ * The unguessable half of an event slug.
+ *
+ * A gallery URL is the only thing standing between a stranger and someone's
+ * event photographs when no PIN is set, so the suffix has to be worth
+ * guessing against. 16 hex characters is 64 bits — at any rate a crawler or
+ * scraper could sustain, that is not a search worth starting.
+ *
+ * Existing slugs keep whatever length they were created with: this is only
+ * called when an event is created, so already-shared links and printed QR
+ * codes are unaffected.
+ */
 export function randomSlugSuffix() {
-  return randomUUID().slice(0, 8);
+  return randomUUID().replace(/-/g, "").slice(0, 16);
 }
 
 export function hashIp(value: string | null) {

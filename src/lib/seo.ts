@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { env } from "@/lib/env";
-import { defaultLocale, locales, type Locale } from "@/lib/i18n/index";
+import { locales, primaryLocale, type Locale } from "@/lib/i18n/index";
 
 /**
  * Metadata helpers for the public marketing pages.
@@ -9,8 +9,8 @@ import { defaultLocale, locales, type Locale } from "@/lib/i18n/index";
  * The site serves the same pages twice — `/en/...` and `/bs/...` — which a
  * search engine reads as duplicate content unless every page states which one
  * it is and links to its counterpart. So each page gets a canonical URL and a
- * full set of `hreflang` alternates, including `x-default` pointing at English
- * for visitors whose language we do not publish.
+ * full set of `hreflang` alternates, including `x-default` pointing at the
+ * language this product is primarily sold in.
  *
  * Anything private (dashboards, admin, guest upload pages, someone's gallery)
  * must use `privateMetadata` instead: those carry real people's photographs and
@@ -39,8 +39,9 @@ export const SITE_NAME = "Confetti";
 /**
  * Canonical URL plus every language alternate for one marketing page.
  *
- * `x-default` is the English copy rather than the bare `/`, because `/` only
- * redirects (by Accept-Language) and a redirect makes a poor canonical target.
+ * `x-default` is the Bosnian copy — this product sells in BiH — and never the
+ * bare `/`, which only redirects by Accept-Language; a redirect makes a poor
+ * canonical target.
  */
 function alternatesFor(locale: Locale, path: string): Metadata["alternates"] {
   const base = siteUrl();
@@ -48,7 +49,7 @@ function alternatesFor(locale: Locale, path: string): Metadata["alternates"] {
   for (const l of locales) {
     languages[l] = `${base}${localePath(l, path)}`;
   }
-  languages["x-default"] = `${base}${localePath(defaultLocale, path)}`;
+  languages["x-default"] = `${base}${localePath(primaryLocale, path)}`;
 
   return {
     canonical: `${base}${localePath(locale, path)}`,

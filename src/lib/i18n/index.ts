@@ -1,7 +1,24 @@
 export type Locale = "en" | "bs";
 
 export const locales: Locale[] = ["en", "bs"];
+
+/**
+ * The locale served on unprefixed app routes (`/dashboard`, not
+ * `/en/dashboard`). This is a *routing* fact and changing it moves URLs.
+ */
 export const defaultLocale: Locale = "en";
+
+/**
+ * The language this site is primarily published in — a *market* fact, not a
+ * routing one. Confetti sells in Bosnia and Herzegovina, so Bosnian is the
+ * version search engines should treat as canonical (`x-default`) and the one
+ * a visitor with no stated language preference lands on.
+ *
+ * Kept separate from `defaultLocale` on purpose: the two answer different
+ * questions, and merging them would silently flip every unprefixed dashboard
+ * URL to Bosnian as a side effect of an SEO decision.
+ */
+export const primaryLocale: Locale = "bs";
 
 // ─── Dictionary shape ─────────────────────────────────────────────────────────
 

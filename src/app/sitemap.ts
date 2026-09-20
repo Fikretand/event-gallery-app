@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { defaultLocale, locales } from "@/lib/i18n/index";
+import { locales, primaryLocale } from "@/lib/i18n/index";
 import { localePath, siteUrl } from "@/lib/seo";
 
 /**
@@ -29,7 +29,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     for (const locale of locales) {
       languages[locale] = `${base}${localePath(locale, path)}`;
     }
-    languages["x-default"] = `${base}${localePath(defaultLocale, path)}`;
+    languages["x-default"] = `${base}${localePath(primaryLocale, path)}`;
 
     return locales.map((locale) => ({
       url: `${base}${localePath(locale, path)}`,

@@ -27,10 +27,11 @@ describe("publicMetadata", () => {
     }
   });
 
-  it("sends x-default to English rather than to the bare root", () => {
-    // `/` only redirects by Accept-Language, which is a poor canonical target.
+  it("sends x-default to the market language, not to the bare root", () => {
+    // Confetti sells in BiH, so Bosnian is the copy a search engine should
+    // fall back to. `/` only redirects by Accept-Language — a poor canonical.
     const languages = meta.alternates?.languages ?? {};
-    expect(String(languages["x-default"])).toMatch(/\/en\/pricing$/);
+    expect(String(languages["x-default"])).toMatch(/\/bs\/pricing$/);
   });
 
   it("declares the page's own locale and the others as alternates", () => {
