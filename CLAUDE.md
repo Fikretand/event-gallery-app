@@ -1,6 +1,6 @@
 # CLAUDE.md — Confetti Event Gallery App
 
-_Last updated: 2026-09-19._
+_Last updated: 2026-09-20._
 
 ---
 
@@ -194,6 +194,12 @@ LemonSqueezy code paths are present but dormant.
 - **Confetti Explainer** — animated portrait-mobile + landscape-desktop story
   on the homepage, using `GalleryAppShell` mock-app screens for the Gallery
   and EventTypes scenes
+- **Content pages** (static, both languages, written by hand):
+  `/dogadjaji/{vjencanje,rodjendan,krstenje,firmska-proslava,konferencija}`,
+  `/kako-funkcionise`, `/pitanja`, `/privatnost-i-sigurnost`. The last one is
+  the honest account of what "private gallery" means here — unlisted link,
+  optional PIN, expiring media URLs, and the part usually left out: without a
+  PIN, whoever holds the link is in. The rules these follow are in §6.
 
 ### SEO
 
@@ -378,6 +384,28 @@ wrappers trust the URL and never redirect.
 500 MB DB + 2 GB bandwidth — exhausted by any real traffic with image
 previews. Migrate to Pro before user testing scales.
 
+### Content pages (the SEO ones)
+`/dogadjaji/[tip]`, `/kako-funkcionise`, `/pitanja`,
+`/privatnost-i-sigurnost` all read from `Dict.content` and share
+`src/components/content-page.tsx`. Three rules, in order of how much damage
+breaking them does:
+
+1. **No city variants, no generated matrix.** Five "wedding gallery in
+   Sarajevo / Mostar / Tuzla" pages differing by a place name are doorway
+   pages; Google has a name for them and a penalty to match. Five
+   hand-written pages that each say something different is the whole point.
+2. **Slugs are ASCII**, diacritics transliterated the way people type them
+   (`vjencanje`, `rodjendan`), and **identical in both languages** — that is
+   what makes the hreflang pair valid.
+3. **`sitemap.test.ts` must keep passing.** It asserts no `/gallery`,
+   `/upload`, `/dashboard` or `/admin` path is ever listed. The sitemap is a
+   request to crawl, and those routes hold people's photographs.
+
+Adding a page means adding it to `Dict.content` in both `en.ts` and `bs.ts`,
+to `PUBLIC_PATHS` in `sitemap.ts`, and to `footerLinks` so it is not an
+orphan. Adding an event type means only the dict — the route and the sitemap
+both derive from that list.
+
 ---
 
 ## 7. WHAT NOT TO TOUCH
@@ -413,11 +441,18 @@ src/
 │   │   ├── dashboard/{…}
 │   │   ├── admin/{…}
 │   │   ├── for-photographers, for-couples, pricing, get-started
+│   │   ├── privacy, terms              # legal (DRAFT)
+│   │   ├── dogadjaji/[tip]             # ── SEO content pages (§6) ──
+│   │   ├── kako-funkcionise            #    hand-written, static,
+│   │   ├── pitanja                     #    bilingual, no city variants
+│   │   ├── privatnost-i-sigurnost      #    how private a gallery really is
 │   │   ├── gallery/[slug], upload/[slug]
-│   │   └── page.tsx                    # locale-aware landing
+│   │   └── page.tsx                    # locale-aware landing (ISR 10m)
 │   ├── page.tsx                        # English landing
 │   ├── layout.tsx
 │   ├── globals.css                     # Tokens + utility classes
+│   ├── robots.ts, sitemap.ts           # generated (+ sitemap.test.ts)
+│   ├── opengraph-image.tsx             # share card via ImageResponse
 │   ├── error.tsx, global-error.tsx, not-found.tsx   # Branded fallbacks
 │   │
 │   ├── dashboard/
@@ -451,7 +486,10 @@ src/
 │   ├── media.ts                     # Upload grants + thumbnails
 │   ├── storage.ts, security.ts, rate-limit.ts, upload-validation.ts
 │   ├── auth.ts, account.ts, marketing.ts
+│   ├── seo.ts                       # publicMetadata / privateMetadata
+│   ├── pricing.ts                   # the only place a price is written down
 │   ├── billing.ts                   # Polar + Payhip + LemonSqueezy helpers
+│   ├── billing-status.ts            # plan/status wording, shared w/ client
 │   ├── qr-posters.ts                # 4 SVG poster templates
 │   ├── qr-posters-render.ts         # Resvg + pdf-lib pipeline
 │   ├── qr-posters-fonts.ts          # TTF paths for Resvg
@@ -479,6 +517,7 @@ src/
     ├── dashboard-header.tsx, dashboard-event-list.tsx
     ├── photographer-profile-form.tsx, setup-notice.tsx
     ├── pricing-showcase.tsx, marketing-button-link.tsx
+    ├── content-page.tsx             # Breadcrumbs/CTA/shell for §6 pages
     ├── explainer/                   # Stage/Sprite scenes + lazy wrapper
     ├── hero-animation/              # Three.js QR→camera→wordmark loop (lazy)
     ├── legal-doc-view.tsx           # Renders a LegalDoc
@@ -492,7 +531,28 @@ src/
 
 Newest first — useful for picking back up.
 
-- _(this session)_ — Polar checkout + signature-verified webhook, **proven end
+- `3be508b` — Eight hand-written content pages in both languages: five event
+  types under `/dogadjaji/[tip]`, plus `/kako-funkcionise`, `/pitanja` and
+  `/privatnost-i-sigurnost`. All static; sitemap now 30 URLs and derives its
+  event-type entries from the same dict list the routes do. `sitemap.test.ts`
+  guards the one thing that must never happen — a `/gallery` or `/upload`
+  path appearing in the crawl invitation. See §6 for the rules these follow.
+- `35755b7` — Signed media URLs rounded to a 15-minute signing window, so a
+  gallery photo is cacheable instead of re-downloaded on every page view.
+- `adec7cb` — **Guest photos were on a permanent public R2 URL** —
+  unsigned, unexpiring, unrevokable — while the upload page promised guests
+  the opposite. Fixed by clearing `R2_PUBLIC_BASE_URL` (the code already
+  falls back to signed URLs everywhere) and disabling the r2.dev domain.
+- `b1e7350` — Bosnian is the published language: `primaryLocale = "bs"` drives
+  `x-default` and the `Accept-Language` fallback, while `defaultLocale` stays
+  `"en"` for unprefixed routing. Landing page became ISR (10m).
+- `699f217` — SEO foundation: `src/lib/seo.ts` (`publicMetadata` /
+  `privateMetadata`), generated `robots.ts` + `sitemap.ts`, `X-Robots-Tag`
+  headers on every private path, translated titles in `Dict.seo`.
+- `76fe0e0` — `src/lib/pricing.ts` is now the only place a price is written
+  down, in the currency the active provider actually charges.
+- `61c2a55` — Admin panel stopped labelling couples with a photographer tier.
+- _(earlier this session)_ — Polar checkout + signature-verified webhook, **proven end
   to end in sandbox**: click → hosted checkout → `order.created` +
   `order.paid` → `users.subscription_status = 'active'`, `provider = 'polar'`,
   order id stored. The account was matched by `metadata.userId`, not by email.
