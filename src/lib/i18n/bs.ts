@@ -86,9 +86,12 @@ export const dict: Dict = {
     footerCtaSecondary: "Organizujem događaj",
     footerTagline: "Privatne galerije za svaku proslavu.",
     footerLinks: [
+      { label: "Kako funkcioniše", href: "/kako-funkcionise" },
       { label: "Za fotografe", href: "/for-photographers" },
       { label: "Za parove", href: "/for-couples" },
       { label: "Cijene", href: "/pricing" },
+      { label: "Česta pitanja", href: "/pitanja" },
+      { label: "Privatnost galerija", href: "/privatnost-i-sigurnost" },
       { label: "Prijava", href: "/login" },
       { label: "Privatnost", href: "/privacy" },
       { label: "Uslovi", href: "/terms" },
@@ -827,6 +830,332 @@ export const dict: Dict = {
       { label: "Stabilni linkovi", sub: "QR kodovi rade i nakon preimenovanja događaja" },
       { label: "Privatno od početka", sub: "Gostujući prijenosi su skriveni dok vi ne odobrite" },
     ],
+  },
+  content: {
+    breadcrumbHome: "Početna",
+    eventTypesLabel: "Tipovi događaja",
+    ctaTitle: "Napravite galeriju za svoj događaj",
+    ctaBody:
+      "Postavljanje traje manje od dvije minute. Prvi događaj je besplatan — kartica nije potrebna.",
+    ctaPrimary: "Počni besplatno",
+    ctaSecondary: "Pogledaj cijene",
+    eventTypes: [
+      {
+        slug: "vjencanje",
+        name: "Vjenčanje",
+        seoTitle: "Galerija za vjenčanje — gosti šalju slike QR kodom",
+        seoDescription:
+          "Jedan QR kod na stolovima, a gosti šalju fotografije direktno u vašu privatnu galeriju. Bez aplikacije, bez grupa na WhatsAppu. 79 KM jednokratno.",
+        heroTitle: "Sve slike sa vašeg vjenčanja, na jednom mjestu",
+        heroBody:
+          "Fotograf snimi ono što je planirano. Gosti uhvate ono što nije — smijeh za stolom, djecu na podiju, momenat koji niko drugi nije vidio. Confetti sve to sakuplja u jednu privatnu galeriju.",
+        sections: [
+          {
+            title: "QR kod na stolu, bez objašnjavanja",
+            body: "Odštampate karticu sa QR kodom i stavite je na stolove. Gost skenira telefonom, otvori se stranica, odabere slike i pošalje. Nema instaliranja, nema registracije, nema objašnjavanja tetkama kako se koristi aplikacija.",
+          },
+          {
+            title: "Vi odlučujete šta ostaje",
+            body: "Sve što gosti pošalju prvo vidite vi. Sakrijte neuspjele kadrove, obrišite duplikate, rasporedite ostalo po sekcijama — ceremonija, restoran, igranka. Gosti vide samo finalnu verziju.",
+          },
+          {
+            title: "Galerija koju stvarno otvorite ponovo",
+            body: "Link zaštićen PIN-om podijelite kome želite. Sve se preuzima kao jedan ZIP, u punoj rezoluciji. Ne traže se slike po chatovima šest mjeseci kasnije.",
+          },
+        ],
+        checklistTitle: "Šta dobijate",
+        checklist: [
+          "QR kartica koju sami dizajnirate i odštampate",
+          "Gosti šalju fotografije i video zapise",
+          "Sekcije: ceremonija, restoran, igranka",
+          "Galerija zaštićena PIN-om",
+          "Preuzimanje svega kao ZIP",
+          "Gosti šalju 30 dana, galerija ostaje 90",
+        ],
+      },
+      {
+        slug: "rodjendan",
+        name: "Rođendan",
+        seoTitle: "Galerija za rođendan — sakupite slike svih gostiju",
+        seoDescription:
+          "Umjesto dvadeset ljudi koji obećaju da će poslati slike, jedan QR kod i jedna privatna galerija. Bez aplikacije za goste. 79 KM jednokratno.",
+        heroTitle: "Slike sa rođendana koje inače nikad ne stignu",
+        heroBody:
+          "Svako je slikao. Niko nije poslao. Confetti rješava tačno taj problem — gost skenira kod dok je još na proslavi i slike su kod vas prije nego što je torta pojedena.",
+        sections: [
+          {
+            title: "Radi i za dječiji i za osamnaesti",
+            body: "Za dječiji rođendan roditelji šalju slike koje ste propustili dok ste vadili tortu. Za punoljetstvo ili okruglu godišnjicu dobijete pogled cijelog društva, a ne samo svoj telefon.",
+          },
+          {
+            title: "Jedan link, bez grupa",
+            body: "Nema pravljenja WhatsApp grupe u koju se dodaje pola porodice. Jedan link ili QR kod, i svako šalje sa svog telefona kad mu odgovara.",
+          },
+          {
+            title: "Sve u punoj rezoluciji",
+            body: "Slike poslane kroz chat aplikacije gube kvalitet. Ovdje stižu onakve kakve su snimljene, i takve ih preuzimate.",
+          },
+        ],
+        checklistTitle: "Šta dobijate",
+        checklist: [
+          "QR kod koji podijelite ili odštampate",
+          "Neograničen broj fotografija od gostiju",
+          "Video zapisi uključeni",
+          "Privatna galerija, po želji sa PIN-om",
+          "Preuzimanje svega kao ZIP",
+        ],
+      },
+      {
+        slug: "krstenje",
+        name: "Krštenje",
+        seoTitle: "Galerija za krštenje — privatne slike samo za porodicu",
+        seoDescription:
+          "Slike djeteta na jednom privatnom mjestu, bez objavljivanja na društvenim mrežama. Porodica šalje QR kodom. 79 KM jednokratno.",
+        heroTitle: "Slike krštenja koje ostaju u porodici",
+        heroBody:
+          "Za krštenje, prvu pričest ili porodično okupljanje najvažnije je da slike djeteta ne završe negdje gdje im nije mjesto. Confetti galerija nije javna i ne pojavljuje se u pretraživačima.",
+        sections: [
+          {
+            title: "Privatno, ne polujavno",
+            body: "Galerija nema javni popis i ne indeksira se u pretraživačima. Otvara je samo onaj ko ima link, a možete dodati i PIN koji dijelite usmeno.",
+          },
+          {
+            title: "Djed i nana također mogu poslati",
+            body: "Gostu ne treba ni nalog ni aplikacija. Skenira kod telefonom i pošalje slike — isto kao slanje poruke.",
+          },
+          {
+            title: "Vi kontrolišete šta se vidi",
+            body: "Svaka poslana slika prvo dođe vama. Šta ne želite da drugi vide, sakrijete jednim klikom.",
+          },
+        ],
+        checklistTitle: "Šta dobijate",
+        checklist: [
+          "Galerija koja se ne pojavljuje u pretraživačima",
+          "Opcionalni PIN za dodatnu zaštitu",
+          "Porodica šalje bez naloga i aplikacije",
+          "Moderacija prije nego iko išta vidi",
+          "Preuzimanje svega kao ZIP",
+        ],
+      },
+      {
+        slug: "firmska-proslava",
+        name: "Firmska proslava",
+        seoTitle: "Galerija za firmsku proslavu — slike bez javnog objavljivanja",
+        seoDescription:
+          "Nova godina, godišnjica firme ili team building: kolege šalju slike QR kodom u galeriju koja ostaje interna. 79 KM jednokratno.",
+        heroTitle: "Slike sa proslave koje ostaju unutar firme",
+        heroBody:
+          "Fotografije sa firmske proslave ne pripadaju ni na Facebook ni u dvadeset Viber grupa. Jedan QR kod, jedna galerija, i marketing kasnije bira šta se koristi.",
+        sections: [
+          {
+            title: "Jedno mjesto umjesto dvadeset grupa",
+            body: "Postavite QR kod na ulaz ili na stolove. Ko želi, pošalje slike. Sve završi na jednom mjestu umjesto da kruži po grupama.",
+          },
+          {
+            title: "Materijal za kasnije",
+            body: "Slike sa proslava su najbolji materijal za objave o firmi i za zapošljavanje. Ovdje stoje uredno, u punoj rezoluciji, spremne za odabir.",
+          },
+          {
+            title: "Bez naloga za zaposlene",
+            body: "Niko ne pravi nalog i ne instalira ništa. To je razlika između galerije koju ljudi koriste i one koju ne koriste.",
+          },
+        ],
+        checklistTitle: "Šta dobijate",
+        checklist: [
+          "QR kod za ulaz ili stolove",
+          "Slike i video zapisi od svih prisutnih",
+          "Galerija koja se ne indeksira",
+          "Moderacija prije objave",
+          "Preuzimanje svega kao ZIP",
+        ],
+      },
+      {
+        slug: "konferencija",
+        name: "Konferencija",
+        seoTitle: "Galerija za konferenciju — slike sa svih sesija na jednom mjestu",
+        seoDescription:
+          "Učesnici i fotografi šalju slike u jednu galeriju podijeljenu po sesijama. Bez aplikacije, bez naloga. 79 KM jednokratno.",
+        heroTitle: "Konferencija iz ugla svih koji su bili tamo",
+        heroBody:
+          "Jedan fotograf ne može pokriti četiri sale istovremeno. Confetti pušta učesnike da popune ono što je propušteno, a vi odlučujete šta ulazi u finalnu galeriju.",
+        sections: [
+          {
+            title: "Sekcije po sesijama ili danima",
+            body: "Galeriju dijelite na sekcije kako vam odgovara — po danima, salama ili predavanjima. Ko traži određenu sesiju, nađe je odmah.",
+          },
+          {
+            title: "QR kod na badge ili na platno",
+            body: "Kod možete staviti na akreditaciju, na roll-up ili prikazati na platnu između sesija. Učesnik skenira i pošalje.",
+          },
+          {
+            title: "Isporuka partnerima i medijima",
+            body: "Galeriju zaštićenu PIN-om podijelite sponzorima ili novinarima, a sve se preuzima odjednom kao ZIP.",
+          },
+        ],
+        checklistTitle: "Šta dobijate",
+        checklist: [
+          "Sekcije po danima ili salama",
+          "Slike od učesnika i od fotografa u istoj galeriji",
+          "Moderacija prije objave",
+          "Galerija sa PIN-om za partnere",
+          "Preuzimanje svega kao ZIP",
+        ],
+      },
+    ],
+    howItWorks: {
+      seoTitle: "Kako funkcioniše",
+      seoDescription:
+        "Od kreiranja događaja do isporučene galerije u četiri koraka. Gostima ne treba aplikacija ni nalog — samo QR kod.",
+      title: "Kako Confetti funkcioniše",
+      body: "Četiri koraka. Prvi traje dvije minute, ostali se dese sami.",
+      steps: [
+        {
+          n: "01",
+          title: "Napravite događaj",
+          body: "Upišete naziv, datum i po želji PIN. Dobijete dva linka: jedan za goste, jedan za galeriju. Ti linkovi se kasnije ne mijenjaju, pa odštampani QR kod vrijedi i nakon što preimenujete događaj.",
+        },
+        {
+          n: "02",
+          title: "Podijelite QR kod",
+          body: "U editoru napravite karticu sa QR kodom i odštampate je, ili jednostavno pošaljete link. Gost skenira, otvori se stranica za slanje. Bez instalacije, bez naloga.",
+        },
+        {
+          n: "03",
+          title: "Pregledate šta je stiglo",
+          body: "Sve poslano dolazi vama prvo. Sakrijete, vratite ili obrišete šta želite, a ostalo rasporedite po sekcijama.",
+        },
+        {
+          n: "04",
+          title: "Isporučite galeriju",
+          body: "Podijelite link galerije. Ko ga ima, pregleda slike i preuzima ih — pojedinačno ili sve odjednom kao ZIP.",
+        },
+      ],
+      note: "Gosti nikad ne prave nalog. Nalog pravi samo onaj ko organizuje događaj.",
+    },
+    faq: {
+      seoTitle: "Česta pitanja",
+      seoDescription:
+        "Koliko traju linkovi, ko može vidjeti galeriju, kako se preuzimaju slike i koja je maksimalna veličina fajla.",
+      title: "Česta pitanja",
+      body: "Ako nešto nije ovdje, pitajte — dopunit ćemo.",
+      groups: [
+        {
+          heading: "Privatnost galerije",
+          items: [
+            {
+              question: "Ko sve može vidjeti moju galeriju?",
+              answer:
+                "Samo onaj ko ima link. Galerija se ne pojavljuje ni u jednom javnom popisu i blokirana je za pretraživače. Ako dodate PIN, link sam po sebi nije dovoljan — traži se i PIN.",
+            },
+            {
+              question: "Da li se slike pojavljuju na Googleu?",
+              answer:
+                "Ne. Stranice galerija šalju pretraživačima izričitu zabranu indeksiranja, i to na dva načina — u samoj stranici i u HTTP zaglavlju. Same fotografije se ne serviraju sa javne adrese nego preko linka koji ističe.",
+            },
+            {
+              question: "Moram li postaviti PIN?",
+              answer:
+                "Ne morate. Bez PIN-a galeriju otvara svako ko ima link — to je praktično kad je dijelite porodici. Ako slike žele dodatni sloj zaštite, uključite PIN u postavkama događaja.",
+            },
+          ],
+        },
+        {
+          heading: "Linkovi i trajanje",
+          items: [
+            {
+              question: "Koliko dugo linkovi rade?",
+              answer:
+                "Kod plana Jedan događaj gosti šalju 30 dana, a galerija ostaje dostupna 90 dana od događaja. Fotografi sa pretplatom sami određuju datum isteka za svaki događaj.",
+            },
+            {
+              question: "Mijenja li se link ako preimenujem događaj?",
+              answer:
+                "Ne. Link za goste i link galerije se fiksiraju pri kreiranju događaja, pa odštampani QR kodovi i podijeljeni linkovi nastavljaju raditi.",
+            },
+            {
+              question: "Šta se desi kad galerija istekne?",
+              answer:
+                "Link prestaje prikazivati slike i posjetilac dobije poruku da je galerija istekla. Preuzmite ZIP prije isteka ako želite sve sačuvati.",
+            },
+          ],
+        },
+        {
+          heading: "Slanje i preuzimanje",
+          items: [
+            {
+              question: "Treba li gostima aplikacija ili nalog?",
+              answer:
+                "Ne. Gost otvori stranicu iz QR koda ili linka, odabere slike i pošalje. Nalog pravi samo organizator događaja.",
+            },
+            {
+              question: "Kako preuzimam slike?",
+              answer:
+                "Pojedinačno klikom, ili sve odjednom kao ZIP. Preuzimaju se originali, ne smanjene verzije koje ostanu nakon slanja kroz chat.",
+            },
+            {
+              question: "Mogu li gosti slati i video?",
+              answer:
+                "Mogu, ako to uključite u postavkama događaja. Podržani su MP4 i MOV.",
+            },
+          ],
+        },
+        {
+          heading: "Fajlovi i ograničenja",
+          items: [
+            {
+              question: "Koja je najveća veličina fajla?",
+              answer:
+                "Za goste je podrazumijevano 250 MB po fajlu, i to možete promijeniti po događaju. Organizator sa svog naloga može slati fajlove do 1 GB.",
+            },
+            {
+              question: "Koji formati su podržani?",
+              answer:
+                "Fotografije: JPG, PNG, HEIC i HEIF — dakle i ono što iPhone snima podrazumijevano. Video: MP4 i MOV.",
+            },
+            {
+              question: "Koliko slika mogu gosti poslati?",
+              answer:
+                "Nema ograničenja na broj slika. Ograničen je ukupan prostor koji plan nosi, a za jedan događaj se to teško dostigne.",
+            },
+          ],
+        },
+      ],
+    },
+    privacy: {
+      seoTitle: "Privatnost i sigurnost galerija",
+      seoDescription:
+        "Kako tačno funkcioniše privatnost galerije: link koji se ne objavljuje, opcionalni PIN, slike iza linkova koji ističu, i zabrana indeksiranja.",
+      title: "Koliko je vaša galerija zaista privatna",
+      body: "Riječ „privatno\u201C se u ovoj branši koristi olako. Evo tačno šta znači kod nas — i šta ne znači.",
+      sections: [
+        {
+          title: "Galerija se ne objavljuje nigdje",
+          body: "Ne postoji javni popis galerija, pretraga po događajima niti stranica sa kojom bi se do vaše galerije moglo doći slučajno. Jedini put do nje je link koji ste vi podijelili.",
+        },
+        {
+          title: "Pretraživači je ne indeksiraju",
+          body: "Stranice galerija i stranice za slanje nose izričitu zabranu indeksiranja, poslanu i u samoj stranici i u HTTP zaglavlju. Zabranjene su i u robots datoteci. Ne oslanjamo se samo na robots — zabranjena adresa se i dalje može pojaviti u rezultatima ako je neko negdje linka, zato postoji i zabrana u zaglavlju.",
+        },
+        {
+          title: "Fotografije nisu na javnoj adresi",
+          body: "Svaka slika se servira preko potpisanog linka koji ističe nakon sat vremena. Ako neko kopira adresu slike i pošalje je dalje, ta adresa prestaje raditi. Nema trajne javne adrese ispod koje slika zauvijek stoji.",
+        },
+        {
+          title: "PIN je vaš izbor, i mijenja pravila",
+          body: "Bez PIN-a galeriju otvara svako ko ima link — praktično, ali znači da je link ono što morate čuvati. Sa PIN-om link sam nije dovoljan. Za osjetljivije događaje preporučujemo PIN koji dijelite usmeno, a ne u istoj poruci u kojoj je link.",
+        },
+        {
+          title: "Link koji se ne može pogoditi",
+          body: "Adresa galerije sadrži nasumični dio koji se ne da pogoditi pokušavanjem. Ali nasumičan nije isto što i tajan: ko dobije link, ima pristup. Prema linku galerije se odnosite kao prema ključu.",
+        },
+        {
+          title: "Vi odlučujete šta se vidi",
+          body: "Sve što gosti pošalju prvo vidite vi. Dok nešto ne odobrite, niko drugo to ne vidi. Obrisano prvo ide u stanje iz kojeg se može vratiti, pa tek onda nestaje trajno.",
+        },
+      ],
+      legalNote: "Ovo je objašnjenje kako sistem radi, ne pravni dokument.",
+      legalLink: "Pročitajte politiku privatnosti",
+    },
   },
   seo: {
     home: {

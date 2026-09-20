@@ -649,6 +649,63 @@ export interface Dict {
     couplePlanHighlights: string[];
     trustBadges: Array<{ label: string; sub: string }>;
   };
+  /**
+   * Standalone content pages: one per event type, plus how-it-works, FAQ and
+   * an honest explanation of how private a gallery actually is.
+   *
+   * These exist to be found in search. Each says something different and true
+   * about the product; none is a keyword swap of another, and there are no
+   * city variants — that is doorway-page territory and Google treats it as
+   * such.
+   */
+  content: {
+    breadcrumbHome: string;
+    eventTypesLabel: string;
+    /** Shared closing call to action on every content page. */
+    ctaTitle: string;
+    ctaBody: string;
+    ctaPrimary: string;
+    ctaSecondary: string;
+    /** Each becomes /dogadjaji/{slug} in both languages. */
+    eventTypes: Array<{
+      slug: string;
+      name: string;
+      seoTitle: string;
+      seoDescription: string;
+      heroTitle: string;
+      heroBody: string;
+      sections: Array<{ title: string; body: string }>;
+      checklistTitle: string;
+      checklist: string[];
+    }>;
+    howItWorks: {
+      seoTitle: string;
+      seoDescription: string;
+      title: string;
+      body: string;
+      steps: Array<{ n: string; title: string; body: string }>;
+      note: string;
+    };
+    faq: {
+      seoTitle: string;
+      seoDescription: string;
+      title: string;
+      body: string;
+      groups: Array<{
+        heading: string;
+        items: Array<{ question: string; answer: string }>;
+      }>;
+    };
+    privacy: {
+      seoTitle: string;
+      seoDescription: string;
+      title: string;
+      body: string;
+      sections: Array<{ title: string; body: string }>;
+      legalNote: string;
+      legalLink: string;
+    };
+  };
   /** Page titles and descriptions as they appear in search results. */
   seo: {
     home: { title: string; description: string };

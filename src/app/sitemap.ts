@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { locales, primaryLocale } from "@/lib/i18n/index";
+import { getDictionary, locales, primaryLocale } from "@/lib/i18n/index";
 import { localePath, siteUrl } from "@/lib/seo";
 
 /**
@@ -16,6 +16,16 @@ const PUBLIC_PATHS: { path: string; priority: number; changeFrequency: MetadataR
   { path: "/for-photographers", priority: 0.8, changeFrequency: "monthly" },
   { path: "/for-couples", priority: 0.8, changeFrequency: "monthly" },
   { path: "/get-started", priority: 0.6, changeFrequency: "yearly" },
+  { path: "/kako-funkcionise", priority: 0.8, changeFrequency: "monthly" },
+  { path: "/pitanja", priority: 0.7, changeFrequency: "monthly" },
+  { path: "/privatnost-i-sigurnost", priority: 0.7, changeFrequency: "monthly" },
+  // One entry per event type, read from the same list the routes are built
+  // from, so a page cannot exist without being listed or vice versa.
+  ...getDictionary(primaryLocale).content.eventTypes.map((type) => ({
+    path: `/dogadjaji/${type.slug}`,
+    priority: 0.8,
+    changeFrequency: "monthly" as const,
+  })),
   { path: "/privacy", priority: 0.3, changeFrequency: "yearly" },
   { path: "/terms", priority: 0.3, changeFrequency: "yearly" },
 ];

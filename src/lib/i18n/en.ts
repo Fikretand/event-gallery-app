@@ -85,9 +85,12 @@ export const dict: Dict = {
     footerCtaSecondary: "I'm hosting an event",
     footerTagline: "Private galleries for every celebration.",
     footerLinks: [
+      { label: "How it works", href: "/kako-funkcionise" },
       { label: "For photographers", href: "/for-photographers" },
       { label: "For couples", href: "/for-couples" },
       { label: "Pricing", href: "/pricing" },
+      { label: "FAQ", href: "/pitanja" },
+      { label: "Gallery privacy", href: "/privatnost-i-sigurnost" },
       { label: "Log in", href: "/login" },
       { label: "Privacy", href: "/privacy" },
       { label: "Terms", href: "/terms" },
@@ -825,6 +828,330 @@ export const dict: Dict = {
       { label: "Stable links", sub: "QR codes keep working after event renaming" },
       { label: "Private by default", sub: "Guest uploads are hidden until you approve" },
     ],
+  },
+  content: {
+    breadcrumbHome: "Home",
+    eventTypesLabel: "Event types",
+    ctaTitle: "Set up a gallery for your event",
+    ctaBody: "Takes under two minutes. The first event is free — no card needed.",
+    ctaPrimary: "Start free",
+    ctaSecondary: "See pricing",
+    eventTypes: [
+      {
+        slug: "vjencanje",
+        name: "Wedding",
+        seoTitle: "Wedding gallery — guests upload photos by QR code",
+        seoDescription:
+          "One QR code on the tables and guests send photos straight into your private gallery. No app, no group chats. 79 KM, paid once.",
+        heroTitle: "Every photo from your wedding, in one place",
+        heroBody:
+          "Your photographer captures what was planned. Your guests catch what was not — the laughter at the table, the kids on the dance floor, the moment nobody else saw. Confetti gathers all of it into one private gallery.",
+        sections: [
+          {
+            title: "A QR code on the table, nothing to explain",
+            body: "Print a card with the QR code and put it on the tables. A guest scans it, a page opens, they pick photos and send. No install, no sign-up, no explaining an app to anyone's aunt.",
+          },
+          {
+            title: "You decide what stays",
+            body: "Everything guests send reaches you first. Hide the blurry ones, drop duplicates, arrange the rest into sections — ceremony, dinner, dancing. Guests only ever see the finished gallery.",
+          },
+          {
+            title: "A gallery you will actually open again",
+            body: "Share a PIN-protected link with whoever you choose. Everything downloads as one ZIP, at full resolution. No hunting through chats six months later.",
+          },
+        ],
+        checklistTitle: "What you get",
+        checklist: [
+          "A QR card you design and print yourself",
+          "Guests send photos and videos",
+          "Sections: ceremony, dinner, dancing",
+          "PIN-protected gallery",
+          "Download everything as a ZIP",
+          "Guests upload for 30 days, gallery stays 90",
+        ],
+      },
+      {
+        slug: "rodjendan",
+        name: "Birthday",
+        seoTitle: "Birthday gallery — collect photos from every guest",
+        seoDescription:
+          "Instead of twenty people promising to send photos, one QR code and one private gallery. No app for guests. 79 KM, paid once.",
+        heroTitle: "The birthday photos that otherwise never arrive",
+        heroBody:
+          "Everyone took pictures. Nobody sent them. Confetti solves exactly that — a guest scans the code while still at the party, and the photos are yours before the cake is finished.",
+        sections: [
+          {
+            title: "Works for a child's party and an eighteenth alike",
+            body: "At a children's party, parents send the moments you missed while carrying the cake. At a milestone birthday you get the whole room's view, not just your own phone's.",
+          },
+          {
+            title: "One link, no group chats",
+            body: "No creating a group and adding half the family. One link or QR code, and everyone sends from their own phone whenever suits them.",
+          },
+          {
+            title: "Full resolution, not chat quality",
+            body: "Photos sent through messaging apps lose quality. Here they arrive as they were taken, and that is how you download them.",
+          },
+        ],
+        checklistTitle: "What you get",
+        checklist: [
+          "A QR code to share or print",
+          "No limit on how many photos guests send",
+          "Guest videos included",
+          "Private gallery, with a PIN if you want one",
+          "Download everything as a ZIP",
+        ],
+      },
+      {
+        slug: "krstenje",
+        name: "Christening",
+        seoTitle: "Christening gallery — private photos, family only",
+        seoDescription:
+          "Photos of your child in one private place, not on social media. Family uploads by QR code. 79 KM, paid once.",
+        heroTitle: "Christening photos that stay in the family",
+        heroBody:
+          "For a christening, a first communion or a family gathering, what matters most is that photos of a child do not end up somewhere they should not. A Confetti gallery is unlisted and blocked from search engines.",
+        sections: [
+          {
+            title: "Private, not semi-public",
+            body: "The gallery appears in no public listing and is blocked from search engines. Only someone with the link can open it, and you can add a PIN you share out loud.",
+          },
+          {
+            title: "Grandparents can send too",
+            body: "A guest needs neither an account nor an app. They scan the code with their phone and send — as simple as sending a message.",
+          },
+          {
+            title: "You control what is shown",
+            body: "Every photo sent reaches you first. Anything you would rather others did not see is hidden with one click.",
+          },
+        ],
+        checklistTitle: "What you get",
+        checklist: [
+          "A gallery that does not appear in search engines",
+          "Optional PIN for another layer",
+          "Family uploads without an account or app",
+          "Moderation before anyone sees anything",
+          "Download everything as a ZIP",
+        ],
+      },
+      {
+        slug: "firmska-proslava",
+        name: "Company party",
+        seoTitle: "Company party gallery — photos that stay internal",
+        seoDescription:
+          "New Year, an anniversary or a team day: colleagues send photos by QR code into a gallery that stays internal. 79 KM, paid once.",
+        heroTitle: "Photos from the party that stay inside the company",
+        heroBody:
+          "Photos from a company party belong neither on Facebook nor in twenty separate group chats. One QR code, one gallery, and marketing picks what gets used later.",
+        sections: [
+          {
+            title: "One place instead of twenty chats",
+            body: "Put the QR code at the entrance or on the tables. Whoever wants to sends photos. Everything lands in one place instead of circulating in fragments.",
+          },
+          {
+            title: "Material for later",
+            body: "Party photos are the best material for company posts and for hiring. Here they sit in order, at full resolution, ready to pick from.",
+          },
+          {
+            title: "No accounts for staff",
+            body: "Nobody creates an account or installs anything. That is the difference between a gallery people use and one they do not.",
+          },
+        ],
+        checklistTitle: "What you get",
+        checklist: [
+          "A QR code for the entrance or the tables",
+          "Photos and videos from everyone present",
+          "A gallery that is not indexed",
+          "Moderation before anything is shown",
+          "Download everything as a ZIP",
+        ],
+      },
+      {
+        slug: "konferencija",
+        name: "Conference",
+        seoTitle: "Conference gallery — every session in one place",
+        seoDescription:
+          "Attendees and photographers upload into one gallery split by session. No app, no accounts. 79 KM, paid once.",
+        heroTitle: "The conference as everyone in the room saw it",
+        heroBody:
+          "One photographer cannot cover four rooms at once. Confetti lets attendees fill in what was missed, while you decide what makes the final gallery.",
+        sections: [
+          {
+            title: "Sections by session or by day",
+            body: "Split the gallery however suits — by day, by room, by talk. Anyone looking for a particular session finds it immediately.",
+          },
+          {
+            title: "A QR code on the badge or on the screen",
+            body: "Put the code on the lanyard, on a roll-up, or show it on screen between sessions. An attendee scans and sends.",
+          },
+          {
+            title: "Delivery to partners and press",
+            body: "Share a PIN-protected gallery with sponsors or journalists, and everything downloads at once as a ZIP.",
+          },
+        ],
+        checklistTitle: "What you get",
+        checklist: [
+          "Sections by day or by room",
+          "Attendee and photographer shots in one gallery",
+          "Moderation before anything is shown",
+          "PIN-protected gallery for partners",
+          "Download everything as a ZIP",
+        ],
+      },
+    ],
+    howItWorks: {
+      seoTitle: "How it works",
+      seoDescription:
+        "From creating an event to a delivered gallery in four steps. Guests need no app and no account — just a QR code.",
+      title: "How Confetti works",
+      body: "Four steps. The first takes two minutes; the rest happen on their own.",
+      steps: [
+        {
+          n: "01",
+          title: "Create the event",
+          body: "Enter a name, a date and optionally a PIN. You get two links: one for guests, one for the gallery. Those links never change afterwards, so a printed QR code still works even if you rename the event.",
+        },
+        {
+          n: "02",
+          title: "Share the QR code",
+          body: "Design a QR card in the editor and print it, or simply send the link. A guest scans it and the upload page opens. No install, no account.",
+        },
+        {
+          n: "03",
+          title: "Review what arrived",
+          body: "Everything sent reaches you first. Hide, restore or delete whatever you like, and arrange the rest into sections.",
+        },
+        {
+          n: "04",
+          title: "Deliver the gallery",
+          body: "Share the gallery link. Whoever has it browses and downloads — one photo at a time, or everything as a ZIP.",
+        },
+      ],
+      note: "Guests never create an account. Only the person organising the event does.",
+    },
+    faq: {
+      seoTitle: "Frequently asked questions",
+      seoDescription:
+        "How long links last, who can see a gallery, how downloads work, and the maximum file size.",
+      title: "Frequently asked questions",
+      body: "If something is missing here, ask — we will add it.",
+      groups: [
+        {
+          heading: "Gallery privacy",
+          items: [
+            {
+              question: "Who can see my gallery?",
+              answer:
+                "Only someone holding the link. The gallery appears in no public listing and is blocked from search engines. Add a PIN and the link alone is no longer enough.",
+            },
+            {
+              question: "Do the photos show up on Google?",
+              answer:
+                "No. Gallery pages carry an explicit no-index instruction, sent both in the page and in the HTTP header. The photographs themselves are not served from a public address but through a link that expires.",
+            },
+            {
+              question: "Do I have to set a PIN?",
+              answer:
+                "No. Without one, anyone with the link can open the gallery — convenient when sharing with family. If the photos warrant another layer, turn the PIN on in the event settings.",
+            },
+          ],
+        },
+        {
+          heading: "Links and duration",
+          items: [
+            {
+              question: "How long do the links last?",
+              answer:
+                "On the One Event plan, guests upload for 30 days and the gallery stays available for 90 days from the event. Photographers on a subscription set their own expiry per event.",
+            },
+            {
+              question: "Does the link change if I rename the event?",
+              answer:
+                "No. The guest link and the gallery link are fixed when the event is created, so printed QR codes and shared links keep working.",
+            },
+            {
+              question: "What happens when a gallery expires?",
+              answer:
+                "The link stops showing photos and a visitor sees a notice that the gallery has expired. Download the ZIP before expiry if you want to keep everything.",
+            },
+          ],
+        },
+        {
+          heading: "Uploading and downloading",
+          items: [
+            {
+              question: "Do guests need an app or an account?",
+              answer:
+                "No. A guest opens the page from the QR code or link, picks photos and sends. Only the event organiser has an account.",
+            },
+            {
+              question: "How do I download the photos?",
+              answer:
+                "One at a time, or all at once as a ZIP. You get the originals, not the shrunken versions that survive a chat app.",
+            },
+            {
+              question: "Can guests send video?",
+              answer: "Yes, if you enable it in the event settings. MP4 and MOV are supported.",
+            },
+          ],
+        },
+        {
+          heading: "Files and limits",
+          items: [
+            {
+              question: "What is the largest file size?",
+              answer:
+                "250 MB per file for guests by default, adjustable per event. The organiser can upload files up to 1 GB from their own account.",
+            },
+            {
+              question: "Which formats are supported?",
+              answer:
+                "Photos: JPG, PNG, HEIC and HEIF — so whatever an iPhone shoots by default. Video: MP4 and MOV.",
+            },
+            {
+              question: "How many photos can guests send?",
+              answer:
+                "There is no limit on the number of photos. What is limited is the total storage your plan carries, and a single event rarely comes close.",
+            },
+          ],
+        },
+      ],
+    },
+    privacy: {
+      seoTitle: "Gallery privacy and security",
+      seoDescription:
+        "Exactly how gallery privacy works: an unlisted link, an optional PIN, photos behind expiring links, and no indexing.",
+      title: "How private your gallery actually is",
+      body: "The word \u201Cprivate\u201D gets used loosely in this business. Here is exactly what it means here — and what it does not.",
+      sections: [
+        {
+          title: "The gallery is published nowhere",
+          body: "There is no public listing, no event search, no page from which someone could stumble into your gallery. The only route to it is the link you shared.",
+        },
+        {
+          title: "Search engines do not index it",
+          body: "Gallery and upload pages carry an explicit no-index instruction, sent both in the page and in the HTTP header, and the paths are disallowed in robots. We do not rely on robots alone: a disallowed address can still surface if someone links to it, which is why the header instruction exists as well.",
+        },
+        {
+          title: "Photographs are not at a public address",
+          body: "Every image is served through a signed link that expires after an hour. If someone copies an image address and passes it on, that address stops working. There is no permanent public address a photo sits under forever.",
+        },
+        {
+          title: "The PIN is your choice, and it changes the rules",
+          body: "Without a PIN, anyone with the link can open the gallery — convenient, but it means the link is the thing to protect. With a PIN, the link alone is not enough. For sensitive events, use a PIN and share it out loud rather than in the same message as the link.",
+        },
+        {
+          title: "A link that cannot be guessed",
+          body: "A gallery address contains a random component that will not yield to guessing. But random is not the same as secret: whoever receives the link has access. Treat a gallery link like a key.",
+        },
+        {
+          title: "You decide what is visible",
+          body: "Everything guests send reaches you first. Until you approve it, nobody else sees it. Deleted files first move to a state you can restore from, and only then disappear for good.",
+        },
+      ],
+      legalNote: "This explains how the system works; it is not a legal document.",
+      legalLink: "Read the privacy policy",
+    },
   },
   seo: {
     home: {
