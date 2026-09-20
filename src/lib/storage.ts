@@ -49,6 +49,43 @@ export async function createSignedUploadUrl(key: string, contentType: string) {
   );
 }
 
+/**
+ * How long a signed URL stays byte-for-byte identical.
+ *
+ * A SigV4 signature covers the moment it was made, so signing with the wall
+ * clock produces a brand-new URL on every render — and a browser cannot reuse
+ * a cached image under a URL it has never seen. A gallery of 200 photos was
+ * therefore re-downloaded in full on every page view, which on a phone at a
+ * wedding is the whole cost of the page.
+ *
+ * Rounding the signing time down to a window makes every request inside that
+ * window produce the same URL, so the browser can serve its cached copy.
+ *
+ * No explicit `Cache-Control` is attached: R2's support for the S3
+ * `response-cache-control` override is not something this codebase has
+ * verified, and an unsupported parameter would break every image at once.
+ * It buys little anyway — with a stable URL and R2's `Last-Modified`, a
+ * browser's heuristic freshness on a weeks-old photo already runs into days.
+ */
+const SIGNED_URL_CACHE_WINDOW_SECONDS = 15 * 60;
+
+/**
+ * Validity guaranteed to a URL minted at the *end* of a cache window.
+ *
+ * Gallery tiles are lazy-loaded, so a URL created at page load may not be
+ * requested until the visitor scrolls to it; at five minutes those images
+ * 403'd on any gallery left open or browsed slowly. The window is added on top
+ * because a URL signed with a rounded-down timestamp has already spent part of
+ * its life by the time it is handed out.
+ */
+const SIGNED_URL_TTL_SECONDS = 60 * 60;
+
+/** The start of the cache window the given moment falls in. */
+function signingWindowStart(now = Date.now()): Date {
+  const windowMs = SIGNED_URL_CACHE_WINDOW_SECONDS * 1000;
+  return new Date(Math.floor(now / windowMs) * windowMs);
+}
+
 export async function createSignedDownloadUrl(key: string, downloadName?: string, bucket = env.r2Bucket) {
   if (!bucket) {
     return null;
@@ -68,10 +105,10 @@ export async function createSignedDownloadUrl(key: string, downloadName?: string
         ? `attachment; filename="${downloadName.replace(/"/g, "")}"`
         : undefined,
     }),
-    // Gallery tiles are lazy-loaded, so a URL minted at page load may not be
-    // requested until the visitor scrolls to it. At 5 minutes those images
-    // 403'd on any gallery left open or browsed slowly.
-    { expiresIn: 60 * 60 },
+    {
+      expiresIn: SIGNED_URL_TTL_SECONDS + SIGNED_URL_CACHE_WINDOW_SECONDS,
+      signingDate: signingWindowStart(),
+    },
   );
 }
 
