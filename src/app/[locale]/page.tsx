@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 import { ConfettiExplainer } from "@/components/explainer/confetti-explainer-lazy";
 import { ConfettiHeroAnimation } from "@/components/hero-animation/confetti-hero-animation-lazy";
@@ -141,25 +140,28 @@ export async function generateMetadata({
   });
 }
 
+/**
+ * Regenerate at most once every ten minutes.
+ *
+ * Reading `searchParams` used to force this page to render from scratch on
+ * every request — the slowest possible way to serve the one page most
+ * visitors and every crawler see first. That hop (Supabase's `?code=` email
+ * confirmation) now happens in middleware, so the page can be cached.
+ *
+ * The window is short because the photographer spotlight is live data; ten
+ * minutes of staleness there is not worth a render per visit.
+ */
+export const revalidate = 600;
+
 export default async function HomePage({
   params,
-  searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams?: Promise<{ code?: string; next?: string }>;
 }) {
   const { locale } = await params;
   const dict = getDictionary(locale as Locale);
   const d = dict.landing;
   const dm = dict.marketing;
-
-  const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  if (resolvedSearchParams?.code) {
-    const redirectTarget = resolvedSearchParams.next
-      ? `/auth/confirm?code=${encodeURIComponent(resolvedSearchParams.code)}&next=${encodeURIComponent(resolvedSearchParams.next)}`
-      : `/auth/confirm?code=${encodeURIComponent(resolvedSearchParams.code)}`;
-    redirect(redirectTarget);
-  }
 
   const publicPhotographers = await listPublicPhotographers();
   const lp = (path: string) => `/${locale}${path}`;

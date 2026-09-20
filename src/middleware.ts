@@ -67,6 +67,23 @@ export async function middleware(request: NextRequest) {
     return refreshSupabaseSession(request);
   }
 
+  // Supabase sends email confirmation links to the site root carrying `?code=`.
+  // Forwarding that here rather than from the landing page means the landing
+  // never has to read searchParams, which is the only thing that was forcing
+  // it to render dynamically on every request.
+  const code = request.nextUrl.searchParams.get("code");
+  const isSiteRoot =
+    pathname === "/" || locales.some((loc) => pathname === `/${loc}`);
+  if (code && isSiteRoot) {
+    const next = request.nextUrl.searchParams.get("next");
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/confirm";
+    url.search = "";
+    url.searchParams.set("code", code);
+    if (next) url.searchParams.set("next", next);
+    return NextResponse.redirect(url);
+  }
+
   // Check if pathname already has a known locale prefix
   const hasLocalePrefix = locales.some(
     (loc) => pathname === `/${loc}` || pathname.startsWith(`/${loc}/`),
