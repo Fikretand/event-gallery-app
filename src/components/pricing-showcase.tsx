@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import { MarketingButtonLink } from "@/components/marketing-button-link";
-import { getDictionary } from "@/lib/i18n/index";
+import { getDictionary, t } from "@/lib/i18n/index";
 import type { Locale } from "@/lib/i18n/index";
 import { photographerPlans as basePlans, couplePlan as baseCouple } from "@/lib/marketing";
 import { cn } from "@/lib/utils";
@@ -78,8 +78,11 @@ export function PricingShowcase() {
     ...plan,
     yearlyPrice: basePlans[i].yearlyPrice,
     monthlyPrice: basePlans[i].monthlyPrice,
+    yearlyTotal: basePlans[i].yearlyTotal,
+    savingPercent: basePlans[i].savingPercent,
     featured: basePlans[i].featured ?? false,
   }));
+  const maxSaving = Math.max(...basePlans.map((p) => p.savingPercent));
 
   return (
     <div className="space-y-8">
@@ -104,7 +107,7 @@ export function PricingShowcase() {
         >
           {ui.yearlyBilling}
           <span className="rounded-full bg-white/90 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-[var(--color-moss)]">
-            {ui.save20}
+            {t(ui.save20, { percent: String(maxSaving) })}
           </span>
         </button>
       </div>
@@ -141,7 +144,11 @@ export function PricingShowcase() {
                 <span className="text-5xl font-semibold tracking-tight text-[var(--color-ink)]">{price}</span>
                 <span className="pb-1 text-sm leading-5 text-black/55">{label}</span>
               </div>
-              <p className="mt-2 text-sm text-[var(--color-moss)]">{plan.savingsLabel}</p>
+              <p className="mt-2 text-sm text-[var(--color-moss)]">
+                {isYearly
+                  ? t(plan.yearlyTotalNote, { total: plan.yearlyTotal })
+                  : t(plan.savingsLabel, { percent: String(plan.savingPercent) })}
+              </p>
 
               <MarketingButtonLink
                 href={lp(`/signup?intent=photographer&plan=${plan.name.toLowerCase()}`)}

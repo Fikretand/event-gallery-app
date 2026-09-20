@@ -1,47 +1,21 @@
 import { Polar } from "@polar-sh/sdk";
 
 import { env, hasPayments, hasPolar } from "@/lib/env";
+import type { CheckoutPlanId, PlanId } from "@/lib/pricing";
 import type { BillingCycle, UserRecord } from "@/lib/types";
 
 export { hasPayments, hasPolar };
 
-export type PlanId = "solo" | "pro";
-export type CheckoutPlanId = PlanId | "couple";
-
-/**
- * Displayed price of the One Event plan, per provider. Polar sells it in BAM
- * (79,00 KM ≈ €39); the legacy Payhip product is still priced in EUR.
- */
-export const ONE_EVENT_PRICE = { polar: "79,00 KM", payhip: "€39" } as const;
-
-/** EUR per month, by billing cycle. Mirrors the marketing pricing. */
-export const PLAN_PRICING: Record<PlanId, Record<BillingCycle, number>> = {
-  solo: { monthly: 24, yearly: 19 },
-  pro: { monthly: 49, yearly: 39 },
-};
-
-/**
- * The same plans in BAM, which is what Polar actually charges.
- *
- * Per month, as displayed; a yearly plan bills twelve of these at once, so
- * Solo yearly is 468 KM and Pro yearly is 948 KM per charge. Rounded to whole
- * marketing numbers the same way One Event is (€39 → 79 KM), not converted
- * exactly.
- */
-export const PLAN_PRICING_BAM: Record<PlanId, Record<BillingCycle, number>> = {
-  solo: { monthly: 49, yearly: 39 },
-  pro: { monthly: 99, yearly: 79 },
-};
-
-/** Which currency the dashboard should quote, given the active provider. */
-export function planPricingFor(provider: "polar" | "payhip"): {
-  pricing: Record<PlanId, Record<BillingCycle, number>>;
-  currency: "BAM" | "EUR";
-} {
-  return provider === "polar"
-    ? { pricing: PLAN_PRICING_BAM, currency: "BAM" }
-    : { pricing: PLAN_PRICING, currency: "EUR" };
-}
+export type { PlanId, CheckoutPlanId } from "@/lib/pricing";
+export {
+  ONE_EVENT_PRICE,
+  PLAN_PRICING,
+  PLAN_PRICING_BAM,
+  annualSavingPercent,
+  formatBam,
+  planPricingFor,
+  yearlyTotalBam,
+} from "@/lib/pricing";
 
 // ── Payhip (active provider) ─────────────────────────────────────────────────
 

@@ -610,7 +610,8 @@ export interface Dict {
       name: string;
       yearlyLabel: string;
       monthlyLabel: string;
-      savingsLabel: string;
+      savingsLabel: string;      // "{{percent}}"
+      yearlyTotalNote: string;   // "{{total}}"
       summary: string;
       ctaLabel: string;
       features: string[];
@@ -634,7 +635,7 @@ export interface Dict {
   pricingUi: {
     monthlyBilling: string;
     yearlyBilling: string;
-    save20: string;
+    save20: string;           // "{{percent}}"
     mostPopular: string;
     includes: string;
     oneTimePlan: string;

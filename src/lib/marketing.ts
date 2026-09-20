@@ -1,60 +1,46 @@
+import {
+  ONE_EVENT_BAM,
+  PLAN_PRICING_BAM,
+  annualSavingPercent,
+  formatBam,
+  yearlyTotalBam,
+} from "@/lib/pricing";
+
+/**
+ * Locale-independent plan facts for the marketing pages.
+ *
+ * Prices are derived from `@/lib/pricing`, never typed in again, so the number
+ * on the pricing page is the number Polar charges. Names, summaries and
+ * feature copy are translated and live in the i18n dictionaries instead.
+ *
+ * Feature lists must describe what the app actually enforces. Solo and Pro
+ * differ in exactly two things — `SOLO_/PRO_ACTIVE_EVENT_LIMIT` and
+ * `SOLO_/PRO_STORAGE_LIMIT_BYTES` in `constants.ts`. Everything else works the
+ * same on both, so claiming otherwise would be selling a difference that does
+ * not exist.
+ */
+
 export const photographerPlans = [
   {
     name: "Solo",
-    yearlyPrice: "EUR19",
-    monthlyPrice: "EUR24",
-    yearlyLabel: "per month billed yearly",
-    monthlyLabel: "per month billed monthly",
-    savingsLabel: "Save 21% on annual billing",
-    summary: "For solo photographers who want private client delivery and guest uploads without juggling tools.",
-    ctaLabel: "Start free",
-    features: [
-      "Up to 5 active events",
-      "100 GB active storage",
-      "250 GB cold archive for up to 15 archived events",
-      "Guest uploads with QR access",
-      "Private client gallery with PIN",
-      "Download all as ZIP",
-    ],
+    yearlyPrice: formatBam(PLAN_PRICING_BAM.solo.yearly),
+    monthlyPrice: formatBam(PLAN_PRICING_BAM.solo.monthly),
+    yearlyTotal: formatBam(yearlyTotalBam("solo")),
+    savingPercent: annualSavingPercent("solo"),
   },
   {
     name: "Pro",
-    yearlyPrice: "EUR39",
-    monthlyPrice: "EUR49",
-    yearlyLabel: "per month billed yearly",
-    monthlyLabel: "per month billed monthly",
-    savingsLabel: "Save 20% on annual billing",
-    summary: "For busy wedding photographers running multiple live events and polished delivery flows.",
-    ctaLabel: "Start free",
-    features: [
-      "Up to 25 active events",
-      "500 GB active storage",
-      "1 TB cold archive for up to 50 archived events",
-      "Guest video uploads",
-      "Event cover branding",
-      "Recent activity and moderation controls",
-    ],
+    yearlyPrice: formatBam(PLAN_PRICING_BAM.pro.yearly),
+    monthlyPrice: formatBam(PLAN_PRICING_BAM.pro.monthly),
+    yearlyTotal: formatBam(yearlyTotalBam("pro")),
+    savingPercent: annualSavingPercent("pro"),
     featured: true,
   },
 ];
 
 export const couplePlan = {
-  name: "One Wedding",
-  price: "EUR39",
-  priceLabel: "one-time",
-  summary: "A one-event plan for couples who want QR guest uploads and one private gallery for shared memories.",
-  ctaLabel: "Create one event",
-  trialCtaLabel: "Start free",
-  features: [
-    "1 wedding event",
-    "Unlimited guest photo uploads",
-    "Guest videos included (fair use)",
-    "Private gallery with PIN",
-    "Gallery sections like Ceremony or Restaurant",
-    "Download all as ZIP",
-    "30-day upload window",
-    "90 days of access",
-  ],
+  name: "One Event",
+  price: formatBam(ONE_EVENT_BAM),
 };
 
 export const photographerBenefits = [
@@ -106,9 +92,9 @@ export const faqs = [
 
 export const testimonials = [
   {
-    quote: "The guest QR flow finally gave us one clean place for wedding moments instead of chasing uploads after the event.",
-    author: "Studio Nova Weddings",
-    role: "Wedding photographer",
+    quote: "The guest QR flow finally gave us one clean place for event moments instead of chasing uploads afterwards.",
+    author: "Studio Nova",
+    role: "Event photographer",
   },
   {
     quote: "What felt premium was the privacy. Guests could upload instantly, but the gallery still felt controlled and polished.",
@@ -130,10 +116,10 @@ export const photographerSwitchReasons = [
 ];
 
 export const couplePlanHighlights = [
-  "Unlimited guest photo uploads from one QR code your guests can open in seconds.",
-  "Guest videos included with fair use, so the plan stays simple without scary hard caps in the copy.",
+  "No limit on how many photos your guests send, from one QR code they can open in seconds.",
+  "Guest videos included, switched on or off per event.",
   "One protected gallery that keeps every guest memory in one private place.",
-  "Simple gallery sections so you can organize moments like Ceremony, Restaurant, or Photoshoot.",
-  "Simple downloads later, without hunting through chats, shared drives, or a dozen messages.",
-  "A one-time setup that feels elegant enough for a wedding, not like another generic app link.",
+  "Gallery sections so you can organise moments like Ceremony, Reception, or Photoshoot.",
+  "Download everything as a ZIP later, without hunting through chats or shared drives.",
+  "A one-time payment — no subscription to remember or cancel.",
 ];

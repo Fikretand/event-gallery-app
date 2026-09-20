@@ -228,8 +228,23 @@ via QR code.
 
 | Customer | Plan | Billing | Use case |
 |---|---|---|---|
-| Photographer | Solo (€19/mo annual, €24/mo monthly) or Pro (€39/mo annual, €49/mo monthly) | Subscription | Pro photographers managing multiple client events |
-| Couple / event host | One Event | €39 one-time | One meaningful life event |
+| Photographer | Solo (39 KM/mo yearly = 468 KM, or 49 KM monthly) or Pro (79 KM/mo yearly = 948 KM, or 99 KM monthly) | Subscription | Photographers managing multiple client events |
+| Couple / event host | One Event | 79 KM one-time | One meaningful life event |
+
+**Every price comes from `src/lib/pricing.ts`.** Marketing pages, the dashboard
+plan chooser and the Polar catalogue have to agree, so nothing else writes a
+number down: `marketing.ts` derives its cards from that table, the yearly total
+and the "save 20%" claim are computed rather than typed, and `pricing.test.ts`
+fails if a card drifts from the table. Changing a price means editing that file
+**and** the amount in Polar.
+
+**Solo and Pro differ in exactly two things** — `SOLO_/PRO_ACTIVE_EVENT_LIMIT`
+and `SOLO_/PRO_STORAGE_LIMIT_BYTES`. Nothing else is plan-gated: guest video is
+a per-event setting available on every plan, and the homepage spotlight is an
+opt-in profile toggle for any photographer. Feature lists say "Everything in
+Solo" for Pro rather than inventing a difference. Earlier copy advertised a
+cold archive tier and per-plan analytics; neither exists, and both were
+removed.
 
 **Event scope** is generic (data model supports any event type — only some
 marketing copy still leans wedding-centric).
