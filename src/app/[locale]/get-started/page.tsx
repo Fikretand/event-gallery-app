@@ -34,8 +34,8 @@ function CheckIcon() {
 }
 
 const PHOTOGRAPHER_FEATURES = {
-  en: ["Up to 25 active events", "QR guest uploads per event", "PIN-protected client delivery", "Moderation + gallery sections", "7-day free trial included"],
-  bs: ["Do 25 aktivnih događaja", "QR prijenos gostiju po događaju", "Isporuka klijentu zaštićena PIN-om", "Moderacija + sekcije galerije", "7-dnevni besplatni trial uključen"],
+  en: ["Up to 25 active events", "QR guest uploads per event", "PIN-protected client delivery", "Moderation + gallery sections", "Free trial: 7 days or 20 photos"],
+  bs: ["Do 25 aktivnih događaja", "QR prijenos gostiju po događaju", "Isporuka klijentu zaštićena PIN-om", "Moderacija + sekcije galerije", "Besplatna proba: 7 dana ili 20 fotografija"],
 };
 
 const EVENT_FEATURES = {

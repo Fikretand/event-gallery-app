@@ -31,7 +31,7 @@ export const dict: Dict = {
     stats: [
       { value: "2 min", label: "Average event setup" },
       { value: "0 apps", label: "Required for guests" },
-      { value: "100%", label: "Private by default" },
+      { value: "0", label: "Public galleries" },
     ],
     features: [
       {
@@ -833,7 +833,7 @@ export const dict: Dict = {
     breadcrumbHome: "Home",
     eventTypesLabel: "Event types",
     ctaTitle: "Set up a gallery for your event",
-    ctaBody: "Takes under two minutes. The first event is free — no card needed.",
+    ctaBody: "Takes under two minutes. Try it free — 7 days or 20 photos, no card needed.",
     ctaPrimary: "Start free",
     ctaSecondary: "See pricing",
     eventTypes: [
@@ -1196,7 +1196,7 @@ export const dict: Dict = {
     includes: "Includes",
     oneTimePlan: "One-time plan",
     oneTimePerfect: "Perfect for one private event — wedding, birthday, or anything worth keeping.",
-    trialNote: "7 days · 1 event · 20 photos",
+    trialNote: "7 days or 20 photos · no card needed",
   },
   testimonialsUi: {
     sectionEyebrow: "Social proof",

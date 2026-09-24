@@ -31,7 +31,7 @@ export const dict: Dict = {
     stats: [
       { value: "2 min", label: "Prosječno postavljanje" },
       { value: "0 aplikacija", label: "Potrebno gostima" },
-      { value: "100%", label: "Privatno od prvog dana" },
+      { value: "0", label: "Javnih galerija" },
     ],
     features: [
       {
@@ -99,7 +99,7 @@ export const dict: Dict = {
     photographerSpotlightEyebrow: "Istaknuti fotografe",
     photographerSpotlightTitle: "Fotografe koje možda želite rezervisati.",
     photographerSpotlightBody:
-      "Mali spotlight za fotografe koji su već na Confettiju. Uključeno u svaki fotograf plan.",
+      "Mali spotlight za fotografe koji su već na Confettiju. Uključeno u svaki plan za fotografe.",
     faqEyebrow: "Česta pitanja",
     faqTitle: "Pitanja prije nego što se odlučite.",
     faqBody: "Imate pitanja? Tu smo.",
@@ -526,7 +526,7 @@ export const dict: Dict = {
       accountDetails: "Podaci naloga",
       publicProfileSettings: "Postavke javnog profila",
       accountDetailsBody: "Drži podatke naloga aktuelnim.",
-      publicProfileBody: "Tvoja spotlight kartica pomaže parovima da te pronađu za svoje sljedeće vjenčanje ili događaj. Tvoj telefon ostaje privatan u v1, a možeš izabrati da li email vidljiv javno.",
+      publicProfileBody: "Tvoja spotlight kartica pomaže parovima da te pronađu za svoje sljedeće vjenčanje ili događaj. Tvoj telefon ostaje privatan u v1, a možeš izabrati da li je email javno vidljiv.",
       savedNotice: "Profil sačuvan.",
     },
     qrPicker: {
@@ -748,7 +748,7 @@ export const dict: Dict = {
     photographerBenefits: [
       {
         title: "Jedan događaj, dva toka",
-        body: "Gostujuće fotografije i vaša finalna galerija — sve u istom workspace-u.",
+        body: "Gostujuće fotografije i vaša finalna galerija — sve u istom radnom prostoru.",
       },
       {
         title: "QR predaja koja djeluje premium",
@@ -775,7 +775,7 @@ export const dict: Dict = {
     ],
     faqs: [
       {
-        question: "Mijenjaju li se javni linkovi ako preimenjem događaj?",
+        question: "Mijenjaju li se javni linkovi ako preimenujem događaj?",
         answer:
           "Ne. Linkovi za prijenos gostiju, linkovi galerije klijenta i QR kodovi na ispisu ostaju nepromijenjeni nakon kreiranja događaja.",
       },
@@ -787,7 +787,7 @@ export const dict: Dict = {
       {
         question: "Kako rade obrisani fajlovi?",
         answer:
-          "Obrisani fajlovi prvo prelaze u stanje brisanja kako bi ih fotograf mogao vratiti. Mogu se i trajno ukloniti ili automatski purgirati naknadno.",
+          "Obrisani fajlovi prvo prelaze u stanje brisanja kako bi ih fotograf mogao vratiti. Možeš ih trajno ukloniti odmah, ili se uklanjaju same nakon sedam dana.",
       },
     ],
     testimonials: [
@@ -836,7 +836,7 @@ export const dict: Dict = {
     eventTypesLabel: "Tipovi događaja",
     ctaTitle: "Napravite galeriju za svoj događaj",
     ctaBody:
-      "Postavljanje traje manje od dvije minute. Prvi događaj je besplatan — kartica nije potrebna.",
+      "Postavljanje traje manje od dvije minute. Probaj besplatno — 7 dana ili 20 fotografija, bez kartice.",
     ctaPrimary: "Počni besplatno",
     ctaSecondary: "Pogledaj cijene",
     eventTypes: [
@@ -1200,7 +1200,7 @@ export const dict: Dict = {
     includes: "Uključuje",
     oneTimePlan: "Jednokratni plan",
     oneTimePerfect: "Savršeno za jedan privatni događaj — vjenčanje, rođendan ili bilo šta vrijedno pamćenja.",
-    trialNote: "7 dana · 1 događaj · 20 fotografija",
+    trialNote: "7 dana ili 20 fotografija · bez kartice",
   },
   testimonialsUi: {
     sectionEyebrow: "Recenzije",

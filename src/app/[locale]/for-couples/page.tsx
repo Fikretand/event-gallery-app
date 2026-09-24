@@ -92,7 +92,7 @@ export default async function ForCouplesPage({
               </MarketingButtonLink>
             </div>
             <p className="text-xs text-black/45">
-              {locale === "bs" ? "7 dana · 1 događaj · 20 fotografija" : "7 days · 1 event · 20 photos"}
+              {dict.pricingUi.trialNote}
             </p>
           </div>
 
