@@ -61,41 +61,46 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
 
     validateUploadFiles(files, "guest", event.event_settings);
 
-    if (accountType === "photographer") {
-      // ── Trial enforcement for event owner ──────────────────────────────────
-      const adminClient = createSupabaseAdminClient();
-      if (adminClient) {
-        const [ownerProfile, photosUsed] = await Promise.all([
-          adminClient.from("users").select("*").eq("id", event.owner_user_id).maybeSingle().then(r => r.data),
-          countUserMediaFiles(event.owner_user_id),
-        ]);
-        if (ownerProfile) {
-          const trial = computeTrialState(ownerProfile.created_at, ownerProfile.plan_tier, photosUsed, ownerProfile.role, ownerProfile.subscription_status);
-          if (trial.status === "expired") {
-            return NextResponse.json(
-              { error: "The event host's free trial has expired. Please contact the event organiser." },
-              { status: 403 },
-            );
-          }
-          if (trial.status === "active" && photosUsed >= trial.photosLimit) {
-            return NextResponse.json(
-              { error: "The event host has reached their trial photo limit. Please contact the event organiser." },
-              { status: 403 },
-            );
-          }
+    // ── Trial + storage enforcement for the event owner ──────────────────────
+    // This deliberately runs for every account type. It used to be wrapped in
+    // `if (accountType === "photographer")`, which meant a couple's guests were
+    // subject to neither the trial nor the storage quota: an unpaid couple could
+    // print a QR code and collect photos up to the solo tier's 100 GB, for free,
+    // for ever — the entire One Event product given away. A paid couple is
+    // unaffected, because computeTrialState returns "none" once the One Event
+    // webhook sets subscription_status = "active".
+    const adminClient = createSupabaseAdminClient();
+    if (adminClient) {
+      const [ownerProfile, photosUsed] = await Promise.all([
+        adminClient.from("users").select("*").eq("id", event.owner_user_id).maybeSingle().then(r => r.data),
+        countUserMediaFiles(event.owner_user_id),
+      ]);
+      if (ownerProfile) {
+        const trial = computeTrialState(ownerProfile.created_at, ownerProfile.plan_tier, photosUsed, ownerProfile.role, ownerProfile.subscription_status);
+        if (trial.status === "expired") {
+          return NextResponse.json(
+            { error: "The event host's free trial has ended. Please contact the event organiser." },
+            { status: 403 },
+          );
+        }
+        if (trial.status === "active" && photosUsed >= trial.photosLimit) {
+          return NextResponse.json(
+            { error: "The event host has reached their trial photo limit. Please contact the event organiser." },
+            { status: 403 },
+          );
         }
       }
-      // ───────────────────────────────────────────────────────────────────────
-
-      const requestedBytes = files.reduce((sum, file) => sum + Number(file.size ?? 0), 0);
-      const usage = await getAccountUsage(event.owner_user_id);
-      if (requestedBytes > usage.liveAvailableStorageBytes) {
-        return NextResponse.json(
-          { error: "This photographer account is out of available storage. Please contact the event owner." },
-          { status: 403 },
-        );
-      }
     }
+
+    const requestedBytes = files.reduce((sum, file) => sum + Number(file.size ?? 0), 0);
+    const usage = await getAccountUsage(event.owner_user_id);
+    if (requestedBytes > usage.liveAvailableStorageBytes) {
+      return NextResponse.json(
+        { error: "This event is out of available storage. Please contact the event organiser." },
+        { status: 403 },
+      );
+    }
+    // ─────────────────────────────────────────────────────────────────────────
 
     const [uploadSession, grants] = await Promise.all([
       createGuestUploadSession({

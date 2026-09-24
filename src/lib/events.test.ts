@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getCoupleAccessEndsAt, getCoupleUploadEndsAt, getEventLifecycleStatus, getPhotographerPlanLimits, isEventExpired, isGuestUploadWindowClosed, normalizePhotographerPlanTier, requiresGalleryPin } from "@/lib/events";
+import { computeTrialState, getCoupleAccessEndsAt, getCoupleUploadEndsAt, getEventLifecycleStatus, getPhotographerPlanLimits, isEventExpired, isGuestUploadWindowClosed, normalizePhotographerPlanTier, requiresGalleryPin } from "@/lib/events";
 import type { EventRecord } from "@/lib/types";
 
 const baseEvent: EventRecord = {
@@ -165,5 +165,45 @@ describe("photographer plan limits", () => {
     expect(getPhotographerPlanLimits("pro")).toMatchObject({
       activeEventLimit: 25,
     });
+  });
+});
+
+/**
+ * The trial is what stands between a free account and the product.
+ *
+ * Worth knowing when reading these: computeTrialState takes no account type at
+ * all, and a couple carries role "photographer" in the database — so nothing
+ * here can tell a couple from a photographer. That was the bug: the guest-upload
+ * route decided on its own that couples skip the trial, which handed away the
+ * whole One Event product (an unpaid couple could collect guest photos up to the
+ * solo tier's storage ceiling, for ever). The gate belongs here, uniformly, and
+ * paying is the only thing that lifts it.
+ */
+describe("computeTrialState", () => {
+  const daysAgo = (n: number) => new Date(Date.now() - n * 24 * 60 * 60 * 1000).toISOString();
+
+  it("lifts the trial once the account has paid", () => {
+    // A couple who bought One Event: the webhook sets subscription_status.
+    expect(computeTrialState(daysAgo(400), "solo", 5000, "photographer", "active").status).toBe("none");
+    expect(computeTrialState(daysAgo(400), "solo", 5000, "photographer", "trialing").status).toBe("none");
+  });
+
+  it("lifts the trial for admins", () => {
+    expect(computeTrialState(daysAgo(400), "solo", 5000, "admin", null).status).toBe("none");
+  });
+
+  it("expires an unpaid account once the days run out", () => {
+    expect(computeTrialState(daysAgo(8), "solo", 0, "photographer", null).status).toBe("expired");
+  });
+
+  it("stays active inside the window and reports the photo ceiling", () => {
+    const trial = computeTrialState(daysAgo(2), "solo", 3, "photographer", null);
+    expect(trial.status).toBe("active");
+    expect(trial.daysLeft).toBe(5);
+    expect(trial.photosLimit).toBe(20);
+  });
+
+  it("does not let a refunded or lapsed subscription keep the trial lifted", () => {
+    expect(computeTrialState(daysAgo(8), "solo", 0, "photographer", "canceled").status).toBe("expired");
   });
 });
