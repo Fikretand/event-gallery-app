@@ -531,6 +531,27 @@ src/
 
 Newest first — useful for picking back up.
 
+- `ccf43c6` — Copy that did not match the code. "Prvi događaj je besplatan" was
+  on all sixteen content pages while the trial is 7 days **or** 20 photos;
+  `TRIAL_EVENT_LIMIT` was defined and never read, so the "1 event" claim went
+  with it. The homepage's "100%" privacy stat contradicted the FAQ two pages
+  over and is now "0 public galleries". `pricingUi.trialNote` was typed and
+  never rendered — it is now the one place this is written down, and the two
+  strings that bypassed i18n read from it.
+- `d26aac0` — **The One Event product was being given away.** The trial check
+  *and* the storage quota on the guest-upload route both sat inside
+  `if (accountType === "photographer")`, so a couple's guests were subject to
+  neither: sign up free, print the QR, collect photos up to 100 GB, for ever.
+  Removing the condition is the whole fix — `computeTrialState` already returns
+  "none" for a paid account, so paying customers are unaffected.
+- `3fd13c8` — **Any account could make itself an admin.** The UPDATE policy on
+  `public.users` had no `WITH CHECK`, and Postgres then reuses `USING`, which
+  constrained only `id`. With a table-wide UPDATE grant and the public anon key,
+  `PATCH /rest/v1/users?id=eq.<own uid> {"role":"admin"}` worked. Proven against
+  the live database, then fixed with a column-scoped grant (the twelve profile
+  fields the settings form writes). Every privileged write already went through
+  the service role, so nothing the app does was narrowed.
+
 - `3be508b` — Eight hand-written content pages in both languages: five event
   types under `/dogadjaji/[tip]`, plus `/kako-funkcionise`, `/pitanja` and
   `/privatnost-i-sigurnost`. All static; sitemap now 30 URLs and derives its
