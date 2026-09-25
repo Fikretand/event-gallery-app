@@ -9,6 +9,7 @@ import { isValidPublicProfileUrl, normalizeAccountType, resolveAccountRedirect }
 import { getAccountTypeForUser, getUserProfile } from "@/lib/auth";
 import { PROFILE_AVATAR_MAX_MB } from "@/lib/constants";
 import { env } from "@/lib/env";
+import { passwordMeetsPolicy, WEAK_PASSWORD } from "@/lib/password-policy";
 import {
   createEvent,
   createGallerySection,
@@ -58,6 +59,10 @@ export async function signupAction(_: { error?: string } | undefined | void, for
 
   if (!supabase) {
     return { error: "Supabase is not configured yet." };
+  }
+
+  if (!passwordMeetsPolicy(password)) {
+    return { error: WEAK_PASSWORD };
   }
 
   const nextPath = resolveAccountRedirect(intent);
@@ -124,8 +129,8 @@ export async function resetPasswordAction(
     return { error: "Supabase is not configured yet." };
   }
 
-  if (password.length < 8) {
-    return { error: "Password must be at least 8 characters long." };
+  if (!passwordMeetsPolicy(password)) {
+    return { error: WEAK_PASSWORD };
   }
 
   if (password !== confirmPassword) {

@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { usePathname } from "next/navigation";
 
 import { normalizeAccountType } from "@/lib/account";
+import { WEAK_PASSWORD } from "@/lib/password-policy";
 import type { AccountType } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,7 @@ type AuthStrings = Pick<
   | "formEmail"
   | "formPassword"
   | "formPasswordPlaceholder"
+  | "formPasswordRule"
   | "formForgotPassword"
   | "formLoginBtn"
   | "formCreateAccountBtn"
@@ -48,6 +50,8 @@ const EN_STRINGS: AuthStrings = {
   formEmail: "Email",
   formPassword: "Password",
   formPasswordPlaceholder: "At least 8 characters",
+  formPasswordRule:
+    "At least 8 characters, with an upper and a lower case letter, a number, and one symbol (e.g. ! ? # @).",
   formForgotPassword: "Forgot password?",
   formLoginBtn: "Login",
   formCreateAccountBtn: "Create account",
@@ -126,6 +130,9 @@ export function AuthForm({
           placeholder={s.formPasswordPlaceholder}
           required
         />
+        {mode === "login" ? null : (
+          <p className="-mt-2 text-xs leading-5 text-black/50">{s.formPasswordRule}</p>
+        )}
 
         {mode === "login" ? (
           <div className="flex justify-end">
@@ -137,7 +144,7 @@ export function AuthForm({
 
         {state?.error ? (
           <div className="rounded-2xl bg-[#fff0eb] px-4 py-3 text-sm text-[#8a1c1c]">
-            {state.error}
+            {state.error === WEAK_PASSWORD ? s.formPasswordRule : state.error}
           </div>
         ) : null}
 

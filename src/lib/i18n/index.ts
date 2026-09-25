@@ -206,6 +206,8 @@ export interface Dict {
     formEmail: string;
     formPassword: string;
     formPasswordPlaceholder: string;
+    /** Shown under the password field, and when the server rejects a weak one. */
+    formPasswordRule: string;
     formForgotPassword: string;
     formLoginBtn: string;
     formCreateAccountBtn: string;

@@ -48,7 +48,7 @@ export default async function ResetPasswordPage({
             .
           </p>
         </div>
-        <ResetPasswordForm action={resetPasswordAction} />
+        <ResetPasswordForm action={resetPasswordAction} passwordRule={dict.auth.formPasswordRule} />
       </section>
     </main>
   );

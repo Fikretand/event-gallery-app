@@ -2,17 +2,23 @@
 
 import { useActionState } from "react";
 
+import { WEAK_PASSWORD } from "@/lib/password-policy";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Panel } from "@/components/ui/panel";
 
 export function ResetPasswordForm({
   action,
+  passwordRule,
 }: {
   action: (
     state: { error?: string; success?: string } | undefined | void,
     formData: FormData,
   ) => Promise<{ error?: string; success?: string } | void>;
+  /** The rule, already in the reader's language — the rest of this form is not
+   *  translated yet, but an error the server returns must never reach them as a
+   *  bare sentinel. */
+  passwordRule: string;
 }) {
   const [state, formAction, isPending] = useActionState(action, undefined);
 
@@ -25,10 +31,13 @@ export function ResetPasswordForm({
         </div>
 
         <Input label="New password" name="password" type="password" placeholder="At least 8 characters" required />
+        <p className="-mt-2 text-xs leading-5 text-black/50">{passwordRule}</p>
         <Input label="Confirm password" name="confirmPassword" type="password" placeholder="Repeat your new password" required />
 
         {state?.error ? (
-          <div className="rounded-2xl bg-[#fff0eb] px-4 py-3 text-sm text-[#8a1c1c]">{state.error}</div>
+          <div className="rounded-2xl bg-[#fff0eb] px-4 py-3 text-sm text-[#8a1c1c]">
+            {state.error === WEAK_PASSWORD ? passwordRule : state.error}
+          </div>
         ) : null}
         {state?.success ? (
           <div className="rounded-[24px] border border-[var(--color-moss)]/15 bg-[#eef8f2] px-5 py-4 text-sm font-medium text-[var(--color-moss)]">

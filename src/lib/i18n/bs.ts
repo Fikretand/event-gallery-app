@@ -237,6 +237,8 @@ export const dict: Dict = {
     formEmail: "Email",
     formPassword: "Lozinka",
     formPasswordPlaceholder: "Najmanje 8 znakova",
+    formPasswordRule:
+      "Najmanje 8 znakova, uz veliko i malo slovo, broj i jedan znak (npr. ! ? # @).",
     formForgotPassword: "Zaboravili ste lozinku?",
     formLoginBtn: "Prijava",
     formCreateAccountBtn: "Kreiraj nalog",

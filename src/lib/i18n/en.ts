@@ -235,6 +235,8 @@ export const dict: Dict = {
     formEmail: "Email",
     formPassword: "Password",
     formPasswordPlaceholder: "At least 8 characters",
+    formPasswordRule:
+      "At least 8 characters, with an upper and a lower case letter, a number, and one symbol (e.g. ! ? # @).",
     formForgotPassword: "Forgot password?",
     formLoginBtn: "Login",
     formCreateAccountBtn: "Create account",
