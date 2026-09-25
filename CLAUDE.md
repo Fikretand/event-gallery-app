@@ -531,6 +531,25 @@ src/
 
 Newest first — useful for picking back up.
 
+- **Domain bought: `confetti.ba`** (Globalhost, default nameservers). Added to
+  the Vercel project with `www.confetti.ba` as primary and the apex 308-ing to
+  it. DNS to set in Globalhost's zone once its DNS Manager is enabled (it
+  answered "disabled by admin" right after activation):
+  `A @ 216.198.79.1` and `CNAME www e0d5e5c3624aff2e.vercel-dns-017.com.` —
+  replacing Globalhost's default @/www records, trailing dot kept. When both are
+  green in Vercel: `NEXT_PUBLIC_APP_URL=https://www.confetti.ba` (the www form,
+  exactly — webhooks do not follow redirects), Supabase Site URL + redirect
+  allow-list, and re-register the Polar webhook. `legal.ts` now reads the host
+  from that env var, so no code edit is needed.
+- `fdce3f3` — TRUNCATE/REFERENCES/TRIGGER revoked from anon + authenticated on
+  all public tables and in default privileges (RLS never covered TRUNCATE).
+- `5c1cd47` — `/api/internal/process-media` is now scheduled (nightly 03:30),
+  accepts cron GET + bearer, recovers rows stuck in "uploaded" *or*
+  "processing" older than 15 min, and survives a single bad file. Both
+  internal routes authorise via `isInternalRequest` (constant-time).
+- `7e6222e` — Reset-password form fully bilingual (action returns codes); three
+  verified FAQ answers (inappropriate photo, printing the QR, several QRs).
+
 - `c9f458a` — **Signup let the client choose its own role.** The signup trigger
   read `role` from `raw_user_meta_data`, which anyone can set by calling
   `/auth/v1/signup` directly with the anon key. SECURITY DEFINER, so RLS never
