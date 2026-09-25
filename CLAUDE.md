@@ -531,6 +531,18 @@ src/
 
 Newest first — useful for picking back up.
 
+- `cce3caa` — **The gallery window was sold but never enforced.** `canViewGallery`
+  checked the PIN and nothing else, so the three media APIs kept serving a guest
+  who had been let in once, long past the 90 days on the pricing page — the
+  "expired" panel was a page, not a rule. The check now sits inside
+  `canViewGallery` and covers all three routes; owners short-circuit on ownership
+  first and keep their own files. The owner upload route gained the expiry and
+  30-day-window guards the guest route always had. And `updateEventAction` passed
+  `undefined` to `validateCoupleExpiry`, so every settings save discarded what the
+  couple typed and reset them to the full 90 days — that helper moved to
+  `events.ts` beside its siblings, because `actions.ts` is "use server" and cannot
+  export a sync function, which is why the wrong argument went untested.
+
 - `ccf43c6` — Copy that did not match the code. "Prvi događaj je besplatan" was
   on all sixteen content pages while the trial is 7 days **or** 20 photos;
   `TRIAL_EVENT_LIMIT` was defined and never read, so the "1 event" claim went
