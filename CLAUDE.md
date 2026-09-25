@@ -531,6 +531,25 @@ src/
 
 Newest first — useful for picking back up.
 
+- `c9f458a` — **Signup let the client choose its own role.** The signup trigger
+  read `role` from `raw_user_meta_data`, which anyone can set by calling
+  `/auth/v1/signup` directly with the anon key. SECURITY DEFINER, so RLS never
+  applied. Proven, then fixed: role is never read from metadata. This is the
+  INSERT-side twin of `3fd13c8`. Rule: nothing in user_metadata grants anything.
+- `dadc40d` — Admin "delete user" left the public.users row, every event and
+  media row, and every R2 object — no trigger or FK links auth.users to
+  public.users. Now deletes files, then the profile row, then the auth user.
+- `dfe420c` — Signup/reset forms keep their fields after an error (dispatched
+  from onSubmit; React resets `<form action>` forms) and show a live password
+  checklist. `/auth/confirm` takes `token_hash` for every type (PKCE `code`
+  failed across devices) and guards `next`. Bilingual templates in
+  `supabase/templates/`. **Email confirmation is OFF today** — every account
+  was confirmed without a mail. Turn it on only in the order in
+  `supabase/templates/README.md`: custom SMTP first, because Supabase's built-in
+  sender refuses every address outside the project team.
+- Test accounts removed; only the admin remains (3 events, 18 files). Two test
+  files are orphaned in R2 under `events/c3ee4578…/` and `events/8cf10fce…/`.
+
 - `cce3caa` — **The gallery window was sold but never enforced.** `canViewGallery`
   checked the PIN and nothing else, so the three media APIs kept serving a guest
   who had been let in once, long past the 90 days on the pricing page — the
