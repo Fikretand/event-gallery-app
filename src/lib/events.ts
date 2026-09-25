@@ -107,6 +107,26 @@ export function getCoupleUploadEndsAt(event: Pick<EventRecord, "created_at" | "e
   return new Date(Math.min(uploadEnd, accessEnd)).toISOString();
 }
 
+/**
+ * Clamp a couple's gallery expiry to what the One Event plan sells.
+ *
+ * Lives here rather than in actions.ts because actions.ts is "use server" and
+ * may only export async functions — which is also why this went untested long
+ * enough for the update path to call it with `undefined` and silently reset
+ * every couple's expiry to the 90-day maximum on each save.
+ */
+export function validateCoupleExpiry(expiresAt: string | undefined, maxAllowedIso: string) {
+  if (!expiresAt) {
+    return maxAllowedIso;
+  }
+
+  if (new Date(expiresAt).getTime() > new Date(maxAllowedIso).getTime()) {
+    throw new Error("This plan allows private gallery access for up to 90 days from the event date.");
+  }
+
+  return expiresAt;
+}
+
 export function isGuestUploadWindowClosed(event: Pick<EventRecord, "created_at" | "event_date" | "expires_at">, accountType: AccountType) {
   if (accountType !== "couple") {
     return false;
@@ -1070,6 +1090,16 @@ export async function verifyGalleryPinAndGrantAccess(event: EventRecord, pin: st
 }
 
 export async function canViewGallery(event: EventRecord) {
+  // An expired gallery is closed to visitors, whatever link or PIN they hold.
+  // The gallery page has always said so, but the media APIs did not, so anyone
+  // who had been let in once kept downloading long after the window we sold ran
+  // out — "90 dana pristupa" was a sentence on the pricing page and nothing
+  // more. Owners never reach this: every call site resolves ownership first and
+  // short-circuits, so a photographer keeps their own files for ever.
+  if (isEventExpired(event)) {
+    return false;
+  }
+
   const requiresPin = requiresGalleryPin(event);
   if (!requiresPin) {
     return true;

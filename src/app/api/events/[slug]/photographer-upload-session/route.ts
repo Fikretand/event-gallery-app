@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { PHOTOGRAPHER_UPLOAD_RATE_LIMIT } from "@/lib/constants";
-import { computeTrialState, countUserMediaFiles, getAccountUsage, getOwnerEventBySlug, incrementRateLimitCount } from "@/lib/events";
+import { computeTrialState, countUserMediaFiles, getAccountUsage, getEventAccountType, getOwnerEventBySlug, incrementRateLimitCount, isEventExpired, isGuestUploadWindowClosed } from "@/lib/events";
 import { getUserProfile } from "@/lib/auth";
 import { buildUploadGrants } from "@/lib/media";
 import { isRateLimited } from "@/lib/rate-limit";
@@ -32,6 +32,26 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
 
     if (event.status === "archived") {
       return NextResponse.json({ error: "Restore this archived event before uploading more files." }, { status: 409 });
+    }
+
+    // The guest route has always enforced these two; this one never did, so the
+    // owner could keep uploading past the window they bought. For a couple that
+    // is the 30-day upload window and the 90-day gallery — the limits the One
+    // Event plan is sold on. A photographer sets their own expiry and can move
+    // it in event settings, which is what the message points at.
+    if (isEventExpired(event)) {
+      return NextResponse.json(
+        { error: "This event has expired. Extend the expiry date in event settings to upload more files." },
+        { status: 410 },
+      );
+    }
+
+    const accountType = await getEventAccountType(user.id);
+    if (isGuestUploadWindowClosed(event, accountType)) {
+      return NextResponse.json(
+        { error: "The upload window for this event has closed." },
+        { status: 410 },
+      );
     }
 
     if (

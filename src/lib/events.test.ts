@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { computeTrialState, getCoupleAccessEndsAt, getCoupleUploadEndsAt, getEventLifecycleStatus, getPhotographerPlanLimits, isEventExpired, isGuestUploadWindowClosed, normalizePhotographerPlanTier, requiresGalleryPin } from "@/lib/events";
+import { canViewGallery, computeTrialState, getCoupleAccessEndsAt, getCoupleUploadEndsAt, getEventLifecycleStatus, getPhotographerPlanLimits, isEventExpired, isGuestUploadWindowClosed, normalizePhotographerPlanTier, requiresGalleryPin, validateCoupleExpiry } from "@/lib/events";
 import type { EventRecord } from "@/lib/types";
 
 const baseEvent: EventRecord = {
@@ -205,5 +205,56 @@ describe("computeTrialState", () => {
 
   it("does not let a refunded or lapsed subscription keep the trial lifted", () => {
     expect(computeTrialState(daysAgo(8), "solo", 0, "photographer", "canceled").status).toBe("expired");
+  });
+});
+
+const DAY = 24 * 60 * 60 * 1000;
+const iso = (offsetMs: number) => new Date(Date.now() + offsetMs).toISOString();
+
+/**
+ * What a visitor may still open after the window we sold has run out.
+ *
+ * These only exercise the paths that return before hasGalleryAccess, which
+ * reads cookies — that is on purpose: the expiry check short-circuits ahead of
+ * it, and that short-circuit is the whole change.
+ */
+describe("canViewGallery", () => {
+  it("closes an expired gallery to visitors even when no PIN was ever set", async () => {
+    // Before: no PIN meant "anyone with the link", for ever.
+    await expect(canViewGallery({ ...baseEvent, expires_at: iso(-DAY) })).resolves.toBe(false);
+  });
+
+  it("closes an expired gallery that does have a PIN, without consulting the cookie", async () => {
+    await expect(
+      canViewGallery({ ...baseEvent, expires_at: iso(-DAY), gallery_pin_hash: "hash" }),
+    ).resolves.toBe(false);
+  });
+
+  it("leaves a live gallery open", async () => {
+    await expect(canViewGallery({ ...baseEvent, expires_at: iso(DAY) })).resolves.toBe(true);
+    await expect(canViewGallery({ ...baseEvent, expires_at: null })).resolves.toBe(true);
+  });
+});
+
+/**
+ * The update path used to call this with `undefined`, so every save of a
+ * couple's settings quietly threw away what they typed and reset the gallery to
+ * the full 90 days.
+ */
+describe("validateCoupleExpiry", () => {
+  const max = iso(90 * DAY);
+
+  it("keeps a date the couple chose", () => {
+    const chosen = iso(10 * DAY);
+    expect(validateCoupleExpiry(chosen, max)).toBe(chosen);
+  });
+
+  it("falls back to the maximum only when nothing was submitted", () => {
+    expect(validateCoupleExpiry(undefined, max)).toBe(max);
+    expect(validateCoupleExpiry("", max)).toBe(max);
+  });
+
+  it("refuses a date beyond what the plan sells", () => {
+    expect(() => validateCoupleExpiry(iso(120 * DAY), max)).toThrow(/90 days/);
   });
 });

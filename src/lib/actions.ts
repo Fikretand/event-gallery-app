@@ -20,22 +20,11 @@ import {
   permanentlyDeleteEventBySlug,
   renameGallerySection,
   updateEvent,
+  validateCoupleExpiry,
   verifyGalleryPinAndGrantAccess,
 } from "@/lib/events";
 import { deleteStoredObject, putStoredObject } from "@/lib/storage";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-
-function validateCoupleExpiry(expiresAt: string | undefined, maxAllowedIso: string) {
-  if (!expiresAt) {
-    return maxAllowedIso;
-  }
-
-  if (new Date(expiresAt).getTime() > new Date(maxAllowedIso).getTime()) {
-    throw new Error("This plan allows private gallery access for up to 90 days from the event date.");
-  }
-
-  return expiresAt;
-}
 
 export async function loginAction(_: { error?: string } | undefined | void, formData: FormData) {
   const email = String(formData.get("email") ?? "");
@@ -503,7 +492,7 @@ export async function updateEventAction(
         : undefined;
     const expiresAt =
       accountType === "couple"
-        ? validateCoupleExpiry(undefined, coupleMaxAccessEndsAt!)
+        ? validateCoupleExpiry(expiresAtInput || undefined, coupleMaxAccessEndsAt!)
         : expiresAtInput || undefined;
 
     await updateEvent(user.id, slug, {
