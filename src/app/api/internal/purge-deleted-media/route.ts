@@ -1,23 +1,10 @@
 import { NextResponse } from "next/server";
 
-import { env } from "@/lib/env";
 import { purgeExpiredDeletedMedia } from "@/lib/events";
-
-function isAuthorized(request: Request) {
-  const workerToken = request.headers.get("x-media-worker-secret");
-  const authHeader = request.headers.get("authorization");
-  const bearerToken = authHeader?.startsWith("Bearer ") ? authHeader.slice("Bearer ".length) : null;
-  const validSecrets = [env.mediaWorkerSecret, env.cronSecret].filter(Boolean);
-
-  if (validSecrets.length === 0) {
-    return false;
-  }
-
-  return validSecrets.includes(workerToken ?? "") || validSecrets.includes(bearerToken ?? "");
-}
+import { isInternalRequest } from "@/lib/internal-auth";
 
 async function handlePurge(request: Request) {
-  if (!isAuthorized(request)) {
+  if (!isInternalRequest(request)) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 

@@ -6,6 +6,10 @@
     {
       "path": "/api/internal/purge-deleted-media",
       "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/internal/process-media",
+      "schedule": "30 3 * * *"
     }
   ]
 }
