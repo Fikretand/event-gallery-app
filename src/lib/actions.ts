@@ -55,6 +55,9 @@ export async function signupAction(_: { error?: string } | undefined | void, for
   const fullName = String(formData.get("fullName") ?? "");
   const intent = normalizeAccountType(formData.get("intent"));
   const planTier = normalizePlanTier(formData.get("plan"));
+  // The language they signed up in. The signup trigger stores it as the
+  // account's preferred locale, and the confirmation email reads it too.
+  const locale = formData.get("locale") === "bs" ? "bs" : "en";
   const supabase = await createSupabaseServerClient();
 
   if (!supabase) {
@@ -73,11 +76,15 @@ export async function signupAction(_: { error?: string } | undefined | void, for
     password,
     options: {
       emailRedirectTo: redirectTo,
+      // user_metadata is the user's to edit and can be sent to Supabase
+      // directly, so nothing here may grant anything — the signup trigger
+      // ignores any `role` and treats plan_tier as a hint the payment webhooks
+      // overwrite (see supabase/migrations/stop_trusting_signup_metadata.sql).
       data: {
         full_name: fullName,
-        role: "photographer",
         account_type: intent,
         plan_tier: planTier,
+        locale,
       },
     },
   });
