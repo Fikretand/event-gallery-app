@@ -16,7 +16,9 @@ _Last updated: 2026-09-20._
 - The event owner reviews uploads, moderates them, and delivers the curated
   gallery.
 
-**Current state:** Live MVP at `event-gallery-app-rho.vercel.app`. Auth,
+**Current state:** Live MVP at **`www.confetti.ba`** (apex 308s to www; the old
+`event-gallery-app-rho.vercel.app` still serves production, so earlier links
+and printed QR codes keep working). Auth,
 event CRUD, guest upload, gallery PIN, media moderation, QR posters, **full
 i18n (EN/BS) across dashboard _and_ the inner forms**, **Polar + Payhip
 payment integration**, **admin panel** (incl. manual plan activation), and a
@@ -530,6 +532,14 @@ src/
 ## 9. RECENT SESSION LOG
 
 Newest first — useful for picking back up.
+
+- **Moved to `https://www.confetti.ba`.** Both domains verified in Vercel;
+  `NEXT_PUBLIC_APP_URL` switched (production + preview). Nothing in `src/`
+  names a host any more — sitemap, canonical/hreflang, OG image, legal pages,
+  QR codes and email redirect targets all follow the env var. Owner still to
+  do: Supabase Site URL + redirect allow-list, and point Polar's webhook at
+  `https://www.confetti.ba/api/billing/polar/webhook` (sandbox now, production
+  when going live).
 
 - **Domain bought: `confetti.ba`** (Globalhost, default nameservers). Added to
   the Vercel project with `www.confetti.ba` as primary and the apex 308-ing to
