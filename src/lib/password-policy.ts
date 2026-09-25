@@ -22,12 +22,22 @@ export const WEAK_PASSWORD = "WEAK_PASSWORD";
 const hasSymbol = (password: string) =>
   password.split("").some((char) => PASSWORD_SYMBOLS.includes(char));
 
+/** The rules in the order the form lists them. */
+export const PASSWORD_RULES = ["length", "upper", "lower", "digit", "symbol"] as const;
+export type PasswordRule = (typeof PASSWORD_RULES)[number];
+
+/** Each rule on its own, so the form can tick them off as the person types. */
+export function passwordChecks(password: string): Record<PasswordRule, boolean> {
+  return {
+    length: password.length >= PASSWORD_MIN_LENGTH,
+    upper: /[A-Z]/.test(password),
+    lower: /[a-z]/.test(password),
+    digit: /[0-9]/.test(password),
+    symbol: hasSymbol(password),
+  };
+}
+
 export function passwordMeetsPolicy(password: string) {
-  return (
-    password.length >= PASSWORD_MIN_LENGTH &&
-    /[a-z]/.test(password) &&
-    /[A-Z]/.test(password) &&
-    /[0-9]/.test(password) &&
-    hasSymbol(password)
-  );
+  const checks = passwordChecks(password);
+  return PASSWORD_RULES.every((rule) => checks[rule]);
 }

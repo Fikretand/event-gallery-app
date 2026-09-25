@@ -8,10 +8,17 @@ import { getDictionary, type Locale } from "@/lib/i18n/index";
 
 export default async function LoginPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const { locale } = await params;
+  // Reading searchParams makes this page dynamic. That is fine here: it is a
+  // private, noindex auth screen, and without it a failed email confirmation
+  // (/auth/confirm → /login?error=confirm) landed on a login form with no word
+  // about what had just gone wrong.
+  const { error } = await searchParams;
   const dict = getDictionary(locale as Locale);
   const d = dict.auth;
 
@@ -53,7 +60,15 @@ export default async function LoginPage({
             .
           </p>
         </div>
-        <div>
+        <div className="space-y-4">
+          {error === "confirm" ? (
+            <div
+              role="status"
+              className="mx-auto w-full max-w-md rounded-2xl border border-[#e9c9bb] bg-[#fff6f1] px-5 py-4 text-sm leading-6 text-[#7a3a22]"
+            >
+              {d.confirmLinkFailed}
+            </div>
+          ) : null}
           <AuthForm action={loginAction} mode="login" strings={d} />
         </div>
       </section>

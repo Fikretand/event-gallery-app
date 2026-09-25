@@ -239,6 +239,15 @@ export const dict: Dict = {
     formPasswordPlaceholder: "Najmanje 8 znakova",
     formPasswordRule:
       "Najmanje 8 znakova, uz veliko i malo slovo, broj i jedan znak (npr. ! ? # @).",
+    confirmLinkFailed:
+      "Link za potvrdu je istekao ili je već iskorišten. Ako je nalog već potvrđen, samo se prijavite. Ako nije, registrujte se ponovo istim emailom i poslat ćemo vam novi link.",
+    passwordRules: {
+      length: "Najmanje 8 znakova",
+      upper: "Jedno veliko slovo",
+      lower: "Jedno malo slovo",
+      digit: "Jedan broj",
+      symbol: "Jedan znak, npr. ! ? # @",
+    },
     formForgotPassword: "Zaboravili ste lozinku?",
     formLoginBtn: "Prijava",
     formCreateAccountBtn: "Kreiraj nalog",

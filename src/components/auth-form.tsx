@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState, useTransition, type FormEvent } from "react";
 import { usePathname } from "next/navigation";
 
 import { normalizeAccountType } from "@/lib/account";
-import { WEAK_PASSWORD } from "@/lib/password-policy";
+import { passwordMeetsPolicy, WEAK_PASSWORD } from "@/lib/password-policy";
 import type { AccountType } from "@/lib/types";
+import { PasswordRequirements } from "@/components/password-requirements";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Panel } from "@/components/ui/panel";
@@ -28,6 +29,7 @@ type AuthStrings = Pick<
   | "formPassword"
   | "formPasswordPlaceholder"
   | "formPasswordRule"
+  | "passwordRules"
   | "formForgotPassword"
   | "formLoginBtn"
   | "formCreateAccountBtn"
@@ -52,6 +54,13 @@ const EN_STRINGS: AuthStrings = {
   formPasswordPlaceholder: "At least 8 characters",
   formPasswordRule:
     "At least 8 characters, with an upper and a lower case letter, a number, and one symbol (e.g. ! ? # @).",
+  passwordRules: {
+    length: "At least 8 characters",
+    upper: "One upper case letter",
+    lower: "One lower case letter",
+    digit: "One number",
+    symbol: "One symbol, e.g. ! ? # @",
+  },
   formForgotPassword: "Forgot password?",
   formLoginBtn: "Login",
   formCreateAccountBtn: "Create account",
@@ -83,8 +92,24 @@ export function AuthForm({
   const locale = extractLocaleFromPath(pathname);
 
   const [state, formAction, isPending] = useActionState(action, undefined);
+  const [, startTransition] = useTransition();
+  const [password, setPassword] = useState("");
   const resolvedIntent = normalizeAccountType(intent);
-  const isCoupleSignup = mode === "signup" && resolvedIntent === "couple";
+  const isSignup = mode === "signup";
+  const isCoupleSignup = isSignup && resolvedIntent === "couple";
+  // Login must accept whatever password the account already has; only a new
+  // one has to meet the rule.
+  const canSubmit = !isSignup || passwordMeetsPolicy(password);
+
+  // Dispatched by hand rather than through <form action>. With a function in
+  // `action`, React resets the form once the action returns — including when it
+  // returns an error — so a mistyped password wiped the name and email the
+  // person had just entered. Submitting this way leaves the fields alone.
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    startTransition(() => formAction(formData));
+  }
 
   const s: AuthStrings = { ...EN_STRINGS, ...strings };
 
@@ -92,9 +117,14 @@ export function AuthForm({
 
   return (
     <Panel className="mx-auto w-full max-w-md bg-white/92">
-      <form action={formAction} className="space-y-4">
+      {/* `action` stays for the moment before hydration: without it, a submit that
+          lands before JavaScript loads would fall back to a GET and put the
+          password in the URL. Once hydrated, onSubmit prevents that path and
+          React skips the action (and with it, the reset). */}
+      <form action={formAction} onSubmit={handleSubmit} className="space-y-4">
         {mode === "signup" ? <input type="hidden" name="intent" value={resolvedIntent} /> : null}
         {mode === "signup" ? <input type="hidden" name="plan" value={plan} /> : null}
+        {mode === "signup" ? <input type="hidden" name="locale" value={locale} /> : null}
         <div className="space-y-2">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">
             {mode === "login"
@@ -128,11 +158,15 @@ export function AuthForm({
           name="password"
           type="password"
           placeholder={s.formPasswordPlaceholder}
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          aria-describedby={isSignup ? "password-requirements" : undefined}
+          autoComplete={isSignup ? "new-password" : "current-password"}
           required
         />
-        {mode === "login" ? null : (
-          <p className="-mt-2 text-xs leading-5 text-black/50">{s.formPasswordRule}</p>
-        )}
+        {isSignup ? (
+          <PasswordRequirements id="password-requirements" password={password} labels={s.passwordRules} />
+        ) : null}
 
         {mode === "login" ? (
           <div className="flex justify-end">
@@ -148,7 +182,7 @@ export function AuthForm({
           </div>
         ) : null}
 
-        <Button type="submit" fullWidth disabled={isPending}>
+        <Button type="submit" fullWidth disabled={isPending || !canSubmit}>
           {isPending
             ? s.formWorking
             : mode === "login"

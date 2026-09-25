@@ -1,0 +1,1 @@
+{{ $en := false }}{{ with .Data.locale }}{{ if eq . "en" }}{{ $en = true }}{{ end }}{{ end }}{{ if $en }}Confirm your email to activate Confetti{{ else }}Potvrdite email i aktivirajte Confetti{{ end }}

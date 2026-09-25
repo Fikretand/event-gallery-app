@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { PASSWORD_MIN_LENGTH, passwordMeetsPolicy } from "@/lib/password-policy";
+import { PASSWORD_MIN_LENGTH, passwordChecks, passwordMeetsPolicy } from "@/lib/password-policy";
 
 /**
  * These mirror the Supabase dashboard setting. If someone relaxes one side, the
@@ -33,5 +33,13 @@ describe("passwordMeetsPolicy", () => {
     // Outside Supabase's allowed set — accepting it here would hand the user a
     // password our form likes and Supabase rejects.
     expect(passwordMeetsPolicy("Sarajevo1€")).toBe(false);
+  });
+});
+
+describe("passwordChecks", () => {
+  it("ticks off each rule independently, which is what the form shows", () => {
+    expect(passwordChecks("")).toEqual({ length: false, upper: false, lower: false, digit: false, symbol: false });
+    expect(passwordChecks("sarajevo")).toEqual({ length: true, upper: false, lower: true, digit: false, symbol: false });
+    expect(passwordChecks("Sarajevo1!")).toEqual({ length: true, upper: true, lower: true, digit: true, symbol: true });
   });
 });

@@ -208,6 +208,10 @@ export interface Dict {
     formPasswordPlaceholder: string;
     /** Shown under the password field, and when the server rejects a weak one. */
     formPasswordRule: string;
+    /** Shown on the login page when an email confirmation link fails. */
+    confirmLinkFailed: string;
+    /** One line per rule, ticked off live under the password field. */
+    passwordRules: { length: string; upper: string; lower: string; digit: string; symbol: string };
     formForgotPassword: string;
     formLoginBtn: string;
     formCreateAccountBtn: string;

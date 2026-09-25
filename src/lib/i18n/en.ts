@@ -237,6 +237,15 @@ export const dict: Dict = {
     formPasswordPlaceholder: "At least 8 characters",
     formPasswordRule:
       "At least 8 characters, with an upper and a lower case letter, a number, and one symbol (e.g. ! ? # @).",
+    confirmLinkFailed:
+      "That confirmation link has expired or was already used. If your account is confirmed, just log in. If not, sign up again with the same email and we will send you a fresh link.",
+    passwordRules: {
+      length: "At least 8 characters",
+      upper: "One upper case letter",
+      lower: "One lower case letter",
+      digit: "One number",
+      symbol: "One symbol, e.g. ! ? # @",
+    },
     formForgotPassword: "Forgot password?",
     formLoginBtn: "Login",
     formCreateAccountBtn: "Create account",
