@@ -16,8 +16,15 @@ export const PASSWORD_MIN_LENGTH = 8;
 /** The exact set Supabase accepts; anything outside it would be refused there. */
 export const PASSWORD_SYMBOLS = "!@#$%^&*()_+-=[]{};'\\:\"|<>?,./`~";
 
-/** Returned by the auth actions so the form can translate it. */
+/**
+ * Returned by the auth actions instead of an English sentence, so each form can
+ * show it in the reader's language. Anything else an action returns (Supabase's
+ * own error text) is shown as-is.
+ */
 export const WEAK_PASSWORD = "WEAK_PASSWORD";
+export const PASSWORD_MISMATCH = "PASSWORD_MISMATCH";
+export const RESET_SESSION_EXPIRED = "RESET_SESSION_EXPIRED";
+export const PASSWORD_UPDATED = "PASSWORD_UPDATED";
 
 const hasSymbol = (password: string) =>
   password.split("").some((char) => PASSWORD_SYMBOLS.includes(char));

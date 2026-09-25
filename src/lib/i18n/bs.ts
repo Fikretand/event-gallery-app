@@ -239,6 +239,18 @@ export const dict: Dict = {
     formPasswordPlaceholder: "Najmanje 8 znakova",
     formPasswordRule:
       "Najmanje 8 znakova, uz veliko i malo slovo, broj i jedan znak (npr. ! ? # @).",
+    resetForm: {
+      eyebrow: "Nova lozinka",
+      title: "Izaberite novu lozinku",
+      newPassword: "Nova lozinka",
+      confirmPassword: "Ponovite lozinku",
+      confirmPlaceholder: "Ponovite novu lozinku",
+      submit: "Sačuvaj novu lozinku",
+      mismatch: "Lozinke se ne podudaraju.",
+      sessionExpired: "Link za promjenu lozinke je istekao ili je već iskorišten. Zatražite novi.",
+      success: "Lozinka je promijenjena. Sada se možete prijaviti novom lozinkom.",
+      goToLogin: "Prijavite se",
+    },
     confirmLinkFailed:
       "Link za potvrdu je istekao ili je već iskorišten. Ako je nalog već potvrđen, samo se prijavite. Ako nije, registrujte se ponovo istim emailom i poslat ćemo vam novi link.",
     passwordRules: {
@@ -1068,6 +1080,11 @@ export const dict: Dict = {
               answer:
                 "Ne morate. Bez PIN-a galeriju otvara svako ko ima link — to je praktično kad je dijelite porodici. Ako slike žele dodatni sloj zaštite, uključite PIN u postavkama događaja.",
             },
+            {
+              question: "Šta ako gost pošalje neprikladnu fotografiju?",
+              answer:
+                "Neće je niko vidjeti. Sve što gosti pošalju stiže sakriveno i vidite ga samo vi, u svom dashboardu. U galeriju ide samo ono što sami prikažete, a ostalo možete obrisati.",
+            },
           ],
         },
         {
@@ -1107,6 +1124,16 @@ export const dict: Dict = {
               question: "Mogu li gosti slati i video?",
               answer:
                 "Mogu, ako to uključite u postavkama događaja. Podržani su MP4 i MOV.",
+            },
+            {
+              question: "Kako da odštampam QR kod?",
+              answer:
+                "U dashboardu događaja preuzmete sam QR kod kao sliku, ili uredite karticu u editoru — deset predložaka za različite događaje — i izvezete je kao PDF ili PNG u A4 formatu, spremnu za štampu. Na A4 predlošci drže kod širokim oko 5 cm; ako karticu smanjujete za stolove, pazite da kod ne postane premali da ga telefon uhvati.",
+            },
+            {
+              question: "Mogu li imati više QR kodova, npr. za crkvu i salu?",
+              answer:
+                "Jedan događaj ima jedan QR kod, ali ga možete odštampati u koliko god primjeraka hoćete i staviti svuda — na stolove, ulaz, pozivnice. Zasebni kodovi za različite dijelove dana za sada ne postoje; fotografije poslije sami razvrstate u sekcije galerije, npr. ceremonija, restoran, igranka.",
             },
           ],
         },

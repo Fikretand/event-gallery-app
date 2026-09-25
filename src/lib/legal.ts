@@ -6,6 +6,7 @@
 // email, governing law). The <LegalDocView> renders a visible draft notice at
 // the top — delete `draftNotice` from each doc once finalized.
 
+import { env } from "@/lib/env";
 import type { Locale } from "@/lib/i18n/index";
 
 export type LegalKind = "privacy" | "terms";
@@ -26,13 +27,24 @@ export interface LegalDoc {
   otherLabel: string; // link label to the sibling document
 }
 
+function hostOf(url: string) {
+  try {
+    return new URL(url).host;
+  } catch {
+    return url;
+  }
+}
+
 // ── Shared placeholders — fill these before publishing ──────────────────────
 const COMPANY = "[Naziv pravnog subjekta / Legal entity name]";
 const ADDRESS = "[Adresa / Registered address]";
-const EMAIL = "[kontakt@confetti.app]";
+const EMAIL = "[kontakt@confetti.ba]";
 const LAW = "[Bosna i Hercegovina / your governing law]";
 const APP = "Confetti";
-const DOMAIN = "event-gallery-app-rho.vercel.app";
+// The host the documents name, read from the same variable the rest of the app
+// uses, so moving to confetti.ba is one env change instead of a code edit that
+// is easy to forget. It was the only hardcoded production hostname in src/.
+const DOMAIN = hostOf(env.appUrl);
 const UPDATED = "20.07.2026.";
 
 // ═══════════════════════════════════════════════════════════════════════════

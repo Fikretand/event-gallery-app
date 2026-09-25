@@ -237,6 +237,18 @@ export const dict: Dict = {
     formPasswordPlaceholder: "At least 8 characters",
     formPasswordRule:
       "At least 8 characters, with an upper and a lower case letter, a number, and one symbol (e.g. ! ? # @).",
+    resetForm: {
+      eyebrow: "New password",
+      title: "Choose a fresh password",
+      newPassword: "New password",
+      confirmPassword: "Confirm password",
+      confirmPlaceholder: "Repeat your new password",
+      submit: "Save new password",
+      mismatch: "The passwords do not match.",
+      sessionExpired: "This reset link has expired or was already used. Please request a new one.",
+      success: "Your password has been changed. You can now log in with it.",
+      goToLogin: "Log in",
+    },
     confirmLinkFailed:
       "That confirmation link has expired or was already used. If your account is confirmed, just log in. If not, sign up again with the same email and we will send you a fresh link.",
     passwordRules: {
@@ -1065,6 +1077,11 @@ export const dict: Dict = {
               answer:
                 "No. Without one, anyone with the link can open the gallery — convenient when sharing with family. If the photos warrant another layer, turn the PIN on in the event settings.",
             },
+            {
+              question: "What if a guest uploads something inappropriate?",
+              answer:
+                "Nobody else sees it. Everything guests send arrives hidden and is visible only to you, in your dashboard. Only what you choose to show goes into the gallery, and you can delete the rest.",
+            },
           ],
         },
         {
@@ -1103,6 +1120,16 @@ export const dict: Dict = {
             {
               question: "Can guests send video?",
               answer: "Yes, if you enable it in the event settings. MP4 and MOV are supported.",
+            },
+            {
+              question: "How do I print the QR code?",
+              answer:
+                "From the event dashboard, download the QR code on its own as an image, or design a card in the editor — ten templates for different kinds of event — and export it as an A4 PDF or PNG ready to print. On A4 the templates keep the code about 5 cm wide; if you shrink the card for tables, make sure the code stays large enough for a phone to catch.",
+            },
+            {
+              question: "Can I have several QR codes, say for the church and the venue?",
+              answer:
+                "An event has one QR code, but you can print as many copies as you like and put them everywhere — tables, the entrance, invitations. Separate codes for different parts of the day do not exist yet; afterwards you sort the photos into gallery sections yourself, for example ceremony, dinner, dancing.",
             },
           ],
         },

@@ -48,9 +48,7 @@ export default async function ResetPasswordPage({
             .
           </p>
         </div>
-        <ResetPasswordForm action={resetPasswordAction} passwordRule={dict.auth.formPasswordRule}
-          passwordRules={dict.auth.passwordRules}
-        />
+        <ResetPasswordForm action={resetPasswordAction} strings={d} loginHref={`/${locale}/login`} />
       </section>
     </main>
   );

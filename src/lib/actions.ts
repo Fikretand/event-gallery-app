@@ -9,7 +9,13 @@ import { isValidPublicProfileUrl, normalizeAccountType, resolveAccountRedirect }
 import { getAccountTypeForUser, getUserProfile } from "@/lib/auth";
 import { PROFILE_AVATAR_MAX_MB } from "@/lib/constants";
 import { env } from "@/lib/env";
-import { passwordMeetsPolicy, WEAK_PASSWORD } from "@/lib/password-policy";
+import {
+  PASSWORD_MISMATCH,
+  PASSWORD_UPDATED,
+  passwordMeetsPolicy,
+  RESET_SESSION_EXPIRED,
+  WEAK_PASSWORD,
+} from "@/lib/password-policy";
 import {
   createEvent,
   createGallerySection,
@@ -141,7 +147,7 @@ export async function resetPasswordAction(
   }
 
   if (password !== confirmPassword) {
-    return { error: "Passwords do not match." };
+    return { error: PASSWORD_MISMATCH };
   }
 
   const {
@@ -149,7 +155,7 @@ export async function resetPasswordAction(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "Your reset session is missing or expired. Please request a new reset link." };
+    return { error: RESET_SESSION_EXPIRED };
   }
 
   const { error } = await supabase.auth.updateUser({
@@ -160,9 +166,7 @@ export async function resetPasswordAction(
     return { error: error.message };
   }
 
-  return {
-    success: "Password updated successfully. You can now sign in with your new password.",
-  };
+  return { success: PASSWORD_UPDATED };
 }
 
 export async function signOutAction() {

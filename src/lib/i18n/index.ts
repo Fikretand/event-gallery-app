@@ -208,6 +208,19 @@ export interface Dict {
     formPasswordPlaceholder: string;
     /** Shown under the password field, and when the server rejects a weak one. */
     formPasswordRule: string;
+    /** The set-new-password form, which used to be English on every locale. */
+    resetForm: {
+      eyebrow: string;
+      title: string;
+      newPassword: string;
+      confirmPassword: string;
+      confirmPlaceholder: string;
+      submit: string;
+      mismatch: string;
+      sessionExpired: string;
+      success: string;
+      goToLogin: string;
+    };
     /** Shown on the login page when an email confirmation link fails. */
     confirmLinkFailed: string;
     /** One line per rule, ticked off live under the password field. */
