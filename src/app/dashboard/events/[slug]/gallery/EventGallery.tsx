@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 
 import { Disclosure } from "@/components/disclosure";
 import { EventShell } from "@/components/event-shell";
+import { GalleryCopyEditor } from "@/components/gallery-copy-editor";
 import { GallerySectionsManager } from "@/components/gallery-sections-manager";
 import { MediaGrid } from "@/components/media-grid";
 import { Panel } from "@/components/ui/panel";
@@ -10,6 +11,7 @@ import { getAccountTypeForUser, getRequiredUser } from "@/lib/auth";
 import { hasSupabase } from "@/lib/env";
 import { eventLinks, getOwnerEventBySlug, listEventMedia, listGallerySections } from "@/lib/events";
 import { getDictionary, localePrefix, type Locale } from "@/lib/i18n/index";
+import { COPY_FIELDS, COPY_GROUPS, defaultCopy, sanitizeCustomCopy } from "@/lib/custom-copy";
 import { enrichMediaWithUrls } from "@/lib/media";
 
 /**
@@ -43,6 +45,13 @@ export async function EventGallery({ locale, slug }: { locale: Locale; slug: str
 
   const links = eventLinks(event.slug);
   const liveMedia = media.filter((item) => !item.deleted_at);
+  const customCopy = sanitizeCustomCopy(event.custom_copy);
+  const copyFields = COPY_FIELDS.map((field) => ({
+    ...field,
+    label: e.copyEditor.fields[field.key] ?? field.key,
+    standard: defaultCopy(dict, field.key, event.title),
+    value: customCopy[field.key] ?? "",
+  }));
   const sectionCounts: Record<string, number> = {};
   for (const item of liveMedia) {
     if (item.section_id) sectionCounts[item.section_id] = (sectionCounts[item.section_id] ?? 0) + 1;
@@ -120,6 +129,40 @@ export async function EventGallery({ locale, slug }: { locale: Locale; slug: str
                 noAccountNeeded: e.ownerUpload.noAccountNeeded,
               }}
               nextLink={{ href: "#gallery-manager", label: e.ownerUpload.viewUploads }}
+            />
+          </div>
+        </Disclosure>
+      </Panel>
+
+      <Panel className="bg-white/90">
+        <Disclosure
+          className="group"
+          defaultOpen={false}
+          summary={
+            <summary className="flex cursor-pointer list-none items-start justify-between gap-4 [&::-webkit-details-marker]:hidden">
+              <span>
+                <span className="block font-display text-2xl font-semibold text-[var(--color-ink)]">{e.copyEditor.title}</span>
+                <span className="mt-2 block max-w-2xl text-sm leading-6 text-black/62">{e.copyEditor.body}</span>
+                <span className="mt-1 block text-xs text-black/45">{e.copyEditor.languageNote}</span>
+              </span>
+              <span
+                aria-hidden
+                className="mt-1 shrink-0 rounded-full border border-black/10 bg-white/85 px-3 py-1.5 text-xs font-semibold text-[var(--color-ink)] transition group-open:bg-[var(--color-paper)]"
+              >
+                <span className="group-open:hidden">↓</span>
+                <span className="hidden group-open:inline">↑</span>
+              </span>
+            </summary>
+          }
+        >
+          <div className="mt-5">
+            <GalleryCopyEditor
+              slug={event.slug}
+              fields={copyFields}
+              groups={COPY_GROUPS}
+              strings={e.copyEditor}
+              galleryUrl={links.galleryUrl}
+              uploadUrl={links.uploadUrl}
             />
           </div>
         </Disclosure>

@@ -12,6 +12,7 @@ import {
   listEventMedia,
   listGallerySections,
 } from "@/lib/events";
+import { applyCustomCopy, customTitle } from "@/lib/custom-copy";
 import { enrichMediaWithUrls } from "@/lib/media";
 import { getDictionary, t, type Locale } from "@/lib/i18n/index";
 import { formatDate } from "@/lib/utils";
@@ -22,12 +23,16 @@ export default async function GalleryPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
-  const dict = getDictionary(locale as Locale);
-  const d = dict.gallery;
-  const du = dict.galleryUnlock;
+  const lang: Locale = locale === "en" ? "en" : "bs";
 
   const event = await getPublicEventBySlug(slug);
   if (!event) notFound();
+
+  // The owner's own wording, where they wrote any, over the standard text.
+  const dict = applyCustomCopy(getDictionary(lang), event.custom_copy);
+  const d = dict.gallery;
+  const du = dict.galleryUnlock;
+  const title = customTitle(event.custom_copy, "event.galleryTitle", event.title);
 
   const coverMap = await getEventCoverMap([event]);
   const cover = event.cover_image_id ? coverMap.get(event.cover_image_id) : null;
@@ -38,7 +43,7 @@ export default async function GalleryPage({
         <section className="shell">
           <Panel className="bg-white/94">
             <h1 className="font-display text-3xl font-semibold text-[var(--color-ink)]">
-              {event.title}
+              {title}
             </h1>
             <p className="mt-3 text-sm leading-6 text-[#8a1c1c]">{d.archived}</p>
           </Panel>
@@ -53,7 +58,7 @@ export default async function GalleryPage({
         <section className="shell">
           <Panel className="bg-white/94">
             <h1 className="font-display text-3xl font-semibold text-[var(--color-ink)]">
-              {event.title}
+              {title}
             </h1>
             <p className="mt-3 text-sm leading-6 text-[#8a1c1c]">{d.expired}</p>
           </Panel>
@@ -74,7 +79,7 @@ export default async function GalleryPage({
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={cover.previewUrl ?? cover.thumbnailUrl ?? undefined}
-                    alt={`${event.title} cover`}
+                    alt={title}
                     className="aspect-[4/5] h-full w-full object-cover"
                   />
                 ) : (
@@ -89,7 +94,7 @@ export default async function GalleryPage({
                   {d.privateGallery}
                 </p>
                 <h1 className="mt-3 font-display text-3xl font-semibold text-[var(--color-ink)]">
-                  {event.title}
+                  {title}
                 </h1>
                 <p className="mt-3 text-sm leading-6 text-black/62">{d.enterPin}</p>
                 <div className="mt-4 flex flex-wrap gap-2 text-xs uppercase tracking-[0.18em] text-black/60">
@@ -100,7 +105,7 @@ export default async function GalleryPage({
                   ) : null}
                   {event.event_date ? (
                     <span className="rounded-full bg-[var(--color-paper)] px-3 py-2">
-                      {formatDate(event.event_date)}
+                      {formatDate(event.event_date.slice(0, 10), lang)}
                     </span>
                   ) : null}
                 </div>
@@ -135,7 +140,7 @@ export default async function GalleryPage({
                 {d.clientGallery}
               </p>
               <h1 className="font-display text-3xl font-semibold leading-tight text-[var(--color-ink)] sm:text-4xl">
-                {event.title}
+                {title}
               </h1>
               <p className="max-w-3xl text-sm leading-6 text-black/62 sm:text-base sm:leading-7">
                 {d.browseCurated}
@@ -148,7 +153,7 @@ export default async function GalleryPage({
                 ) : null}
                 {event.event_date ? (
                   <span className="rounded-full bg-[var(--color-paper)] px-3 py-2">
-                    {formatDate(event.event_date)}
+                    {formatDate(event.event_date.slice(0, 10), lang)}
                   </span>
                 ) : null}
                 <span className="rounded-full bg-[var(--color-moss)]/10 px-3 py-2 text-[var(--color-moss)]">
@@ -162,7 +167,7 @@ export default async function GalleryPage({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={cover.previewUrl ?? cover.thumbnailUrl ?? undefined}
-                  alt={`${event.title} cover`}
+                  alt={title}
                   className="aspect-[16/10] h-full w-full object-cover"
                 />
               ) : (

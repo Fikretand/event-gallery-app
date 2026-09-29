@@ -48,6 +48,8 @@ export type EventRecord = {
   status: EventStatus;
   cover_image_id: string | null;
   created_at: string;
+  /** Owner's own wording for guest-facing pages; see src/lib/custom-copy.ts. */
+  custom_copy?: Record<string, string> | null;
   event_settings?: EventSettingsRecord | null;
 };
 

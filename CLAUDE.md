@@ -533,6 +533,27 @@ src/
 
 Newest first — useful for picking back up.
 
+- **Guest-facing texts are editable per event.** `events.custom_copy` (jsonb,
+  migration `add_custom_copy_to_events.sql`, applied) holds the owner's wording
+  keyed by dictionary path. `src/lib/custom-copy.ts` is the whitelist
+  (`COPY_FIELDS`, ~55 fields: gallery, PIN screen, guest page, "closed"
+  messages) plus `sanitizeCustomCopy` / `applyCustomCopy`; the public gallery
+  and upload pages lay it over the dictionary. Editor: "Tekstovi koje gosti
+  vide" on the event's Galerija page. Adding a field = add it to `COPY_FIELDS`
+  and label it in `copyEditor.fields` (both languages) — `custom-copy.test.ts`
+  fails otherwise, and refuses templated (`{{…}}`) strings.
+- **The locked gallery shipped both PIN hashes in its HTML.** The unlock form
+  bound the whole event record to the server action, and bound arguments are
+  serialised into the page (proven locally). A 4-digit PIN is 10,000 guesses
+  whatever the hash. Now only slug + locale are bound, the action loads the
+  event itself, and guesses are limited (8 / 15 min per link and address).
+  Rule: never `.bind` a DB record into an action on a public page.
+- **The event page is three pages.** `EventShell` (sidebar on desktop, sticky
+  tabs on mobile) wraps Pregled (`EventDetail`), Galerija
+  (`gallery/EventGallery`: upload, sections as chips, files) and Postavke
+  (`settings/EventSettings`: form, history, danger zone). Settings save
+  redirects to the settings page in the reader's language.
+
 - **Moved to `https://www.confetti.ba`.** Both domains verified in Vercel;
   `NEXT_PUBLIC_APP_URL` switched (production + preview). Nothing in `src/`
   names a host any more — sitemap, canonical/hreflang, OG image, legal pages,

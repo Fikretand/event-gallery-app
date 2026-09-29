@@ -9,6 +9,7 @@ import {
   isEventExpired,
   isGuestUploadWindowClosed,
 } from "@/lib/events";
+import { applyCustomCopy, customTitle } from "@/lib/custom-copy";
 import { getDictionary, type Locale } from "@/lib/i18n/index";
 import { t } from "@/lib/i18n/index";
 
@@ -18,11 +19,15 @@ export default async function UploadPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
-  const dict = getDictionary(locale as Locale);
-  const d = dict.upload;
+  const lang: Locale = locale === "en" ? "en" : "bs";
 
   const event = await getPublicEventBySlug(slug);
   if (!event) notFound();
+
+  // The owner's own wording, where they wrote any, over the standard text.
+  const dict = applyCustomCopy(getDictionary(lang), event.custom_copy);
+  const d = dict.upload;
+  const title = customTitle(event.custom_copy, "event.uploadTitle", event.title);
 
   const expired = isEventExpired(event);
   const archived = event.status === "archived";
@@ -30,7 +35,7 @@ export default async function UploadPage({
   const accountType = await getEventAccountType(event.owner_user_id);
   const uploadWindowClosed = isGuestUploadWindowClosed(event, accountType);
   const uploadWindowEndsAt =
-    accountType === "couple" ? formatDate(getCoupleUploadEndsAt(event)) : null;
+    accountType === "couple" ? formatDate(getCoupleUploadEndsAt(event), lang) : null;
 
   const isClosed =
     expired || archived || uploadWindowClosed || settings?.allow_guest_upload === false;
@@ -61,10 +66,10 @@ export default async function UploadPage({
           </span>
         </span>
         <h1 className="font-display mt-4 text-3xl font-semibold leading-tight text-[var(--color-ink)] sm:text-4xl">
-          {event.title}
+          {title}
         </h1>
         {event.event_date && (
-          <p className="mt-2 text-sm text-black/60">{formatDate(event.event_date)}</p>
+          <p className="mt-2 text-sm text-black/60">{formatDate(event.event_date.slice(0, 10), lang)}</p>
         )}
       </div>
 

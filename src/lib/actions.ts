@@ -42,6 +42,7 @@ import {
   validateCoupleExpiry,
   verifyGalleryPinAndGrantAccess,
 } from "@/lib/events";
+import { COPY_FIELDS, sanitizeCustomCopy } from "@/lib/custom-copy";
 import { isRateLimited } from "@/lib/rate-limit";
 import { deleteStoredObject, putStoredObject } from "@/lib/storage";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -520,6 +521,35 @@ export async function unlockGalleryAction(
   redirect(`/${locale === "en" ? "en" : "bs"}/gallery/${slug}`);
 }
 
+/**
+ * Saves the owner's wording for the guest-facing pages. Every listed field is
+ * sent; an empty one means "back to the standard text" and is not stored.
+ */
+export async function updateEventCopyAction(slug: string, formData: FormData) {
+  const { user, supabase } = await getRequiredUser();
+  const event = await getOwnerEventBySlug(user.id, slug);
+  if (!event) {
+    return { error: "EVENT_NOT_FOUND" as const };
+  }
+
+  const raw: Record<string, unknown> = {};
+  for (const field of COPY_FIELDS) {
+    raw[field.key] = formData.get(field.key) ?? "";
+  }
+  const customCopy = sanitizeCustomCopy(raw);
+
+  const { error } = await supabase
+    .from("events")
+    .update({ custom_copy: customCopy })
+    .eq("id", event.id)
+    .eq("owner_user_id", user.id);
+  if (error) {
+    return { error: "SAVE_FAILED" as const };
+  }
+
+  revalidatePath(`/dashboard/events/${slug}/gallery`);
+  return { ok: true as const, saved: Object.keys(customCopy).length };
+}
 export async function updateEventAction(
   slug: string,
   locale: string,

@@ -342,6 +342,24 @@ export interface Dict {
         previewBtn: string;
         historyTitle: string;
       };
+      /** The editor for guest-facing wording (src/lib/custom-copy.ts). */
+      copyEditor: {
+        title: string;
+        body: string;
+        languageNote: string;
+        groups: { gallery: string; locked: string; guests: string; closed: string };
+        reset: string;
+        save: string;
+        saving: string;
+        saved: string;
+        failed: string;
+        /** {{count}} */
+        customCount: string;
+        previewGallery: string;
+        previewGuests: string;
+        /** Label per field key in COPY_FIELDS; custom-copy.test.ts checks none is missing. */
+        fields: Record<string, string>;
+      };
       /** The cover frame on the event page: set, change or remove the cover right there. */
       cover: {
         emptyTitle: string;
