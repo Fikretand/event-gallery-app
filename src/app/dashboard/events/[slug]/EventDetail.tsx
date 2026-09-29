@@ -248,6 +248,21 @@ export async function EventDetail({
               allowVideo={true}
               pinRequired={false}
               audience={accountType}
+              strings={{
+                ...dict.uploadDropzone,
+                chooseTitle: isCouple ? e.ownerUpload.chooseTitleCouple : e.ownerUpload.chooseTitle,
+                chooseSubtitle: isCouple ? e.ownerUpload.chooseSubtitleCouple : e.ownerUpload.chooseSubtitle,
+                selectPhotosBtn: e.ownerUpload.selectPhotosBtn,
+                reviewTitle: e.ownerUpload.reviewTitle,
+                sendBtn: e.ownerUpload.sendBtn,
+                uploadingTitle: e.ownerUpload.uploadingTitle,
+                successTitle: e.ownerUpload.successTitle,
+                successBody: isCouple ? e.ownerUpload.successBodyCouple : e.ownerUpload.successBody,
+                successNext: e.ownerUpload.successNext,
+                uploadAnotherBtn: e.ownerUpload.uploadAnotherBtn,
+                noAccountNeeded: e.ownerUpload.noAccountNeeded,
+              }}
+              nextLink={{ href: "#gallery-manager", label: e.ownerUpload.viewUploads }}
             />
           </div>
         </Panel>
@@ -291,7 +306,7 @@ export async function EventDetail({
           </div>
         </Panel>
 
-        <Panel className="bg-white/90">
+        <Panel id="gallery-manager" className="scroll-mt-6 bg-white/90">
           <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">
             {isCouple ? e.managerTitleCouple : e.managerTitle}
           </h2>

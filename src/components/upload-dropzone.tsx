@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState, useTransition } from "react";
 
 import type { AccountType } from "@/lib/types";
@@ -26,7 +28,18 @@ type Props = {
   audience?: AccountType;
   /** Optional i18n strings — when omitted, English is used */
   strings?: Partial<Dict["uploadDropzone"]>;
+  /** Shown beside "upload more" once everything has arrived — the next thing to press. */
+  nextLink?: { href: string; label: string };
 };
+
+type ApiErrorCode = keyof Dict["uploadDropzone"]["apiErrors"];
+
+/** `{{name}}` interpolation, local so the dictionary helpers stay out of the client bundle. */
+function fill(template: string, values: Record<string, string | number>) {
+  return template.replace(/\{\{(\w+)\}\}/g, (_, key: string) => String(values[key] ?? ""));
+}
+
+const NETWORK_ERROR = "Network error during upload.";
 
 type Grant = {
   objectKey: string;
@@ -131,7 +144,7 @@ function uploadFile(uploadUrl: string, file: File, onProgress: (progress: number
       }
     };
 
-    xhr.onerror = () => reject(new Error("Network error during upload."));
+    xhr.onerror = () => reject(new Error(NETWORK_ERROR));
     xhr.send(file);
   });
 }
@@ -140,19 +153,8 @@ function itemId(file: File) {
   return `${file.name}-${file.size}-${file.lastModified}`;
 }
 
-function statusLabel(status: UploadStatusValue) {
-  switch (status) {
-    case "queued":     return "Waiting";
-    case "requesting": return "Preparing";
-    case "uploading":  return "Uploading";
-    case "confirming": return "Saving";
-    case "done":       return "Done";
-    case "error":      return "Failed";
-    default:           return status;
-  }
-}
-
-export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audience = "photographer", strings }: Props) {
+export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audience = "photographer", strings, nextLink }: Props) {
+  const router = useRouter();
   const [guestName, setGuestName]   = useState("");
   const [guestEmail, setGuestEmail] = useState("");
   const [pin, setPin]               = useState("");
@@ -185,8 +187,47 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
     emailPlaceholder: strings?.emailPlaceholder ?? "ana@example.com",
     pinPlaceholder:   strings?.pinPlaceholder   ?? "Enter the PIN from your host",
     orClickSelect:    strings?.orClickSelect    ?? "or tap to browse",
-    partialLabel:   "Some photos were sent, but a few couldn't be uploaded. Try sending them again.",
+    partialLabel:   strings?.partialBody ?? "Some photos were sent, but a few didn't go through. Send them again with the button below.",
+    successNext:    strings?.successNext ?? (target === "guest" ? "The host reviews them before they appear in the gallery. Got more? Send them now." : ""),
+    optional:       strings?.optional ?? "(optional)",
+    required:       strings?.required ?? "required",
+    noAccountNeeded: strings?.noAccountNeeded ?? (target === "guest" ? "No app, no account needed" : "Originals are kept at full quality"),
+    selectedCount:  strings?.selectedCount ?? "{{count}} selected",
+    totalSize:      strings?.totalSize ?? "{{size}} total",
+    clearAll:       strings?.clearAll ?? "Clear all",
+    removeFile:     strings?.removeFile ?? "Remove file",
+    retryFailed:    strings?.retryFailed ?? "↺ Retry failed ({{count}})",
+    keepPageOpen:   strings?.keepPageOpen ?? "Please keep this page open until it finishes",
+    progress:       strings?.progress ?? "{{done}} of {{total}} sent",
+    tryAgain:       strings?.tryAgain ?? "Try again →",
+    statuses: strings?.statuses ?? {
+      queued: "Waiting", requesting: "Preparing", uploading: "Uploading",
+      confirming: "Saving", done: "Done", error: "Failed",
+    },
+    errFilesRequired: strings?.errFilesRequired ?? "Add at least one file before sending.",
+    errPinRequired: strings?.errPinRequired ?? "Please enter the upload PIN.",
+    errNetwork: strings?.errNetwork ?? "The connection dropped during the upload. Check your internet and try again.",
+    errStart:   strings?.errStart ?? "The upload couldn't start. Please try again.",
+    errUpload:  strings?.errUpload ?? "The upload failed. Please try again.",
+    apiErrors: strings?.apiErrors,
   }), [strings, target, audience]);
+
+  function statusLabel(status: UploadStatusValue) {
+    return s.statuses[status as keyof typeof s.statuses] ?? status;
+  }
+
+  /** The routes answer with a `code` next to their English `error`; prefer the translation. */
+  function startErrorText(payload: { error?: string; code?: string }) {
+    const translated = payload.code ? s.apiErrors?.[payload.code as ApiErrorCode] : undefined;
+    return translated ?? payload.error ?? s.errStart;
+  }
+
+  /** Per-file failures: say whether it was the connection, never show raw status text. */
+  function itemErrorText(error: unknown) {
+    if (error instanceof TypeError) return s.errNetwork; // fetch() could not reach the server
+    if (error instanceof Error && error.message === NETWORK_ERROR) return s.errNetwork;
+    return s.errUpload;
+  }
 
   // ─── Derived copy strings (keep for backward compat) ─────────────────────
   const copy = useMemo(
@@ -266,8 +307,9 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
           }),
         });
 
-        const payload = await response.json();
-        if (!response.ok) throw new Error(payload.error ?? "Failed to start upload.");
+        // A gateway timeout answers in HTML; treat an unreadable body as "no details".
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(startErrorText(payload));
 
         const grants = payload.grants as Grant[];
 
@@ -333,9 +375,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
             uploadedAny = true;
             updateItem(currentItem.id, { status: "done", progress: 100, message: undefined });
           } catch (itemError) {
-            const message =
-              itemError instanceof Error ? itemError.message : `Failed to upload ${currentItem.file.name}.`;
-            updateItem(currentItem.id, { status: "error", message });
+            updateItem(currentItem.id, { status: "error", message: itemErrorText(itemError) });
           }
         }
 
@@ -350,8 +390,15 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
         } else if (uploadedAny) {
           setSuccess(copy.partialLabel);
         }
+        // The owner's page lists the gallery below; let it pick up the new files.
+        if (uploadedAny && target !== "guest") router.refresh();
       } catch (uploadError) {
-        const message = uploadError instanceof Error ? uploadError.message : "Upload failed.";
+        const message =
+          uploadError instanceof TypeError
+            ? s.errNetwork
+            : uploadError instanceof Error
+              ? uploadError.message
+              : s.errStart;
         setError(message);
         targetItems.forEach((item) => updateItem(item.id, { status: "error", message }));
       }
@@ -360,7 +407,11 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
 
   function startUpload() {
     if (activeItems.length === 0) {
-      setError("Add at least one file before sending.");
+      setError(s.errFilesRequired);
+      return;
+    }
+    if (target === "guest" && pinRequired && !pin.trim()) {
+      setError(s.errPinRequired);
       return;
     }
     void uploadItems(activeItems);
@@ -396,6 +447,24 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
         if (inputRef.current) inputRef.current.value = "";
       }}
     />
+  );
+
+  // Lives in both the choose and the review step: a guest who picked photos
+  // before typing the PIN must still be able to enter it.
+  const pinField = (
+    <label className="flex flex-col gap-1.5 sm:col-span-2">
+      <span className="text-sm font-semibold text-[var(--color-ink)]">
+        🔑 {s.pinLabel}{" "}
+        <span className="font-medium text-[#c0392b]">{s.required}</span>
+      </span>
+      <input
+        value={pin}
+        onChange={(e) => setPin(e.target.value)}
+        className="rounded-2xl border border-black/10 bg-[var(--color-paper)] px-4 py-3 text-sm placeholder:text-black/28 focus:border-[var(--color-accent)] focus:outline-none"
+        placeholder={s.pinPlaceholder}
+        type="password"
+      />
+    </label>
   );
 
   // ─── Render ───────────────────────────────────────────────────────────────
@@ -468,7 +537,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
               <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-medium text-[var(--color-ink)]">
                   {s.nameLabel}{" "}
-                  <span className="font-normal text-black/35">(optional)</span>
+                  <span className="font-normal text-black/35">{s.optional}</span>
                 </span>
                 <input
                   value={guestName}
@@ -480,7 +549,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
               <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-medium text-[var(--color-ink)]">
                   {s.emailLabel}{" "}
-                  <span className="font-normal text-black/35">(optional)</span>
+                  <span className="font-normal text-black/35">{s.optional}</span>
                 </span>
                 <input
                   value={guestEmail}
@@ -491,21 +560,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
                 />
               </label>
 
-              {pinRequired && (
-                <label className="flex flex-col gap-1.5 sm:col-span-2">
-                  <span className="text-sm font-semibold text-[var(--color-ink)]">
-                    🔑 Event PIN{" "}
-                    <span className="font-medium text-[#c0392b]">required</span>
-                  </span>
-                  <input
-                    value={pin}
-                    onChange={(e) => setPin(e.target.value)}
-                    className="rounded-2xl border border-black/10 bg-[var(--color-paper)] px-4 py-3 text-sm placeholder:text-black/28 focus:border-[var(--color-accent)] focus:outline-none"
-                    placeholder={s.pinPlaceholder}
-                    type="password"
-                  />
-                </label>
-              )}
+              {pinRequired && pinField}
             </div>
           )}
 
@@ -522,7 +577,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
           {/* Subtle info row */}
           <p className="mt-4 text-center text-xs text-black/36">
             JPG, PNG, HEIC{allowVideo ? ", MP4, MOV" : ""}
-            {" · "}No account needed
+            {" · "}{s.noAccountNeeded}
           </p>
         </div>
       )}
@@ -541,17 +596,17 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
           <div className="rounded-[32px] border border-black/8 bg-white/92 p-5 shadow-[0_8px_40px_rgba(18,24,38,0.06)] md:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-semibold text-[var(--color-ink)]">
-                  {items.length} {items.length === 1 ? "photo" : "photos"} ready
+                <p className="font-semibold text-[var(--color-ink)]">{s.reviewTitle}</p>
+                <p className="text-sm text-black/45">
+                  {fill(s.selectedCount, { count: items.length })} · {fill(s.totalSize, { size: formatBytes(totalSize) })}
                 </p>
-                <p className="text-sm text-black/45">{formatBytes(totalSize)} total</p>
               </div>
               <button
                 type="button"
                 onClick={clearList}
                 className="rounded-full px-3 py-1.5 text-sm font-medium text-black/40 transition hover:bg-black/5 hover:text-black/65"
               >
-                Clear all
+                {s.clearAll}
               </button>
             </div>
 
@@ -577,7 +632,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
                   <button
                     type="button"
                     onClick={() => removeSelectedFile(item.id)}
-                    aria-label="Remove file"
+                    aria-label={s.removeFile}
                     className="shrink-0 rounded-full p-1.5 text-black/28 transition hover:bg-black/8 hover:text-[#c0392b]"
                   >
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -588,6 +643,10 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
               ))}
             </div>
           </div>
+
+          {target === "guest" && pinRequired ? (
+            <div className="rounded-[24px] border border-black/8 bg-white/92 p-4">{pinField}</div>
+          ) : null}
 
           {/* Send button */}
           <button
@@ -607,7 +666,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
               onClick={() => inputRef.current?.click()}
               className="flex flex-1 items-center justify-center gap-2 rounded-[18px] border border-black/10 bg-white/90 px-4 py-3.5 text-sm font-semibold text-[var(--color-ink)] transition hover:border-[var(--color-accent)]/30 hover:bg-white"
             >
-              + Add more
+              + {s.addMoreBtn}
             </button>
 
             {failedCount > 0 && (
@@ -617,7 +676,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
                 disabled={isPending}
                 className="flex flex-1 items-center justify-center gap-2 rounded-[18px] border border-[#f3c8c0] bg-[#fff6f3] px-4 py-3.5 text-sm font-semibold text-[#8a2020] transition hover:bg-[#fff0eb]"
               >
-                ↺ Retry {failedCount} failed
+                {fill(s.retryFailed, { count: failedCount })}
               </button>
             )}
           </div>
@@ -633,7 +692,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
               <div className="h-14 w-14 animate-spin rounded-full border-4 border-[var(--color-accent-soft)] border-t-[var(--color-accent)]" />
             </div>
             <p className="font-semibold text-[var(--color-ink)]">{s.uploadingTitle}</p>
-            <p className="mt-1 text-xs text-black/42">{strings?.stepSend ? "Molimo ne zatvarajte ovu stranicu" : "Please don't close this page"}</p>
+            <p className="mt-1 text-xs text-black/42">{s.keepPageOpen}</p>
           </div>
 
           {/* Per-file progress */}
@@ -676,7 +735,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
           </div>
 
           <p className="mt-5 text-center text-xs text-black/35">
-            {completedCount} of {items.length} sent
+            {fill(s.progress, { done: completedCount, total: items.length })}
           </p>
         </div>
       )}
@@ -715,17 +774,30 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
           <h2 className="fade-up-in font-display text-2xl font-semibold text-[var(--color-ink)]">
             {s.successTitle}
           </h2>
-          <p className="fade-up-in-delay mx-auto mt-2 max-w-xs text-sm leading-6 text-black/52">
+          <p className="fade-up-in-delay mx-auto mt-2 max-w-sm text-sm leading-6 text-black/62">
             {success}
           </p>
+          {s.successNext ? (
+            <p className="fade-up-in-delay mx-auto mt-2 max-w-sm text-sm leading-6 text-black/48">{s.successNext}</p>
+          ) : null}
 
-          <button
-            type="button"
-            onClick={() => { setSuccess(null); setError(null); setItems([]); }}
-            className="fade-up-in-delay-2 mt-6 inline-flex items-center gap-2 rounded-[16px] border border-black/10 bg-white px-6 py-3 text-sm font-semibold text-[var(--color-ink)] transition hover:border-[var(--color-accent)]/30 hover:bg-[var(--color-accent-soft)]/20"
-          >
-            + {s.uploadAnotherBtn}
-          </button>
+          <div className="fade-up-in-delay-2 mt-6 flex flex-col items-center justify-center gap-2 sm:flex-row">
+            <button
+              type="button"
+              onClick={() => { setSuccess(null); setError(null); setItems([]); inputRef.current?.click(); }}
+              className="inline-flex items-center gap-2 rounded-[16px] bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-white shadow-[0_6px_20px_rgba(226,121,82,0.32)] transition hover:brightness-105"
+            >
+              + {s.uploadAnotherBtn}
+            </button>
+            {nextLink ? (
+              <Link
+                href={nextLink.href}
+                className="inline-flex items-center gap-2 rounded-[16px] border border-black/10 bg-white px-6 py-3 text-sm font-semibold text-[var(--color-ink)] transition hover:border-[var(--color-accent)]/30 hover:bg-[var(--color-accent-soft)]/20"
+              >
+                {nextLink.label}
+              </Link>
+            ) : null}
+          </div>
         </div>
       )}
 
@@ -739,7 +811,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
               onClick={retryFailed}
               className="mt-2 text-sm font-semibold text-[var(--color-accent)]"
             >
-              Try again →
+              {s.tryAgain}
             </button>
           )}
         </div>

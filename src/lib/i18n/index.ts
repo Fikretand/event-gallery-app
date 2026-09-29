@@ -300,6 +300,24 @@ export interface Dict {
       privateGalleryLinkBody: string;
       copyLink: string;
       linkCopied: string;
+      /** Overrides for the upload dropzone when the owner, not a guest, uploads. */
+      ownerUpload: {
+        chooseTitle: string;
+        chooseTitleCouple: string;
+        chooseSubtitle: string;
+        chooseSubtitleCouple: string;
+        selectPhotosBtn: string;
+        reviewTitle: string;
+        sendBtn: string;
+        uploadingTitle: string;
+        successTitle: string;
+        successBody: string;
+        successBodyCouple: string;
+        successNext: string;
+        uploadAnotherBtn: string;
+        noAccountNeeded: string;
+        viewUploads: string;
+      };
       permanentLinksNote: string;
       openGuestPage: string;
       openGuestUploadPage: string;
@@ -841,6 +859,55 @@ export interface Dict {
     errFilesRequired: string;
     errVideoNotAllowed: string;
     errPinRequired: string;
+    // Everything below used to be hard-coded English in the component.
+    optional: string;
+    required: string;
+    noAccountNeeded: string;
+    /** {{count}} */
+    selectedCount: string;
+    /** {{size}} */
+    totalSize: string;
+    clearAll: string;
+    removeFile: string;
+    /** {{count}} */
+    retryFailed: string;
+    keepPageOpen: string;
+    /** {{done}} of {{total}} */
+    progress: string;
+    tryAgain: string;
+    statuses: {
+      queued: string;
+      requesting: string;
+      uploading: string;
+      confirming: string;
+      done: string;
+      error: string;
+    };
+    partialBody: string;
+    /** What happens next, shown under the success message. */
+    successNext: string;
+    errNetwork: string;
+    errStart: string;
+    errUpload: string;
+    /** Keyed by the `code` the upload-session routes return next to `error`. */
+    apiErrors: {
+      EVENT_NOT_FOUND: string;
+      EVENT_ARCHIVED: string;
+      EVENT_EXPIRED: string;
+      UPLOADS_CLOSED: string;
+      UPLOADS_DISABLED: string;
+      RATE_LIMITED: string;
+      WRONG_PIN: string;
+      HOST_TRIAL_ENDED: string;
+      HOST_TRIAL_LIMIT: string;
+      HOST_STORAGE_FULL: string;
+      OWNER_ARCHIVED: string;
+      OWNER_EXPIRED: string;
+      OWNER_WINDOW_CLOSED: string;
+      TRIAL_ENDED: string;
+      TRIAL_LIMIT: string;
+      STORAGE_FULL: string;
+    };
   };
 }
 

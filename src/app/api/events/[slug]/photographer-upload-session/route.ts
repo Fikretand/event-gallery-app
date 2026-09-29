@@ -27,11 +27,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     const { slug } = await params;
     const event = await getOwnerEventBySlug(user.id, slug);
     if (!event) {
-      return NextResponse.json({ error: "Event not found." }, { status: 404 });
+      return NextResponse.json({ error: "Event not found.", code: "EVENT_NOT_FOUND" }, { status: 404 });
     }
 
     if (event.status === "archived") {
-      return NextResponse.json({ error: "Restore this archived event before uploading more files." }, { status: 409 });
+      return NextResponse.json({ error: "Restore this archived event before uploading more files.", code: "OWNER_ARCHIVED" }, { status: 409 });
     }
 
     // The guest route has always enforced these two; this one never did, so the
@@ -41,7 +41,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     // it in event settings, which is what the message points at.
     if (isEventExpired(event)) {
       return NextResponse.json(
-        { error: "This event has expired. Extend the expiry date in event settings to upload more files." },
+        { error: "This event has expired. Extend the expiry date in event settings to upload more files.", code: "OWNER_EXPIRED" },
         { status: 410 },
       );
     }
@@ -49,7 +49,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     const accountType = await getEventAccountType(user.id);
     if (isGuestUploadWindowClosed(event, accountType)) {
       return NextResponse.json(
-        { error: "The upload window for this event has closed." },
+        { error: "The upload window for this event has closed.", code: "OWNER_WINDOW_CLOSED" },
         { status: 410 },
       );
     }
@@ -62,7 +62,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
         incrementRateLimitCount,
       )
     ) {
-      return NextResponse.json({ error: "Too many upload attempts. Please wait a minute and try again." }, { status: 429 });
+      return NextResponse.json({ error: "Too many upload attempts. Please wait a minute and try again.", code: "RATE_LIMITED" }, { status: 429 });
     }
 
     const payload = await request.json();
@@ -78,13 +78,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
       const trial = computeTrialState(profile.created_at, profile.plan_tier, photosUsed, profile.role, profile.subscription_status);
       if (trial.status === "expired") {
         return NextResponse.json(
-          { error: "Your free trial has expired. Please upgrade your plan to continue uploading." },
+          { error: "Your free trial has expired. Please upgrade your plan to continue uploading.", code: "TRIAL_ENDED" },
           { status: 403 },
         );
       }
       if (trial.status === "active" && photosUsed >= trial.photosLimit) {
         return NextResponse.json(
-          { error: `Trial photo limit reached (${trial.photosLimit} photos). Upgrade to continue uploading.` },
+          { error: `Trial photo limit reached (${trial.photosLimit} photos). Upgrade to continue uploading.`, code: "TRIAL_LIMIT" },
           { status: 403 },
         );
       }
@@ -95,7 +95,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     const usage = await getAccountUsage(user.id);
     if (requestedBytes > usage.liveAvailableStorageBytes) {
       return NextResponse.json(
-        { error: "This account is out of available storage. Archive or permanently delete old events to free space." },
+        { error: "This account is out of available storage. Archive or permanently delete old events to free space.", code: "STORAGE_FULL" },
         { status: 403 },
       );
     }

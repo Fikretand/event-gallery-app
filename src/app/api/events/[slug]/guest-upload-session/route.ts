@@ -15,24 +15,24 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     const event = await getPublicEventBySlug(slug);
 
     if (!event) {
-      return NextResponse.json({ error: "Event not found." }, { status: 404 });
+      return NextResponse.json({ error: "Event not found.", code: "EVENT_NOT_FOUND" }, { status: 404 });
     }
 
     if (event.status === "archived") {
-      return NextResponse.json({ error: "This event is archived and no longer accepts uploads." }, { status: 410 });
+      return NextResponse.json({ error: "This event is archived and no longer accepts uploads.", code: "EVENT_ARCHIVED" }, { status: 410 });
     }
 
     if (isEventExpired(event)) {
-      return NextResponse.json({ error: "This event has expired." }, { status: 410 });
+      return NextResponse.json({ error: "This event has expired.", code: "EVENT_EXPIRED" }, { status: 410 });
     }
 
     const accountType = await getEventAccountType(event.owner_user_id);
     if (isGuestUploadWindowClosed(event, accountType)) {
-      return NextResponse.json({ error: "Guest uploads are closed for this event." }, { status: 410 });
+      return NextResponse.json({ error: "Guest uploads are closed for this event.", code: "UPLOADS_CLOSED" }, { status: 410 });
     }
 
     if (!event.event_settings?.allow_guest_upload) {
-      return NextResponse.json({ error: "Guest uploads are disabled for this event." }, { status: 403 });
+      return NextResponse.json({ error: "Guest uploads are disabled for this event.", code: "UPLOADS_DISABLED" }, { status: 403 });
     }
 
     const payload = await request.json();
@@ -52,11 +52,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
         incrementRateLimitCount,
       )
     ) {
-      return NextResponse.json({ error: "Too many upload attempts. Please wait a minute and try again." }, { status: 429 });
+      return NextResponse.json({ error: "Too many upload attempts. Please wait a minute and try again.", code: "RATE_LIMITED" }, { status: 429 });
     }
 
     if (event.event_settings.require_pin_for_upload && !verifyPin(String(payload.pin ?? ""), event.upload_pin_hash)) {
-      return NextResponse.json({ error: "Incorrect upload PIN." }, { status: 403 });
+      return NextResponse.json({ error: "Incorrect upload PIN.", code: "WRONG_PIN" }, { status: 403 });
     }
 
     validateUploadFiles(files, "guest", event.event_settings);
@@ -79,13 +79,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
         const trial = computeTrialState(ownerProfile.created_at, ownerProfile.plan_tier, photosUsed, ownerProfile.role, ownerProfile.subscription_status);
         if (trial.status === "expired") {
           return NextResponse.json(
-            { error: "The event host's free trial has ended. Please contact the event organiser." },
+            { error: "The event host's free trial has ended. Please contact the event organiser.", code: "HOST_TRIAL_ENDED" },
             { status: 403 },
           );
         }
         if (trial.status === "active" && photosUsed >= trial.photosLimit) {
           return NextResponse.json(
-            { error: "The event host has reached their trial photo limit. Please contact the event organiser." },
+            { error: "The event host has reached their trial photo limit. Please contact the event organiser.", code: "HOST_TRIAL_LIMIT" },
             { status: 403 },
           );
         }
@@ -96,7 +96,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     const usage = await getAccountUsage(event.owner_user_id);
     if (requestedBytes > usage.liveAvailableStorageBytes) {
       return NextResponse.json(
-        { error: "This event is out of available storage. Please contact the event organiser." },
+        { error: "This event is out of available storage. Please contact the event organiser.", code: "HOST_STORAGE_FULL" },
         { status: 403 },
       );
     }
