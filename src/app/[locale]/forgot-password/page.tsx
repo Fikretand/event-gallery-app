@@ -30,7 +30,7 @@ export default async function ForgotPasswordPage({
           <div className="overflow-hidden rounded-[28px] border border-black/10 bg-white/75 shadow-[0_24px_80px_rgba(18,24,38,0.08)]">
             <Image
               src="/confetti-hero.svg"
-              alt="Confetti recovery illustration"
+              alt=""
               width={920}
               height={760}
               className="h-auto w-full"
@@ -45,7 +45,7 @@ export default async function ForgotPasswordPage({
             .
           </p>
         </div>
-        <ForgotPasswordForm action={requestPasswordResetAction} />
+        <ForgotPasswordForm action={requestPasswordResetAction} strings={d} />
       </section>
     </main>
   );

@@ -304,7 +304,7 @@ export function WideScene() {
             display: "flex", flexDirection: "column", alignItems: "center", gap: 18,
             border: `1px solid ${CFI.rule}`,
           }}>
-            <Kicker color={CFI.moss}>Skeniraj da dodaš fotke</Kicker>
+            <Kicker color={CFI.moss}>Skeniraj da dodaš fotografije</Kicker>
             <QRPlate size={280} seed={42} />
             <div style={{
               fontFamily: CFI.mono,
@@ -376,7 +376,7 @@ export function UploadScene() {
         <div style={{ fontFamily: CFI.display, fontSize: 17, color: CFI.ink, fontWeight: 600 }}>Lejla &amp; Amar</div>
       </div>
       <div style={{ padding: "4px 18px 14px", fontFamily: CFI.sans, fontSize: 11, color: CFI.inkSoft }}>
-        Dodaj svoje fotke · bez registracije
+        Dodaj svoje fotografije · bez registracije
       </div>
 
       <div style={{

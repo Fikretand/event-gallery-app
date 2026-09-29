@@ -26,6 +26,7 @@ type AuthStrings = Pick<
   | "formNamePlaceholderCouple"
   | "formNamePlaceholderPhotographer"
   | "formEmail"
+  | "formEmailPlaceholder"
   | "formPassword"
   | "formPasswordPlaceholder"
   | "formPasswordRule"
@@ -50,6 +51,7 @@ const EN_STRINGS: AuthStrings = {
   formNamePlaceholderCouple: "Amina & Ajdin",
   formNamePlaceholderPhotographer: "Studio or personal name",
   formEmail: "Email",
+  formEmailPlaceholder: "you@example.com",
   formPassword: "Password",
   formPasswordPlaceholder: "At least 8 characters",
   formPasswordRule:
@@ -152,7 +154,7 @@ export function AuthForm({
             required
           />
         ) : null}
-        <Input label={s.formEmail} name="email" type="email" placeholder="you@example.com" required />
+        <Input label={s.formEmail} name="email" type="email" placeholder={s.formEmailPlaceholder} required />
         <Input
           label={s.formPassword}
           name="password"

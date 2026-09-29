@@ -366,7 +366,7 @@ export function WideScene() {
             letterSpacing: '0.28em',
             textTransform: 'uppercase',
             color: CFI.moss
-          }}>Skeniraj da dodaš fotke</div>
+          }}>Skeniraj da dodaš fotografije</div>
             <QRPlate size={620} seed={42} />
             <div style={{
             fontFamily: CFI.mono,
@@ -717,7 +717,7 @@ export function UploadScene() {
       <div style={{
       padding: '4px 18px 14px',
       fontFamily: CFI.sans, fontSize: 11, color: CFI.inkSoft
-    }}>Dodaj svoje fotke · bez registracije</div>
+    }}>Dodaj svoje fotografije · bez registracije</div>
 
       <div style={{
       flex: 1,

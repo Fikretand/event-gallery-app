@@ -144,7 +144,7 @@ function renderMinimalCream(data: PosterData): string {
   </text>
   <text x="620" y="1340" text-anchor="middle"
         font-family="Playfair Display" font-style="italic" font-size="42" fill="${C.accent}">
-    svoje fotke sa današnjeg dana.
+    svoje fotografije s današnjeg dana.
   </text>
 
   <!-- Bottom URL -->

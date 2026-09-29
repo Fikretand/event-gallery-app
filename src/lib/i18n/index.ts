@@ -204,6 +204,15 @@ export interface Dict {
     formNamePlaceholderCouple: string;
     formNamePlaceholderPhotographer: string;
     formEmail: string;
+    formEmailPlaceholder: string;
+    forgotForm: {
+      eyebrow: string;
+      title: string;
+      submit: string;
+      sending: string;
+      sent: string;
+      rateLimited: string;
+    };
     formPassword: string;
     formPasswordPlaceholder: string;
     /** Shown under the password field, and when the server rejects a weak one. */

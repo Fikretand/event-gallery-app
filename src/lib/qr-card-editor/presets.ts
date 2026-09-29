@@ -194,7 +194,7 @@ const ARCH_PLATE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300
 </svg>`;
 
 // Default body copy — the one paragraph each direction shares.
-const BODY_COPY = "Pomozi nam da zabilježimo svaki trenutak. Skeniraj QR kod i pošalji svoje fotke i video snimke sa našeg posebnog dana — voljeli bismo da vidimo vjenčanje vašim očima.";
+const BODY_COPY = "Pomozi nam da zabilježimo svaki trenutak. Skeniraj QR kod i pošalji svoje fotografije i video snimke sa našeg posebnog dana — voljeli bismo da vidimo vjenčanje vašim očima.";
 const H1_COPY = "Podijeli svoje uspomene";
 const TAGLINE_COPY = "Hvala što ste dio naše priče";
 

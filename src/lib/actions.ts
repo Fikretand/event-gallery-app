@@ -16,6 +16,8 @@ import {
   PASSWORD_MISMATCH,
   PASSWORD_UPDATED,
   passwordMeetsPolicy,
+  RESET_LINK_SENT,
+  RESET_RATE_LIMITED,
   RESET_SESSION_EXPIRED,
   SAME_PASSWORD,
   WEAK_PASSWORD,
@@ -126,12 +128,14 @@ export async function requestPasswordResetAction(
   });
 
   if (error) {
+    // Codes, not English, so the form can answer in the reader's language.
+    if (error.code === "over_email_send_rate_limit" || error.status === 429) {
+      return { error: RESET_RATE_LIMITED };
+    }
     return { error: error.message };
   }
 
-  return {
-    success: "Password reset link sent. Check your email for the recovery link.",
-  };
+  return { success: RESET_LINK_SENT };
 }
 
 export async function resetPasswordAction(
