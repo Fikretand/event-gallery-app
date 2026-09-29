@@ -1,37 +1,15 @@
-import { notFound } from "next/navigation";
-import QRCode from "qrcode";
+import { redirectIfPreferredLocale } from "@/lib/i18n/preference";
+import { QrCardEditorPage } from "./QrCardEditorPage";
 
-import { QrCardEditor } from "@/components/qr-card-editor";
-import { getRequiredUser } from "@/lib/auth";
-import { hasSupabase } from "@/lib/env";
-import { eventLinks, getOwnerEventBySlug } from "@/lib/events";
-import { formatDate } from "@/lib/utils";
-
-export default async function QrCardEditorPage({
+export default async function QrCardEditorRoute({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ template?: string }>;
 }) {
   const { slug } = await params;
-  if (!hasSupabase) notFound();
-
-  const { user } = await getRequiredUser();
-  const event = await getOwnerEventBySlug(user.id, slug);
-  if (!event) notFound();
-
-  const qrDataUrl = await QRCode.toDataURL(eventLinks(slug).uploadUrl, {
-    width: 1200,
-    margin: 1,
-    color: { dark: "#172033", light: "#fffaf2" },
-  });
-
-  return (
-    <QrCardEditor
-      slug={event.slug}
-      eventTitle={event.title || "Confetti"}
-      eventDate={event.event_date ? formatDate(event.event_date) : null}
-      qrDataUrl={qrDataUrl}
-      backHref={`/dashboard/events/${event.slug}`}
-    />
-  );
+  const { template } = await searchParams;
+  await redirectIfPreferredLocale(`/events/${slug}/qr-card-editor${template ? `?template=${encodeURIComponent(template)}` : ""}`);
+  return <QrCardEditorPage locale="en" slug={slug} template={template} />;
 }

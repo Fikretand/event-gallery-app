@@ -1,56 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
+import type { Dict } from "@/lib/i18n/index";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, CARD_PRESETS, type CardPreset } from "@/lib/qr-card-editor/presets";
 import {
-  CANVAS_HEIGHT,
-  CANVAS_WIDTH,
-  CARD_PRESETS,
-  type CardPreset,
-  type PresetObject,
-} from "@/lib/qr-card-editor/presets";
-
-// Fabric.js is heavy + window-only → loaded dynamically inside an effect.
-// We keep the module reference at component scope after the first load.
-type FabricNs = typeof import("fabric");
-type FO = import("fabric").FabricObject;
-let fabricModulePromise: Promise<FabricNs> | null = null;
-function loadFabric(): Promise<FabricNs> {
-  if (!fabricModulePromise) fabricModulePromise = import("fabric");
-  return fabricModulePromise;
-}
-
-// Load the brand TTFs from /public so canvas text renders with Playfair / Inter
-// / JetBrains Mono. We resolve once per browser session.
-let fontsReadyPromise: Promise<void> | null = null;
-function loadBrandFonts(): Promise<void> {
-  if (fontsReadyPromise) return fontsReadyPromise;
-  const defs: Array<[string, string, FontFaceDescriptors]> = [
-    ["Playfair Display", "/fonts/poster/playfair-italic-latin.ttf", { style: "italic", weight: "500 600" }],
-    ["Playfair Display", "/fonts/poster/playfair-italic-ext.ttf", { style: "italic", weight: "500 600" }],
-    ["Playfair Display", "/fonts/poster/playfair-bold-latin.ttf", { style: "normal", weight: "500 700" }],
-    ["Playfair Display", "/fonts/poster/playfair-bold-ext.ttf", { style: "normal", weight: "500 700" }],
-    ["Inter", "/fonts/poster/inter-latin.ttf", { style: "normal", weight: "500" }],
-    ["Inter", "/fonts/poster/inter-ext.ttf", { style: "normal", weight: "500" }],
-    ["JetBrains Mono", "/fonts/poster/jetbrains-mono-latin.ttf", { style: "normal", weight: "500" }],
-    ["JetBrains Mono", "/fonts/poster/jetbrains-mono-ext.ttf", { style: "normal", weight: "500" }],
-    ["Jost", "/fonts/poster/jost-latin-300.woff2", { style: "normal", weight: "300" }],
-    ["Jost", "/fonts/poster/jost-latin-ext-300.woff2", { style: "normal", weight: "300" }],
-    ["Jost", "/fonts/poster/jost-latin-400.woff2", { style: "normal", weight: "400" }],
-    ["Jost", "/fonts/poster/jost-latin-ext-400.woff2", { style: "normal", weight: "400" }],
-    ["Jost", "/fonts/poster/jost-latin-500.woff2", { style: "normal", weight: "500" }],
-    ["Jost", "/fonts/poster/jost-latin-ext-500.woff2", { style: "normal", weight: "500" }],
-  ];
-  fontsReadyPromise = Promise.all(
-    defs.map(async ([family, url, descriptors]) => {
-      const face = new FontFace(family, `url(${url})`, descriptors);
-      await face.load();
-      document.fonts.add(face);
-    }),
-  ).then(() => undefined);
-  return fontsReadyPromise;
-}
+  buildPresetObject,
+  clearDraft,
+  downloadCardPdf,
+  loadBrandFonts,
+  loadFabric,
+  readDraft,
+  renderCardImage,
+  triggerDownload,
+  writeDraft,
+  type CardContext,
+  type FabricNs,
+  type FO,
+} from "@/lib/qr-card-editor/render";
 
 const PRESET_COLORS = [
   "#172033", "#3a4258", "#e27952", "#38584d", "#f0c25c",
@@ -65,45 +33,22 @@ const HISTORY_LIMIT = 60;
 // lives inside it as a base64 data URL. Sixty snapshots taken after a 3 MB
 // photo upload would retain hundreds of MB, so bound the stack by bytes too.
 const HISTORY_MAX_BYTES = 24_000_000;
-// localStorage gives us ~5 MB; stay well under it rather than throwing on
-// every keystroke once a big image is on the canvas.
-const DRAFT_MAX_BYTES = 3_000_000;
 
-// ── Draft persistence (localStorage, keyed by event slug) ────────────────────
-type DraftShape = { presetId: string; canvas: unknown };
-function draftKey(slug: string) {
-  return `confetti-qr-draft-${slug}`;
-}
-function readDraft(slug: string): DraftShape | null {
-  try {
-    const raw = window.localStorage.getItem(draftKey(slug));
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as DraftShape;
-    return parsed?.canvas ? parsed : null;
-  } catch {
-    return null;
-  }
-}
-/** Returns whether the draft actually reached storage. */
-function writeDraft(slug: string, draft: DraftShape): boolean {
-  try {
-    const payload = JSON.stringify(draft);
-    // Oversized canvases (a big uploaded image) would throw on every save.
-    if (payload.length > DRAFT_MAX_BYTES) return false;
-    window.localStorage.setItem(draftKey(slug), payload);
-    return true;
-  } catch {
-    // Quota exceeded / private mode — drafts are best-effort.
-    return false;
-  }
-}
-function clearDraft(slug: string) {
-  try {
-    window.localStorage.removeItem(draftKey(slug));
-  } catch {
-    /* ignore */
-  }
-}
+type Strings = Dict["dashboard"]["qrCard"]["editor"];
+
+type Selected = {
+  type: string;
+  fill?: string;
+  fontSize?: number;
+  fontFamily?: string;
+  fontStyle?: string;
+  fontWeight?: number | string;
+  text?: string;
+  textAlign?: string;
+};
+
+/** One tool at a time on a phone, in a strip under the card — never over it. */
+type Tool = "templates" | "shapes" | "text" | "color" | "font" | "size" | "align" | "layer";
 
 export interface QrCardEditorProps {
   slug: string;
@@ -111,6 +56,13 @@ export interface QrCardEditorProps {
   eventDate: string | null;
   qrDataUrl: string;
   backHref: string;
+  strings: Strings;
+  /** Open with this template instead of the saved draft (chosen on the QR page). */
+  initialTemplateId?: string;
+}
+
+function isTextbox(selected: Selected | null) {
+  return selected?.type === "textbox";
 }
 
 export function QrCardEditor({
@@ -119,181 +71,90 @@ export function QrCardEditor({
   eventDate,
   qrDataUrl,
   backHref,
+  strings: s,
+  initialTemplateId,
 }: QrCardEditorProps) {
   const canvasElRef = useRef<HTMLCanvasElement>(null);
   const fabricRef = useRef<import("fabric").Canvas | null>(null);
   const fabricNsRef = useRef<FabricNs | null>(null);
-
   const stageRef = useRef<HTMLDivElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+
   const [status, setStatus] = useState<"loading" | "ready">("loading");
   const [activePresetId, setActivePresetId] = useState<string>(CARD_PRESETS[0].id);
   const activePresetIdRef = useRef<string>(CARD_PRESETS[0].id);
-  const [selected, setSelected] = useState<{
-    type: string;
-    fill?: string;
-    fontSize?: number;
-    fontFamily?: string;
-    fontStyle?: string;
-    fontWeight?: number | string;
-  } | null>(null);
+  const [selected, setSelected] = useState<Selected | null>(null);
   const [busy, setBusy] = useState<"png" | "pdf" | null>(null);
+  const [exportError, setExportError] = useState(false);
+  const [downloadOpen, setDownloadOpen] = useState(false);
   const [hasDraft, setHasDraft] = useState(false);
   const [hist, setHist] = useState({ canUndo: false, canRedo: false });
-  const [mobileSheet, setMobileSheet] = useState<null | "templates" | "add" | "props">(null);
+  const [tool, setTool] = useState<Tool | null>(null);
+  const [thumbs, setThumbs] = useState<Record<string, string>>({});
 
   // History + guide + autosave scratch state (refs so handlers stay stable).
   const historyRef = useRef<{ stack: string[]; index: number }>({ stack: [], index: -1 });
   const suspendHistoryRef = useRef(true); // suspended until the first paint settles
   const guidesRef = useRef<{ v: number[]; h: number[] }>({ v: [], h: [] });
   const saveTimerRef = useRef<number | null>(null);
+  const textCommitTimerRef = useRef<number | null>(null);
+  // CSS px per design px. The backing store is the full 1240×1754 design, shown
+  // shrunk, so anything Fabric draws in design px — handles included — shrinks
+  // with it. On a phone that made the handles about 3 px wide.
+  const displayScaleRef = useRef(1);
+
+  // The event's name, date and QR code; fixed for the life of the editor.
+  const ctxRef = useRef<CardContext>({ title: eventTitle, date: eventDate, qrDataUrl });
 
   function applyPresetId(id: string) {
     activePresetIdRef.current = id;
     setActivePresetId(id);
   }
 
-  // Substitute {{title}}/{{date}} placeholders for the actual event values.
-  const fillPlaceholders = useCallback(
-    (raw: string) =>
-      raw
-        .replace(/\{\{title\}\}/g, eventTitle || "Confetti")
-        .replace(/\{\{date\}\}/g, eventDate || ""),
-    [eventTitle, eventDate],
-  );
+  // ── Handles sized for the screen, not the print ────────────────────────────
+  const styleControls = useCallback((obj: FO) => {
+    const scale = displayScaleRef.current || 1;
+    const coarse = typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
+    obj.set({
+      cornerSize: (coarse ? 15 : 11) / scale,
+      touchCornerSize: 44 / scale,
+      padding: (coarse ? 8 : 4) / scale,
+      borderScaleFactor: 1.5 / scale,
+      transparentCorners: false,
+      cornerStyle: "circle",
+      cornerColor: "#ffffff",
+      cornerStrokeColor: "#e27952",
+      borderColor: "#e27952",
+    });
+    const rotate = (obj as unknown as { controls?: Record<string, { offsetY?: number }> }).controls?.mtr;
+    if (rotate) rotate.offsetY = -(coarse ? 36 : 28) / scale;
+    // On a phone, text is changed in the text tool; tapping into the canvas
+    // text would pop the keyboard and shove the whole layout around.
+    if (obj.type === "textbox") (obj as unknown as { editable: boolean }).editable = !coarse;
+  }, []);
 
-  // Render a single preset object into a Fabric object instance.
-  const buildObject = useCallback(
-    async (fabric: FabricNs, obj: PresetObject): Promise<FO | null> => {
-      switch (obj.kind) {
-        case "rect":
-          return new fabric.Rect({
-            left: obj.left,
-            top: obj.top,
-            width: obj.width,
-            height: obj.height,
-            fill: obj.fill,
-            rx: obj.rx ?? 0,
-            ry: obj.rx ?? 0,
-            strokeWidth: 0,
-            // Fabric v7 defaults origin to center; presets author left/top as
-            // the object's top-left edge, so anchor there explicitly.
-            originX: "left",
-            originY: "top",
-            selectable: true,
-            hasControls: true,
-          });
-        case "line":
-          return new fabric.Rect({
-            left: obj.left,
-            top: obj.top,
-            width: obj.width,
-            height: obj.strokeWidth,
-            fill: obj.stroke,
-            strokeWidth: 0,
-            originX: "left",
-            originY: "top",
-            selectable: true,
-            hasControls: true,
-          });
-        case "text": {
-          // Presets place text by the box's top-left edge, but Fabric v7
-          // defaults origin to center on both axes. Recompute the horizontal
-          // anchor from the alignment and pin originY to the top so the box
-          // lands exactly where the preset's left/top/width intend.
-          const align = obj.textAlign ?? "left";
-          let leftPos = obj.left;
-          let originX: "left" | "center" | "right" = "left";
-          if (align === "center") {
-            leftPos = obj.left + obj.width / 2;
-            originX = "center";
-          } else if (align === "right") {
-            leftPos = obj.left + obj.width;
-            originX = "right";
-          }
-          return new fabric.Textbox(fillPlaceholders(obj.text), {
-            left: leftPos,
-            top: obj.top,
-            width: obj.width,
-            originX,
-            originY: "top",
-            fontFamily: obj.fontFamily,
-            fontSize: obj.fontSize,
-            fontStyle: obj.fontStyle ?? "normal",
-            fontWeight: obj.fontWeight ?? "normal",
-            fill: obj.fill,
-            textAlign: align,
-            charSpacing: obj.charSpacing ?? 0,
-            editable: true,
-            selectable: true,
-            hasControls: true,
-          });
-        }
-        case "qr-slot": {
-          const img = await fabric.FabricImage.fromURL(qrDataUrl, { crossOrigin: "anonymous" });
-          img.set({
-            left: obj.left,
-            top: obj.top,
-            scaleX: obj.size / (img.width ?? obj.size),
-            scaleY: obj.size / (img.height ?? obj.size),
-            originX: "left",
-            originY: "top",
-            selectable: true,
-            hasControls: true,
-          });
-          return img;
-        }
-        case "svg": {
-          // Parse the inline SVG markup into a Fabric group so users can move
-          // and scale the decoration as one unit but still drop it like any
-          // other object onto the canvas.
-          const result = await fabric.loadSVGFromString(obj.svg);
-          const group = fabric.util.groupSVGElements(
-            result.objects.filter((o): o is FO => o !== null),
-            result.options,
-          );
-          const naturalW = group.width ?? obj.width;
-          const naturalH = group.height ?? obj.height;
-          group.set({
-            left: obj.left,
-            top: obj.top,
-            scaleX: obj.width / naturalW,
-            scaleY: obj.height / naturalH,
-            opacity: obj.opacity ?? 1,
-            // groupSVGElements returns a center-origin group; presets place it
-            // by its top-left edge, so re-anchor before positioning.
-            originX: "left",
-            originY: "top",
-            selectable: true,
-            hasControls: true,
-          });
-          return group;
-        }
-      }
-    },
-    [fillPlaceholders, qrDataUrl],
-  );
+  const styleAll = useCallback(() => {
+    fabricRef.current?.getObjects().forEach(styleControls);
+    fabricRef.current?.requestRenderAll();
+  }, [styleControls]);
 
-  const loadPreset = useCallback(
-    async (preset: CardPreset) => {
-      const canvas = fabricRef.current;
-      const fabric = fabricNsRef.current;
-      if (!canvas || !fabric) return;
+  const loadPreset = useCallback(async (preset: CardPreset) => {
+    const canvas = fabricRef.current;
+    const fabric = fabricNsRef.current;
+    if (!canvas || !fabric) return;
 
-      // Building a preset fires many object:added events — keep them out of the
-      // undo history; the caller lays down a single baseline snapshot after.
-      suspendHistoryRef.current = true;
-      canvas.clear();
-      canvas.backgroundColor = preset.background;
-
-      for (const obj of preset.objects) {
-        const fabricObj = await buildObject(fabric, obj);
-        if (fabricObj) canvas.add(fabricObj);
-      }
-      canvas.renderAll();
-      suspendHistoryRef.current = false;
-    },
-    [buildObject],
-  );
+    // Building a preset fires many object:added events — keep them out of the
+    // undo history; the caller lays down a single baseline snapshot after.
+    suspendHistoryRef.current = true;
+    canvas.clear();
+    canvas.backgroundColor = preset.background;
+    for (const obj of preset.objects) {
+      const built = await buildPresetObject(fabric, obj, ctxRef.current);
+      if (built) canvas.add(built);
+    }
+    canvas.renderAll();
+    suspendHistoryRef.current = false;
+  }, []);
 
   // ── Autosave + history helpers ─────────────────────────────────────────────
   const scheduleSave = useCallback(() => {
@@ -302,10 +163,8 @@ export function QrCardEditor({
       const canvas = fabricRef.current;
       if (!canvas) return;
       const saved = writeDraft(slug, { presetId: activePresetIdRef.current, canvas: canvas.toJSON() });
-      // Only claim a draft exists when one really does — otherwise the "Reset
-      // to template" affordance would promise work that a reload will lose.
-      // A failed save leaves any previously stored draft intact, so never
-      // flip this back to false here.
+      // Only claim a draft exists when one really does. A failed save leaves
+      // any previously stored draft intact, so never flip this back to false.
       if (saved) setHasDraft(true);
     }, 500);
   }, [slug]);
@@ -373,10 +232,8 @@ export function QrCardEditor({
   const snapObject = useCallback((target: FO) => {
     const cx = CANVAS_WIDTH / 2;
     const cy = CANVAS_HEIGHT / 2;
-    // getCenterPoint() computes the live centre from the object's current
-    // position on every drag tick — unlike getBoundingRect(), whose cached box
-    // can lag and made vertical snapping effectively never fire (objects that
-    // start horizontally centred masked it as "only horizontal snap works").
+    // getCenterPoint() computes the live centre on every drag tick — unlike
+    // getBoundingRect(), whose cached box can lag.
     const c = target.getCenterPoint();
     const v: number[] = [];
     const h: number[] = [];
@@ -395,32 +252,30 @@ export function QrCardEditor({
   const drawGuides = useCallback(() => {
     const canvas = fabricRef.current;
     if (!canvas) return;
-    // Draw on the main (lower) context inside after:render: it is cleared and
-    // repainted every frame, so guides can never get stuck, and they are never
-    // Fabric objects (so they stay out of history + export). With zoom 1 and a
-    // 1240px backing store the context transform is identity, so design
-    // coordinates map straight to pixels.
-    const ctx = (canvas as unknown as { contextContainer?: CanvasRenderingContext2D }).contextContainer;
-    if (!ctx) return;
+    // Drawn on the main context inside after:render, so guides are repainted
+    // every frame, never stick, and never become objects (history, export).
+    const context = (canvas as unknown as { contextContainer?: CanvasRenderingContext2D }).contextContainer;
+    if (!context) return;
     const { v, h } = guidesRef.current;
     if (!v.length && !h.length) return;
-    ctx.save();
-    ctx.strokeStyle = "#e27952";
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([7, 5]);
+    const scale = displayScaleRef.current || 1;
+    context.save();
+    context.strokeStyle = "#e27952";
+    context.lineWidth = 1.5 / scale;
+    context.setLineDash([7 / scale, 5 / scale]);
     v.forEach((x) => {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, CANVAS_HEIGHT);
-      ctx.stroke();
+      context.beginPath();
+      context.moveTo(x, 0);
+      context.lineTo(x, CANVAS_HEIGHT);
+      context.stroke();
     });
     h.forEach((y) => {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(CANVAS_WIDTH, y);
-      ctx.stroke();
+      context.beginPath();
+      context.moveTo(0, y);
+      context.lineTo(CANVAS_WIDTH, y);
+      context.stroke();
     });
-    ctx.restore();
+    context.restore();
   }, []);
 
   const clearGuides = useCallback(() => {
@@ -446,21 +301,16 @@ export function QrCardEditor({
         backgroundColor: "#fffaf2",
         preserveObjectStacking: true,
         // We supersample manually (full-design-resolution backing store scaled
-        // down via CSS in fitToStage), so let Fabric keep the backing store at
-        // exactly the size we ask for instead of also multiplying by dpr.
+        // down via CSS in fitToStage), so keep the backing store at exactly
+        // the size we ask for instead of also multiplying by dpr.
         enableRetinaScaling: false,
+        // A finger on the card should drag the object, not scroll the page.
+        allowTouchScrolling: false,
       });
       fabricRef.current = canvas;
 
       const updateSelection = () => {
-        const active = canvas?.getActiveObject() as
-          | (FO & {
-              fontSize?: number;
-              fontFamily?: string;
-              fontStyle?: string;
-              fontWeight?: number | string;
-            })
-          | undefined;
+        const active = canvas?.getActiveObject() as (FO & Selected) | undefined;
         if (!active) {
           setSelected(null);
           return;
@@ -472,15 +322,22 @@ export function QrCardEditor({
           fontFamily: active.fontFamily,
           fontStyle: active.fontStyle,
           fontWeight: active.fontWeight,
+          text: (active as { text?: string }).text,
+          textAlign: (active as { textAlign?: string }).textAlign,
         });
       };
       canvas.on("selection:created", updateSelection);
       canvas.on("selection:updated", updateSelection);
       canvas.on("selection:cleared", () => setSelected(null));
 
-      // History triggers — a completed move/resize, or an add/remove.
+      // History triggers — a completed move/resize, or an add/remove. Every
+      // added object (preset, undo, draft) also gets screen-sized handles.
+      canvas.on("object:added", (e) => {
+        const t = (e as { target?: FO }).target;
+        if (t) styleControls(t);
+        recordHistory();
+      });
       canvas.on("object:modified", recordHistory);
-      canvas.on("object:added", recordHistory);
       canvas.on("object:removed", recordHistory);
 
       // Centre snapping + guide overlay.
@@ -491,13 +348,12 @@ export function QrCardEditor({
       canvas.on("mouse:up", clearGuides);
       canvas.on("after:render", drawGuides);
 
-      // ── Display sizing — keep the backing store at full design resolution
-      // and only shrink the CSS box to fit the stage. The browser downscales a
-      // high-res raster, so text and the QR stay crisp on every DPR.
+      // Keep the backing store at full design resolution and only shrink the
+      // CSS box to fit the stage, so text and the QR stay crisp on every DPR.
       const fitToStage = () => {
         if (!canvas || !stageRef.current) return;
         const stage = stageRef.current.getBoundingClientRect();
-        const margin = 32;
+        const margin = stage.width < 640 ? 20 : 40;
         const availW = Math.max(160, stage.width - margin);
         const availH = Math.max(160, stage.height - margin);
         const aspect = CANVAS_WIDTH / CANVAS_HEIGHT;
@@ -513,12 +369,17 @@ export function QrCardEditor({
           { cssOnly: true },
         );
         canvas.setZoom(1);
-        canvas.requestRenderAll();
+        displayScaleRef.current = displayW / CANVAS_WIDTH;
+        styleAll();
       };
 
-      // Restore a saved draft if present, otherwise paint the first preset.
-      const draft = readDraft(slug);
-      if (draft?.canvas) {
+      // A template chosen on the QR page wins; then a saved draft; then the first preset.
+      const chosen = CARD_PRESETS.find((p) => p.id === initialTemplateId);
+      const draft = chosen ? null : readDraft(slug);
+      if (chosen) {
+        applyPresetId(chosen.id);
+        await loadPreset(chosen);
+      } else if (draft?.canvas) {
         applyPresetId(draft.presetId ?? CARD_PRESETS[0].id);
         suspendHistoryRef.current = true;
         await canvas.loadFromJSON(draft.canvas as Parameters<typeof canvas.loadFromJSON>[0]);
@@ -529,18 +390,30 @@ export function QrCardEditor({
       }
       fitToStage();
       pushBaseline();
+      if (chosen) scheduleSave();
 
       const ro = new ResizeObserver(fitToStage);
       if (stageRef.current) ro.observe(stageRef.current);
-      // Hold the observer on the canvas so the cleanup below can stop it.
       (canvas as unknown as { __ro?: ResizeObserver }).__ro = ro;
 
       setStatus("ready");
+
+      // Template thumbnails, one at a time after the editor is usable.
+      for (const preset of CARD_PRESETS) {
+        if (cancelled) return;
+        try {
+          const url = await renderCardImage({ preset }, ctxRef.current, 0.16);
+          if (!cancelled) setThumbs((current) => ({ ...current, [preset.id]: url }));
+        } catch {
+          // A missing thumbnail leaves the name; the template still works.
+        }
+      }
     })();
 
     return () => {
       cancelled = true;
       if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current);
+      if (textCommitTimerRef.current) window.clearTimeout(textCommitTimerRef.current);
       (canvas as unknown as { __ro?: ResizeObserver })?.__ro?.disconnect();
       canvas?.dispose();
       fabricRef.current = null;
@@ -548,15 +421,22 @@ export function QrCardEditor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // A property tool with nothing selected has nothing to act on.
+  useEffect(() => {
+    if (!selected && tool && tool !== "templates" && tool !== "shapes") setTool(null);
+  }, [selected, tool]);
+
   // ── Keyboard shortcuts — Delete/Backspace remove, Esc deselect, ⌘/Ctrl+D
   //    duplicate, ⌘/Ctrl+Z undo, ⌘/Ctrl+Shift+Z (or Ctrl+Y) redo. Guarded so
-  //    keystrokes while editing a textbox pass through. ──
+  //    keystrokes while editing text pass through. ──
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       const canvas = fabricRef.current;
       if (!canvas) return;
       const active = canvas.getActiveObject() as (FO & { isEditing?: boolean }) | null;
       if (active?.isEditing) return;
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === "TEXTAREA" || target.tagName === "INPUT" || target.tagName === "SELECT")) return;
 
       const mod = e.metaKey || e.ctrlKey;
       if (mod && (e.key === "z" || e.key === "Z")) {
@@ -583,7 +463,11 @@ export function QrCardEditor({
     return () => window.removeEventListener("keydown", onKey);
   }, [undo, redo]);
 
-  // ── Toolbar actions ────────────────────────────────────────────────────────
+  // ── Actions ─────────────────────────────────────────────────────────────────
+  function activeObject() {
+    return fabricRef.current?.getActiveObject() as (FO & { set: (p: Record<string, unknown>) => void }) | undefined;
+  }
+
   async function switchPreset(id: string) {
     const preset = CARD_PRESETS.find((p) => p.id === id);
     if (!preset) return;
@@ -606,21 +490,21 @@ export function QrCardEditor({
     const canvas = fabricRef.current;
     if (!fabric || !canvas) return;
     await loadBrandFonts();
-    const tb = new fabric.Textbox("Tvoj tekst", {
-      left: CANVAS_WIDTH / 2 - 200,
-      top: CANVAS_HEIGHT / 2,
-      width: 400,
+    const tb = new fabric.Textbox(s.newText, {
+      left: CANVAS_WIDTH / 2 - 300,
+      top: CANVAS_HEIGHT / 2 - 40,
+      width: 600,
       originX: "left",
       originY: "top",
       fontFamily: "Inter",
-      fontSize: 48,
+      fontSize: 64,
       fill: "#172033",
       textAlign: "center",
-      editable: true,
     });
     canvas.add(tb);
     canvas.setActiveObject(tb);
     canvas.renderAll();
+    setTool("text");
   }
 
   /**
@@ -633,23 +517,11 @@ export function QrCardEditor({
     const canvas = fabricRef.current;
     if (!fabric || !canvas) return;
 
-    const common = {
-      fill: "#172033",
-      originX: "left" as const,
-      originY: "top" as const,
-      selectable: true,
-      hasControls: true,
-    };
-
+    const common = { fill: "#172033", originX: "left" as const, originY: "top" as const };
     let shape: import("fabric").FabricObject;
     if (kind === "circle") {
       const radius = 140;
-      shape = new fabric.Circle({
-        ...common,
-        radius,
-        left: CANVAS_WIDTH / 2 - radius,
-        top: CANVAS_HEIGHT / 2 - radius,
-      });
+      shape = new fabric.Circle({ ...common, radius, left: CANVAS_WIDTH / 2 - radius, top: CANVAS_HEIGHT / 2 - radius });
     } else if (kind === "line") {
       const width = 480;
       const height = 6;
@@ -675,10 +547,10 @@ export function QrCardEditor({
         strokeWidth: 0,
       });
     }
-
     canvas.add(shape);
     canvas.setActiveObject(shape);
     canvas.requestRenderAll();
+    setTool("color");
   }
 
   async function addImageFromFile(file: File) {
@@ -692,7 +564,7 @@ export function QrCardEditor({
       reader.readAsDataURL(file);
     });
     const img = await fabric.FabricImage.fromURL(dataUrl);
-    const scale = Math.min(CANVAS_WIDTH * 0.7 / (img.width ?? 1), CANVAS_HEIGHT * 0.5 / (img.height ?? 1));
+    const scale = Math.min((CANVAS_WIDTH * 0.7) / (img.width ?? 1), (CANVAS_HEIGHT * 0.5) / (img.height ?? 1));
     img.set({
       left: CANVAS_WIDTH / 2 - ((img.width ?? 0) * scale) / 2,
       top: CANVAS_HEIGHT / 2 - ((img.height ?? 0) * scale) / 2,
@@ -704,6 +576,7 @@ export function QrCardEditor({
     canvas.add(img);
     canvas.setActiveObject(img);
     canvas.renderAll();
+    setTool(null);
   }
 
   function deleteSelected() {
@@ -726,6 +599,25 @@ export function QrCardEditor({
     canvas.requestRenderAll();
   }
 
+  function deselect() {
+    recordHistory(); // no-op unless a live edit (text, size) is still uncommitted
+    const canvas = fabricRef.current;
+    canvas?.discardActiveObject();
+    canvas?.requestRenderAll();
+    setTool(null);
+  }
+
+  function centerHorizontally() {
+    const canvas = fabricRef.current;
+    const active = activeObject();
+    if (!canvas || !active) return;
+    const c = active.getCenterPoint();
+    active.set({ left: (active.left ?? 0) + (CANVAS_WIDTH / 2 - c.x) });
+    active.setCoords();
+    canvas.requestRenderAll();
+    recordHistory();
+  }
+
   function bringForward() {
     const canvas = fabricRef.current;
     const active = canvas?.getActiveObject();
@@ -746,68 +638,32 @@ export function QrCardEditor({
     }
   }
 
-  function setFill(color: string) {
+  /** Set one property on the selection; `commit` false while a slider or field is still moving. */
+  function setProp(props: Record<string, unknown>, patch: Partial<Selected>, commit = true) {
     const canvas = fabricRef.current;
-    const active = canvas?.getActiveObject();
+    const active = activeObject();
     if (!canvas || !active) return;
-    active.set({ fill: color });
-    canvas.renderAll();
-    setSelected((prev) => (prev ? { ...prev, fill: color } : prev));
-    recordHistory();
-  }
-
-  function setFontSize(size: number) {
-    const canvas = fabricRef.current;
-    const active = canvas?.getActiveObject();
-    if (!canvas || !active) return;
-    (active as { set: (props: Record<string, unknown>) => void }).set({ fontSize: size });
-    canvas.renderAll();
-    setSelected((prev) => (prev ? { ...prev, fontSize: size } : prev));
-  }
-
-  function setFontFamily(family: string) {
-    const canvas = fabricRef.current;
-    const active = canvas?.getActiveObject();
-    if (!canvas || !active) return;
-    (active as { set: (props: Record<string, unknown>) => void }).set({ fontFamily: family });
-    canvas.renderAll();
-    setSelected((prev) => (prev ? { ...prev, fontFamily: family } : prev));
-    recordHistory();
+    active.set(props);
+    active.setCoords();
+    canvas.requestRenderAll();
+    setSelected((prev) => (prev ? { ...prev, ...patch } : prev));
+    if (commit) recordHistory();
   }
 
   function toggleItalic() {
-    const canvas = fabricRef.current;
-    const active = canvas?.getActiveObject();
-    if (!canvas || !active) return;
-    const current = (active as { fontStyle?: string }).fontStyle ?? "normal";
-    const next = current === "italic" ? "normal" : "italic";
-    (active as { set: (props: Record<string, unknown>) => void }).set({ fontStyle: next });
-    canvas.renderAll();
-    setSelected((prev) => (prev ? { ...prev, fontStyle: next } : prev));
-    recordHistory();
+    const next = selected?.fontStyle === "italic" ? "normal" : "italic";
+    setProp({ fontStyle: next }, { fontStyle: next });
   }
 
   function toggleBold() {
-    const canvas = fabricRef.current;
-    const active = canvas?.getActiveObject();
-    if (!canvas || !active) return;
-    const current = (active as { fontWeight?: number | string }).fontWeight ?? "normal";
+    const current = selected?.fontWeight ?? "normal";
     const isBold = current === "bold" || Number(current) >= 600;
     const next = isBold ? "normal" : "bold";
-    (active as { set: (props: Record<string, unknown>) => void }).set({ fontWeight: next });
-    canvas.renderAll();
-    setSelected((prev) => (prev ? { ...prev, fontWeight: next } : prev));
-    recordHistory();
+    setProp({ fontWeight: next }, { fontWeight: next });
   }
 
-  // The font-size slider fires continuously; commit one history entry on release.
-  function commitFontSize() {
-    recordHistory();
-  }
-
-  // Render at full design resolution (backing store is already 1240×1754 at
-  // zoom 1); neutralise any pan/zoom and let the 2× multiplier give A4 @ ~300
-  // DPI (2480×3508) without disturbing the on-screen layout.
+  // Render at full design resolution with any pan/zoom neutralised; the 2×
+  // multiplier gives A4 at ~300 DPI (2480×3508).
   function captureFullResPng(): string | null {
     const canvas = fabricRef.current;
     if (!canvas) return null;
@@ -822,405 +678,482 @@ export function QrCardEditor({
     }
   }
 
-  async function exportPng() {
-    setBusy("png");
-    try {
-      const dataUrl = captureFullResPng();
-      if (dataUrl) triggerDownload(dataUrl, `confetti-${slug}-card.png`);
-    } finally {
-      setBusy(null);
-    }
-  }
-
-  async function exportPdf() {
-    setBusy("pdf");
+  async function exportAs(kind: "png" | "pdf") {
+    setDownloadOpen(false);
+    setExportError(false);
+    setBusy(kind);
     try {
       const dataUrl = captureFullResPng();
       if (!dataUrl) return;
-      const res = await fetch("/api/qr-card/pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pngDataUrl: dataUrl, filename: `confetti-${slug}-card.pdf` }),
-      });
-      if (!res.ok) throw new Error("PDF export failed");
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `confetti-${slug}-card.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      if (kind === "png") triggerDownload(dataUrl, `confetti-${slug}-kartica.png`);
+      else await downloadCardPdf(dataUrl, `confetti-${slug}-kartica.pdf`);
+    } catch {
+      setExportError(true);
     } finally {
       setBusy(null);
     }
   }
 
-  // ── Reusable panel bodies (shared by desktop rails + mobile sheets) ─────────
-  const templatesBody = (
-    <>
-      <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
-        Start from template
-      </p>
-      <div className="space-y-2">
+  // ── Panel bodies (shared by desktop rails and the phone tool strip) ─────────
+  const sectionLabel = (text: string) => (
+    <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">{text}</p>
+  );
+
+  const templatesBody = (compact: boolean) => (
+    <div>
+      <div className={compact ? "flex gap-2 overflow-x-auto pb-1" : "grid grid-cols-2 gap-2"}>
         {CARD_PRESETS.map((p) => (
           <button
             key={p.id}
+            type="button"
             onClick={() => void switchPreset(p.id)}
-            className={`block w-full rounded-lg border px-3 py-2 text-left text-sm font-medium transition ${
+            className={`shrink-0 overflow-hidden rounded-lg border text-left transition ${
+              compact ? "w-[92px]" : ""
+            } ${
               activePresetId === p.id
-                ? "border-[var(--color-accent)] bg-[var(--color-accent)]/10 text-white"
-                : "border-white/10 bg-white/5 text-white/75 hover:bg-white/10"
+                ? "border-[var(--color-accent)] ring-2 ring-[var(--color-accent)]/40"
+                : "border-white/10 hover:border-white/30"
             }`}
           >
-            {p.name}
+            <span className="block aspect-[1240/1754] w-full bg-white/5">
+              {thumbs[p.id] ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={thumbs[p.id]} alt="" className="h-full w-full object-cover" />
+              ) : null}
+            </span>
+            <span className="block truncate px-1.5 py-1 text-[10px] font-medium text-white/75">{p.name}</span>
           </button>
         ))}
       </div>
-      {hasDraft && (
+      {hasDraft ? (
         <button
+          type="button"
           onClick={() => void resetToTemplate()}
           className="mt-3 block w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-left text-xs font-medium text-white/70 transition hover:bg-white/10"
         >
-          ↺ Reset to template
+          ↺ {s.resetTemplate}
         </button>
-      )}
-    </>
+      ) : null}
+    </div>
   );
 
-  const addBody = (
-    <>
-      <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">Add</p>
-      <div className="space-y-2">
+  const shapesBody = (
+    <div className="grid grid-cols-3 gap-2">
+      {([
+        { kind: "rect", label: s.rect, icon: <rect x="3.5" y="5" width="17" height="14" rx="2.5" /> },
+        { kind: "circle", label: s.circle, icon: <circle cx="12" cy="12" r="7.5" /> },
+        { kind: "line", label: s.line, icon: <path d="M4 12h16" /> },
+      ] as const).map((shape) => (
         <button
-          onClick={addText}
-          className="block w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-left text-sm font-medium text-white/85 transition hover:bg-white/10"
+          key={shape.kind}
+          type="button"
+          onClick={() => addShape(shape.kind)}
+          className="flex flex-col items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2 py-3 text-[11px] font-medium text-white/75 transition hover:bg-white/10 hover:text-white"
         >
-          + Text
+          <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
+            {shape.icon}
+          </svg>
+          {shape.label}
         </button>
-        <label className="block w-full cursor-pointer rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-left text-sm font-medium text-white/85 transition hover:bg-white/10">
-          + Image (upload)
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) void addImageFromFile(f);
-              e.target.value = "";
-            }}
-          />
-        </label>
-
-        {/* Shape primitives */}
-        <div className="grid grid-cols-3 gap-2 pt-1">
-          {([
-            { kind: "rect", label: "Rectangle", icon: <rect x="3.5" y="5" width="17" height="14" rx="2.5" /> },
-            { kind: "circle", label: "Circle", icon: <circle cx="12" cy="12" r="7.5" /> },
-            { kind: "line", label: "Line", icon: <path d="M4 12h16" /> },
-          ] as const).map((shape) => (
-            <button
-              key={shape.kind}
-              onClick={() => addShape(shape.kind)}
-              title={shape.label}
-              aria-label={shape.label}
-              className="flex flex-col items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2 py-2.5 text-[10px] font-medium text-white/70 transition hover:bg-white/10 hover:text-white"
-            >
-              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
-                {shape.icon}
-              </svg>
-              {shape.label}
-            </button>
-          ))}
-        </div>
-      </div>
-      <p className="mb-2 mt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">Tip</p>
-      <p className="text-xs leading-5 text-white/55">
-        Double-click text to edit. Drag to move — objects snap to the centre.
-        Shortcuts: <span className="text-white/70">Del</span> removes,{" "}
-        <span className="text-white/70">Esc</span> deselects,{" "}
-        <span className="text-white/70">⌘/Ctrl+Z</span> undo,{" "}
-        <span className="text-white/70">⌘/Ctrl+D</span> duplicate.
-      </p>
-    </>
+      ))}
+    </div>
   );
 
-  const propsBody = !selected ? (
-    <p className="text-xs leading-5 text-white/45">Click an object on the canvas to see its properties here.</p>
-  ) : (
-    <div className="space-y-4">
-      <p className="text-xs text-white/55">
-        {selected.type === "textbox" ? "Text" : selected.type === "image" ? "Image" : "Shape"}
-      </p>
+  const textBody = (
+    <textarea
+      value={selected?.text ?? ""}
+      rows={2}
+      onChange={(e) => {
+        setProp({ text: e.target.value }, { text: e.target.value }, false);
+        // Typing is one undo step, and reaches the draft even if the field never loses focus.
+        if (textCommitTimerRef.current) window.clearTimeout(textCommitTimerRef.current);
+        textCommitTimerRef.current = window.setTimeout(() => recordHistory(), 600);
+      }}
+      onBlur={() => recordHistory()}
+      className="w-full resize-y rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-base text-white focus:border-white/40 focus:outline-none"
+    />
+  );
 
-      {selected.fill !== undefined && (
-        <div>
-          <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/55">Color</p>
-          <div className="flex flex-wrap gap-1.5">
-            {PRESET_COLORS.map((c) => (
-              <button
-                key={c}
-                onClick={() => setFill(c)}
-                className={`h-7 w-7 rounded-full border-2 transition ${
-                  selected.fill === c ? "border-white" : "border-white/20 hover:border-white/50"
-                }`}
-                style={{ background: c }}
-                title={c}
-              />
-            ))}
-          </div>
+  const colorBody = (
+    <div>
+      <div className="flex flex-wrap gap-2">
+        {PRESET_COLORS.map((c) => (
+          <button
+            key={c}
+            type="button"
+            onClick={() => setProp({ fill: c }, { fill: c })}
+            aria-label={c}
+            className={`h-9 w-9 rounded-full border-2 transition ${
+              selected?.fill === c ? "border-white" : "border-white/20 hover:border-white/50"
+            }`}
+            style={{ background: c }}
+          />
+        ))}
+        <label
+          className="relative flex h-9 cursor-pointer items-center gap-2 rounded-full border border-white/20 px-3 text-xs font-medium text-white/75"
+          title={s.customColor}
+        >
+          <span className="h-4 w-4 rounded-full border border-white/30" style={{ background: selected?.fill ?? "#000" }} />
+          {s.customColor}
           <input
             type="color"
-            value={selected.fill}
-            onChange={(e) => setFill(e.target.value)}
-            className="mt-2 h-8 w-full cursor-pointer rounded border border-white/15 bg-transparent"
+            value={selected?.fill && selected.fill.startsWith("#") ? selected.fill : "#000000"}
+            onChange={(e) => setProp({ fill: e.target.value }, { fill: e.target.value })}
+            className="absolute inset-0 cursor-pointer opacity-0"
           />
-        </div>
-      )}
+        </label>
+      </div>
+    </div>
+  );
 
-      {selected.fontFamily !== undefined && (
-        <div>
-          <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/55">Font</p>
-          <select
-            value={selected.fontFamily}
-            onChange={(e) => setFontFamily(e.target.value)}
-            className="w-full rounded-md border border-white/15 bg-white/5 px-2 py-1.5 text-xs text-white/90 focus:border-white/40 focus:outline-none"
+  const toggleClass = (on: boolean) =>
+    `flex-1 rounded-lg border px-2 py-2 text-sm transition ${
+      on ? "border-white/40 bg-white/15 text-white" : "border-white/15 bg-white/5 text-white/70 hover:bg-white/10"
+    }`;
+
+  const fontBody = (
+    <div className="space-y-2">
+      <div className="grid grid-cols-2 gap-2">
+        {FONT_OPTIONS.map((f) => (
+          <button
+            key={f}
+            type="button"
+            onClick={() => setProp({ fontFamily: f }, { fontFamily: f })}
+            style={{ fontFamily: f }}
+            className={toggleClass(selected?.fontFamily === f)}
           >
-            {FONT_OPTIONS.map((f) => (
-              <option key={f} value={f} className="bg-[#161b22]">
-                {f}
-              </option>
-            ))}
-          </select>
-          <div className="mt-2 flex gap-2">
-            <button
-              onClick={toggleBold}
-              className={`flex-1 rounded-md border px-2 py-1.5 text-xs font-bold transition ${
-                selected.fontWeight === "bold" || Number(selected.fontWeight) >= 600
-                  ? "border-white/40 bg-white/15 text-white"
-                  : "border-white/15 bg-white/5 text-white/70 hover:bg-white/10"
-              }`}
-            >
-              B
-            </button>
-            <button
-              onClick={toggleItalic}
-              className={`flex-1 rounded-md border px-2 py-1.5 text-xs italic transition ${
-                selected.fontStyle === "italic"
-                  ? "border-white/40 bg-white/15 text-white"
-                  : "border-white/15 bg-white/5 text-white/70 hover:bg-white/10"
-              }`}
-            >
-              I
-            </button>
-          </div>
-        </div>
-      )}
-
-      {selected.fontSize !== undefined && (
-        <div>
-          <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/55">
-            Size · {selected.fontSize}
-          </p>
-          <input
-            type="range"
-            min={12}
-            max={200}
-            value={selected.fontSize}
-            onChange={(e) => setFontSize(Number(e.target.value))}
-            onPointerUp={commitFontSize}
-            onKeyUp={commitFontSize}
-            className="w-full"
-          />
-        </div>
-      )}
-
+            {f}
+          </button>
+        ))}
+      </div>
       <div className="flex gap-2">
         <button
-          onClick={bringForward}
-          className="flex-1 rounded-md border border-white/15 bg-white/5 px-2 py-1.5 text-xs font-semibold text-white/80 hover:bg-white/10"
+          type="button"
+          onClick={toggleBold}
+          title={s.bold}
+          aria-label={s.bold}
+          className={`${toggleClass(selected?.fontWeight === "bold" || Number(selected?.fontWeight) >= 600)} font-bold`}
         >
-          ↑ Forward
+          B
         </button>
         <button
-          onClick={sendBackward}
-          className="flex-1 rounded-md border border-white/15 bg-white/5 px-2 py-1.5 text-xs font-semibold text-white/80 hover:bg-white/10"
+          type="button"
+          onClick={toggleItalic}
+          title={s.italic}
+          aria-label={s.italic}
+          className={`${toggleClass(selected?.fontStyle === "italic")} font-serif italic`}
         >
-          ↓ Back
+          I
         </button>
       </div>
+    </div>
+  );
 
-      <button
-        onClick={() => void duplicateSelected()}
-        className="block w-full rounded-md border border-white/15 bg-white/5 px-2 py-2 text-xs font-semibold text-white/80 hover:bg-white/10"
-      >
-        Duplicate
+  const sizeBody = (
+    <div className="flex items-center gap-3">
+      <input
+        type="range"
+        min={12}
+        max={220}
+        value={Math.round(selected?.fontSize ?? 48)}
+        onChange={(e) => setProp({ fontSize: Number(e.target.value) }, { fontSize: Number(e.target.value) }, false)}
+        onPointerUp={() => recordHistory()}
+        onKeyUp={() => recordHistory()}
+        className="h-8 flex-1 accent-[var(--color-accent)]"
+      />
+      <span className="w-10 text-right text-sm font-semibold tabular-nums text-white/85">
+        {Math.round(selected?.fontSize ?? 0)}
+      </span>
+    </div>
+  );
+
+  const alignBody = (
+    <div className="flex gap-2">
+      {([
+        ["left", s.alignLeft],
+        ["center", s.alignCenter],
+        ["right", s.alignRight],
+      ] as const).map(([value, label]) => (
+        <button
+          key={value}
+          type="button"
+          onClick={() => setProp({ textAlign: value }, { textAlign: value })}
+          className={toggleClass(selected?.textAlign === value)}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+
+  const layerBody = (
+    <div className="flex gap-2">
+      <button type="button" onClick={bringForward} className={toggleClass(false)}>
+        ↑ {s.forward}
       </button>
-
-      <button
-        onClick={deleteSelected}
-        className="block w-full rounded-md border border-red-400/30 bg-red-500/10 px-2 py-2 text-xs font-semibold text-red-300 hover:bg-red-500/20"
-      >
-        Delete
+      <button type="button" onClick={sendBackward} className={toggleClass(false)}>
+        ↓ {s.backward}
       </button>
     </div>
   );
 
+  const typeLabel = !selected
+    ? ""
+    : selected.type === "textbox"
+      ? s.textType
+      : selected.type === "image"
+        ? s.imageType
+        : s.shapeType;
+
+  // Desktop right rail: every property of the selection, stacked.
+  const propsRail = !selected ? (
+    <p className="text-xs leading-5 text-white/45">{s.selectHint}</p>
+  ) : (
+    <div className="space-y-5">
+      <p className="text-xs text-white/55">{typeLabel}</p>
+      {isTextbox(selected) ? (
+        <div>
+          {sectionLabel(s.editText)}
+          {textBody}
+        </div>
+      ) : null}
+      {selected.fill !== undefined ? (
+        <div>
+          {sectionLabel(s.color)}
+          {colorBody}
+        </div>
+      ) : null}
+      {isTextbox(selected) ? (
+        <>
+          <div>
+            {sectionLabel(s.font)}
+            {fontBody}
+          </div>
+          <div>
+            {sectionLabel(s.size)}
+            {sizeBody}
+          </div>
+          <div>
+            {sectionLabel(s.align)}
+            {alignBody}
+          </div>
+        </>
+      ) : null}
+      <div>
+        {sectionLabel(s.layer)}
+        {layerBody}
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <button type="button" onClick={centerHorizontally} className={toggleClass(false)}>
+          {s.center}
+        </button>
+        <button type="button" onClick={() => void duplicateSelected()} className={toggleClass(false)}>
+          {s.duplicate}
+        </button>
+      </div>
+      <button
+        type="button"
+        onClick={deleteSelected}
+        className="block w-full rounded-lg border border-red-400/30 bg-red-500/10 px-2 py-2 text-sm font-semibold text-red-300 hover:bg-red-500/20"
+      >
+        {s.delete}
+      </button>
+    </div>
+  );
+
+  // Phone: the open tool's panel, shown between the card and the tool strip.
+  const toolPanel: Record<Tool, { title: string; body: ReactNode }> = {
+    templates: { title: s.templates, body: templatesBody(true) },
+    shapes: { title: s.shapes, body: shapesBody },
+    text: { title: s.editText, body: textBody },
+    color: { title: s.color, body: colorBody },
+    font: { title: s.font, body: fontBody },
+    size: { title: s.size, body: sizeBody },
+    align: { title: s.align, body: alignBody },
+    layer: { title: s.layer, body: layerBody },
+  };
+
+  const toggleTool = (next: Tool) => setTool((current) => (current === next ? null : next));
+
+  const phoneTools: { key: string; label: string; icon: ReactNode; onClick: () => void; active?: boolean; danger?: boolean }[] =
+    selected
+      ? [
+          ...(isTextbox(selected)
+            ? [{ key: "text", label: s.editText, icon: <path d="M5 6h14M12 6v13M9 19h6" />, onClick: () => toggleTool("text"), active: tool === "text" }]
+            : []),
+          ...(selected.fill !== undefined
+            ? [{ key: "color", label: s.color, icon: <circle cx="12" cy="12" r="7" />, onClick: () => toggleTool("color"), active: tool === "color" }]
+            : []),
+          ...(isTextbox(selected)
+            ? [
+                { key: "font", label: s.font, icon: <path d="M6 19l6-14 6 14M8.5 13h7" />, onClick: () => toggleTool("font"), active: tool === "font" },
+                { key: "size", label: s.size, icon: <path d="M4 18h16M7 14l5-9 5 9" />, onClick: () => toggleTool("size"), active: tool === "size" },
+                { key: "align", label: s.align, icon: <path d="M5 7h14M8 12h8M5 17h14" />, onClick: () => toggleTool("align"), active: tool === "align" },
+              ]
+            : []),
+          { key: "layer", label: s.layer, icon: <path d="M12 4l8 4-8 4-8-4 8-4zM4 12l8 4 8-4M4 16l8 4 8-4" />, onClick: () => toggleTool("layer"), active: tool === "layer" },
+          { key: "center", label: s.center, icon: <path d="M12 3v18M7 8h10v8H7z" />, onClick: centerHorizontally },
+          { key: "dup", label: s.duplicate, icon: <path d="M8 8h11v11H8zM5 16V5h11" />, onClick: () => void duplicateSelected() },
+          { key: "del", label: s.delete, icon: <path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13" />, onClick: deleteSelected, danger: true },
+          { key: "done", label: s.done, icon: <path d="M5 12.5l4.5 4.5L19 7.5" />, onClick: deselect },
+        ]
+      : [
+          { key: "templates", label: s.templates, icon: <path d="M4 4h7v9H4zM13 4h7v5h-7zM13 11h7v9h-7zM4 15h7v5H4z" />, onClick: () => toggleTool("templates"), active: tool === "templates" },
+          { key: "text", label: s.text, icon: <path d="M5 6h14M12 6v13M9 19h6" />, onClick: () => void addText() },
+          { key: "image", label: s.image, icon: <><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" /><path d="M3.5 16l5-5 4 4 3-3 5 5" /></>, onClick: () => imageInputRef.current?.click() },
+          { key: "shapes", label: s.shapes, icon: <><rect x="4" y="4" width="8" height="8" rx="1.5" /><circle cx="16" cy="16" r="4" /></>, onClick: () => toggleTool("shapes"), active: tool === "shapes" },
+        ];
+
+  const headerButton =
+    "rounded-full border border-white/15 bg-white/5 px-3 py-2 text-sm font-semibold text-white/85 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30";
+
   return (
-    <div className="flex h-screen flex-col bg-[#0f1419]">
+    <div className="flex h-dvh flex-col bg-[#0f1419] text-white">
+      <input
+        ref={imageInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) void addImageFromFile(f);
+          e.target.value = "";
+        }}
+      />
+
       {/* Top bar */}
-      <header className="flex shrink-0 items-center justify-between gap-2 border-b border-white/10 bg-[#161b22] px-3 py-3 sm:px-5">
+      <header className="relative z-40 flex shrink-0 items-center justify-between gap-2 border-b border-white/10 bg-[#161b22] px-3 py-2.5 sm:px-5">
         <div className="flex min-w-0 items-center gap-3">
-          <Link
-            href={backHref}
-            className="shrink-0 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-sm font-semibold text-white/85 transition hover:bg-white/10 sm:px-4"
-          >
-            ←<span className="hidden sm:inline"> Back</span>
+          <Link href={backHref} className={headerButton} aria-label={s.back}>
+            ←<span className="hidden sm:inline"> {s.back}</span>
           </Link>
           <div className="hidden min-w-0 truncate text-sm text-white/70 md:block">
-            <span className="text-white/40">QR Card editor · </span>
+            <span className="text-white/40">{s.title} · </span>
             <span className="font-semibold text-white">{eventTitle}</span>
           </div>
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Undo / redo */}
-          <div className="flex items-center gap-1 rounded-full border border-white/10 bg-white/5 p-0.5">
+          <button type="button" onClick={() => void undo()} disabled={!hist.canUndo} title={s.undo} aria-label={s.undo} className={headerButton}>
+            ↶
+          </button>
+          <button type="button" onClick={() => void redo()} disabled={!hist.canRedo} title={s.redo} aria-label={s.redo} className={headerButton}>
+            ↷
+          </button>
+          <div className="relative">
             <button
-              onClick={() => void undo()}
-              disabled={!hist.canUndo}
-              title="Undo (⌘/Ctrl+Z)"
-              aria-label="Undo"
-              className="rounded-full px-2.5 py-1 text-sm font-semibold text-white/80 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30"
+              type="button"
+              onClick={() => setDownloadOpen((open) => !open)}
+              disabled={busy !== null || status !== "ready"}
+              aria-expanded={downloadOpen}
+              className="rounded-full bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              ↶
+              {busy ? s.preparing : `${s.download} ↓`}
             </button>
-            <button
-              onClick={() => void redo()}
-              disabled={!hist.canRedo}
-              title="Redo (⌘/Ctrl+Shift+Z)"
-              aria-label="Redo"
-              className="rounded-full px-2.5 py-1 text-sm font-semibold text-white/80 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30"
-            >
-              ↷
-            </button>
+            {downloadOpen ? (
+              <div className="absolute right-0 top-full mt-2 w-56 overflow-hidden rounded-xl border border-white/10 bg-[#1c222b] shadow-2xl">
+                <button type="button" onClick={() => void exportAs("pdf")} className="block w-full px-4 py-3 text-left text-sm font-semibold hover:bg-white/10">
+                  {s.downloadPdf}
+                </button>
+                <button type="button" onClick={() => void exportAs("png")} className="block w-full border-t border-white/10 px-4 py-3 text-left text-sm font-semibold hover:bg-white/10">
+                  {s.downloadPng}
+                </button>
+              </div>
+            ) : null}
           </div>
-
-          <button
-            onClick={exportPng}
-            disabled={busy !== null || status !== "ready"}
-            className="rounded-full bg-[var(--color-accent)] px-3 py-2 text-sm font-semibold text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60 sm:px-4"
-          >
-            {busy === "png" ? "…" : (<><span className="sm:hidden">PNG</span><span className="hidden sm:inline">Download PNG</span></>)}
-          </button>
-          <button
-            onClick={exportPdf}
-            disabled={busy !== null || status !== "ready"}
-            className="rounded-full border border-white/15 bg-white/5 px-3 py-2 text-sm font-semibold text-white/85 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60 sm:px-4"
-          >
-            {busy === "pdf" ? "…" : (<><span className="sm:hidden">PDF</span><span className="hidden sm:inline">Download PDF</span></>)}
-          </button>
         </div>
       </header>
+
+      {exportError ? (
+        <p role="alert" className="shrink-0 bg-red-500/15 px-4 py-2 text-center text-sm text-red-200">
+          {s.exportFailed}
+        </p>
+      ) : null}
 
       <div className="relative flex min-h-0 flex-1">
         {/* Left rail (desktop) */}
         <aside className="hidden w-64 shrink-0 overflow-y-auto border-r border-white/10 bg-[#161b22] p-4 lg:block">
-          {templatesBody}
-          <div className="mt-6">{addBody}</div>
+          {sectionLabel(s.templates)}
+          {templatesBody(false)}
+          <div className="mt-6 space-y-2">
+            <button
+              type="button"
+              onClick={() => void addText()}
+              className="block w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-left text-sm font-medium text-white/85 transition hover:bg-white/10"
+            >
+              + {s.text}
+            </button>
+            <button
+              type="button"
+              onClick={() => imageInputRef.current?.click()}
+              className="block w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-left text-sm font-medium text-white/85 transition hover:bg-white/10"
+            >
+              + {s.image}
+            </button>
+            <div className="pt-1">{shapesBody}</div>
+          </div>
+          <p className="mt-6 text-xs leading-5 text-white/50">{s.desktopTip}</p>
         </aside>
 
-        {/* Canvas viewport — `stageRef` is measured by the ResizeObserver so
-            the canvas always scales to fit without overflowing. */}
+        {/* Canvas stage — measured by the ResizeObserver so the card always
+            fits, including when a phone tool panel opens below it. */}
         <main
           ref={stageRef}
-          className="relative flex min-h-0 min-w-0 flex-1 items-center justify-center overflow-hidden bg-[#0f1419] p-4"
+          onClick={() => setDownloadOpen(false)}
+          className="relative flex min-h-0 min-w-0 flex-1 touch-none items-center justify-center overflow-hidden bg-[#0f1419]"
         >
-          {status === "loading" && (
-            <p className="absolute z-10 text-sm text-white/60">Loading editor…</p>
-          )}
+          {status === "loading" ? <p className="absolute z-10 text-sm text-white/60">{s.loading}</p> : null}
           <div className="shadow-[0_24px_60px_rgba(0,0,0,0.6)]">
             <canvas ref={canvasElRef} />
           </div>
         </main>
 
         {/* Right rail (desktop) */}
-        <aside className="hidden w-64 shrink-0 overflow-y-auto border-l border-white/10 bg-[#161b22] p-4 lg:block">
-          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">Selected</p>
-          {propsBody}
+        <aside className="hidden w-72 shrink-0 overflow-y-auto border-l border-white/10 bg-[#161b22] p-4 lg:block">
+          {sectionLabel(s.selected)}
+          {propsRail}
         </aside>
-
-        {/* Mobile sheet overlay */}
-        {mobileSheet && (
-          <div
-            className="absolute inset-0 z-30 flex flex-col justify-end bg-black/40 lg:hidden"
-            onClick={() => setMobileSheet(null)}
-          >
-            <div
-              className="max-h-[72%] overflow-y-auto rounded-t-2xl border-t border-white/10 bg-[#161b22] p-4 pb-6"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/20" />
-              {mobileSheet === "templates" && templatesBody}
-              {mobileSheet === "add" && addBody}
-              {mobileSheet === "props" && (
-                <>
-                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">Selected</p>
-                  {propsBody}
-                </>
-              )}
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* Mobile bottom toolbar */}
-      <nav className="flex shrink-0 items-center justify-around border-t border-white/10 bg-[#161b22] px-2 py-2 lg:hidden">
-        <MobileTab label="Templates" active={mobileSheet === "templates"} onClick={() => setMobileSheet(mobileSheet === "templates" ? null : "templates")} />
-        <MobileTab label="Add" active={mobileSheet === "add"} onClick={() => setMobileSheet(mobileSheet === "add" ? null : "add")} />
-        <MobileTab
-          label="Edit"
-          active={mobileSheet === "props"}
-          disabled={!selected}
-          onClick={() => setMobileSheet(mobileSheet === "props" ? null : "props")}
-        />
+      {/* Phone: the open tool, in the flow so the card shrinks instead of being covered */}
+      {tool ? (
+        <section className="max-h-[38dvh] shrink-0 overflow-y-auto border-t border-white/10 bg-[#161b22] px-4 pb-3 pt-3 lg:hidden">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">{toolPanel[tool].title}</p>
+            <button type="button" onClick={() => setTool(null)} className="rounded-full px-2 py-1 text-xs font-semibold text-white/60">
+              ✕
+            </button>
+          </div>
+          {toolPanel[tool].body}
+        </section>
+      ) : !selected ? (
+        <p className="shrink-0 bg-[#161b22] px-4 pt-2 text-center text-xs text-white/45 lg:hidden">{s.selectHint}</p>
+      ) : null}
+
+      {/* Phone: tool strip */}
+      <nav className="shrink-0 border-t border-white/10 bg-[#161b22] pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 lg:hidden">
+        <div className="flex gap-1 overflow-x-auto px-2 [scrollbar-width:none]">
+          {phoneTools.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              onClick={item.onClick}
+              className={`flex min-w-[76px] flex-1 flex-col items-center gap-1 whitespace-nowrap rounded-xl px-2 py-2 text-[11px] font-semibold transition ${
+                item.active
+                  ? "bg-[var(--color-accent)]/20 text-white"
+                  : item.danger
+                    ? "text-red-300"
+                    : "text-white/75 active:bg-white/10"
+              }`}
+            >
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                {item.icon}
+              </svg>
+              {item.label}
+            </button>
+          ))}
+        </div>
       </nav>
     </div>
   );
-}
-
-function MobileTab({
-  label,
-  active,
-  disabled,
-  onClick,
-}: {
-  label: string;
-  active: boolean;
-  disabled?: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition ${
-        active
-          ? "bg-[var(--color-accent)]/15 text-white"
-          : "text-white/70 hover:bg-white/5 disabled:opacity-30"
-      }`}
-    >
-      {label}
-    </button>
-  );
-}
-
-function triggerDownload(dataUrl: string, filename: string) {
-  const a = document.createElement("a");
-  a.href = dataUrl;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
 }

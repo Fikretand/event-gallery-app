@@ -1,40 +1,14 @@
-import { notFound } from "next/navigation";
-import QRCode from "qrcode";
+import { QrCardEditorPage } from "@/app/dashboard/events/[slug]/qr-card-editor/QrCardEditorPage";
+import type { Locale } from "@/lib/i18n/index";
 
-import { QrCardEditor } from "@/components/qr-card-editor";
-import { getRequiredUser } from "@/lib/auth";
-import { hasSupabase } from "@/lib/env";
-import { eventLinks, getOwnerEventBySlug } from "@/lib/events";
-import { localePrefix, type Locale } from "@/lib/i18n/index";
-import { formatDate } from "@/lib/utils";
-
-export default async function QrCardEditorLocalePage({
+export default async function QrCardEditorLocaleRoute({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string; slug: string }>;
+  searchParams: Promise<{ template?: string }>;
 }) {
   const { locale, slug } = await params;
-  if (!hasSupabase) notFound();
-
-  const { user } = await getRequiredUser();
-  const event = await getOwnerEventBySlug(user.id, slug);
-  if (!event) notFound();
-
-  const qrDataUrl = await QRCode.toDataURL(eventLinks(slug).uploadUrl, {
-    width: 1200,
-    margin: 1,
-    color: { dark: "#172033", light: "#fffaf2" },
-  });
-
-  const prefix = localePrefix(locale as Locale);
-
-  return (
-    <QrCardEditor
-      slug={event.slug}
-      eventTitle={event.title || "Confetti"}
-      eventDate={event.event_date ? formatDate(event.event_date) : null}
-      qrDataUrl={qrDataUrl}
-      backHref={`${prefix}/dashboard/events/${event.slug}`}
-    />
-  );
+  const { template } = await searchParams;
+  return <QrCardEditorPage locale={locale as Locale} slug={slug} template={template} />;
 }

@@ -662,6 +662,72 @@ export interface Dict {
       deleteFailed: string;
     };
     // QR poster picker
+    /** The event's QR card page and the card editor. */
+    qrCard: {
+      page: {
+        title: string;
+        body: string;
+        yourCard: string;
+        draftNote: string;
+        defaultNote: string;
+        edit: string;
+        downloadPdf: string;
+        downloadPng: string;
+        preparing: string;
+        plainQr: string;
+        plainQrBody: string;
+        templatesTitle: string;
+        templatesBody: string;
+        replaceConfirm: string;
+        failed: string;
+        loading: string;
+      };
+      editor: {
+        back: string;
+        title: string;
+        undo: string;
+        redo: string;
+        download: string;
+        downloadPng: string;
+        downloadPdf: string;
+        preparing: string;
+        loading: string;
+        templates: string;
+        text: string;
+        image: string;
+        shapes: string;
+        done: string;
+        rect: string;
+        circle: string;
+        line: string;
+        color: string;
+        customColor: string;
+        font: string;
+        size: string;
+        align: string;
+        alignLeft: string;
+        alignCenter: string;
+        alignRight: string;
+        layer: string;
+        forward: string;
+        backward: string;
+        center: string;
+        duplicate: string;
+        delete: string;
+        editText: string;
+        newText: string;
+        bold: string;
+        italic: string;
+        resetTemplate: string;
+        selectHint: string;
+        desktopTip: string;
+        exportFailed: string;
+        selected: string;
+        textType: string;
+        imageType: string;
+        shapeType: string;
+      };
+    };
     qrPicker: {
       plainDownload: string;
       plainPreparing: string;

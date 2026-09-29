@@ -533,6 +533,18 @@ src/
 
 Newest first — useful for picking back up.
 
+- **QR card: see it first, edit on a phone.** The menu's "QR kartica" opens
+  `/dashboard/events/[slug]/qr` (`EventQr` + `qr-card-overview.tsx`): the card
+  as it stands (this device's draft, else the first template), PDF/PNG
+  download without entering the editor, template thumbnails (a choice opens
+  the editor with `?template=`), and the plain QR. The editor was rebuilt for
+  phones: handles sized to the screen (they were drawn at print scale, ~3 px),
+  one tool at a time in a strip *below* the card instead of a sheet over it,
+  text changed in a field (the canvas text is not editable on touch), and every
+  label in Dict (`dashboard.qrCard`). Shared drawing code lives in
+  `src/lib/qr-card-editor/render.ts`. The two repos the owner suggested
+  (ImageToolbox, burhanrashid52/PhotoEditor) are native Android apps and cannot
+  run in a browser; only their interaction patterns were borrowed.
 - **Guest-facing texts are editable per event.** `events.custom_copy` (jsonb,
   migration `add_custom_copy_to_events.sql`, applied) holds the owner's wording
   keyed by dictionary path. `src/lib/custom-copy.ts` is the whitelist

@@ -191,7 +191,7 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
               slug={event.slug}
               qrCodeDataUrl={qrCode}
               strings={d.qrPicker}
-              editorHref={`${prefix}/dashboard/events/${event.slug}/qr-card-editor`}
+              editorHref={`${prefix}/dashboard/events/${event.slug}/qr`}
             />
           </div>
         </Panel>

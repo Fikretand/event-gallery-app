@@ -5,11 +5,11 @@ import { DashboardHeader } from "@/components/dashboard-header";
 import type { Dict } from "@/lib/i18n/index";
 import { cn } from "@/lib/utils";
 
-export type EventSection = "overview" | "gallery" | "settings";
+export type EventSection = "overview" | "gallery" | "qr" | "settings";
 
 type Strings = Dict["dashboard"];
 
-const ICONS: Record<EventSection | "qr" | "preview", ReactNode> = {
+const ICONS: Record<EventSection | "preview", ReactNode> = {
   overview: <path d="M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z" />,
   gallery: (
     <>
@@ -79,6 +79,7 @@ export function EventShell({
   const primary: { key: EventSection; label: string; href: string; badge?: number }[] = [
     { key: "overview", label: l.navOverview, href: base },
     { key: "gallery", label: l.navGallery, href: `${base}/gallery`, badge: galleryCount },
+    { key: "qr", label: l.navQrCard, href: `${base}/qr` },
     { key: "settings", label: l.navSettings, href: `${base}/settings` },
   ];
 
@@ -141,18 +142,6 @@ export function EventShell({
 
             <li aria-hidden className="hidden lg:my-1 lg:block lg:border-t lg:border-black/8" />
 
-            <li>
-              <Link
-                href={`${base}/qr-card-editor`}
-                className={cn(
-                  item,
-                  "border border-black/10 bg-white/85 text-black/65 hover:bg-white hover:text-[var(--color-ink)] lg:border-transparent lg:bg-transparent lg:font-medium lg:hover:bg-[var(--color-paper)]",
-                )}
-              >
-                <Icon name="qr" />
-                {l.navQrCard}
-              </Link>
-            </li>
             <li>
               <a
                 href={galleryUrl}
