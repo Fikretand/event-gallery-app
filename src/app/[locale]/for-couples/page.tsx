@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { MarketingButtonLink } from "@/components/marketing-button-link";
-import { MarketingTrustStrip } from "@/components/marketing-trust-strip";
 import { OneTimePlanCard } from "@/components/pricing-showcase";
 import { SiteNav } from "@/components/site-nav";
 import { Panel } from "@/components/ui/panel";
@@ -32,7 +31,6 @@ function CoupleBenefitIcon({ index }: { index: number }) {
       );
   }
 }
-
 
 export async function generateMetadata({
   params,
@@ -133,7 +131,6 @@ export default async function ForCouplesPage({
         </Panel>
       </section>
 
-      <MarketingTrustStrip locale={locale as Locale} />
     </main>
   );
 }

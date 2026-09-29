@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { MarketingButtonLink } from "@/components/marketing-button-link";
-import { MarketingTrustStrip } from "@/components/marketing-trust-strip";
 import { PricingShowcase } from "@/components/pricing-showcase";
 import { SiteNav } from "@/components/site-nav";
 import { Panel } from "@/components/ui/panel";
@@ -42,7 +41,6 @@ function WorkflowIcon({ type }: { type: typeof WORKFLOW_ICONS[number] }) {
       );
   }
 }
-
 
 export async function generateMetadata({
   params,
@@ -154,8 +152,6 @@ export default async function ForPhotographersPage({
           </ul>
         </Panel>
       </section>
-
-      <MarketingTrustStrip locale={locale as Locale} />
 
       <section className="shell py-6">
         <PricingShowcase />

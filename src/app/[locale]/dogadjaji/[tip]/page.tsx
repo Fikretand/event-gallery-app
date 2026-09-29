@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { ContentCta, ContentShell, EventTypeLinks } from "@/components/content-page";
-import { MarketingTrustStrip } from "@/components/marketing-trust-strip";
 import { Panel } from "@/components/ui/panel";
 import { getDictionary, locales, type Locale } from "@/lib/i18n/index";
 import { publicMetadata } from "@/lib/seo";
@@ -91,7 +90,6 @@ export default async function EventTypePage({
         </Panel>
       </section>
 
-      <MarketingTrustStrip locale={locale as Locale} />
       <EventTypeLinks locale={locale as Locale} exceptSlug={tip} />
       <ContentCta locale={locale as Locale} />
     </ContentShell>

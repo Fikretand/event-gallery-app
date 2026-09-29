@@ -969,7 +969,6 @@ export interface Dict {
     sectionTitle: string;
     badge: string;
   };
-  trustStrip: Array<{ title: string; body: string; icon: string }>;
   photographerPlaceholder: string;
   getStarted: {
     eyebrow: string;

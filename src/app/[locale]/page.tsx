@@ -6,12 +6,13 @@ import { AudienceCtas } from "@/components/audience-ctas";
 import { ConfettiExplainer } from "@/components/explainer/confetti-explainer-lazy";
 import { ConfettiHeroAnimation } from "@/components/hero-animation/confetti-hero-animation-lazy";
 import { MarketingButtonLink } from "@/components/marketing-button-link";
-import { MarketingTrustStrip } from "@/components/marketing-trust-strip";
 import { PricingShowcase } from "@/components/pricing-showcase";
 import { Panel } from "@/components/ui/panel";
 import { SiteNav } from "@/components/site-nav";
 import { listPublicPhotographers } from "@/lib/events";
-import { getDictionary, type Locale } from "@/lib/i18n/index";
+import { daysWord, getDictionary, t, type Locale } from "@/lib/i18n/index";
+import { PRO_ACTIVE_EVENT_LIMIT, SOLO_ACTIVE_EVENT_LIMIT, TRIAL_DURATION_DAYS, TRIAL_PHOTO_LIMIT } from "@/lib/constants";
+import { ONE_EVENT_BAM, PLAN_PRICING_BAM, formatBam } from "@/lib/pricing";
 import { publicMetadata } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/utils";
 
@@ -75,6 +76,14 @@ const GALLERY_MOSAIC: { src: string; span: string }[] = [
   { src: "/explainer/assets/party-4.webp", span: "" },
   { src: "/explainer/assets/generic-3.webp", span: "" },
 ];
+
+/**
+ * The animated "Kako funkcioniše" explainer. Hidden for now at the owner's
+ * request — the four step cards below it carry the section on their own.
+ * The component, its scenes and its WebP assets all stay in tree; flip this
+ * back to true to show it again. While false, its lazy chunk is never loaded.
+ */
+const SHOW_EXPLAINER = false;
 
 const FEATURE_TONES = ["card-warm", "card-moss", "card-paper"];
 const FEATURE_ICONS = [
@@ -155,6 +164,20 @@ export default async function HomePage({
   const dict = getDictionary(locale as Locale);
   const d = dict.landing;
   const dm = dict.marketing;
+  // Every number in the FAQ comes from the same constants the product and
+  // the checkout use, so an answer can never quote a stale price or limit.
+  const faqFacts = {
+    trialDays: TRIAL_DURATION_DAYS,
+    trialDaysUnit: daysWord(TRIAL_DURATION_DAYS, locale as Locale),
+    trialPhotos: TRIAL_PHOTO_LIMIT,
+    oneEvent: formatBam(ONE_EVENT_BAM),
+    soloMonthly: formatBam(PLAN_PRICING_BAM.solo.monthly),
+    soloYearly: formatBam(PLAN_PRICING_BAM.solo.yearly),
+    proMonthly: formatBam(PLAN_PRICING_BAM.pro.monthly),
+    proYearly: formatBam(PLAN_PRICING_BAM.pro.yearly),
+    soloEvents: SOLO_ACTIVE_EVENT_LIMIT,
+    proEvents: PRO_ACTIVE_EVENT_LIMIT,
+  };
 
   const publicPhotographers = await listPublicPhotographers();
   const lp = (path: string) => `/${locale}${path}`;
@@ -321,13 +344,14 @@ export default async function HomePage({
               </div>
             </div>
 
-            <div className="float-card-delay absolute -right-6 top-[300px] z-20 rounded-[20px] border border-black/8 bg-white p-3 shadow-[0_16px_44px_rgba(18,24,38,0.16)] sm:-right-10">
+            {/* The label wraps to the QR's own width, so the card hugs the code. */}
+            <div className="float-card-delay absolute -right-6 top-[300px] z-20 flex w-[100px] flex-col items-center rounded-[18px] border border-black/8 bg-white p-3 pb-2.5 shadow-[0_16px_44px_rgba(18,24,38,0.16)] sm:-right-10">
               <div
                 aria-hidden
                 className="h-[76px] w-[76px] [&>svg]:h-full [&>svg]:w-full"
                 dangerouslySetInnerHTML={{ __html: mockupQrSvg }}
               />
-              <p className="mt-2 text-center text-[8px] font-bold uppercase tracking-[0.16em] text-black/45">
+              <p className="mt-2 text-balance text-center text-[8px] font-bold uppercase leading-[1.35] tracking-[0.14em] text-black/45">
                 {d.qrScanLabel}
               </p>
             </div>
@@ -421,12 +445,14 @@ export default async function HomePage({
         </div>
 
         {/* Dark frame makes the warm explainer canvas pop */}
-        <div className="rounded-[34px] border border-[#22334c]/60 bg-[linear-gradient(160deg,#1e2d45,#172033)] p-2.5 shadow-[0_30px_80px_rgba(18,24,38,0.18)] sm:p-3.5">
-          <ConfettiExplainer />
-        </div>
+        {SHOW_EXPLAINER ? (
+          <div className="mb-6 rounded-[34px] border border-[#22334c]/60 bg-[linear-gradient(160deg,#1e2d45,#172033)] p-2.5 shadow-[0_30px_80px_rgba(18,24,38,0.18)] sm:p-3.5">
+            <ConfettiExplainer />
+          </div>
+        ) : null}
 
         {/* Slim recap of the four steps */}
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {d.steps.map((step, i) => (
             <div key={step.n} className="lift-card flex items-start gap-3 rounded-2xl border border-black/8 bg-white/70 p-4">
               <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--color-moss)]/10 text-[var(--color-moss)]">
@@ -440,8 +466,6 @@ export default async function HomePage({
           ))}
         </div>
       </section>
-
-      <MarketingTrustStrip locale={locale as Locale} />
 
       {/* ─── Who it's for (router band) — quiet full-bleed paper band, left header ── */}
       <section className="border-y border-black/6 bg-[var(--color-paper)]/45 py-12 sm:py-16">
@@ -589,7 +613,7 @@ export default async function HomePage({
                     <span>{faq.question}</span>
                     <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--color-paper)] text-[var(--color-moss)] transition group-open:rotate-45">+</span>
                   </summary>
-                  <p className="mt-3 pr-10 text-sm leading-6 text-black/65">{faq.answer}</p>
+                  <p className="mt-3 pr-10 text-sm leading-6 text-black/65">{t(faq.answer, faqFacts)}</p>
                 </details>
               ))}
             </div>

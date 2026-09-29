@@ -1058,19 +1058,44 @@ export const dict: Dict = {
     ],
     faqs: [
       {
-        question: "Do public links change if I rename the event later?",
+        question: "Is it free to start?",
         answer:
-          "No. Guest upload links, client gallery links, and printed QR codes stay fixed after event creation so shared materials keep working.",
+          "Yes. You sign up without a card and get a free trial straight away: {{trialDays}} {{trialDaysUnit}} or {{trialPhotos}} photos, whichever comes first. Enough to create an event, print the QR and watch guests send photos.",
       },
       {
-        question: "Can guests upload without making an account?",
+        question: "How much does it cost?",
         answer:
-          "Yes. Guests open the upload page from a link or QR code and can send files without signing in.",
+          "For a single event — a wedding, birthday or christening — you pay {{oneEvent}} once, no subscription. Photographers pick a plan: Solo at {{soloMonthly}} a month (up to {{soloEvents}} active events) or Pro at {{proMonthly}} a month (up to {{proEvents}}). Billed yearly, Solo comes to {{soloYearly}} and Pro to {{proYearly}} a month.",
       },
       {
-        question: "How do deleted files work?",
+        question: "Can I do everything from my phone?",
         answer:
-          "Deleted files first move into a deleted state so the photographer can restore them. They can also be permanently removed or auto-purged later.",
+          "Yes. Guests upload from their phones, and from yours you can create the event, review and approve photos, edit the QR card and download the gallery. A computer is not required — just more comfortable for large galleries.",
+      },
+      {
+        question: "Do guests need an app or an account?",
+        answer:
+          "No. A guest scans the QR code with their phone camera, a page opens, they pick photos and send. Works on iPhone and Android, with no sign-in and nothing to install.",
+      },
+      {
+        question: "Who can see the photos?",
+        answer:
+          "Only the people you give the gallery link to — and with a PIN on, the link alone is not enough. The gallery is not on any public list or on Google. Everything guests send is seen by you first; only what you approve goes into the gallery.",
+      },
+      {
+        question: "How long is the gallery available?",
+        answer:
+          "On the one-event plan guests can upload for 30 days and the gallery stays open for 90. Photographers set the expiry date for each event themselves. Before it expires you can download everything as a ZIP.",
+      },
+      {
+        question: "Can I download every photo in full quality?",
+        answer:
+          "Yes — one by one or all as a ZIP, in original quality. Unlike Viber or WhatsApp, nothing gets compressed. A large gallery downloads in a few ZIP parts.",
+      },
+      {
+        question: "What happens when the free trial ends?",
+        answer:
+          "New uploads pause until you choose a plan. Nothing is deleted — everything that arrived stays in your account.",
       },
     ],
     testimonials: [
@@ -1503,23 +1528,6 @@ export const dict: Dict = {
     sectionTitle: "Built to feel premium on both sides of the event.",
     badge: "Verified",
   },
-  trustStrip: [
-    {
-      title: "Private by default",
-      body: "PIN-protected galleries, hidden guest uploads, and controlled sharing keep event delivery calm.",
-      icon: "shield",
-    },
-    {
-      title: "QR upload without an app",
-      body: "Guests scan once, upload from mobile, and move on without creating accounts.",
-      icon: "qr",
-    },
-    {
-      title: "Built for real handoff",
-      body: "Guest memories stay in one private event space you can revisit and download later.",
-      icon: "gallery",
-    },
-  ],
   photographerPlaceholder: "Photo",
   getStarted: {
     eyebrow: "Get started",

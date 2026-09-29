@@ -73,23 +73,6 @@ export const coupleBenefits = [
   },
 ];
 
-export const faqs = [
-  {
-    question: "Do public links change if I rename the event later?",
-    answer:
-      "No. Guest upload links, client gallery links, and printed QR codes stay fixed after event creation so shared materials keep working.",
-  },
-  {
-    question: "Can guests upload without making an account?",
-    answer: "Yes. Guests open the upload page from a link or QR code and can send files without signing in.",
-  },
-  {
-    question: "How do deleted files work?",
-    answer:
-      "Deleted files first move into a deleted state so the photographer can restore them. They can also be permanently removed or auto-purged later.",
-  },
-];
-
 export const testimonials = [
   {
     quote: "The guest QR flow finally gave us one clean place for event moments instead of chasing uploads afterwards.",

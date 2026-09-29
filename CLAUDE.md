@@ -523,8 +523,7 @@ src/
     ├── explainer/                   # Stage/Sprite scenes + lazy wrapper
     ├── hero-animation/              # Three.js QR→camera→wordmark loop (lazy)
     ├── legal-doc-view.tsx           # Renders a LegalDoc
-    ├── marketing-testimonials.tsx   # ⚠ fabricated data — render removed
-    └── marketing-trust-strip.tsx
+    └── marketing-testimonials.tsx   # ⚠ fabricated data — render removed
 ```
 
 ---
@@ -533,6 +532,16 @@ src/
 
 Newest first — useful for picking back up.
 
+- **Landing trimmed.** The "Privatno od početka / QR prijenos / Napravljeno za
+  pravu predaju" strip is gone from every page (component + `trustStrip` dict
+  deleted) — it repeated the features section. The explainer is hidden behind
+  `SHOW_EXPLAINER = false` in `[locale]/page.tsx`; component, scenes and WebP
+  assets stay in tree, and its lazy chunk never loads while off. The landing FAQ
+  (`marketing.faqs`) now answers what a first-time visitor asks — free to start,
+  price, phone-only, guest app, who sees photos, how long, full-quality download,
+  after the trial — and every number in it is a `{{placeholder}}` filled from
+  `pricing.ts` / `constants.ts` at render. The mockup's QR card is 100 px wide
+  with the label wrapped under the code.
 - **Smart guides in the card editor** (`src/lib/qr-card-editor/snap.ts`, tested):
   a dragged object snaps its edges/centre to the card centre and to other
   objects' edges/centres, with pink lines between them; rotation straightens

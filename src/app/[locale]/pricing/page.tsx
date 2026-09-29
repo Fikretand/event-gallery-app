@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-import { MarketingTrustStrip } from "@/components/marketing-trust-strip";
 import { SiteNav } from "@/components/site-nav";
 import { Panel } from "@/components/ui/panel";
 import { PricingShowcase } from "@/components/pricing-showcase";
 import { getDictionary, type Locale } from "@/lib/i18n/index";
 import { publicMetadata } from "@/lib/seo";
-
 
 export async function generateMetadata({
   params,
@@ -49,8 +47,6 @@ export default async function PricingPage({
       <section className="shell py-6">
         <PricingShowcase />
       </section>
-
-      <MarketingTrustStrip locale={locale as Locale} />
 
       <section className="shell py-10">
         <Panel className="mesh-card bg-white/82">

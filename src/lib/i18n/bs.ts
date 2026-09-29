@@ -1060,19 +1060,44 @@ export const dict: Dict = {
     ],
     faqs: [
       {
-        question: "Mijenjaju li se javni linkovi ako preimenujem događaj?",
+        question: "Da li je besplatno za početak?",
         answer:
-          "Ne. Linkovi za prijenos gostiju, linkovi galerije klijenta i QR kodovi na ispisu ostaju nepromijenjeni nakon kreiranja događaja.",
+          "Jeste. Nalog otvaraš bez kartice i odmah dobiješ besplatnu probu: {{trialDays}} {{trialDaysUnit}} ili {{trialPhotos}} fotografija, šta prije dođe. Za to vrijeme napraviš događaj, odštampaš QR i vidiš kako gosti šalju slike.",
       },
       {
-        question: "Mogu li gosti slati bez kreiranja naloga?",
+        question: "Koliko košta?",
         answer:
-          "Da. Gosti otvaraju stranicu za prijenos s linka ili QR koda i mogu slati fajlove bez prijave.",
+          "Za jedan događaj — vjenčanje, rođendan, krštenje — plaćaš jednom {{oneEvent}}, bez pretplate. Fotografi biraju paket: Solo {{soloMonthly}} mjesečno (do {{soloEvents}} aktivnih događaja) ili Pro {{proMonthly}} mjesečno (do {{proEvents}}). Uz godišnje plaćanje Solo izađe {{soloYearly}}, a Pro {{proYearly}} mjesečno.",
       },
       {
-        question: "Kako rade obrisani fajlovi?",
+        question: "Mogu li sve raditi preko mobitela?",
         answer:
-          "Obrisani fajlovi prvo prelaze u stanje brisanja kako bi ih fotograf mogao vratiti. Možeš ih trajno ukloniti odmah, ili se uklanjaju same nakon sedam dana.",
+          "Da. Gosti šalju s mobitela, a ti s mobitela napraviš događaj, pregledaš i odobriš slike, uređuješ QR karticu i preuzmeš galeriju. Računar nije potreban — samo je udobniji za velike galerije.",
+      },
+      {
+        question: "Trebaju li gosti aplikaciju ili nalog?",
+        answer:
+          "Ne. Gost skenira QR kod kamerom telefona, otvori se stranica, odabere slike i pošalje. Radi na iPhoneu i Androidu, bez prijave i bez instalacije.",
+      },
+      {
+        question: "Ko može vidjeti fotografije?",
+        answer:
+          "Samo onaj kome daš link galerije — a ako uključiš PIN, ni link nije dovoljan. Galerija nije ni na jednom javnom popisu niti na Googleu. Sve što gosti pošalju prvo vidiš samo ti; u galeriju ide ono što odobriš.",
+      },
+      {
+        question: "Koliko dugo je galerija dostupna?",
+        answer:
+          "Kod plana za jedan događaj gosti šalju slike 30 dana, a galerija je otvorena 90 dana. Fotografi sami biraju datum isteka za svaki događaj. Prije isteka sve preuzmeš kao ZIP.",
+      },
+      {
+        question: "Mogu li preuzeti sve fotografije u punoj kvaliteti?",
+        answer:
+          "Da — pojedinačno ili sve kao ZIP, u originalnoj kvaliteti. Za razliku od Vibera i WhatsAppa, ništa se ne smanjuje. Veliku galeriju preuzmeš u nekoliko ZIP dijelova.",
+      },
+      {
+        question: "Šta se desi kad besplatna proba istekne?",
+        answer:
+          "Slanje novih slika se zaustavi dok ne odabereš paket. Ništa se ne briše — sve što je stiglo ostaje u tvom nalogu.",
       },
     ],
     testimonials: [
@@ -1507,23 +1532,6 @@ export const dict: Dict = {
     sectionTitle: "Napravljeno da izgleda premium s obje strane događaja.",
     badge: "Potvrđeno",
   },
-  trustStrip: [
-    {
-      title: "Privatno od početka",
-      body: "Galerije zaštićene PIN-om, skriveni prijenosi gostiju i kontrolirano dijeljenje drže isporuku mirnom.",
-      icon: "shield",
-    },
-    {
-      title: "QR prijenos bez aplikacije",
-      body: "Gosti skeniraju jednom, šalju s mobitela i nastavljaju dalje bez kreiranja naloga.",
-      icon: "qr",
-    },
-    {
-      title: "Napravljeno za pravu predaju",
-      body: "Uspomene gostiju ostaju u jednom privatnom prostoru koji možete posjetiti i preuzeti naknadno.",
-      icon: "gallery",
-    },
-  ],
   photographerPlaceholder: "Slika",
   getStarted: {
     eyebrow: "Početak",
