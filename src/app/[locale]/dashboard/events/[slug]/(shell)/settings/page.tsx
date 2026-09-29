@@ -1,4 +1,4 @@
-import { EventSettings } from "@/app/dashboard/events/[slug]/settings/EventSettings";
+import { EventSettings } from "@/app/dashboard/events/[slug]/(shell)/settings/EventSettings";
 import type { Locale } from "@/lib/i18n/index";
 
 export default async function EventSettingsLocalePage({

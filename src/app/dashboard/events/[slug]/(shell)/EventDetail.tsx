@@ -1,22 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 
 import { EventCoverPicker } from "@/components/event-cover-picker";
 import { EventLinkCard } from "@/components/event-link-card";
-import { EventShell } from "@/components/event-shell";
 import { QrPosterPicker } from "@/components/qr-poster-picker";
 import { Panel } from "@/components/ui/panel";
-import { getAccountTypeForUser, getRequiredUser } from "@/lib/auth";
-import { hasSupabase } from "@/lib/env";
+import { getEventAnalyticsCached, getOwnerEventContext } from "@/lib/event-context";
 import {
   eventLinks,
   generateUploadQrDataUrl,
   getCoupleUploadEndsAt,
-  getEventAnalytics,
   getEventCoverMap,
   getEventLifecycleStatus,
-  getOwnerEventBySlug,
   isEventExpired,
   listEventMedia,
 } from "@/lib/events";
@@ -36,20 +31,10 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
   const l = e.layout;
   const prefix = localePrefix(locale);
 
-  if (!hasSupabase) {
-    notFound();
-  }
-
-  const { user, supabase } = await getRequiredUser();
-  const event = await getOwnerEventBySlug(user.id, slug);
-  if (!event) {
-    notFound();
-  }
-  const accountType = await getAccountTypeForUser(supabase, user.id, user.user_metadata?.account_type);
-  const isCouple = accountType === "couple";
+  const { event, isCouple } = await getOwnerEventContext(slug);
 
   const [analytics, media, qrCode, coverMap] = await Promise.all([
-    getEventAnalytics(event.id),
+    getEventAnalyticsCached(event.id),
     listEventMedia(event.id, { includeHidden: true, includeDeleted: false, sourceType: "all" }).then(enrichMediaWithUrls),
     generateUploadQrDataUrl(event.slug),
     getEventCoverMap([event]),
@@ -77,17 +62,7 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
   ];
 
   return (
-    <EventShell
-      active="overview"
-      title={event.title}
-      clientName={event.client_name}
-      isCouple={isCouple}
-      prefix={prefix}
-      slug={event.slug}
-      galleryUrl={links.galleryUrl}
-      galleryCount={media.length}
-      strings={d}
-    >
+    <>
       {expired ? (
         <div className="rounded-[24px] bg-[#fff0eb] px-5 py-4 text-sm leading-6 text-[#8a1c1c]">
           {isCouple ? e.eventExpiredCouple : e.eventExpired}
@@ -232,6 +207,6 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
           </p>
         </Panel>
       </div>
-    </EventShell>
+    </>
   );
 }

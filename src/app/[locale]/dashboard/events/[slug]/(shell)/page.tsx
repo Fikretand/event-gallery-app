@@ -1,4 +1,4 @@
-import { EventDetail } from "@/app/dashboard/events/[slug]/EventDetail";
+import { EventDetail } from "@/app/dashboard/events/[slug]/(shell)/EventDetail";
 import type { Locale } from "@/lib/i18n/index";
 
 export default async function EventDetailLocalePage({

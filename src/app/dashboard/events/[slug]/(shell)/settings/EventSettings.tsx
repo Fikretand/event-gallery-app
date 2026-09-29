@@ -1,21 +1,15 @@
-import { notFound } from "next/navigation";
 
 import { EventLifecyclePanel } from "@/components/event-lifecycle-panel";
 import { EventSettingsForm } from "@/components/event-settings-form";
-import { EventShell } from "@/components/event-shell";
 import { Panel } from "@/components/ui/panel";
 import { updateEventAction } from "@/lib/actions";
-import { getAccountTypeForUser, getRequiredUser } from "@/lib/auth";
-import { hasSupabase } from "@/lib/env";
+import { getOwnerEventContext } from "@/lib/event-context";
 import {
-  eventLinks,
   getCoupleAccessEndsAt,
   getCoupleUploadEndsAt,
-  getEventAnalytics,
-  getOwnerEventBySlug,
   listEventActivity,
 } from "@/lib/events";
-import { getDictionary, localePrefix, type Locale } from "@/lib/i18n/index";
+import { getDictionary, type Locale } from "@/lib/i18n/index";
 import { formatDate } from "@/lib/utils";
 
 type EventStrings = ReturnType<typeof getDictionary>["dashboard"]["event"];
@@ -38,36 +32,15 @@ export async function EventSettings({
   const d = dict.dashboard;
   const e = d.event;
   const l = e.layout;
-  const prefix = localePrefix(locale);
 
-  if (!hasSupabase) {
-    notFound();
-  }
+  const { event, accountType, isCouple } = await getOwnerEventContext(slug);
 
-  const { user, supabase } = await getRequiredUser();
-  const event = await getOwnerEventBySlug(user.id, slug);
-  if (!event) {
-    notFound();
-  }
-  const accountType = await getAccountTypeForUser(supabase, user.id, user.user_metadata?.account_type);
-  const isCouple = accountType === "couple";
-
-  const [activity, analytics] = await Promise.all([listEventActivity(event.id), getEventAnalytics(event.id)]);
+  const activity = await listEventActivity(event.id);
   const coupleUploadEndsAt = isCouple ? getCoupleUploadEndsAt(event) : null;
   const coupleAccessEndsAt = isCouple ? getCoupleAccessEndsAt(event) : null;
 
   return (
-    <EventShell
-      active="settings"
-      title={event.title}
-      clientName={event.client_name}
-      isCouple={isCouple}
-      prefix={prefix}
-      slug={event.slug}
-      galleryUrl={eventLinks(event.slug).galleryUrl}
-      galleryCount={analytics.mediaCount}
-      strings={d}
-    >
+    <>
       <EventSettingsForm
         event={event}
         action={updateEventAction.bind(null, event.slug, locale)}
@@ -139,6 +112,6 @@ export async function EventSettings({
           </div>
         </Panel>
       ) : null}
-    </EventShell>
+    </>
   );
 }

@@ -1,16 +1,13 @@
-import { notFound } from "next/navigation";
 
 import { Disclosure } from "@/components/disclosure";
-import { EventShell } from "@/components/event-shell";
 import { GalleryCopyEditor } from "@/components/gallery-copy-editor";
 import { GallerySectionsManager } from "@/components/gallery-sections-manager";
 import { MediaGrid } from "@/components/media-grid";
 import { Panel } from "@/components/ui/panel";
 import { UploadDropzone } from "@/components/upload-dropzone";
-import { getAccountTypeForUser, getRequiredUser } from "@/lib/auth";
-import { hasSupabase } from "@/lib/env";
-import { eventLinks, getOwnerEventBySlug, listEventMedia, listGallerySections } from "@/lib/events";
-import { getDictionary, localePrefix, type Locale } from "@/lib/i18n/index";
+import { getOwnerEventContext } from "@/lib/event-context";
+import { eventLinks, listEventMedia, listGallerySections } from "@/lib/events";
+import { getDictionary, type Locale } from "@/lib/i18n/index";
 import { COPY_FIELDS, COPY_GROUPS, defaultCopy, sanitizeCustomCopy } from "@/lib/custom-copy";
 import { enrichMediaWithUrls } from "@/lib/media";
 
@@ -24,19 +21,8 @@ export async function EventGallery({ locale, slug }: { locale: Locale; slug: str
   const d = dict.dashboard;
   const e = d.event;
   const l = e.layout;
-  const prefix = localePrefix(locale);
 
-  if (!hasSupabase) {
-    notFound();
-  }
-
-  const { user, supabase } = await getRequiredUser();
-  const event = await getOwnerEventBySlug(user.id, slug);
-  if (!event) {
-    notFound();
-  }
-  const accountType = await getAccountTypeForUser(supabase, user.id, user.user_metadata?.account_type);
-  const isCouple = accountType === "couple";
+  const { event, accountType, isCouple } = await getOwnerEventContext(slug);
 
   const [media, sections] = await Promise.all([
     listEventMedia(event.id, { includeHidden: true, includeDeleted: true, sourceType: "all" }).then(enrichMediaWithUrls),
@@ -58,17 +44,7 @@ export async function EventGallery({ locale, slug }: { locale: Locale; slug: str
   }
 
   return (
-    <EventShell
-      active="gallery"
-      title={event.title}
-      clientName={event.client_name}
-      isCouple={isCouple}
-      prefix={prefix}
-      slug={event.slug}
-      galleryUrl={links.galleryUrl}
-      galleryCount={liveMedia.length}
-      strings={d}
-    >
+    <>
       <Panel className="bg-white/90">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
@@ -194,6 +170,6 @@ export async function EventGallery({ locale, slug }: { locale: Locale; slug: str
           </div>
         </div>
       </Panel>
-    </EventShell>
+    </>
   );
 }

@@ -1,4 +1,4 @@
-import { EventQr } from "@/app/dashboard/events/[slug]/qr/EventQr";
+import { EventQr } from "@/app/dashboard/events/[slug]/(shell)/qr/EventQr";
 import type { Locale } from "@/lib/i18n/index";
 
 export default async function EventQrLocalePage({

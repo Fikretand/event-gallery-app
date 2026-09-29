@@ -1,4 +1,4 @@
-import { EventGallery } from "@/app/dashboard/events/[slug]/gallery/EventGallery";
+import { EventGallery } from "@/app/dashboard/events/[slug]/(shell)/gallery/EventGallery";
 import type { Locale } from "@/lib/i18n/index";
 
 export default async function EventGalleryLocalePage({
