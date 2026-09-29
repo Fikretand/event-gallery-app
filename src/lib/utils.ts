@@ -13,12 +13,16 @@ export function formatBytes(bytes: number) {
   return `${value.toFixed(value >= 10 ? 0 : 1)} ${units[exponent]}`;
 }
 
-export function formatDate(value: string | null | undefined) {
+/**
+ * `locale` is optional so the existing call sites keep their English output;
+ * pass "bs" to get 30. 9. 2026. on Bosnian pages instead of Sep 30, 2026.
+ */
+export function formatDate(value: string | null | undefined, locale: "en" | "bs" = "en", emptyLabel = "Not set") {
   if (!value) {
-    return "Not set";
+    return emptyLabel;
   }
 
-  return new Intl.DateTimeFormat("en", {
+  return new Intl.DateTimeFormat(locale === "bs" ? "bs-BA" : "en", {
     dateStyle: "medium",
     timeStyle: value.includes("T") ? "short" : undefined,
   }).format(new Date(value));

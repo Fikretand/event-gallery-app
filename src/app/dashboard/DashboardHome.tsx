@@ -144,6 +144,9 @@ export async function DashboardHome({
           </Panel>
         ) : (
           <DashboardEventList
+            strings={d.eventList}
+            locale={locale}
+            prefix={localePrefix(locale)}
             events={events.map((event) => {
               const cover = event.cover_image_id ? coverMap.get(event.cover_image_id) : null;
 

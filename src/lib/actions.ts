@@ -451,6 +451,23 @@ export async function permanentlyDeleteEventAction(slug: string) {
   redirect("/dashboard?deleted=1");
 }
 
+/**
+ * Delete an event from the dashboard list without leaving the list.
+ *
+ * permanentlyDeleteEventAction redirects to /dashboard, which suits the event
+ * page (the page being viewed is gone) but would drop a /bs reader onto the
+ * English route when used from the list. This one reports back instead, and
+ * the list refreshes in place. Ownership is checked inside
+ * permanentlyDeleteEventBySlug, which also removes the files from R2.
+ */
+export async function deleteEventFromListAction(slug: string) {
+  const { user } = await getRequiredUser();
+  await permanentlyDeleteEventBySlug(user.id, slug);
+  revalidatePath("/dashboard");
+  revalidatePath("/[locale]/dashboard", "page");
+  return { ok: true as const };
+}
+
 export async function unlockGalleryAction(
   slug: string,
   event: { gallery_pin_hash: string | null; event_settings?: { require_pin_for_gallery: boolean } | null },

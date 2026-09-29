@@ -536,6 +536,27 @@ export interface Dict {
         mismatch: string;
       };
     };
+    /** The event list on the photographer dashboard. */
+    eventList: {
+      searchLabel: string;
+      searchPlaceholder: string;
+      count: string; // "{{shown}} / {{total}}"
+      clearSearch: string;
+      noMatchTitle: string;
+      noMatchBody: string;
+      noCover: string;
+      privateEvent: string;
+      eventDate: string;
+      expires: string;
+      notSet: string;
+      statuses: { active: string; expired: string; draft: string; archived: string };
+      delete: string;
+      deleteConfirm: string; // "{{title}}"
+      deleteYes: string;
+      cancel: string;
+      deleting: string;
+      deleteFailed: string;
+    };
     // QR poster picker
     qrPicker: {
       plainDownload: string;
