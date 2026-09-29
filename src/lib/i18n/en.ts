@@ -156,6 +156,8 @@ export const dict: Dict = {
     pinPlaceholder: "Enter the PIN from your photographer",
     unlocking: "Unlocking…",
     unlock: "Unlock gallery",
+    wrongPin: "That PIN isn't right. Check it and try again.",
+    tooManyAttempts: "Too many attempts. Wait 15 minutes and try again.",
   },
   galleryViewer: {
     filterAll: "All",

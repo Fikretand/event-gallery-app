@@ -9,6 +9,8 @@ interface GalleryUnlockStrings {
   pinPlaceholder: string;
   unlocking: string;
   unlock: string;
+  wrongPin: string;
+  tooManyAttempts: string;
 }
 
 const EN_DEFAULTS: GalleryUnlockStrings = {
@@ -16,6 +18,8 @@ const EN_DEFAULTS: GalleryUnlockStrings = {
   pinPlaceholder: "Enter the PIN from your photographer",
   unlocking: "Unlocking…",
   unlock: "Unlock gallery",
+  wrongPin: "That PIN isn't right. Check it and try again.",
+  tooManyAttempts: "Too many attempts. Wait 15 minutes and try again.",
 };
 
 export function GalleryUnlockForm({
@@ -38,6 +42,7 @@ export function GalleryUnlockForm({
         <input
           name="pin"
           type="password"
+          autoComplete="off"
           className="rounded-2xl border border-black/10 bg-white px-4 py-3"
           placeholder={s.pinPlaceholder}
           required
@@ -45,7 +50,11 @@ export function GalleryUnlockForm({
       </label>
       {state?.error ? (
         <div className="rounded-2xl bg-[#fff0eb] px-4 py-3 text-sm text-[#8a1c1c]">
-          {state.error}
+          {state.error === "GALLERY_PIN_RATE_LIMITED"
+            ? s.tooManyAttempts
+            : state.error === "GALLERY_PIN_WRONG"
+              ? s.wrongPin
+              : state.error}
         </div>
       ) : null}
       <Button type="submit" disabled={isPending}>

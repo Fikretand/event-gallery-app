@@ -106,7 +106,7 @@ export default async function GalleryPage({
                 </div>
                 <div className="mt-6">
                   <GalleryUnlockForm
-                    action={unlockGalleryAction.bind(null, slug, event)}
+                    action={unlockGalleryAction.bind(null, slug, locale)}
                     strings={du}
                   />
                 </div>

@@ -11,6 +11,12 @@ export const PRO_STORAGE_LIMIT_BYTES = 500 * 1024 * 1024 * 1024;
 export const PROFILE_AVATAR_MAX_MB = 5;
 export const TRIAL_DURATION_DAYS = 7;
 export const TRIAL_PHOTO_LIMIT = 20;
+/** PIN guesses on a locked gallery, per link and address — a 4-digit PIN has only 10,000 values. */
+export const GALLERY_UNLOCK_RATE_LIMIT = {
+  maxRequests: 8,
+  windowMs: 15 * 60 * 1000,
+};
+
 export const GUEST_UPLOAD_RATE_LIMIT = {
   windowMs: 60_000,
   maxRequests: 20,

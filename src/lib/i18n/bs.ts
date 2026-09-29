@@ -157,6 +157,8 @@ export const dict: Dict = {
     pinPlaceholder: "Unesite PIN koji ste dobili od fotografa",
     unlocking: "Otključavam…",
     unlock: "Otključaj galeriju",
+    wrongPin: "PIN nije tačan. Provjerite ga i pokušajte ponovo.",
+    tooManyAttempts: "Previše pokušaja. Sačekajte 15 minuta pa pokušajte ponovo.",
   },
   galleryViewer: {
     filterAll: "Sve",

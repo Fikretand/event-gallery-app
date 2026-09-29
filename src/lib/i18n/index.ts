@@ -125,6 +125,8 @@ export interface Dict {
     pinPlaceholder: string;
     unlocking: string;
     unlock: string;
+    wrongPin: string;
+    tooManyAttempts: string;
   };
   // Strings inside the shared MediaGrid when shown on the public gallery.
   galleryViewer: {

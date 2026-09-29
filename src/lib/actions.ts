@@ -5,11 +5,12 @@ import { randomUUID } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { isValidPublicProfileUrl, normalizeAccountType, resolveAccountRedirect } from "@/lib/account";
 import { getAccountTypeForUser, getRequiredUser, getUserProfile } from "@/lib/auth";
-import { PROFILE_AVATAR_MAX_MB } from "@/lib/constants";
+import { GALLERY_UNLOCK_RATE_LIMIT, PROFILE_AVATAR_MAX_MB } from "@/lib/constants";
 import { env } from "@/lib/env";
 import {
   CURRENT_PASSWORD_WRONG,
@@ -22,6 +23,9 @@ import {
   SAME_PASSWORD,
   WEAK_PASSWORD,
 } from "@/lib/password-policy";
+
+const GALLERY_PIN_WRONG = "GALLERY_PIN_WRONG";
+const GALLERY_PIN_RATE_LIMITED = "GALLERY_PIN_RATE_LIMITED";
 import {
   createEvent,
   createGallerySection,
@@ -29,6 +33,8 @@ import {
   getAccountUsage,
   getCoupleAccessEndsAt,
   getOwnerEventBySlug,
+  getPublicEventBySlug,
+  incrementRateLimitCount,
   listOwnerEvents,
   permanentlyDeleteEventBySlug,
   renameGallerySection,
@@ -36,6 +42,7 @@ import {
   validateCoupleExpiry,
   verifyGalleryPinAndGrantAccess,
 } from "@/lib/events";
+import { isRateLimited } from "@/lib/rate-limit";
 import { deleteStoredObject, putStoredObject } from "@/lib/storage";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -472,26 +479,45 @@ export async function deleteEventFromListAction(slug: string) {
   return { ok: true as const };
 }
 
+/**
+ * Only the slug and locale are bound. This used to bind the whole event
+ * record, and a bound argument is serialised into the page: the locked
+ * gallery shipped both PIN hashes (gallery and upload) to anyone holding the
+ * link, and a short numeric PIN falls to an offline guess in minutes. The
+ * event is now loaded here, and attempts are limited per link and address.
+ */
 export async function unlockGalleryAction(
   slug: string,
-  event: { gallery_pin_hash: string | null; event_settings?: { require_pin_for_gallery: boolean } | null },
+  locale: string,
   _: { error?: string } | undefined | void,
   formData: FormData,
 ) {
   const pin = String(formData.get("pin") ?? "");
-  const success = await verifyGalleryPinAndGrantAccess(
-    {
-      ...event,
-      slug,
-    } as never,
-    pin,
-  );
-
-  if (!success) {
-    return { error: "Incorrect gallery PIN." };
+  const event = await getPublicEventBySlug(slug);
+  if (!event) {
+    return { error: GALLERY_PIN_WRONG };
   }
 
-  redirect(`/gallery/${slug}`);
+  const requestHeaders = await headers();
+  const ip =
+    requestHeaders.get("x-forwarded-for")?.split(",")[0]?.trim() ?? requestHeaders.get("x-real-ip") ?? "unknown";
+  if (
+    await isRateLimited(
+      `gallery-pin:${slug}:${ip}`,
+      GALLERY_UNLOCK_RATE_LIMIT.maxRequests,
+      GALLERY_UNLOCK_RATE_LIMIT.windowMs,
+      incrementRateLimitCount,
+    )
+  ) {
+    return { error: GALLERY_PIN_RATE_LIMITED };
+  }
+
+  const success = await verifyGalleryPinAndGrantAccess(event, pin);
+  if (!success) {
+    return { error: GALLERY_PIN_WRONG };
+  }
+
+  redirect(`/${locale === "en" ? "en" : "bs"}/gallery/${slug}`);
 }
 
 export async function updateEventAction(
