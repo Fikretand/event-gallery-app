@@ -20,7 +20,7 @@ export function EventLinkCard({
   accent = false,
 }: {
   title: string;
-  body: string;
+  body?: string;
   url: string;
   copyLabel: string;
   copiedLabel: string;
@@ -48,7 +48,7 @@ export function EventLinkCard({
       )}
     >
       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-ink)]">{title}</p>
-      <p className="mt-2 text-sm leading-6 text-black/60">{body}</p>
+      {body ? <p className="mt-2 text-sm leading-6 text-black/60">{body}</p> : null}
       <div className="mt-3 flex items-center gap-2">
         <p className="min-w-0 flex-1 truncate rounded-xl bg-[var(--color-paper)]/70 px-3 py-2 font-mono text-xs text-[var(--color-ink)]" title={url}>
           {url}

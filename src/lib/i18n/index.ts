@@ -309,6 +309,37 @@ export interface Dict {
       privateGalleryLinkBody: string;
       copyLink: string;
       linkCopied: string;
+      /** The event's side menu and its three pages: overview, gallery, settings. */
+      layout: {
+        menuLabel: string;
+        navOverview: string;
+        navGallery: string;
+        navSettings: string;
+        navQrCard: string;
+        navPreview: string;
+        eyebrow: string;
+        eyebrowCouple: string;
+        guestsTitle: string;
+        guestsBody: string;
+        guestLinkLabel: string;
+        openGuestPage: string;
+        afterTitle: string;
+        afterBody: string;
+        afterBodyCouple: string;
+        galleryLinkLabel: string;
+        manageGallery: string;
+        pendingReview: string;
+        galleryTitle: string;
+        galleryBody: string;
+        galleryBodyCouple: string;
+        addFilesTitle: string;
+        addFilesBody: string;
+        sectionsLabel: string;
+        sectionsHint: string;
+        filesLabel: string;
+        previewBtn: string;
+        historyTitle: string;
+      };
       /** The cover frame on the event page: set, change or remove the cover right there. */
       cover: {
         emptyTitle: string;
@@ -510,6 +541,10 @@ export interface Dict {
       saveName: string;
       deleteButton: string;
       deleteConfirm: string;
+      newSection: string;
+      cancel: string;
+      /** {{name}} — label for the edit button of one section chip. */
+      editLabel: string;
     };
     // Permanent delete
     lifecycle: {

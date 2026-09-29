@@ -496,6 +496,7 @@ export async function unlockGalleryAction(
 
 export async function updateEventAction(
   slug: string,
+  locale: string,
   _: { error?: string } | undefined | void,
   formData: FormData,
 ) {
@@ -556,7 +557,11 @@ export async function updateEventAction(
   }
 
   revalidatePath(`/dashboard/events/${slug}`);
-  redirect(`/dashboard/events/${slug}?saved=1`);
+  // Back to the settings page, in the reader's language: going through the
+  // unprefixed URL would bounce via the preferred-locale redirect and drop ?saved.
+  // A bound argument travels through the client, so it is checked, not trusted.
+  const prefix = locale === "bs" ? "/bs" : "";
+  redirect(`${prefix}/dashboard/events/${slug}/settings?saved=1`);
 }
 
 /**
