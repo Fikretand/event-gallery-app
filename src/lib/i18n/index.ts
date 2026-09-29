@@ -60,7 +60,6 @@ export interface Dict {
     ctaSecondary: string;
     heroCaveat: string;
     stats: Array<{ value: string; label: string }>;
-    features: Array<{ eyebrow: string; body: string }>;
     galleryBandEyebrow: string;
     galleryBandTitle: string;
     galleryBandBody: string;

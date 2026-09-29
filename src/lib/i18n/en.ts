@@ -40,20 +40,6 @@ export const dict: Dict = {
       { value: "0", label: "Apps guests need to install" },
       { value: "0", label: "Public galleries" },
     ],
-    features: [
-      {
-        eyebrow: "Set up once",
-        body: "One dashboard for event setup, guest uploads, and final delivery to clients.",
-      },
-      {
-        eyebrow: "Guests upload instantly",
-        body: "Share a QR code — guests send photos and videos from their phones without installing anything.",
-      },
-      {
-        eyebrow: "Delivery stays private",
-        body: "Moderate uploads, hide unwanted files, and deliver the final gallery with PIN protection.",
-      },
-    ],
     galleryBandEyebrow: "Every angle, one gallery",
     galleryBandTitle: "The whole day, seen through everyone's eyes.",
     galleryBandBody:

@@ -40,20 +40,6 @@ export const dict: Dict = {
       { value: "0", label: "Aplikacija koje gosti instaliraju" },
       { value: "0", label: "Javnih galerija" },
     ],
-    features: [
-      {
-        eyebrow: "Postavi jednom",
-        body: "Jedan dashboard za postavljanje događaja, prijenos gostiju i isporuku klijentima.",
-      },
-      {
-        eyebrow: "Gosti šalju odmah",
-        body: "Podijeli QR kod — gosti šalju fotografije i videe sa mobilnih bez instaliranja ičega.",
-      },
-      {
-        eyebrow: "Isporuka ostaje privatna",
-        body: "Moderiraj prijenose, sakrij neželjene fajlove i isporuči finalnu galeriju sa PIN-zaštitom.",
-      },
-    ],
     galleryBandEyebrow: "Svaki ugao, jedna galerija",
     galleryBandTitle: "Cijeli dan, viđen očima svih prisutnih.",
     galleryBandBody:

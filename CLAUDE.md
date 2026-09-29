@@ -533,6 +533,11 @@ src/
 
 Newest first — useful for picking back up.
 
+- **Landing order: hero → stats → how it works → photo mosaic → who it's for.**
+  The three-card feature strip ("Postavi jednom / Gosti šalju odmah / Isporuka
+  ostaje privatna") repeated the steps and is gone, with `landing.features` and
+  its icons. The mosaic is 7 tiles = exactly 12 cells, so no orphan on the last
+  row at 4 or 2 columns.
 - **"How it works" rebuilt from a Claude Design handoff** (`How It Works.dc.html`).
   `src/components/how-it-works/how-it-works.tsx`: a step switcher (vertical list
   ≥932 px, numbered dots below) beside a dark stage playing four short scenes —

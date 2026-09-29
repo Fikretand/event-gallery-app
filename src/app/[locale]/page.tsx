@@ -67,6 +67,8 @@ const PHOTO_CELLS = [
 
 // Editorial photo mosaic for the landing — real event photos from /public.
 // `span` drives the bento rhythm; `grid-flow-dense` keeps it gap-free.
+// 12 cells exactly (2×2 + 1×2 + 2×1 + four singles): three full rows at four
+// columns, six at two. One more tile always left an orphan on the last row.
 const GALLERY_MOSAIC: { src: string; span: string }[] = [
   { src: "/explainer/assets/gallery-ceremony-1.webp", span: "col-span-2 row-span-2" },
   { src: "/explainer/assets/party-2.webp", span: "" },
@@ -75,7 +77,6 @@ const GALLERY_MOSAIC: { src: string; span: string }[] = [
   { src: "/explainer/assets/generic-1.webp", span: "" },
   { src: "/explainer/assets/gallery-reception-1.webp", span: "col-span-2" },
   { src: "/explainer/assets/party-4.webp", span: "" },
-  { src: "/explainer/assets/generic-3.webp", span: "" },
 ];
 
 /**
@@ -86,24 +87,6 @@ const GALLERY_MOSAIC: { src: string; span: string }[] = [
  */
 const SHOW_EXPLAINER = false;
 
-const FEATURE_TONES = ["card-warm", "card-moss", "card-paper"];
-const FEATURE_ICONS = [
-  <svg key="f1" viewBox="0 0 22 22" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7">
-    <rect x="3" y="4" width="16" height="15" rx="2.5" />
-    <path d="M7 2v4M15 2v4M3 10h16" />
-    <path d="M8 15l2 2 4-4" />
-  </svg>,
-  <svg key="f2" viewBox="0 0 22 22" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7">
-    <rect x="2.5" y="2.5" width="7" height="7" rx="1.2" />
-    <rect x="12.5" y="2.5" width="7" height="7" rx="1.2" />
-    <rect x="2.5" y="12.5" width="7" height="7" rx="1.2" />
-    <path d="M13 13h2v2h-2zM17 13h2v6h-2M13 17h4" />
-  </svg>,
-  <svg key="f3" viewBox="0 0 22 22" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7">
-    <path d="M11 2.5l6.5 2.8v4.6c0 4.6-2.9 7.6-6.5 9.2C4.4 17.5 1.5 14.5 1.5 9.9V5.3L11 2.5Z" />
-    <path d="M8 11.5l2 2L14 9" />
-  </svg>,
-];
 export async function generateMetadata({
   params,
 }: {
@@ -337,7 +320,7 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* ─── Stats strip — quiet, chromeless row between the hero and features ── */}
+      {/* ─── Stats strip — quiet, chromeless row between the hero and how it works ── */}
       <section className="shell pb-10">
         <div className="grid grid-cols-3 divide-x divide-black/10 border-y border-black/6 py-6 sm:py-7">
           {d.stats.map((stat) => (
@@ -351,20 +334,17 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* ─── Feature strip — asymmetric column widths, lifted on hover ── */}
-      <section className="shell pb-12 sm:pb-16">
-        <div className="stagger-children grid gap-4 sm:grid-cols-[1.15fr_1fr_1fr]">
-          {d.features.map((item, i) => (
-            <Panel key={item.eyebrow} className={`mesh-card lift-card ${FEATURE_TONES[i]}`}>
-              <div className="inline-flex h-10 w-10 items-center justify-center rounded-[16px] bg-white/80 text-[var(--color-moss)] shadow-[0_8px_20px_rgba(18,24,38,0.07)]">
-                {FEATURE_ICONS[i]}
-              </div>
-              <p className="mt-4 text-sm font-semibold text-[var(--color-ink)]">{item.eyebrow}</p>
-              <p className="mt-2 text-sm leading-6 text-black/65">{item.body}</p>
-            </Panel>
-          ))}
-        </div>
-      </section>
+      {/* ─── How it works — step switcher + animated scenes ─────────── */}
+      <HowItWorks copy={d.howItWorks} qrSvg={mockupQrSvg} />
+
+      {/* The old animated explainer, parked (see SHOW_EXPLAINER). */}
+      {SHOW_EXPLAINER ? (
+        <section className="shell pb-12 sm:pb-16">
+          <div className="rounded-[34px] border border-[#22334c]/60 bg-[linear-gradient(160deg,#1e2d45,#172033)] p-2.5 shadow-[0_30px_80px_rgba(18,24,38,0.18)] sm:p-3.5">
+            <ConfettiExplainer />
+          </div>
+        </section>
+      ) : null}
 
       {/* ─── Photo mosaic band — real galleries break up the text-heavy flow ── */}
       <section className="shell pb-14 sm:pb-20">
@@ -397,18 +377,6 @@ export default async function HomePage({
           </div>
         </div>
       </section>
-
-      {/* ─── How it works — step switcher + animated scenes ─────────── */}
-      <HowItWorks copy={d.howItWorks} qrSvg={mockupQrSvg} />
-
-      {/* The old animated explainer, parked (see SHOW_EXPLAINER). */}
-      {SHOW_EXPLAINER ? (
-        <section className="shell pb-12 sm:pb-16">
-          <div className="rounded-[34px] border border-[#22334c]/60 bg-[linear-gradient(160deg,#1e2d45,#172033)] p-2.5 shadow-[0_30px_80px_rgba(18,24,38,0.18)] sm:p-3.5">
-            <ConfettiExplainer />
-          </div>
-        </section>
-      ) : null}
 
       {/* ─── Who it's for (router band) — quiet full-bleed paper band, left header ── */}
       <section className="border-y border-black/6 bg-[var(--color-paper)]/45 py-12 sm:py-16">
