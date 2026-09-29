@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { MarketingButtonLink } from "@/components/marketing-button-link";
+import { AudienceCtas } from "@/components/audience-ctas";
 import { SiteNav } from "@/components/site-nav";
 import { Panel } from "@/components/ui/panel";
 import { getDictionary, type Locale } from "@/lib/i18n/index";
@@ -40,7 +40,6 @@ export function Breadcrumbs({ trail }: { trail: Crumb[] }) {
 
 export function ContentCta({ locale }: { locale: Locale }) {
   const c = getDictionary(locale).content;
-  const lp = (path: string) => `/${locale}${path}`;
 
   return (
     <section className="shell py-12">
@@ -52,14 +51,7 @@ export function ContentCta({ locale }: { locale: Locale }) {
           <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-black/62 sm:text-base sm:leading-7">
             {c.ctaBody}
           </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <MarketingButtonLink href={lp("/get-started")} tone="accent" className="rounded-[18px] px-6 py-3.5">
-              {c.ctaPrimary}
-            </MarketingButtonLink>
-            <MarketingButtonLink href={lp("/pricing")} tone="ink" className="rounded-[18px] px-6 py-3.5">
-              {c.ctaSecondary}
-            </MarketingButtonLink>
-          </div>
+          <AudienceCtas locale={locale} align="center" showPricingLink className="mt-6" />
         </div>
       </Panel>
     </section>

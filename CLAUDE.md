@@ -533,6 +533,26 @@ src/
 
 Newest first — useful for picking back up.
 
+- **Smart guides in the card editor** (`src/lib/qr-card-editor/snap.ts`, tested):
+  a dragged object snaps its edges/centre to the card centre and to other
+  objects' edges/centres, with pink lines between them; rotation straightens
+  at every 45° and shows the angle. Template shapes with no fill and no line
+  (card-sized frames the presets draw with strokeWidth 0) are no longer
+  selectable — they used to catch every click on an "empty" spot.
+- **Landing.** Every sign-up CTA is `AudienceCtas` — two named buttons,
+  "Nalog za fotografe" / "Nalog za jedan događaj", each with a one-line
+  purpose (trial length and price from the constants). The phone mockup has a
+  real QR (`QRCode.toString` SVG → /kako-funkcionise) and an in-screen push
+  notification (`.phone-notif`). The explainer stuttered on first load: its
+  50 JPGs (5.2 MB) decoded mid-animation and the clock jumped over long
+  frames. Now WebP (1.7 MB), preloaded + decoded before the clock starts,
+  started on idle, frame step capped at 1/30 s; the footer Three.js loop only
+  loads near the viewport.
+- **Dashboard speed.** Functions pinned to `dub1` (vercel.json) — they ran in
+  iad1 while Supabase is eu-west-1. Event pages live under a `(shell)` route
+  group whose layout holds the header + menu (`EventShell`, `EventNav`), with
+  `loading.tsx` skeletons; `getOwnerEventContext` (React `cache`) shares one
+  parallel lookup between layout and page.
 - **Editor zoom.** 1× = whole card fits, up to 4×. Only the canvas's CSS box
   grows inside a scrolling stage (`m-auto` child so the top-left never
   clips); the backing store stays 1240×1754, so export and object coordinates

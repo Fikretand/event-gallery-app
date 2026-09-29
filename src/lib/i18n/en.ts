@@ -20,6 +20,13 @@ export const dict: Dict = {
     no: "No",
     or: "or",
   },
+  audienceCta: {
+    photographerTitle: "Photographer account",
+    photographerBody: "Many events · {{days}} {{unit}} free",
+    eventTitle: "Account for one event",
+    eventBody: "E.g. a wedding · {{price}} once",
+    pricingLink: "Compare prices →",
+  },
   landing: {
     badgeText: "Private galleries · Guest uploads · QR sharing",
     heroTitle: "Every memory from your event, gathered in one private place.",
@@ -30,7 +37,7 @@ export const dict: Dict = {
     heroCaveat: "Free to start · No credit card required · Live in 2 minutes",
     stats: [
       { value: "2 min", label: "Average event setup" },
-      { value: "0 apps", label: "Required for guests" },
+      { value: "0", label: "Apps guests need to install" },
       { value: "0", label: "Public galleries" },
     ],
     features: [
@@ -122,7 +129,8 @@ export const dict: Dict = {
     phoneMockupGuests: "12 guests",
     phoneMockupPinProtected: "PIN protected",
     phoneMockupTabs: ["All", "Ceremony", "Reception", "Guests"],
-    phoneNotification: "3 new photos just uploaded",
+    phoneNotification: "Guests just added 3 new photos",
+    phoneNotificationTime: "now",
     qrScanLabel: "Scan to upload",
   },
   upload: {
@@ -916,7 +924,7 @@ export const dict: Dict = {
     workflowBody: "Confetti isn't another folder. It's a controlled event workflow designed around how photographers actually manage uploads, review, and client handoff.",
     switchTitle: "Better delivery is easier to sell than another storage tool.",
     switchSubtitle: "Why photographers switch",
-    ctaPrimary: "Start free",
+    ctaPrimary: "Create a photographer account",
     ctaSecondary: "Compare pricing",
     workflow: [
       {
@@ -954,7 +962,7 @@ export const dict: Dict = {
     eyebrow: "For couples & event hosts",
     title: "Every photo from every guest, in one place, without the chaos.",
     body: "Confetti gives you a simple one-event home for guest uploads and private sharing — without forcing family and friends into another app.",
-    ctaPrimary: "Create an event",
+    ctaPrimary: "Create an account for your event",
     ctaSecondary: "See pricing",
     benefitsEyebrow: "Why hosts love it",
     highlightsEyebrow: "What you get in one event",
@@ -976,7 +984,7 @@ export const dict: Dict = {
         yearlyTotalNote: "Charged once a year — {{total}}",
         summary:
           "For photographers running a handful of events at a time, with private client delivery and guest uploads in one place.",
-        ctaLabel: "Start free",
+        ctaLabel: "Start free as a photographer",
         features: [
           "Up to 5 events running at once",
           "100 GB of storage",
@@ -994,7 +1002,7 @@ export const dict: Dict = {
         yearlyTotalNote: "Charged once a year — {{total}}",
         summary:
           "The same Confetti, sized for a full season: five times the events and five times the storage.",
-        ctaLabel: "Start free",
+        ctaLabel: "Start free as a photographer",
         features: [
           "Everything in Solo",
           "Up to 25 events running at once",
@@ -1008,7 +1016,7 @@ export const dict: Dict = {
       summary:
         "For couples and event hosts who want QR guest uploads and one private gallery for shared memories.",
       ctaLabel: "Create one event",
-      trialCtaLabel: "Start free",
+      trialCtaLabel: "Start free — one event",
       features: [
         "1 private event",
         "No limit on how many photos guests send",

@@ -126,6 +126,19 @@ select {
   animation-delay: 1.2s;
 }
 
+/* The push notification on the landing phone: drops in from under the
+   camera island, stays long enough to read, leaves, and comes back. `both`
+   keeps it hidden until its first entrance. */
+@keyframes phone-notif {
+  0%, 6% { opacity: 0; transform: translateY(-115%) scale(0.94); }
+  13%, 58% { opacity: 1; transform: translateY(0) scale(1); }
+  66%, 100% { opacity: 0; transform: translateY(-115%) scale(0.94); }
+}
+
+.phone-notif {
+  animation: phone-notif 7.5s cubic-bezier(0.22, 1, 0.36, 1) 1.4s infinite both;
+}
+
 /* ── Upload page ─────────────────────────────────────────── */
 
 @keyframes upload-float {
@@ -276,5 +289,14 @@ select {
   .lightbox-panel-in,
   .lightbox-media-in {
     animation: none;
+  }
+  .float-card,
+  .float-card-delay {
+    animation: none;
+  }
+  .phone-notif {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }

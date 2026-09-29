@@ -42,6 +42,16 @@ export interface Dict {
     no: string;
     or: string;
   };
+  /** The two sign-up buttons, used wherever a page asks the reader to start. */
+  audienceCta: {
+    photographerTitle: string;
+    /** {{days}} {{unit}} */
+    photographerBody: string;
+    eventTitle: string;
+    /** {{price}} */
+    eventBody: string;
+    pricingLink: string;
+  };
   landing: {
     badgeText: string;
     heroTitle: string;
@@ -94,6 +104,8 @@ export interface Dict {
     phoneMockupPinProtected: string;
     phoneMockupTabs: string[];
     phoneNotification: string;
+    /** "now" — the time on the phone notification. */
+    phoneNotificationTime: string;
     qrScanLabel: string;
   };
   upload: {

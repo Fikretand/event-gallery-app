@@ -33,37 +33,37 @@ const A = "/explainer/assets";
 // folder/files serve both layouts.
 // ═══════════════════════════════════════════════════════════════════════════
 const ASSETS = {
-  hero: `${A}/hero.jpg`,
+  hero: `${A}/hero.webp`,
   phones: [
-    `${A}/phone-toast.jpg`, `${A}/phone-02.jpg`, `${A}/phone-dance.jpg`,
-    `${A}/phone-04.jpg`, `${A}/phone-cake.jpg`, `${A}/phone-06.jpg`,
-    `${A}/phone-nana.jpg`, `${A}/phone-08.jpg`, `${A}/phone-09.jpg`,
-    `${A}/phone-kids.jpg`,
+    `${A}/phone-toast.webp`, `${A}/phone-02.webp`, `${A}/phone-dance.webp`,
+    `${A}/phone-04.webp`, `${A}/phone-cake.webp`, `${A}/phone-06.webp`,
+    `${A}/phone-nana.webp`, `${A}/phone-08.webp`, `${A}/phone-09.webp`,
+    `${A}/phone-kids.webp`,
   ],
   upload: [
-    `${A}/upload-1.jpg`, `${A}/upload-2.jpg`, `${A}/upload-3.jpg`,
-    `${A}/upload-4.jpg`, `${A}/upload-5.jpg`, `${A}/upload-6.jpg`,
-    `${A}/upload-7.jpg`, `${A}/upload-8.jpg`, `${A}/upload-9.jpg`,
+    `${A}/upload-1.webp`, `${A}/upload-2.webp`, `${A}/upload-3.webp`,
+    `${A}/upload-4.webp`, `${A}/upload-5.webp`, `${A}/upload-6.webp`,
+    `${A}/upload-7.webp`, `${A}/upload-8.webp`, `${A}/upload-9.webp`,
   ],
   gallery: [
-    `${A}/gallery-ceremony-1.jpg`, `${A}/gallery-ceremony-2.jpg`,
-    `${A}/gallery-ceremony-3.jpg`, `${A}/gallery-ceremony-4.jpg`,
-    `${A}/gallery-reception-1.jpg`, `${A}/gallery-reception-2.jpg`,
-    `${A}/gallery-reception-3.jpg`, `${A}/gallery-reception-4.jpg`,
-    `${A}/gallery-cake-1.jpg`, `${A}/gallery-cake-2.jpg`,
-    `${A}/gallery-toasts-1.jpg`, `${A}/gallery-toasts-2.jpg`,
+    `${A}/gallery-ceremony-1.webp`, `${A}/gallery-ceremony-2.webp`,
+    `${A}/gallery-ceremony-3.webp`, `${A}/gallery-ceremony-4.webp`,
+    `${A}/gallery-reception-1.webp`, `${A}/gallery-reception-2.webp`,
+    `${A}/gallery-reception-3.webp`, `${A}/gallery-reception-4.webp`,
+    `${A}/gallery-cake-1.webp`, `${A}/gallery-cake-2.webp`,
+    `${A}/gallery-toasts-1.webp`, `${A}/gallery-toasts-2.webp`,
   ],
   birthday: [
-    `${A}/birthday-1.jpg`, `${A}/birthday-2.jpg`, `${A}/birthday-3.jpg`,
-    `${A}/birthday-4.jpg`, `${A}/birthday-5.jpg`, `${A}/birthday-6.jpg`,
+    `${A}/birthday-1.webp`, `${A}/birthday-2.webp`, `${A}/birthday-3.webp`,
+    `${A}/birthday-4.webp`, `${A}/birthday-5.webp`, `${A}/birthday-6.webp`,
   ],
   party: [
-    `${A}/party-1.jpg`, `${A}/party-2.jpg`, `${A}/party-3.jpg`,
-    `${A}/party-4.jpg`, `${A}/party-5.jpg`, `${A}/party-6.jpg`,
+    `${A}/party-1.webp`, `${A}/party-2.webp`, `${A}/party-3.webp`,
+    `${A}/party-4.webp`, `${A}/party-5.webp`, `${A}/party-6.webp`,
   ],
   generic: [
-    `${A}/generic-1.jpg`, `${A}/generic-2.jpg`, `${A}/generic-3.jpg`,
-    `${A}/generic-4.jpg`, `${A}/generic-5.jpg`, `${A}/generic-6.jpg`,
+    `${A}/generic-1.webp`, `${A}/generic-2.webp`, `${A}/generic-3.webp`,
+    `${A}/generic-4.webp`, `${A}/generic-5.webp`, `${A}/generic-6.webp`,
   ],
 };
 

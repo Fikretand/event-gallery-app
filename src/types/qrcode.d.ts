@@ -9,8 +9,14 @@ declare module "qrcode" {
     };
   };
 
+  type QRCodeToStringOptions = QRCodeToDataURLOptions & {
+    type?: "svg" | "utf8" | "terminal";
+  };
+
   const QRCode: {
     toDataURL(input: string, options?: QRCodeToDataURLOptions): Promise<string>;
+    /** With `type: "svg"`, the code as SVG markup. */
+    toString(input: string, options?: QRCodeToStringOptions): Promise<string>;
   };
 
   export default QRCode;

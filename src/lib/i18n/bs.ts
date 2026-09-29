@@ -20,6 +20,13 @@ export const dict: Dict = {
     no: "Ne",
     or: "ili",
   },
+  audienceCta: {
+    photographerTitle: "Nalog za fotografe",
+    photographerBody: "Više događaja · {{days}} {{unit}} besplatno",
+    eventTitle: "Nalog za jedan događaj",
+    eventBody: "Npr. vjenčanje · {{price}} jednom",
+    pricingLink: "Uporedi cijene →",
+  },
   landing: {
     badgeText: "Privatne galerije · Prijenos gostiju · QR dijeljenje",
     heroTitle: "Svaka uspomena sa vašeg događaja, na jednom privatnom mjestu.",
@@ -30,7 +37,7 @@ export const dict: Dict = {
     heroCaveat: "Besplatno za početak · Kartica nije potrebna · Aktivno za 2 minute",
     stats: [
       { value: "2 min", label: "Prosječno postavljanje" },
-      { value: "0 aplikacija", label: "Potrebno gostima" },
+      { value: "0", label: "Aplikacija koje gosti instaliraju" },
       { value: "0", label: "Javnih galerija" },
     ],
     features: [
@@ -123,7 +130,8 @@ export const dict: Dict = {
     phoneMockupGuests: "12 gostiju",
     phoneMockupPinProtected: "PIN zaštita",
     phoneMockupTabs: ["Sve", "Ceremonija", "Recepcija", "Gosti"],
-    phoneNotification: "3 nove fotografije upravo dodane",
+    phoneNotification: "Gosti su upravo dodali 3 nove fotografije",
+    phoneNotificationTime: "sada",
     qrScanLabel: "Skeniraj za prijenos",
   },
   upload: {
@@ -918,7 +926,7 @@ export const dict: Dict = {
     workflowBody: "Confetti nije još jedan folder. To je kontrolisan tok rada osmišljen oko toga kako fotografi zaista upravljaju prijenosima, pregledom i predajom klijentima.",
     switchTitle: "Bolju isporuku je lakše prodati nego još jedan alat za skladištenje.",
     switchSubtitle: "Zašto fotografi prelaze",
-    ctaPrimary: "Počni besplatno",
+    ctaPrimary: "Napravi nalog za fotografe",
     ctaSecondary: "Usporedi cijene",
     workflow: [
       {
@@ -956,7 +964,7 @@ export const dict: Dict = {
     eyebrow: "Za parove i organizatore događaja",
     title: "Svaka fotografija od svakog gosta, na jednom mjestu, bez haosa.",
     body: "Confetti vam daje jednostavno mjesto za jedan događaj — prijenos gostiju i privatno dijeljenje, bez tjeranja porodice i prijatelja u još jednu aplikaciju.",
-    ctaPrimary: "Kreiraj događaj",
+    ctaPrimary: "Napravi nalog za svoj događaj",
     ctaSecondary: "Pogledaj cijene",
     benefitsEyebrow: "Zašto ga organizatori vole",
     highlightsEyebrow: "Šta dobijate u jednom događaju",
@@ -978,7 +986,7 @@ export const dict: Dict = {
         yearlyTotalNote: "Naplaćuje se jednom godišnje — {{total}}",
         summary:
           "Za fotografe koji vode nekoliko događaja istovremeno — privatna isporuka klijentima i prijenos gostiju na jednom mjestu.",
-        ctaLabel: "Počni besplatno",
+        ctaLabel: "Počni besplatno kao fotograf",
         features: [
           "Do 5 događaja istovremeno",
           "100 GB prostora",
@@ -996,7 +1004,7 @@ export const dict: Dict = {
         yearlyTotalNote: "Naplaćuje se jednom godišnje — {{total}}",
         summary:
           "Isti Confetti, samo za punu sezonu: pet puta više događaja i pet puta više prostora.",
-        ctaLabel: "Počni besplatno",
+        ctaLabel: "Počni besplatno kao fotograf",
         features: [
           "Sve što ima Solo",
           "Do 25 događaja istovremeno",
@@ -1010,7 +1018,7 @@ export const dict: Dict = {
       summary:
         "Za parove i organizatore koji žele QR prijenos gostiju i jednu privatnu galeriju za zajednička sjećanja.",
       ctaLabel: "Kreiraj jedan događaj",
-      trialCtaLabel: "Počni besplatno",
+      trialCtaLabel: "Počni besplatno — jedan događaj",
       features: [
         "1 privatni događaj",
         "Bez ograničenja koliko fotografija gosti pošalju",

@@ -5,9 +5,44 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactN
 import { Sprite, TimelineContext } from "./animations";
 import { PaperBackground } from "./visuals";
 import * as DesktopScenes from "./scenes";
+import { EXPLAINER_IMAGE_URLS } from "./scenes";
 import * as MobileScenes from "./scenes-mobile";
 
 const DURATION = 52;
+// The longest step the clock may take in one frame. A frame that runs long
+// (a busy main thread on first load) then slows the animation for a moment
+// instead of making it jump ahead — the jumps are what read as stutter.
+const MAX_FRAME_STEP = 1 / 30;
+
+/** Load and decode every image, and wait for fonts, so nothing decodes mid-animation. */
+function prepareAssets(): Promise<void> {
+  const images = EXPLAINER_IMAGE_URLS.map(
+    (src) =>
+      new Promise<void>((resolve) => {
+        const img = new Image();
+        img.decoding = "async";
+        img.src = src;
+        // A failed image must not hold the animation back for ever.
+        img.decode().then(() => resolve(), () => resolve());
+      }),
+  );
+  const fonts = typeof document !== "undefined" && document.fonts ? document.fonts.ready.then(() => undefined) : Promise.resolve();
+  return Promise.all([...images, fonts]).then(() => undefined);
+}
+
+/** Run when the browser has a moment, so the start does not compete with the page loading. */
+function whenIdle(fn: () => void): () => void {
+  const w = window as Window & {
+    requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+    cancelIdleCallback?: (id: number) => void;
+  };
+  if (w.requestIdleCallback) {
+    const id = w.requestIdleCallback(fn, { timeout: 1500 });
+    return () => w.cancelIdleCallback?.(id);
+  }
+  const id = window.setTimeout(fn, 200);
+  return () => window.clearTimeout(id);
+}
 
 // Representative still shown when the user prefers reduced motion.
 const REDUCED_MOTION_FRAME = 33; // gallery wall — "Svaki trenutak"
@@ -77,6 +112,8 @@ export function ConfettiExplainer() {
   const [scale, setScale] = useState(0);
   const [time, setTime] = useState(0);
   const [mounted, setMounted] = useState(false);
+  // The clock only starts once every image is decoded; until then the first frame shows.
+  const [ready, setReady] = useState(false);
   const inViewRef = useRef(false);
   // `ctx` reads this during render, so it cannot live in a ref. Subscribing to
   // the media query keeps it SSR-safe, avoids a cascading render, and lets the
@@ -125,9 +162,27 @@ export function ConfettiExplainer() {
     return () => ro.disconnect();
   }, [mode]);
 
-  // Drive the timeline only while in view (and not reduced-motion).
+  // Once mounted (near the viewport), load everything the scenes draw, then
+  // wait for an idle moment before letting the clock run.
   useEffect(() => {
     if (!mounted) return;
+    let cancelled = false;
+    let cancelIdle: (() => void) | null = null;
+    prepareAssets().then(() => {
+      if (cancelled) return;
+      cancelIdle = whenIdle(() => {
+        if (!cancelled) setReady(true);
+      });
+    });
+    return () => {
+      cancelled = true;
+      cancelIdle?.();
+    };
+  }, [mounted]);
+
+  // Drive the timeline only while in view (and not reduced-motion).
+  useEffect(() => {
+    if (!mounted || !ready) return;
 
     // Reduced motion: never start the clock. The frame shown is derived
     // below rather than written into state.
@@ -149,7 +204,7 @@ export function ConfettiExplainer() {
     const loop = (ts: number) => {
       if (inViewRef.current) {
         if (last == null) last = ts;
-        const dt = (ts - last) / 1000;
+        const dt = Math.min((ts - last) / 1000, MAX_FRAME_STEP);
         last = ts;
         setTime((t) => (t + dt) % DURATION);
       }
@@ -161,7 +216,7 @@ export function ConfettiExplainer() {
       cancelAnimationFrame(raf);
       io.disconnect();
     };
-  }, [mounted, reducedMotion]);
+  }, [mounted, ready, reducedMotion]);
 
   // Derived, not stored: with reduced motion we simply render a
   // representative still instead of driving `time`.
@@ -198,6 +253,10 @@ export function ConfettiExplainer() {
             transform: `scale(${scale})`,
             transformOrigin: "top left",
             overflow: "hidden",
+            // Its own compositing layer, and nothing inside can make the rest
+            // of the page re-lay out on each frame.
+            willChange: "transform",
+            contain: "layout paint",
           }}
         >
           <TimelineContext.Provider value={ctx}>

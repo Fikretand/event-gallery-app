@@ -17,6 +17,7 @@ const NAV = {
     pricing: "Pricing",
     logIn: "Log in",
     startFree: "Start free",
+    startShort: "Start",
     switchLabel: "BS",
     switchTitle: "Prebaci na bosanski",
   },
@@ -26,6 +27,7 @@ const NAV = {
     pricing: "Cijene",
     logIn: "Prijava",
     startFree: "Počni besplatno",
+    startShort: "Počni",
     switchLabel: "EN",
     switchTitle: "Switch to English",
   },
@@ -99,7 +101,7 @@ export function SiteNav() {
           </Link>
         </nav>
 
-        <nav className="flex items-center gap-2 text-sm font-medium">
+        <nav className="flex items-center gap-1 text-sm font-medium sm:gap-2">
           {/* Language switcher */}
           <Link
             href={switchPath}
@@ -111,15 +113,17 @@ export function SiteNav() {
 
           <Link
             href={localePath(locale, "/login")}
-            className="rounded-full px-4 py-2 text-black/65 transition hover:bg-white/80 hover:text-[var(--color-ink)]"
+            className="rounded-full px-2.5 py-2 text-black/65 transition hover:bg-white/80 hover:text-[var(--color-ink)] sm:px-4"
           >
             {nav.logIn}
           </Link>
           <MarketingButtonLink
             href={localePath(locale, "/get-started")}
-            className="whitespace-nowrap shadow-[0_4px_16px_rgba(226,121,82,0.22)]"
+            className="whitespace-nowrap px-4 shadow-[0_4px_16px_rgba(226,121,82,0.22)] sm:px-5"
           >
-            {nav.startFree}
+            {/* The full label crowded the logo off a 320 px screen. */}
+            <span className="sm:hidden">{nav.startShort}</span>
+            <span className="hidden sm:inline">{nav.startFree}</span>
           </MarketingButtonLink>
         </nav>
       </div>

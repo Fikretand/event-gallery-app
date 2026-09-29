@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import QRCode from "qrcode";
 
+import { AudienceCtas } from "@/components/audience-ctas";
 import { ConfettiExplainer } from "@/components/explainer/confetti-explainer-lazy";
 import { ConfettiHeroAnimation } from "@/components/hero-animation/confetti-hero-animation-lazy";
 import { MarketingButtonLink } from "@/components/marketing-button-link";
@@ -11,6 +13,7 @@ import { SiteNav } from "@/components/site-nav";
 import { listPublicPhotographers } from "@/lib/events";
 import { getDictionary, type Locale } from "@/lib/i18n/index";
 import { publicMetadata } from "@/lib/seo";
+import { absoluteUrl } from "@/lib/utils";
 
 // ─── Static icons ─────────────────────────────────────────────────────────────
 
@@ -48,16 +51,6 @@ function MailIcon() {
   );
 }
 
-const QR_CELLS = [
-  1,1,1,0,1,1,1,1,
-  1,0,1,0,0,0,1,0,
-  1,1,1,0,1,1,1,0,
-  0,0,0,1,0,0,0,1,
-  1,1,0,0,1,1,0,0,
-  0,1,1,1,0,0,1,1,
-  1,1,1,0,1,0,1,0,
-  0,0,0,1,1,1,1,0,
-];
 
 const PHOTO_CELLS = [
   { col: 1, src: "/gallery-preview/p1.jpg" },
@@ -73,14 +66,14 @@ const PHOTO_CELLS = [
 // Editorial photo mosaic for the landing — real event photos from /public.
 // `span` drives the bento rhythm; `grid-flow-dense` keeps it gap-free.
 const GALLERY_MOSAIC: { src: string; span: string }[] = [
-  { src: "/explainer/assets/gallery-ceremony-1.jpg", span: "col-span-2 row-span-2" },
-  { src: "/explainer/assets/party-2.jpg", span: "" },
-  { src: "/explainer/assets/gallery-cake-1.jpg", span: "" },
-  { src: "/explainer/assets/gallery-toasts-1.jpg", span: "row-span-2" },
-  { src: "/explainer/assets/generic-1.jpg", span: "" },
-  { src: "/explainer/assets/gallery-reception-1.jpg", span: "col-span-2" },
-  { src: "/explainer/assets/party-4.jpg", span: "" },
-  { src: "/explainer/assets/generic-3.jpg", span: "" },
+  { src: "/explainer/assets/gallery-ceremony-1.webp", span: "col-span-2 row-span-2" },
+  { src: "/explainer/assets/party-2.webp", span: "" },
+  { src: "/explainer/assets/gallery-cake-1.webp", span: "" },
+  { src: "/explainer/assets/gallery-toasts-1.webp", span: "row-span-2" },
+  { src: "/explainer/assets/generic-1.webp", span: "" },
+  { src: "/explainer/assets/gallery-reception-1.webp", span: "col-span-2" },
+  { src: "/explainer/assets/party-4.webp", span: "" },
+  { src: "/explainer/assets/generic-3.webp", span: "" },
 ];
 
 const FEATURE_TONES = ["card-warm", "card-moss", "card-paper"];
@@ -165,6 +158,14 @@ export default async function HomePage({
 
   const publicPhotographers = await listPublicPhotographers();
   const lp = (path: string) => `/${locale}${path}`;
+  // A real, scannable code on the mockup (it used to be a drawn pattern). It
+  // leads somewhere useful for whoever scans it off the screen.
+  const mockupQrSvg = await QRCode.toString(absoluteUrl(lp("/kako-funkcionise")), {
+    type: "svg",
+    margin: 0,
+    errorCorrectionLevel: "M",
+    color: { dark: "#172033", light: "#ffffff" },
+  });
 
   return (
     <main>
@@ -184,17 +185,7 @@ export default async function HomePage({
             <p className="mt-6 max-w-xl text-base leading-7 text-black/62 sm:text-lg sm:leading-8">
               {d.heroBody}
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <MarketingButtonLink
-                href={lp("/get-started")}
-                className="w-full px-8 shadow-[0_12px_32px_rgba(226,121,82,0.30)] sm:w-auto"
-              >
-                {d.ctaPrimary}
-              </MarketingButtonLink>
-              <MarketingButtonLink href={lp("/pricing")} tone="ghost" className="w-full bg-white/70 px-8 sm:w-auto">
-                {d.ctaSecondary}
-              </MarketingButtonLink>
-            </div>
+            <AudienceCtas locale={locale as Locale} showPricingLink className="mt-8" />
             <p className="mt-5 text-xs text-black/42">{d.heroCaveat}</p>
           </div>
 
@@ -202,11 +193,6 @@ export default async function HomePage({
           <div className="flex justify-center pb-10 lg:justify-end lg:pb-0">
             {/* Inner wrapper keeps float cards anchored to the phone on all viewports */}
             <div className="relative">
-            <div className="float-card absolute -top-4 left-0 z-20 flex items-center gap-2 rounded-full border border-black/8 bg-white py-2 pl-2.5 pr-4 text-xs font-semibold text-[var(--color-ink)] shadow-[0_8px_28px_rgba(18,24,38,0.12)]">
-              <span className="live-dot inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#dcf3e8] text-[10px]">📸</span>
-              {d.phoneNotification}
-            </div>
-
             <div
               className="relative rounded-[54px] shadow-[0_52px_110px_rgba(18,24,38,0.32),0_24px_48px_rgba(18,24,38,0.18)]"
               style={{ width: "270px", height: "560px" }}
@@ -250,6 +236,33 @@ export default async function HomePage({
 
               <div className="absolute overflow-hidden bg-[#f9f5ef]"
                 style={{ top: "11px", left: "11px", right: "11px", bottom: "11px", borderRadius: "46px" }}>
+                {/* Push notification: drops in from under the camera island like a real one */}
+                <div
+                  aria-hidden
+                  className="phone-notif absolute left-2 right-2 top-[44px] z-30 rounded-[18px] border border-white/70 bg-white/80 p-2.5 shadow-[0_10px_30px_rgba(18,24,38,0.18)] backdrop-blur-xl"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] bg-[var(--color-accent)] font-display text-[13px] font-semibold text-white shadow-[inset_0_-1px_0_rgba(0,0,0,0.12)]">
+                      C
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <p className="text-[9.5px] font-semibold uppercase tracking-[0.08em] text-black/55">Confetti</p>
+                        <p className="text-[9px] text-black/40">{d.phoneNotificationTime}</p>
+                      </div>
+                      <p className="mt-0.5 text-[10.5px] font-medium leading-[13px] text-[var(--color-ink)]">
+                        {d.phoneNotification}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-2 flex items-center gap-1 pl-9">
+                    {PHOTO_CELLS.slice(0, 3).map((cell) => (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img key={cell.src} src={cell.src} alt="" className="h-7 w-7 rounded-[7px] object-cover ring-1 ring-black/5" />
+                    ))}
+                  </div>
+                </div>
+
                 <div className="flex items-center justify-between px-5" style={{ height: "52px", paddingTop: "13px" }}>
                   <span className="text-[11px] font-semibold text-[var(--color-ink)]">9:41</span>
                   <div className="flex items-center gap-1.5">
@@ -308,13 +321,13 @@ export default async function HomePage({
               </div>
             </div>
 
-            <div className="float-card-delay absolute -right-3 top-24 z-20 rounded-[22px] border border-black/8 bg-white p-3.5 shadow-[0_16px_44px_rgba(18,24,38,0.14)]">
-              <div className="grid grid-cols-8 gap-[2px]">
-                {QR_CELLS.map((filled, i) => (
-                  <div key={i} className={`h-[4.5px] w-[4.5px] rounded-[1px] ${filled ? "bg-[var(--color-ink)]" : ""}`} />
-                ))}
-              </div>
-              <p className="mt-2 text-center text-[7.5px] font-bold uppercase tracking-[0.18em] text-black/38">
+            <div className="float-card-delay absolute -right-6 top-[300px] z-20 rounded-[20px] border border-black/8 bg-white p-3 shadow-[0_16px_44px_rgba(18,24,38,0.16)] sm:-right-10">
+              <div
+                aria-hidden
+                className="h-[76px] w-[76px] [&>svg]:h-full [&>svg]:w-full"
+                dangerouslySetInnerHTML={{ __html: mockupQrSvg }}
+              />
+              <p className="mt-2 text-center text-[8px] font-bold uppercase tracking-[0.16em] text-black/45">
                 {d.qrScanLabel}
               </p>
             </div>
@@ -327,9 +340,11 @@ export default async function HomePage({
       <section className="shell pb-10">
         <div className="grid grid-cols-3 divide-x divide-black/10 border-y border-black/6 py-6 sm:py-7">
           {d.stats.map((stat) => (
-            <div key={stat.label} className="text-center">
-              <p className="font-display text-2xl font-semibold text-[var(--color-ink)] sm:text-3xl">{stat.value}</p>
-              <p className="mt-1 text-[10px] leading-4 text-black/50 sm:text-xs">{stat.label}</p>
+            <div key={stat.label} className="min-w-0 px-2 text-center">
+              <p className="font-display text-2xl font-semibold leading-tight text-[var(--color-ink)] sm:text-3xl">
+                {stat.value}
+              </p>
+              <p className="mx-auto mt-1 max-w-[9rem] text-[11px] leading-4 text-black/50 sm:text-xs">{stat.label}</p>
             </div>
           ))}
         </div>
@@ -561,14 +576,7 @@ export default async function HomePage({
                 {d.faqTitle}
               </h2>
               <p className="mt-4 max-w-sm text-sm leading-7 text-black/62">{d.faqBody}</p>
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                <MarketingButtonLink href={lp("/get-started")} className="w-full sm:w-auto">
-                  {d.faqCtaPrimary}
-                </MarketingButtonLink>
-                <MarketingButtonLink href={lp("/pricing")} tone="ghost" className="w-full sm:w-auto">
-                  {d.faqCtaSecondary}
-                </MarketingButtonLink>
-              </div>
+              <AudienceCtas locale={locale as Locale} stacked showPricingLink className="mt-6 max-w-sm" />
             </div>
             <div className="space-y-3">
               {dm.faqs.map((faq, index) => (
@@ -607,17 +615,7 @@ export default async function HomePage({
               {d.footerCtaTitle}
             </h2>
             <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-black/58">{d.footerCtaBody}</p>
-            <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <MarketingButtonLink
-                href={lp("/signup?intent=photographer")}
-                className="w-full px-10 py-4 text-base shadow-[0_16px_40px_rgba(226,121,82,0.30)] sm:w-auto"
-              >
-                {d.footerCtaPrimary}
-              </MarketingButtonLink>
-              <MarketingButtonLink href={lp("/signup?intent=couple")} tone="ghost" className="w-full bg-white/75 px-10 py-4 text-base sm:w-auto">
-                {d.footerCtaSecondary}
-              </MarketingButtonLink>
-            </div>
+            <AudienceCtas locale={locale as Locale} align="center" className="mt-8" />
           </div>
         </div>
       </section>
