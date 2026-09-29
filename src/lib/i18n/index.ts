@@ -285,7 +285,7 @@ export interface Dict {
       managePlan: string;
       noEvents: string;
       noEventsBody: string;
-      trialActive: string;        // "Free trial — {{n}} day{{s}} remaining"
+      trialActive: string;        // "Free trial — {{days}} {{unit}} remaining"; unit from daysWord()
       trialExpired: string;
       trialActiveBody: string;    // "{{used}} / {{limit}} photos used · …"
       trialExpiredBody: string;
@@ -754,7 +754,7 @@ export interface Dict {
       planLabelAdmin: string;
       planLabelActive: string;       // "{{plan}} · active"
       planLabelAdminNote: string;    // "Admin · no limits"
-      trialActiveLabel: string;      // "Free trial · {{n}} day{{s}} left"
+      trialActiveLabel: string;      // "Free trial · {{days}} {{unit}} left"; unit from daysWord()
       trialExpired: string;
       freeTrial: string;
       trialPhotosUsed: string;       // "{{used}} / {{limit}} trial photos used"
@@ -1078,6 +1078,19 @@ export function localePrefix(locale: Locale): string {
 }
 
 /** Tiny helper — call as t(dict.someKey, { name: "Amina" }) to replace {{name}} */
+/**
+ * "day" / "days" in the reader's language. Bosnian is not English with an
+ * "s": 1 dan, 2 dana, 5 dana, 11 dana, 21 dan. Appending "s" made the trial
+ * banner read "još 7 dans".
+ */
+export function daysWord(count: number, locale: Locale): string {
+  if (locale === "bs") {
+    const n = Math.abs(Math.trunc(count));
+    return n % 10 === 1 && n % 100 !== 11 ? "dan" : "dana";
+  }
+  return count === 1 ? "day" : "days";
+}
+
 export function t(template: string, vars?: Record<string, string | number>): string {
   if (!vars) return template;
   return Object.entries(vars).reduce(

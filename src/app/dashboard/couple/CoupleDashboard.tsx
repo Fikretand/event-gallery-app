@@ -8,7 +8,7 @@ import { Panel } from "@/components/ui/panel";
 import { getAccountTypeForUser, getRequiredUser, getUserProfile } from "@/lib/auth";
 import { hasActiveSubscription } from "@/lib/billing";
 import { hasSupabase } from "@/lib/env";
-import { getDictionary, t, type Locale } from "@/lib/i18n/index";
+import { getDictionary, t, type Locale, daysWord } from "@/lib/i18n/index";
 import { computeTrialState, countUserMediaFiles, getEventLifecycleStatus, listOwnerEvents } from "@/lib/events";
 import type { TrialState } from "@/lib/types";
 import { absoluteUrl, cn, formatDate } from "@/lib/utils";
@@ -85,7 +85,7 @@ export async function CoupleDashboard({
 
         <section className="shell grid gap-5">
           {paymentBanner}
-          {trial && <TrialBanner trial={trial} d={d} />}
+          {trial && <TrialBanner trial={trial} d={d} locale={locale} />}
 
           {/* Event card */}
           <Panel className="bg-white/92">
@@ -188,7 +188,7 @@ export async function CoupleDashboard({
 
       <section className="shell grid gap-5">
         {paymentBanner}
-        {trial && <TrialBanner trial={trial} d={d} />}
+        {trial && <TrialBanner trial={trial} d={d} locale={locale} />}
 
         <Panel className="bg-[linear-gradient(160deg,rgba(255,253,250,0.98),rgba(248,230,218,0.60))] border-[#e8d2c4]">
           <div className="mx-auto max-w-lg py-6 text-center">
@@ -236,7 +236,7 @@ export async function CoupleDashboard({
 
 type CoupleDashboardStrings = Awaited<ReturnType<typeof getDictionary>>["coupleDashboard"];
 
-function TrialBanner({ trial, d }: { trial: TrialState; d: CoupleDashboardStrings }) {
+function TrialBanner({ trial, d, locale }: { trial: TrialState; d: CoupleDashboardStrings; locale: Locale }) {
   if (trial.status === "none") return null;
 
   const isExpired = trial.status === "expired";
@@ -261,7 +261,7 @@ function TrialBanner({ trial, d }: { trial: TrialState; d: CoupleDashboardString
             <p className={cn("text-sm font-semibold", isExpired ? "text-[#8b1a1a]" : "text-[var(--color-ink)]")}>
               {isExpired
                 ? d.trialExpired
-                : t(d.trialActive, { days: String(trial.daysLeft), s: trial.daysLeft === 1 ? "" : "s" })}
+                : t(d.trialActive, { days: String(trial.daysLeft), unit: daysWord(trial.daysLeft, locale) })}
             </p>
             <p className={cn("mt-0.5 text-xs", isExpired ? "text-[#b03030]/80" : "text-black/58")}>
               {isExpired

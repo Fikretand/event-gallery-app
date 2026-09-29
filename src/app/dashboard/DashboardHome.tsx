@@ -17,7 +17,7 @@ import {
   getEventLifecycleStatus,
   listOwnerEvents,
 } from "@/lib/events";
-import { getDictionary, localePrefix, t, type Locale } from "@/lib/i18n/index";
+import { getDictionary, localePrefix, t, type Locale, daysWord } from "@/lib/i18n/index";
 import type { TrialState } from "@/lib/types";
 import { cn, formatBytes } from "@/lib/utils";
 
@@ -96,7 +96,7 @@ export async function DashboardHome({
           <div className="rounded-2xl bg-[#eef9f0] px-4 py-3 text-sm text-[#1f6b35]">{h.eventDeleted}</div>
         ) : null}
 
-        {trial && <TrialBanner trial={trial} strings={d} prefix={prefix} />}
+        {trial && <TrialBanner trial={trial} strings={d} prefix={prefix} locale={locale} />}
 
         <div className="grid gap-4 xl:grid-cols-[1.6fr_1fr_1fr]">
           <UsageCard
@@ -226,7 +226,17 @@ function CountCard({
   );
 }
 
-function TrialBanner({ trial, strings, prefix }: { trial: TrialState; strings: DashStrings; prefix: string }) {
+function TrialBanner({
+  trial,
+  strings,
+  prefix,
+  locale,
+}: {
+  trial: TrialState;
+  strings: DashStrings;
+  prefix: string;
+  locale: Locale;
+}) {
   if (trial.status === "none") return null;
 
   const h = strings.home;
@@ -252,7 +262,7 @@ function TrialBanner({ trial, strings, prefix }: { trial: TrialState; strings: D
             <p className={cn("text-sm font-semibold", isExpired ? "text-[#8b1a1a]" : "text-[var(--color-ink)]")}>
               {isExpired
                 ? h.trialExpired
-                : t(h.trialActive, { days: String(trial.daysLeft), s: trial.daysLeft === 1 ? "" : "s" })}
+                : t(h.trialActive, { days: String(trial.daysLeft), unit: daysWord(trial.daysLeft, locale) })}
             </p>
             <p className={cn("mt-0.5 text-xs", isExpired ? "text-[#b03030]/80" : "text-black/58")}>
               {isExpired

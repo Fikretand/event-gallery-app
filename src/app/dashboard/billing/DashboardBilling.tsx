@@ -13,7 +13,7 @@ import {
 } from "@/lib/billing";
 import { computeTrialState, countUserMediaFiles } from "@/lib/events";
 import { env, hasSupabase } from "@/lib/env";
-import { getDictionary, localePrefix, t, type Locale } from "@/lib/i18n/index";
+import { getDictionary, localePrefix, t, type Locale, daysWord } from "@/lib/i18n/index";
 import { BillingPlans } from "./billing-plans";
 import { CoupleCheckoutButton } from "./couple-checkout-button";
 
@@ -64,7 +64,7 @@ export async function DashboardBilling({
       return {
         label: t(b.trialActiveLabel, {
           days: String(trial.daysLeft),
-          s: trial.daysLeft === 1 ? "" : "s",
+          unit: daysWord(trial.daysLeft, locale),
         }),
         tone: "accent" as const,
       };
