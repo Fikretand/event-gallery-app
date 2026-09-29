@@ -726,6 +726,9 @@ export interface Dict {
         textType: string;
         imageType: string;
         shapeType: string;
+        zoomIn: string;
+        zoomOut: string;
+        zoomFit: string;
       };
     };
     qrPicker: {

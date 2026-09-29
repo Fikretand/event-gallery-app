@@ -28,6 +28,12 @@ const PRESET_COLORS = [
 const FONT_OPTIONS = ["Playfair Display", "Jost", "Inter", "JetBrains Mono"] as const;
 
 const SNAP_THRESHOLD = 10; // design-px tolerance for centre snapping
+// Zoom is relative to "the whole card fits the screen" (1). The canvas keeps
+// its full print-resolution backing store, so zooming only enlarges its CSS box
+// inside a scrolling stage; export and object coordinates are untouched.
+const ZOOM_MIN = 1;
+const ZOOM_MAX = 4;
+const ZOOM_STEP = 1.25;
 const HISTORY_LIMIT = 60;
 // A snapshot is the whole canvas serialized, and any image the user uploads
 // lives inside it as a base64 data URL. Sixty snapshots taken after a 3 MB
@@ -102,6 +108,14 @@ export function QrCardEditor({
   // shrunk, so anything Fabric draws in design px — handles included — shrinks
   // with it. On a phone that made the handles about 3 px wide.
   const displayScaleRef = useRef(1);
+  const [zoom, setZoom] = useState(1);
+  const zoomRef = useRef(1);
+  // The fitted CSS size of the card at zoom 1, and the function that applies
+  // fit × zoom to the canvas; both are set up once Fabric has loaded.
+  const fitSizeRef = useRef({ w: 0, h: 0 });
+  const applySizeRef = useRef<(() => void) | null>(null);
+  // Dragging an empty spot of a zoomed card moves the view instead of drawing a selection box.
+  const panRef = useRef<{ x: number; y: number; left: number; top: number } | null>(null);
 
   // The event's name, date and QR code; fixed for the life of the editor.
   const ctxRef = useRef<CardContext>({ title: eventTitle, date: eventDate, qrDataUrl });
@@ -284,6 +298,38 @@ export function QrCardEditor({
     fabricRef.current?.requestRenderAll();
   }, []);
 
+  /**
+   * Set the zoom and keep a point of the card where it was on screen: the
+   * point under `anchor` (a finger, the cursor), or the centre of the view.
+   * `fraction` pins an exact spot of the card instead — a pinch uses it so the
+   * card also follows the fingers as they move.
+   */
+  const zoomTo = useCallback(
+    (next: number, anchor?: { x: number; y: number }, fraction?: { x: number; y: number }) => {
+      const stage = stageRef.current;
+      const canvas = fabricRef.current;
+      if (!stage || !canvas || !applySizeRef.current) return;
+      const clamped = Math.round(Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, next)) * 100) / 100;
+      const stageRect = stage.getBoundingClientRect();
+      const ax = anchor ? anchor.x : stageRect.left + stageRect.width / 2;
+      const ay = anchor ? anchor.y : stageRect.top + stageRect.height / 2;
+      const before = canvas.upperCanvasEl.getBoundingClientRect();
+      const fx = fraction?.x ?? (ax - before.left) / before.width;
+      const fy = fraction?.y ?? (ay - before.top) / before.height;
+
+      if (clamped !== zoomRef.current) {
+        zoomRef.current = clamped;
+        setZoom(clamped);
+        applySizeRef.current();
+      }
+      // Reading the rect forces layout, so the new size is already in place.
+      const after = canvas.upperCanvasEl.getBoundingClientRect();
+      stage.scrollLeft += after.left + fx * after.width - ax;
+      stage.scrollTop += after.top + fy * after.height - ay;
+    },
+    [],
+  );
+
   // ── Mount: load fonts + Fabric, create canvas, restore draft or preset ─────
   useEffect(() => {
     let cancelled = false;
@@ -317,7 +363,9 @@ export function QrCardEditor({
         }
         setSelected({
           type: active.type ?? "object",
-          fill: typeof active.fill === "string" ? active.fill : undefined,
+          // Every Fabric object has a default fill, images included, but a fill
+          // does nothing to a photo or the QR code — so no colour tool for them.
+          fill: active.type !== "image" && typeof active.fill === "string" ? active.fill : undefined,
           fontSize: active.fontSize,
           fontFamily: active.fontFamily,
           fontStyle: active.fontStyle,
@@ -345,8 +393,32 @@ export function QrCardEditor({
         const t = (e as { target?: FO | null }).target;
         if (t) snapObject(t);
       });
-      canvas.on("mouse:up", clearGuides);
       canvas.on("after:render", drawGuides);
+
+      // Moving around a zoomed card: drag an empty spot.
+      const clientPoint = (e: Event) => {
+        const touch = (e as TouchEvent).touches?.[0] ?? (e as TouchEvent).changedTouches?.[0];
+        const point = (touch ?? e) as { clientX: number; clientY: number };
+        return { x: point.clientX, y: point.clientY };
+      };
+      canvas.on("mouse:down", (opt) => {
+        const stage = stageRef.current;
+        if (!stage || zoomRef.current <= ZOOM_MIN || opt.target) return;
+        const p = clientPoint(opt.e);
+        panRef.current = { x: p.x, y: p.y, left: stage.scrollLeft, top: stage.scrollTop };
+      });
+      canvas.on("mouse:move", (opt) => {
+        const pan = panRef.current;
+        const stage = stageRef.current;
+        if (!pan || !stage) return;
+        const p = clientPoint(opt.e);
+        stage.scrollLeft = pan.left - (p.x - pan.x);
+        stage.scrollTop = pan.top - (p.y - pan.y);
+      });
+      canvas.on("mouse:up", () => {
+        panRef.current = null;
+        clearGuides();
+      });
 
       // Keep the backing store at full design resolution and only shrink the
       // CSS box to fit the stage, so text and the QR stay crisp on every DPR.
@@ -354,6 +426,9 @@ export function QrCardEditor({
         if (!canvas || !stageRef.current) return;
         const stage = stageRef.current.getBoundingClientRect();
         const margin = stage.width < 640 ? 20 : 40;
+        // The same breathing room as padding around the card, so at zoom 1 it
+        // fits exactly and nothing scrolls.
+        stageRef.current.style.setProperty("--card-pad", `${margin / 2}px`);
         const availW = Math.max(160, stage.width - margin);
         const availH = Math.max(160, stage.height - margin);
         const aspect = CANVAS_WIDTH / CANVAS_HEIGHT;
@@ -364,14 +439,27 @@ export function QrCardEditor({
           displayH = displayW / aspect;
         }
         canvas.setDimensions({ width: CANVAS_WIDTH, height: CANVAS_HEIGHT }, { backstoreOnly: true });
+        fitSizeRef.current = { w: displayW, h: displayH };
+        applySize();
+      };
+
+      // Fitted size × zoom. Handles are restyled so they stay finger-sized on
+      // screen at any zoom, and the selection box is off while zoomed because
+      // dragging empty space then moves the view.
+      const applySize = () => {
+        if (!canvas) return;
+        const { w, h } = fitSizeRef.current;
+        const z = zoomRef.current;
         canvas.setDimensions(
-          { width: `${Math.round(displayW)}px`, height: `${Math.round(displayH)}px` },
+          { width: `${Math.round(w * z)}px`, height: `${Math.round(h * z)}px` },
           { cssOnly: true },
         );
         canvas.setZoom(1);
-        displayScaleRef.current = displayW / CANVAS_WIDTH;
+        canvas.selection = z <= ZOOM_MIN;
+        displayScaleRef.current = (w * z) / CANVAS_WIDTH;
         styleAll();
       };
+      applySizeRef.current = applySize;
 
       // A template chosen on the QR page wins; then a saved draft; then the first preset.
       const chosen = CARD_PRESETS.find((p) => p.id === initialTemplateId);
@@ -396,6 +484,62 @@ export function QrCardEditor({
       if (stageRef.current) ro.observe(stageRef.current);
       (canvas as unknown as { __ro?: ResizeObserver }).__ro = ro;
 
+      // Pinch with two fingers, and Ctrl + wheel (which is also what a
+      // trackpad pinch sends). Listening in the capture phase on the stage
+      // stops a two-finger gesture before Fabric reads it as dragging an object.
+      const stageEl = stageRef.current;
+      let pinch: { dist: number; zoom: number; fx: number; fy: number } | null = null;
+      const touchInfo = (e: TouchEvent) => {
+        const [a, b] = [e.touches[0], e.touches[1]];
+        return {
+          dist: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY),
+          center: { x: (a.clientX + b.clientX) / 2, y: (a.clientY + b.clientY) / 2 },
+        };
+      };
+      const onTouchStart = (e: TouchEvent) => {
+        if (e.touches.length !== 2 || !canvas) return;
+        e.preventDefault();
+        e.stopPropagation();
+        panRef.current = null;
+        const { dist, center } = touchInfo(e);
+        const rect = canvas.upperCanvasEl.getBoundingClientRect();
+        pinch = {
+          dist,
+          zoom: zoomRef.current,
+          fx: (center.x - rect.left) / rect.width,
+          fy: (center.y - rect.top) / rect.height,
+        };
+      };
+      const onTouchMove = (e: TouchEvent) => {
+        if (!pinch || e.touches.length !== 2) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const { dist, center } = touchInfo(e);
+        zoomTo(pinch.zoom * (dist / Math.max(1, pinch.dist)), center, { x: pinch.fx, y: pinch.fy });
+      };
+      const onTouchEnd = (e: TouchEvent) => {
+        if (e.touches.length < 2) pinch = null;
+      };
+      const onWheel = (e: WheelEvent) => {
+        if (!e.ctrlKey && !e.metaKey) return; // a plain wheel scrolls the zoomed card
+        e.preventDefault();
+        zoomTo(zoomRef.current * Math.exp(-e.deltaY * 0.01), { x: e.clientX, y: e.clientY });
+      };
+      if (stageEl) {
+        stageEl.addEventListener("touchstart", onTouchStart, { capture: true, passive: false });
+        stageEl.addEventListener("touchmove", onTouchMove, { capture: true, passive: false });
+        stageEl.addEventListener("touchend", onTouchEnd, { capture: true });
+        stageEl.addEventListener("touchcancel", onTouchEnd, { capture: true });
+        stageEl.addEventListener("wheel", onWheel, { passive: false });
+        (canvas as unknown as { __unlisten?: () => void }).__unlisten = () => {
+          stageEl.removeEventListener("touchstart", onTouchStart, { capture: true });
+          stageEl.removeEventListener("touchmove", onTouchMove, { capture: true });
+          stageEl.removeEventListener("touchend", onTouchEnd, { capture: true });
+          stageEl.removeEventListener("touchcancel", onTouchEnd, { capture: true });
+          stageEl.removeEventListener("wheel", onWheel);
+        };
+      }
+
       setStatus("ready");
 
       // Template thumbnails, one at a time after the editor is usable.
@@ -415,6 +559,7 @@ export function QrCardEditor({
       if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current);
       if (textCommitTimerRef.current) window.clearTimeout(textCommitTimerRef.current);
       (canvas as unknown as { __ro?: ResizeObserver })?.__ro?.disconnect();
+      (canvas as unknown as { __unlisten?: () => void })?.__unlisten?.();
       canvas?.dispose();
       fabricRef.current = null;
     };
@@ -457,11 +602,20 @@ export function QrCardEditor({
       } else if (e.key === "Escape") {
         canvas.discardActiveObject();
         canvas.requestRenderAll();
+      } else if (!mod && (e.key === "+" || e.key === "=")) {
+        e.preventDefault();
+        zoomTo(zoomRef.current * ZOOM_STEP);
+      } else if (!mod && (e.key === "-" || e.key === "_")) {
+        e.preventDefault();
+        zoomTo(zoomRef.current / ZOOM_STEP);
+      } else if (!mod && e.key === "0") {
+        e.preventDefault();
+        zoomTo(ZOOM_MIN);
       }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [undo, redo]);
+  }, [undo, redo, zoomTo]);
 
   // ── Actions ─────────────────────────────────────────────────────────────────
   function activeObject() {
@@ -1096,17 +1250,59 @@ export function QrCardEditor({
         </aside>
 
         {/* Canvas stage — measured by the ResizeObserver so the card always
-            fits, including when a phone tool panel opens below it. */}
-        <main
-          ref={stageRef}
-          onClick={() => setDownloadOpen(false)}
-          className="relative flex min-h-0 min-w-0 flex-1 touch-none items-center justify-center overflow-hidden bg-[#0f1419]"
-        >
-          {status === "loading" ? <p className="absolute z-10 text-sm text-white/60">{s.loading}</p> : null}
-          <div className="shadow-[0_24px_60px_rgba(0,0,0,0.6)]">
-            <canvas ref={canvasElRef} />
-          </div>
-        </main>
+            fits, including when a phone tool panel opens below it. It scrolls
+            when zoomed; `m-auto` centres the card without clipping its
+            top-left edge once it is larger than the stage. */}
+        <div className="relative min-h-0 min-w-0 flex-1">
+          <main
+            ref={stageRef}
+            onClick={() => setDownloadOpen(false)}
+            className="absolute inset-0 flex touch-none overflow-auto overscroll-contain bg-[#0f1419]"
+          >
+            {status === "loading" ? (
+              <p className="absolute inset-0 z-10 flex items-center justify-center text-sm text-white/60">{s.loading}</p>
+            ) : null}
+            <div className="m-auto shrink-0 p-[var(--card-pad,10px)]">
+              <div className="shadow-[0_24px_60px_rgba(0,0,0,0.6)]">
+                <canvas ref={canvasElRef} />
+              </div>
+            </div>
+          </main>
+
+          {status === "ready" ? (
+            <div className="absolute bottom-3 right-3 z-20 flex items-center gap-0.5 rounded-full border border-white/15 bg-[#161b22]/90 p-1 shadow-lg backdrop-blur">
+              <button
+                type="button"
+                onClick={() => zoomTo(zoomRef.current / ZOOM_STEP)}
+                disabled={zoom <= ZOOM_MIN}
+                title={s.zoomOut}
+                aria-label={s.zoomOut}
+                className="flex h-9 w-9 items-center justify-center rounded-full text-lg font-semibold text-white/85 transition hover:bg-white/10 disabled:opacity-30"
+              >
+                −
+              </button>
+              <button
+                type="button"
+                onClick={() => zoomTo(ZOOM_MIN)}
+                title={s.zoomFit}
+                aria-label={s.zoomFit}
+                className="min-w-[3.5rem] rounded-full px-2 py-1.5 text-xs font-semibold tabular-nums text-white/85 transition hover:bg-white/10"
+              >
+                {Math.round(zoom * 100)}%
+              </button>
+              <button
+                type="button"
+                onClick={() => zoomTo(zoomRef.current * ZOOM_STEP)}
+                disabled={zoom >= ZOOM_MAX}
+                title={s.zoomIn}
+                aria-label={s.zoomIn}
+                className="flex h-9 w-9 items-center justify-center rounded-full text-lg font-semibold text-white/85 transition hover:bg-white/10 disabled:opacity-30"
+              >
+                +
+              </button>
+            </div>
+          ) : null}
+        </div>
 
         {/* Right rail (desktop) */}
         <aside className="hidden w-72 shrink-0 overflow-y-auto border-l border-white/10 bg-[#161b22] p-4 lg:block">

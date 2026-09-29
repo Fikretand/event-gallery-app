@@ -533,6 +533,14 @@ src/
 
 Newest first — useful for picking back up.
 
+- **Editor zoom.** 1× = whole card fits, up to 4×. Only the canvas's CSS box
+  grows inside a scrolling stage (`m-auto` child so the top-left never
+  clips); the backing store stays 1240×1754, so export and object coordinates
+  are untouched — Fabric reads the element's rect + CSS scale on every
+  pointer event. Buttons − / % / +, Ctrl+wheel (= trackpad pinch), keys + − 0,
+  two-finger pinch (capture-phase listeners on the stage so Fabric never sees
+  the second finger), and dragging empty space pans while zoomed (selection
+  box is off then). Handles are restyled per zoom so they stay finger-sized.
 - **QR card: see it first, edit on a phone.** The menu's "QR kartica" opens
   `/dashboard/events/[slug]/qr` (`EventQr` + `qr-card-overview.tsx`): the card
   as it stands (this device's draft, else the first template), PDF/PNG
