@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 
 import type { Dict } from "@/lib/i18n/index";
 import { CANVAS_HEIGHT, CANVAS_WIDTH, CARD_PRESETS, type CardPreset } from "@/lib/qr-card-editor/presets";
+import { computeSnap, snapAngle, type Box, type Guide } from "@/lib/qr-card-editor/snap";
 import {
   buildPresetObject,
   clearDraft,
@@ -27,7 +28,10 @@ const PRESET_COLORS = [
 
 const FONT_OPTIONS = ["Playfair Display", "Jost", "Inter", "JetBrains Mono"] as const;
 
-const SNAP_THRESHOLD = 10; // design-px tolerance for centre snapping
+// Snapping distance on screen, in CSS pixels; converted to design pixels at
+// the current zoom so it feels the same at 100% and at 400%.
+const SNAP_SCREEN_PX = 7;
+const GUIDE_COLOR = "#ff3d8b";
 // Zoom is relative to "the whole card fits the screen" (1). The canvas keeps
 // its full print-resolution backing store, so zooming only enlarges its CSS box
 // inside a scrolling stage; export and object coordinates are untouched.
@@ -67,6 +71,15 @@ export interface QrCardEditorProps {
   initialTemplateId?: string;
 }
 
+/** A rectangle or circle with neither a visible fill nor a visible outline. */
+function isInvisibleShape(obj: FO) {
+  if (obj.type !== "rect" && obj.type !== "circle") return false;
+  const fill = obj.fill;
+  const noFill = fill == null || fill === "" || fill === "transparent" || fill === "rgba(0,0,0,0)";
+  const noStroke = !obj.stroke || !obj.strokeWidth;
+  return noFill && noStroke;
+}
+
 function isTextbox(selected: Selected | null) {
   return selected?.type === "textbox";
 }
@@ -101,7 +114,11 @@ export function QrCardEditor({
   // History + guide + autosave scratch state (refs so handlers stay stable).
   const historyRef = useRef<{ stack: string[]; index: number }>({ stack: [], index: -1 });
   const suspendHistoryRef = useRef(true); // suspended until the first paint settles
-  const guidesRef = useRef<{ v: number[]; h: number[] }>({ v: [], h: [] });
+  // Smart guides for the drag in progress, the other objects' boxes (measured
+  // once per drag), and the angle readout while rotating.
+  const guidesRef = useRef<Guide[]>([]);
+  const othersRef = useRef<{ target: FO; boxes: Box[] } | null>(null);
+  const angleRef = useRef<{ angle: number; straight: boolean; box: Box } | null>(null);
   const saveTimerRef = useRef<number | null>(null);
   const textCommitTimerRef = useRef<number | null>(null);
   // CSS px per design px. The backing store is the full 1240×1754 design, shown
@@ -145,6 +162,13 @@ export function QrCardEditor({
     // On a phone, text is changed in the text tool; tapping into the canvas
     // text would pop the keyboard and shove the whole layout around.
     if (obj.type === "textbox") (obj as unknown as { editable: boolean }).editable = !coarse;
+    // The templates carry card-sized frames drawn with no fill and no line —
+    // invisible, yet they caught every click on an "empty" spot, so dragging
+    // there moved an invisible frame instead of deselecting. Shapes that draw
+    // nothing cannot be picked (and are not alignment targets).
+    if (isInvisibleShape(obj)) {
+      obj.set({ selectable: false, evented: false });
+    }
   }, []);
 
   const styleAll = useCallback(() => {
@@ -242,26 +266,57 @@ export function QrCardEditor({
     scheduleSave();
   }, [restoreFromJson, syncHist, scheduleSave]);
 
-  // ── Centre-snap guides ─────────────────────────────────────────────────────
-  const snapObject = useCallback((target: FO) => {
-    const cx = CANVAS_WIDTH / 2;
-    const cy = CANVAS_HEIGHT / 2;
-    // getCenterPoint() computes the live centre on every drag tick — unlike
-    // getBoundingRect(), whose cached box can lag.
-    const c = target.getCenterPoint();
-    const v: number[] = [];
-    const h: number[] = [];
-    if (Math.abs(c.x - cx) <= SNAP_THRESHOLD) {
-      target.set({ left: (target.left ?? 0) + (cx - c.x) });
-      v.push(cx);
-    }
-    if (Math.abs(c.y - cy) <= SNAP_THRESHOLD) {
-      target.set({ top: (target.top ?? 0) + (cy - c.y) });
-      h.push(cy);
-    }
-    target.setCoords();
-    guidesRef.current = { v, h };
+  // ── Smart guides (Canva-style) ─────────────────────────────────────────────
+  const boxOf = useCallback((o: FO): Box => {
+    o.setCoords();
+    const r = o.getBoundingRect();
+    return { left: r.left, top: r.top, right: r.left + r.width, bottom: r.top + r.height };
   }, []);
+
+  /** Snap a dragged object to the card's centre and to other objects' edges and centres. */
+  const snapObject = useCallback(
+    (target: FO) => {
+      const canvas = fabricRef.current;
+      if (!canvas) return;
+      if (othersRef.current?.target !== target) {
+        // A multi-selection moves as one; its members are not targets for themselves.
+        const members = new Set<FO>([target, ...((target as unknown as { getObjects?: () => FO[] }).getObjects?.() ?? [])]);
+        othersRef.current = {
+          target,
+          boxes: canvas
+            .getObjects()
+            .filter((o) => !members.has(o) && o.visible !== false && o.evented !== false)
+            .map(boxOf),
+        };
+      }
+      const threshold = Math.max(3, SNAP_SCREEN_PX / (displayScaleRef.current || 1));
+      const { dx, dy, guides } = computeSnap(
+        boxOf(target),
+        othersRef.current.boxes,
+        { width: CANVAS_WIDTH, height: CANVAS_HEIGHT },
+        threshold,
+      );
+      if (dx || dy) {
+        target.set({ left: (target.left ?? 0) + dx, top: (target.top ?? 0) + dy });
+        target.setCoords();
+      }
+      guidesRef.current = guides;
+    },
+    [boxOf],
+  );
+
+  /** Rotation snaps to straight (every 45°) and shows the angle while turning. */
+  const snapRotation = useCallback(
+    (target: FO) => {
+      const { angle, snapped } = snapAngle(target.angle ?? 0);
+      if (snapped && angle !== target.angle) {
+        target.rotate(angle); // keeps the centre where it is
+        target.setCoords();
+      }
+      angleRef.current = { angle: Math.round(angle), straight: snapped, box: boxOf(target) };
+    },
+    [boxOf],
+  );
 
   const drawGuides = useCallback(() => {
     const canvas = fabricRef.current;
@@ -270,31 +325,77 @@ export function QrCardEditor({
     // every frame, never stick, and never become objects (history, export).
     const context = (canvas as unknown as { contextContainer?: CanvasRenderingContext2D }).contextContainer;
     if (!context) return;
-    const { v, h } = guidesRef.current;
-    if (!v.length && !h.length) return;
+    const guides = guidesRef.current;
+    const angle = angleRef.current;
+    if (!guides.length && !angle) return;
     const scale = displayScaleRef.current || 1;
     context.save();
-    context.strokeStyle = "#e27952";
-    context.lineWidth = 1.5 / scale;
-    context.setLineDash([7 / scale, 5 / scale]);
-    v.forEach((x) => {
+    context.strokeStyle = GUIDE_COLOR;
+    context.fillStyle = GUIDE_COLOR;
+    context.lineWidth = 1.25 / scale;
+
+    for (const g of guides) {
+      context.setLineDash(g.kind === "page" ? [6 / scale, 4 / scale] : []);
       context.beginPath();
-      context.moveTo(x, 0);
-      context.lineTo(x, CANVAS_HEIGHT);
+      if (g.axis === "x") {
+        context.moveTo(g.pos, g.from);
+        context.lineTo(g.pos, g.to);
+      } else {
+        context.moveTo(g.from, g.pos);
+        context.lineTo(g.to, g.pos);
+      }
       context.stroke();
-    });
-    h.forEach((y) => {
+      if (g.kind === "object") {
+        // Small end marks, so it reads as "these two line up".
+        const r = 2.5 / scale;
+        for (const end of [g.from, g.to]) {
+          context.beginPath();
+          if (g.axis === "x") context.arc(g.pos, end, r, 0, Math.PI * 2);
+          else context.arc(end, g.pos, r, 0, Math.PI * 2);
+          context.fill();
+        }
+      }
+    }
+
+    if (angle) {
+      const { box } = angle;
+      const cx = (box.left + box.right) / 2;
+      const cy = (box.top + box.bottom) / 2;
+      if (angle.straight && angle.angle % 90 === 0) {
+        // "Straight": a level line through the object.
+        context.setLineDash([6 / scale, 4 / scale]);
+        context.beginPath();
+        context.moveTo(box.left - 30 / scale, cy);
+        context.lineTo(box.right + 30 / scale, cy);
+        context.stroke();
+      }
+      // Angle readout below the object, clear of the rotation handle on top.
+      const label = `${angle.angle}°`;
+      const font = 12 / scale;
+      context.setLineDash([]);
+      context.font = `600 ${font}px Inter, system-ui, sans-serif`;
+      const w = context.measureText(label).width + 14 / scale;
+      const h = 22 / scale;
+      const x = cx - w / 2;
+      const below = box.bottom + 14 / scale;
+      const y = below + h <= CANVAS_HEIGHT ? below : Math.max(4 / scale, box.top - h - 44 / scale);
+      context.fillStyle = angle.straight ? GUIDE_COLOR : "#172033";
       context.beginPath();
-      context.moveTo(0, y);
-      context.lineTo(CANVAS_WIDTH, y);
-      context.stroke();
-    });
+      context.roundRect(x, y, w, h, h / 2);
+      context.fill();
+      context.fillStyle = "#ffffff";
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+      context.fillText(label, cx, y + h / 2 + 0.5 / scale);
+    }
     context.restore();
   }, []);
 
   const clearGuides = useCallback(() => {
-    if (!guidesRef.current.v.length && !guidesRef.current.h.length) return;
-    guidesRef.current = { v: [], h: [] };
+    othersRef.current = null;
+    if (!guidesRef.current.length && !angleRef.current) return;
+    guidesRef.current = [];
+    angleRef.current = null;
     fabricRef.current?.requestRenderAll();
   }, []);
 
@@ -388,10 +489,14 @@ export function QrCardEditor({
       canvas.on("object:modified", recordHistory);
       canvas.on("object:removed", recordHistory);
 
-      // Centre snapping + guide overlay.
+      // Smart guides while moving, straightening while rotating.
       canvas.on("object:moving", (e) => {
         const t = (e as { target?: FO | null }).target;
         if (t) snapObject(t);
+      });
+      canvas.on("object:rotating", (e) => {
+        const t = (e as { target?: FO | null }).target;
+        if (t) snapRotation(t);
       });
       canvas.on("after:render", drawGuides);
 
