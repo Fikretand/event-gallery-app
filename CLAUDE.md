@@ -541,8 +541,10 @@ Newest first — useful for picking back up.
   scene is drawn on a fixed 480×380 canvas scaled to the stage; a scene is a list
   of checkpoint times (`SCHED`) and every style is a function of how many have
   passed, so CSS transitions animate and reduced motion jumps to the last frame.
-  Autoplay 4.6 s, pauses on hover/click, swipe on the stage, arrow keys between
-  tabs; runs only while ≥30 % on screen. Copy in `landing.howItWorks` (replaced
+  Autoplay 4.6 s, pauses on click, swipe on the stage, arrow keys between tabs;
+  runs only while ≥30 % on screen. On desktop only the active step shows its
+  text (0fr→1fr grid row) and the stage's width is capped from `100svh`, so the
+  block fits under the sticky nav on a 1366×610 laptop viewport. Copy in `landing.howItWorks` (replaced
   `howItWorksEyebrow`/`howItWorksTitle`/`steps`). Photos are the existing
   `public/explainer/assets` WebPs. Mono labels use the poster JetBrains Mono TTF
   via `next/font/local` (Google Fonts is unreachable from the build sandbox).

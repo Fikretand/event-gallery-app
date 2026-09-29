@@ -135,7 +135,6 @@ export function HowItWorks({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
   const timers = useRef<number[]>([]);
   const rafs = useRef<number[]>([]);
   const advance = useRef<number | undefined>(undefined);
-  const hoverT = useRef<number | undefined>(undefined);
   const touchX = useRef(0);
   const inView = useRef(false);
   const fired = useRef(false);
@@ -152,7 +151,6 @@ export function HowItWorks({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
     timers.current.forEach(clearTimeout);
     rafs.current.forEach(cancelAnimationFrame);
     clearTimeout(advance.current);
-    clearTimeout(hoverT.current);
     timers.current = [];
     rafs.current = [];
   }, []);
@@ -248,15 +246,9 @@ export function HowItWorks({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
   }, [clear]);
 
   const select = (i: number) => {
-    clearTimeout(hoverT.current);
     playing.current = false;
     patch({ playing: false });
     runStep(i);
-  };
-  const hover = (i: number) => {
-    clearTimeout(hoverT.current);
-    if (i === active.current && !playing.current) return;
-    hoverT.current = window.setTimeout(() => select(i), 140);
   };
   const togglePlay = () => {
     if (playing.current) {
@@ -355,8 +347,13 @@ export function HowItWorks({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
       </div>
 
       <div style={{ display: "flex", flexDirection: "row-reverse", flexWrap: "wrap", alignItems: "center", gap: 40 }}>
-        {/* ─── Stage ─── */}
+        {/* ─── Stage ───
+            On wide screens its width is capped by the viewport height, so the
+            whole stage fits under the sticky nav (76 px) with 20 px to spare
+            above and below: stage = canvas + 68 px of chrome, canvas is
+            380/480 of its width. */}
         <div
+          className="min-[932px]:max-w-[max(440px,calc((100svh_-_184px)*1.2632_+_22px))]"
           style={{
             flex: "1.45 1 520px",
             minWidth: 0,
@@ -445,8 +442,6 @@ export function HowItWorks({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                   tabEls.current[i] = el;
                 }}
                 onClick={() => select(i)}
-                onMouseEnter={() => hover(i)}
-                onMouseLeave={() => clearTimeout(hoverT.current)}
                 onKeyDown={(e) => onKey(e, i)}
                 className={`cursor-pointer ${focusRing}`}
                 style={{
@@ -506,31 +501,36 @@ export function HowItWorks({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                 </span>
                 <span style={{ position: "relative", minWidth: 0, paddingTop: 2 }}>
                   <span style={{ display: "block", fontSize: 17, lineHeight: "24px", fontWeight: 600, color: st.titleC }}>{st.title}</span>
-                  <span style={{ display: "block", marginTop: 6, fontSize: 14, lineHeight: "22px", color: st.bodyC, textWrap: "pretty" }}>{st.body}</span>
+                  {/* Only the active step shows its text, so the list stays
+                      short enough to sit beside the stage on a laptop screen.
+                      The 0fr → 1fr row animates the height. */}
                   <span
-                    aria-hidden="true"
                     style={{
-                      display: "block",
-                      marginTop: 14,
-                      height: 2,
-                      borderRadius: 2,
-                      background: "rgba(0,0,0,.06)",
-                      overflow: "hidden",
+                      display: "grid",
+                      gridTemplateRows: st.act ? "1fr" : "0fr",
                       opacity: st.act ? 1 : 0,
-                      transition: "opacity 300ms ease-out",
+                      transition: `grid-template-rows 450ms ${EASE}, opacity 300ms ease-out`,
                     }}
                   >
-                    <span
-                      style={{
-                        display: "block",
-                        width: "100%",
-                        height: "100%",
-                        background: "#e27952",
-                        transformOrigin: "left",
-                        transform: `scaleX(${st.act ? s.prog : 0})`,
-                        transition: `transform ${st.act ? s.progMs : 0}ms linear`,
-                      }}
-                    />
+                    <span style={{ display: "block", minHeight: 0, overflow: "hidden" }}>
+                      <span style={{ display: "block", marginTop: 6, fontSize: 14, lineHeight: "22px", color: st.bodyC, textWrap: "pretty" }}>{st.body}</span>
+                      <span
+                        aria-hidden="true"
+                        style={{ display: "block", marginTop: 14, height: 2, borderRadius: 2, background: "rgba(0,0,0,.06)", overflow: "hidden" }}
+                      >
+                        <span
+                          style={{
+                            display: "block",
+                            width: "100%",
+                            height: "100%",
+                            background: "#e27952",
+                            transformOrigin: "left",
+                            transform: `scaleX(${st.act ? s.prog : 0})`,
+                            transition: `transform ${st.act ? s.progMs : 0}ms linear`,
+                          }}
+                        />
+                      </span>
+                    </span>
                   </span>
                 </span>
               </button>
