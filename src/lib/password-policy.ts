@@ -25,6 +25,8 @@ export const WEAK_PASSWORD = "WEAK_PASSWORD";
 export const PASSWORD_MISMATCH = "PASSWORD_MISMATCH";
 export const RESET_SESSION_EXPIRED = "RESET_SESSION_EXPIRED";
 export const PASSWORD_UPDATED = "PASSWORD_UPDATED";
+export const CURRENT_PASSWORD_WRONG = "CURRENT_PASSWORD_WRONG";
+export const SAME_PASSWORD = "SAME_PASSWORD";
 
 const hasSymbol = (password: string) =>
   password.split("").some((char) => PASSWORD_SYMBOLS.includes(char));

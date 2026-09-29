@@ -522,6 +522,19 @@ export interface Dict {
       accountDetailsBody: string;
       publicProfileBody: string;
       savedNotice: string;
+      /** Change password while signed in — needs no email, so it works before SMTP. */
+      changePassword: {
+        title: string;
+        body: string;
+        current: string;
+        next: string;
+        confirm: string;
+        submit: string;
+        success: string;
+        wrongCurrent: string;
+        samePassword: string;
+        mismatch: string;
+      };
     };
     // QR poster picker
     qrPicker: {

@@ -551,6 +551,18 @@ export const dict: Dict = {
       accountDetailsBody: "Drži podatke naloga aktuelnim.",
       publicProfileBody: "Tvoja spotlight kartica pomaže parovima da te pronađu za svoje sljedeće vjenčanje ili događaj. Tvoj telefon ostaje privatan u v1, a možeš izabrati da li je email javno vidljiv.",
       savedNotice: "Profil sačuvan.",
+      changePassword: {
+        title: "Promjena lozinke",
+        body: "Za promjenu je potrebna trenutna lozinka — tako niko ne može promijeniti lozinku sa računara na kojem ste ostali prijavljeni.",
+        current: "Trenutna lozinka",
+        next: "Nova lozinka",
+        confirm: "Ponovite novu lozinku",
+        submit: "Promijeni lozinku",
+        success: "Lozinka je promijenjena. Sljedeći put se prijavljujete novom lozinkom.",
+        wrongCurrent: "Trenutna lozinka nije tačna.",
+        samePassword: "Nova lozinka mora biti drugačija od trenutne.",
+        mismatch: "Nove lozinke se ne podudaraju.",
+      },
     },
     qrPicker: {
       plainDownload: "Skini QR (PNG)",

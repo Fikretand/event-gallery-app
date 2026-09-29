@@ -549,6 +549,18 @@ export const dict: Dict = {
       accountDetailsBody: "Keep your account details up to date.",
       publicProfileBody: "Your spotlight card can help couples discover you for their next wedding or event. Your phone stays private in v1, and you can choose whether your email appears publicly.",
       savedNotice: "Profile saved.",
+      changePassword: {
+        title: "Change password",
+        body: "Your current password is required, so nobody can change it from a computer where you stayed signed in.",
+        current: "Current password",
+        next: "New password",
+        confirm: "Repeat new password",
+        submit: "Change password",
+        success: "Your password has been changed. Use the new one next time you sign in.",
+        wrongCurrent: "The current password is not correct.",
+        samePassword: "The new password must be different from the current one.",
+        mismatch: "The new passwords do not match.",
+      },
     },
     qrPicker: {
       plainDownload: "Download QR (PNG)",

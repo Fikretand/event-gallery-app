@@ -2,18 +2,22 @@
 
 import { randomUUID } from "node:crypto";
 
+import { createClient } from "@supabase/supabase-js";
+
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { isValidPublicProfileUrl, normalizeAccountType, resolveAccountRedirect } from "@/lib/account";
-import { getAccountTypeForUser, getUserProfile } from "@/lib/auth";
+import { getAccountTypeForUser, getRequiredUser, getUserProfile } from "@/lib/auth";
 import { PROFILE_AVATAR_MAX_MB } from "@/lib/constants";
 import { env } from "@/lib/env";
 import {
+  CURRENT_PASSWORD_WRONG,
   PASSWORD_MISMATCH,
   PASSWORD_UPDATED,
   passwordMeetsPolicy,
   RESET_SESSION_EXPIRED,
+  SAME_PASSWORD,
   WEAK_PASSWORD,
 } from "@/lib/password-policy";
 import {
@@ -532,4 +536,59 @@ export async function updateEventAction(
 
   revalidatePath(`/dashboard/events/${slug}`);
   redirect(`/dashboard/events/${slug}?saved=1`);
+}
+
+/**
+ * Check a password without touching the caller's session.
+ *
+ * signInWithPassword on the request's own client would rewrite the auth
+ * cookies as a side effect; a throwaway client that never persists anything
+ * answers the only question asked — is this the account's password.
+ */
+async function passwordIsCorrect(email: string, password: string) {
+  if (!env.supabaseUrl || !env.supabaseAnonKey) return false;
+  const probe = createClient(env.supabaseUrl, env.supabaseAnonKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const { error } = await probe.auth.signInWithPassword({ email, password });
+  return !error;
+}
+
+/**
+ * Change the password of the signed-in account.
+ *
+ * Unlike "forgot password" this needs no email, so it works today, before
+ * custom SMTP is in place. The current password is required: without it,
+ * anyone sitting at an unlocked, signed-in browser could take the account.
+ * Answers in codes (see password-policy.ts) so the form can translate them.
+ */
+export async function changePasswordAction(
+  _: { error?: string; success?: string } | undefined | void,
+  formData: FormData,
+) {
+  const currentPassword = String(formData.get("currentPassword") ?? "");
+  const password = String(formData.get("password") ?? "");
+  const confirmPassword = String(formData.get("confirmPassword") ?? "");
+
+  const { user, supabase } = await getRequiredUser();
+
+  if (!passwordMeetsPolicy(password)) {
+    return { error: WEAK_PASSWORD };
+  }
+  if (password !== confirmPassword) {
+    return { error: PASSWORD_MISMATCH };
+  }
+  if (!user.email || !(await passwordIsCorrect(user.email, currentPassword))) {
+    return { error: CURRENT_PASSWORD_WRONG };
+  }
+  if (password === currentPassword) {
+    return { error: SAME_PASSWORD };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) {
+    return { error: error.code === "same_password" ? SAME_PASSWORD : error.message };
+  }
+
+  return { success: PASSWORD_UPDATED };
 }

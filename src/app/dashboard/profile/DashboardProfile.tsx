@@ -1,9 +1,10 @@
 import Link from "next/link";
 
+import { ChangePasswordForm } from "@/components/change-password-form";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { PhotographerProfileForm } from "@/components/photographer-profile-form";
 import { Panel } from "@/components/ui/panel";
-import { updatePhotographerProfileAction } from "@/lib/actions";
+import { changePasswordAction, updatePhotographerProfileAction } from "@/lib/actions";
 import { getAccountTypeForUser, getRequiredUser, getUserProfile } from "@/lib/auth";
 import { getPublicProfileAvatarUrl } from "@/lib/events";
 import { getDictionary, localePrefix, type Locale } from "@/lib/i18n/index";
@@ -15,7 +16,8 @@ export async function DashboardProfile({
   locale: Locale;
   searchParams?: { saved?: string };
 }) {
-  const d = getDictionary(locale).dashboard;
+  const dict = getDictionary(locale);
+  const d = dict.dashboard;
   const p = d.profile;
 
   const { user, supabase } = await getRequiredUser();
@@ -68,6 +70,22 @@ export async function DashboardProfile({
               action={updatePhotographerProfileAction}
               avatarPreviewUrl={avatarPreviewUrl}
               strings={d.profileForm}
+            />
+          </div>
+        </Panel>
+
+        <Panel className="bg-white/90">
+          <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">{p.changePassword.title}</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-black/62">{p.changePassword.body}</p>
+          <div className="mt-5">
+            <ChangePasswordForm
+              action={changePasswordAction}
+              strings={{
+                ...p.changePassword,
+                rule: dict.auth.formPasswordRule,
+                rules: dict.auth.passwordRules,
+                working: dict.auth.formWorking,
+              }}
             />
           </div>
         </Panel>
