@@ -300,3 +300,12 @@ select {
     transform: none;
   }
 }
+
+/* "How it works" scenes: under reduced motion every scene is shown at its
+   final frame, so nothing should transition into it. */
+@media (prefers-reduced-motion: reduce) {
+  [data-hiw] * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

@@ -5,6 +5,7 @@ import QRCode from "qrcode";
 import { AudienceCtas } from "@/components/audience-ctas";
 import { ConfettiExplainer } from "@/components/explainer/confetti-explainer-lazy";
 import { ConfettiHeroAnimation } from "@/components/hero-animation/confetti-hero-animation-lazy";
+import { HowItWorks } from "@/components/how-it-works/how-it-works";
 import { MarketingButtonLink } from "@/components/marketing-button-link";
 import { PricingShowcase } from "@/components/pricing-showcase";
 import { Panel } from "@/components/ui/panel";
@@ -79,7 +80,7 @@ const GALLERY_MOSAIC: { src: string; span: string }[] = [
 
 /**
  * The animated "Kako funkcioniše" explainer. Hidden for now at the owner's
- * request — the four step cards below it carry the section on their own.
+ * request — `HowItWorks` (switcher + four short scenes) replaced it.
  * The component, its scenes and its WebP assets all stay in tree; flip this
  * back to true to show it again. While false, its lazy chunk is never loaded.
  */
@@ -103,30 +104,6 @@ const FEATURE_ICONS = [
     <path d="M8 11.5l2 2L14 9" />
   </svg>,
 ];
-const STEP_ICONS = [
-  <svg key="s1" viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.6">
-    <rect x="3" y="4.5" width="18" height="16" rx="2.5" />
-    <path d="M8 2.5v4M16 2.5v4M3 11h18" />
-    <path d="M12 15v4M10 17h4" />
-  </svg>,
-  <svg key="s2" viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.6">
-    <rect x="3" y="3" width="8" height="8" rx="1.5" />
-    <rect x="13" y="3" width="8" height="8" rx="1.5" />
-    <rect x="3" y="13" width="8" height="8" rx="1.5" />
-    <path d="M14 14h2v2h-2zM18 14h2v6h-2M14 18h4" />
-  </svg>,
-  <svg key="s3" viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.6">
-    <rect x="3" y="5" width="18" height="14" rx="2" />
-    <path d="M7 14.5l3-3.5 3 3 3-4.5" />
-    <circle cx="8" cy="9" r="1.3" fill="currentColor" stroke="none" />
-  </svg>,
-  <svg key="s4" viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.6">
-    <path d="M12 3l7 3v5c0 5-3.2 8.3-7 10-3.8-1.7-7-5-7-10V6l7-3z" />
-    <path d="M9.5 12.2l1.8 1.8 3.7-4" />
-  </svg>,
-];
-
-
 export async function generateMetadata({
   params,
 }: {
@@ -421,51 +398,17 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* ─── How it works — explainer (left-anchored header, step markers right) ── */}
-      <section className="shell py-12 sm:py-16">
-        <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
-          <div className="max-w-xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[var(--color-moss)]">
-              {d.howItWorksEyebrow}
-            </p>
-            <h2 className="font-display mt-3 text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">
-              {d.howItWorksTitle}
-            </h2>
-          </div>
-          <div className="hidden items-center gap-2 pb-1 sm:flex" aria-hidden="true">
-            {d.steps.map((step) => (
-              <span
-                key={step.n}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-moss)]/25 bg-white/70 font-display text-sm font-semibold text-[var(--color-moss)]"
-              >
-                {step.n}
-              </span>
-            ))}
-          </div>
-        </div>
+      {/* ─── How it works — step switcher + animated scenes ─────────── */}
+      <HowItWorks copy={d.howItWorks} qrSvg={mockupQrSvg} />
 
-        {/* Dark frame makes the warm explainer canvas pop */}
-        {SHOW_EXPLAINER ? (
-          <div className="mb-6 rounded-[34px] border border-[#22334c]/60 bg-[linear-gradient(160deg,#1e2d45,#172033)] p-2.5 shadow-[0_30px_80px_rgba(18,24,38,0.18)] sm:p-3.5">
+      {/* The old animated explainer, parked (see SHOW_EXPLAINER). */}
+      {SHOW_EXPLAINER ? (
+        <section className="shell pb-12 sm:pb-16">
+          <div className="rounded-[34px] border border-[#22334c]/60 bg-[linear-gradient(160deg,#1e2d45,#172033)] p-2.5 shadow-[0_30px_80px_rgba(18,24,38,0.18)] sm:p-3.5">
             <ConfettiExplainer />
           </div>
-        ) : null}
-
-        {/* Slim recap of the four steps */}
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {d.steps.map((step, i) => (
-            <div key={step.n} className="lift-card flex items-start gap-3 rounded-2xl border border-black/8 bg-white/70 p-4">
-              <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--color-moss)]/10 text-[var(--color-moss)]">
-                {STEP_ICONS[i]}
-              </span>
-              <div>
-                <p className="text-sm font-semibold text-[var(--color-ink)]">{step.title}</p>
-                <p className="mt-1 text-xs leading-5 text-black/55">{step.body}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       {/* ─── Who it's for (router band) — quiet full-bleed paper band, left header ── */}
       <section className="border-y border-black/6 bg-[var(--color-paper)]/45 py-12 sm:py-16">

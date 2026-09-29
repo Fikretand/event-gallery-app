@@ -520,7 +520,8 @@ src/
     ├── photographer-profile-form.tsx, setup-notice.tsx
     ├── pricing-showcase.tsx, marketing-button-link.tsx
     ├── content-page.tsx             # Breadcrumbs/CTA/shell for §6 pages
-    ├── explainer/                   # Stage/Sprite scenes + lazy wrapper
+    ├── explainer/                   # Stage/Sprite scenes + lazy wrapper (parked)
+    ├── how-it-works/                # landing step switcher + 4 animated scenes
     ├── hero-animation/              # Three.js QR→camera→wordmark loop (lazy)
     ├── legal-doc-view.tsx           # Renders a LegalDoc
     └── marketing-testimonials.tsx   # ⚠ fabricated data — render removed
@@ -532,6 +533,19 @@ src/
 
 Newest first — useful for picking back up.
 
+- **"How it works" rebuilt from a Claude Design handoff** (`How It Works.dc.html`).
+  `src/components/how-it-works/how-it-works.tsx`: a step switcher (vertical list
+  ≥932 px, numbered dots below) beside a dark stage playing four short scenes —
+  event form filling in, guest scanning the real landing QR, uploads approved /
+  one blurred one deleted, share sheet → gallery → download, confetti once. Each
+  scene is drawn on a fixed 480×380 canvas scaled to the stage; a scene is a list
+  of checkpoint times (`SCHED`) and every style is a function of how many have
+  passed, so CSS transitions animate and reduced motion jumps to the last frame.
+  Autoplay 4.6 s, pauses on hover/click, swipe on the stage, arrow keys between
+  tabs; runs only while ≥30 % on screen. Copy in `landing.howItWorks` (replaced
+  `howItWorksEyebrow`/`howItWorksTitle`/`steps`). Photos are the existing
+  `public/explainer/assets` WebPs. Mono labels use the poster JetBrains Mono TTF
+  via `next/font/local` (Google Fonts is unreachable from the build sandbox).
 - **Landing trimmed.** The "Privatno od početka / QR prijenos / Napravljeno za
   pravu predaju" strip is gone from every page (component + `trustStrip` dict
   deleted) — it repeated the features section. The explainer is hidden behind

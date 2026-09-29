@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import localFont from "next/font/local";
 
 import { SITE_NAME, siteUrl } from "@/lib/seo";
 import "./globals.css";
@@ -14,6 +15,17 @@ const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-playfair",
   display: "swap",
+});
+
+// Small mono labels (step counter, PIN, link) in the landing's "how it works"
+// scenes. The same file the QR posters render with, so no extra download source;
+// not preloaded, so only a page that uses it fetches it.
+const jetbrainsMono = localFont({
+  src: "../../public/fonts/poster/jetbrains-mono-latin.ttf",
+  weight: "500",
+  variable: "--font-jetbrains",
+  display: "swap",
+  preload: false,
 });
 
 /**
@@ -44,7 +56,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   // element cannot carry their language — `[locale]/layout.tsx` marks that
   // subtree instead, which is what a screen reader reads.
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+    <html lang="en" className={`${inter.variable} ${playfair.variable} ${jetbrainsMono.variable}`}>
       <body>{children}</body>
     </html>
   );

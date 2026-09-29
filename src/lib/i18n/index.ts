@@ -64,9 +64,47 @@ export interface Dict {
     galleryBandEyebrow: string;
     galleryBandTitle: string;
     galleryBandBody: string;
-    howItWorksEyebrow: string;
-    howItWorksTitle: string;
-    steps: Array<{ n: string; title: string; body: string }>;
+    /** The interactive "how it works" section: switcher copy plus the words drawn inside its four animated scenes. */
+    howItWorks: {
+      eyebrow: string;
+      title: string;
+      sub: string;
+      tablist: string;
+      play: string;
+      pause: string;
+      steps: Array<{ label: string; title: string; body: string }>;
+      ui: Record<
+        "newEvent"
+        | "eventName"
+        | "nameVal"
+        | "date"
+        | "dateVal"
+        | "pin"
+        | "create"
+        | "created"
+        | "scanLabel"
+        | "cameraHint"
+        | "guestUpload"
+        | "noApp"
+        | "addPhotos"
+        | "sent"
+        | "queue"
+        | "visible"
+        | "hidden"
+        | "deleted"
+        | "hiddenNote"
+        | "shareTitle"
+        | "shareSub"
+        | "copy"
+        | "copied"
+        | "optional"
+        | "privateGallery"
+        | "pinProtected"
+        | "downloadAll"
+        | "downloaded",
+        string
+      >;
+    };
     pricingEyebrow: string;
     pricingTitle: string;
     pricingLink: string;
