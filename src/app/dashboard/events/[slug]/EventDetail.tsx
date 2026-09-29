@@ -10,6 +10,7 @@ import { CollapsibleSection } from "@/components/collapsible-section";
 import { MediaGrid } from "@/components/media-grid";
 import { QrPosterPicker } from "@/components/qr-poster-picker";
 import { UploadDropzone } from "@/components/upload-dropzone";
+import { EventLinkCard } from "@/components/event-link-card";
 import { Panel } from "@/components/ui/panel";
 import { updateEventAction } from "@/lib/actions";
 import { getAccountTypeForUser, getRequiredUser } from "@/lib/auth";
@@ -104,23 +105,23 @@ export async function EventDetail({
               <div className="flex-1 space-y-5">
                 <div className="flex flex-wrap gap-3 text-sm text-black/60">
                   <span className="rounded-full bg-[var(--color-paper)] px-4 py-2">
-                    {t(e.eventDate, { date: formatDate(event.event_date) })}
+                    {t(e.eventDate, { date: formatDate(event.event_date?.slice(0, 10), locale, d.eventList.notSet) })}
                   </span>
                   <span className="rounded-full bg-[var(--color-paper)] px-4 py-2">
-                    {t(e.expires, { date: formatDate(event.expires_at) })}
+                    {t(e.expires, { date: formatDate(event.expires_at, locale, d.eventList.notSet) })}
                   </span>
                   {isCouple && coupleUploadEndsAt ? (
                     <span className="rounded-full bg-[var(--color-paper)] px-4 py-2">
-                      {t(e.guestUploadsUntil, { date: formatDate(coupleUploadEndsAt) })}
+                      {t(e.guestUploadsUntil, { date: formatDate(coupleUploadEndsAt, locale) })}
                     </span>
                   ) : null}
                   <span
                     className={cn(
-                      "rounded-full px-4 py-2 capitalize",
+                      "rounded-full px-4 py-2",
                       statusBadgeClass(lifecycleStatus),
                     )}
                   >
-                    {lifecycleStatus}
+                    {d.eventList.statuses[lifecycleStatus as keyof typeof d.eventList.statuses] ?? lifecycleStatus}
                   </span>
                 </div>
 
@@ -146,16 +147,21 @@ export async function EventDetail({
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
-                  <div className="rounded-[24px] border border-black/10 bg-white p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/45">{e.guestUploadLink}</p>
-                    <p className="mt-3 break-all text-sm text-[var(--color-ink)]">{links.uploadUrl}</p>
-                  </div>
-                  <div className="rounded-[24px] border border-black/10 bg-white p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/45">
-                      {isCouple ? e.privateGalleryLink : e.clientGalleryLink}
-                    </p>
-                    <p className="mt-3 break-all text-sm text-[var(--color-ink)]">{links.galleryUrl}</p>
-                  </div>
+                  <EventLinkCard
+                    accent
+                    title={e.guestUploadLink}
+                    body={e.guestUploadLinkBody}
+                    url={links.uploadUrl}
+                    copyLabel={e.copyLink}
+                    copiedLabel={e.linkCopied}
+                  />
+                  <EventLinkCard
+                    title={isCouple ? e.privateGalleryLink : e.clientGalleryLink}
+                    body={isCouple ? e.privateGalleryLinkBody : e.clientGalleryLinkBody}
+                    url={links.galleryUrl}
+                    copyLabel={e.copyLink}
+                    copiedLabel={e.linkCopied}
+                  />
                 </div>
 
                 <div className="rounded-[24px] border border-dashed border-black/10 bg-[var(--color-paper)]/45 px-4 py-3 text-sm leading-6 text-black/62">
@@ -255,8 +261,8 @@ export async function EventDetail({
           planWindow={
             isCouple && coupleUploadEndsAt && coupleAccessEndsAt
               ? {
-                  uploadEndsLabel: formatDate(coupleUploadEndsAt),
-                  accessEndsLabel: formatDate(coupleAccessEndsAt),
+                  uploadEndsLabel: formatDate(coupleUploadEndsAt, locale),
+                  accessEndsLabel: formatDate(coupleAccessEndsAt, locale),
                 }
               : null
           }
@@ -356,7 +362,7 @@ export async function EventDetail({
                         {typeof item.metadata?.filename === "string" ? item.metadata.filename : e.activityFallback}
                       </p>
                     </div>
-                    <p className="text-xs uppercase tracking-[0.18em] text-black/45">{formatDate(item.created_at)}</p>
+                    <p className="text-xs uppercase tracking-[0.18em] text-black/45">{formatDate(item.created_at, locale)}</p>
                   </div>
                 ))}
               </div>

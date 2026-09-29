@@ -291,8 +291,15 @@ export interface Dict {
       storageUsed: string;
       downloads: string;
       guestUploadLink: string;
+      /** What the guest link is for — it is the address inside the QR code. */
+      guestUploadLinkBody: string;
       clientGalleryLink: string;
+      /** When to send the client link — after the event, once photos are chosen. */
+      clientGalleryLinkBody: string;
       privateGalleryLink: string;
+      privateGalleryLinkBody: string;
+      copyLink: string;
+      linkCopied: string;
       permanentLinksNote: string;
       openGuestPage: string;
       openGuestUploadPage: string;
