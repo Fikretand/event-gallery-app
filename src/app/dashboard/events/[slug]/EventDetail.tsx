@@ -10,6 +10,7 @@ import { CollapsibleSection } from "@/components/collapsible-section";
 import { MediaGrid } from "@/components/media-grid";
 import { QrPosterPicker } from "@/components/qr-poster-picker";
 import { UploadDropzone } from "@/components/upload-dropzone";
+import { EventCoverPicker } from "@/components/event-cover-picker";
 import { EventLinkCard } from "@/components/event-link-card";
 import { Panel } from "@/components/ui/panel";
 import { updateEventAction } from "@/lib/actions";
@@ -78,6 +79,10 @@ export async function EventDetail({
   const links = eventLinks(event.slug);
   const expired = isEventExpired(event);
   const lifecycleStatus = getEventLifecycleStatus(event);
+  // Only what guests can already see may become the cover: it heads the public gallery.
+  const coverCandidates = media
+    .filter((item) => item.mime_type.startsWith("image/") && !item.hidden_at && !item.deleted_at && item.thumbnailUrl)
+    .map((item) => ({ id: item.id, thumbnailUrl: item.thumbnailUrl as string }));
   const coupleUploadEndsAt = isCouple ? getCoupleUploadEndsAt(event) : null;
   const coupleAccessEndsAt = isCouple ? getCoupleAccessEndsAt(event) : null;
 
@@ -193,20 +198,13 @@ export async function EventDetail({
               </div>
 
               <div className="w-full max-w-[280px] shrink-0">
-                <div className="overflow-hidden rounded-[28px] border border-black/10 bg-[var(--color-paper)] shadow-inner">
-                  {cover ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={cover.thumbnailUrl ?? cover.previewUrl ?? undefined}
-                      alt={`${event.title} cover`}
-                      className="aspect-[4/5] w-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex aspect-[4/5] w-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(235,132,88,0.18),_transparent_55%),linear-gradient(135deg,_rgba(23,32,51,0.08),_rgba(255,248,240,0.92))] p-6 text-center text-sm leading-6 text-black/45">
-                      {isCouple ? e.coverImageHintCouple : e.coverImageHint}
-                    </div>
-                  )}
-                </div>
+                <EventCoverPicker
+                  slug={event.slug}
+                  title={event.title}
+                  coverUrl={cover?.thumbnailUrl ?? cover?.previewUrl ?? null}
+                  candidates={coverCandidates}
+                  strings={e.cover}
+                />
               </div>
             </div>
           </Panel>

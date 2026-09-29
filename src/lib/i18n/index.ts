@@ -300,6 +300,21 @@ export interface Dict {
       privateGalleryLinkBody: string;
       copyLink: string;
       linkCopied: string;
+      /** The cover frame on the event page: set, change or remove the cover right there. */
+      cover: {
+        emptyTitle: string;
+        emptyBody: string;
+        uploadBtn: string;
+        /** {{count}} */
+        chooseBtn: string;
+        changeBtn: string;
+        removeBtn: string;
+        closeBtn: string;
+        pickTitle: string;
+        uploadNote: string;
+        working: string;
+        failed: string;
+      };
       /** Overrides for the upload dropzone when the owner, not a guest, uploads. */
       ownerUpload: {
         chooseTitle: string;
