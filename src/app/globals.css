@@ -296,33 +296,29 @@ select {
 }
 
 /* ─── Hero device ──────────────────────────────────────────────── */
-.hd-float {
-  animation: float-up 6s ease-in-out infinite;
+/* The two floating cards drift only on desktop; on phones nothing in the hero
+   moves except the screen's own contents. */
+@media (min-width: 1024px) and (hover: hover) {
+  .hd-float {
+    animation: float-up 6s ease-in-out infinite;
+  }
+  .hd-float-late {
+    animation-delay: 1.8s;
+  }
 }
-.hd-float-late {
-  animation-delay: 1.8s;
+/* Entrance: one short fade-up. */
+.hd-rise {
+  animation: hd-rise 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-/* Entrance: the phone rises and turns into its resting pose. */
-.hd-enter {
-  animation: hd-enter 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-@keyframes hd-enter {
+@keyframes hd-rise {
   from {
     opacity: 0;
-    transform: translateY(56px) rotateY(-14deg) rotateX(16deg);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
     transform: none;
   }
-}
-/* Idle: a slow drift with a hint of rotation, so it feels held, not pinned. */
-.hd-drift {
-  animation: hd-drift 7s ease-in-out 0.9s infinite;
-}
-@keyframes hd-drift {
-  0%, 100% { transform: translateY(0) rotateZ(0deg) rotateY(0deg); }
-  50% { transform: translateY(-6px) rotateZ(0.7deg) rotateY(1deg); }
 }
 /* The two floating cards stand off the phone's sides where there is room;
    on a phone screen they tuck in so nothing is cut off. */
@@ -374,8 +370,7 @@ select {
 @media (prefers-reduced-motion: reduce) {
   [data-hero-device] *,
   .hd-float,
-  .hd-enter,
-  .hd-drift,
+  .hd-rise,
   .hero-pill::after,
   .hero-pill-ping {
     transition: none !important;

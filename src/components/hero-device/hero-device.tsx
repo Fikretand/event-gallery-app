@@ -1,8 +1,8 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element -- every image here sits inside a
-   perspective-warped mock screen at fixed design pixels; next/image's sizing
-   wrapper would fight the transform. */
+   mock screen drawn at fixed design pixels and scaled as a whole; next/image's
+   sizing wrapper would fight that. */
 
 import {
   useCallback,
@@ -11,19 +11,25 @@ import {
   useState,
   useSyncExternalStore,
   type CSSProperties,
-  type PointerEvent,
 } from "react";
 
 import type { Dict } from "@/lib/i18n/index";
 
 /**
- * The landing hero's right column: a hand holding a tilted iPhone whose screen
- * is live HTML inside the same 3D object, playing a 12-second
+ * The landing hero's right column: an iPhone drawn in code whose screen is
+ * live HTML, playing a 12-second
  * story — a guest scans the QR, sends three photos, the host gets a
  * notification, approves two of them out of the "hidden until you approve"
  * sheet, and the private gallery scrolls with the new photos in it.
  *
- * Ported from the Claude Design handoff "Hero Device.dc.html". The story is a
+ * Ported from the Claude Design handoffs "Hero Device.dc.html" / "v2". The
+ * phone is deliberately flat: the v2 version was real CSS 3D (nested
+ * preserve-3d, depth slices, blur filters and backdrop blur inside the 3D
+ * context, an always-on drift) and ran at ~8 fps on a throttled phone, with
+ * layers dropped as black flashes on real iPhones and Androids. Here the only
+ * things that move are the screen's contents, via transform and opacity.
+ *
+ * The story is a
  * list of cue times (`CUES`); `t` is the current cue and every style below is
  * a pure function of it, so CSS transitions do the animating and reduced
  * motion simply shows the frame at `STILL_T`. The loop only runs while the
@@ -37,7 +43,9 @@ type Copy = Dict["landing"]["heroDevice"];
 
 const GP = "/gallery-preview/";
 const GUEST = ["/explainer/assets/phone-cake.webp", "/explainer/assets/phone-nana.webp", GP + "p7.jpg"];
-const CAMERA_BG = GP + "p5.jpg";
+// Pre-blurred and darkened once (sharp, from p5.jpg) — a CSS blur filter on a
+// full-screen image was one of the most expensive things on the page.
+const CAMERA_BG = "/landing/camera-bg.webp";
 
 const CUES = [
   0, 300, 1200, 1450, 2050, 2150, 2250, 2400, 2950, 3000, 3200, 3400, 3600, 4000, 5000, 5250, 5900, 6250, 6700, 6800,
@@ -56,7 +64,7 @@ const MONO = "var(--font-jetbrains), ui-monospace, monospace";
 
 // ─── The phone, drawn in code ─────────────────────────────────────
 // A photo of a phone with HTML pasted onto its screen never lines up with
-// the glass; here the frame, bezel and screen are one 3D object.
+// the glass; here the frame, bezel and screen are one flat box.
 const DEV = { w: 441, h: 900 } as const;
 const SCREEN = { w: 393, h: 852 } as const;
 
@@ -78,23 +86,12 @@ function squircle(w: number, h: number, r: number, o = 0) {
 }
 const OUTER = squircle(DEV.w, DEV.h, 70);
 const BEZEL = squircle(429, 888, 64, 6);
-const OUTER_CLIP = `path('${OUTER}')`;
-const BEZEL_CLIP = `path('${squircle(429, 888, 64)}')`;
-const SCREEN_CLIP = `path('${squircle(SCREEN.w, SCREEN.h, 55)}')`;
-/** Slices behind the front face give the frame its thickness when it turns. */
-const DEPTH = Array.from({ length: 8 }, (_, i) => ({
-  z: -(i + 1) * 1.25,
-  bg: i === 7 ? "#3b3630" : "linear-gradient(90deg, #5d564c, #a1988a 30%, #7b7366 70%, #4d473f)",
-}));
 const SIDE_BUTTONS: CSSProperties[] = [
   { left: -4, top: 176, height: 54 },
   { left: -4, top: 262, height: 90 },
   { left: -4, top: 372, height: 90 },
   { right: -4, top: 300, height: 140 },
 ];
-/** How the phone rests: turned a little away, tipped toward the viewer. */
-const REST_POSE = "rotateY(-18deg) rotateX(6deg) rotateZ(2deg)";
-
 const COLS = [
   [
     { src: GUEST[0], h: 150, fresh: true },
@@ -176,7 +173,6 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
   const [tabRects, setTabRects] = useState<Rect[] | null>(null);
 
   const stageRef = useRef<HTMLDivElement>(null);
-  const tiltRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
   const bracketsRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
@@ -283,18 +279,6 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
     };
   }, []);
 
-  const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
-    const el = tiltRef.current;
-    if (!el || reducedRef.current || e.pointerType !== "mouse") return;
-    const r = e.currentTarget.getBoundingClientRect();
-    const nx = (e.clientX - r.left) / r.width - 0.5;
-    const ny = (e.clientY - r.top) / r.height - 0.5;
-    el.style.transform = `rotateY(${(nx * 12).toFixed(2)}deg) rotateX(${(-ny * 8).toFixed(2)}deg)`;
-  };
-  const onPointerLeave = () => {
-    if (tiltRef.current) tiltRef.current.style.transform = "";
-  };
-
   // ─── Every style, derived from the current cue ─────────────────────
   const t = reduced ? STILL_T : cue;
   const inR = (a: number, b: number) => t >= a && t < b;
@@ -364,10 +348,8 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
     <div
       aria-hidden="true"
       data-hero-device=""
-      onPointerMove={onPointerMove}
-      onPointerLeave={onPointerLeave}
       className="lg:self-start"
-      style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", perspective: 1600 }}
+      style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center" }}
     >
       <div
         ref={stageRef}
@@ -388,8 +370,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
             top: "6%",
             bottom: "10%",
             borderRadius: "50%",
-            background: "radial-gradient(closest-side, rgba(226,121,82,.24), rgba(226,121,82,.07) 55%, transparent)",
-            filter: "blur(30px)",
+            background: "radial-gradient(closest-side, rgba(226,121,82,.2), rgba(226,121,82,.06) 55%, transparent)",
             pointerEvents: "none",
           }}
         />
@@ -401,20 +382,13 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
             bottom: "-7%",
             height: "9%",
             borderRadius: "50%",
-            background: "radial-gradient(closest-side, rgba(110,66,38,.30), rgba(110,66,38,.10) 55%, transparent)",
-            filter: "blur(10px)",
+            background: "radial-gradient(closest-side, rgba(110,66,38,.26), rgba(110,66,38,.08) 55%, transparent)",
             pointerEvents: "none",
           }}
         />
 
-        <div className="hd-enter" style={{ ...fill, transformStyle: "preserve-3d" }}>
-          <div ref={tiltRef} style={{ ...fill, transformStyle: "preserve-3d", transition: `transform 800ms ${E}` }}>
-            <div className="hd-drift" style={{ ...fill, transformStyle: "preserve-3d" }}>
-              <div style={{ ...fill, transformStyle: "preserve-3d", transform: REST_POSE }}>
-                <div style={{ ...abs, left: 0, top: 0, width: DEV.w, height: DEV.h, transformOrigin: "0 0", transform: `scale(${s})`, transformStyle: "preserve-3d" }}>
-                  {DEPTH.map((layer) => (
-                    <div key={layer.z} style={{ ...fill, clipPath: OUTER_CLIP, background: layer.bg, transform: `translateZ(${layer.z}px)` }} />
-                  ))}
+        <div className="hd-rise" style={fill}>
+                <div style={{ ...abs, left: 0, top: 0, width: DEV.w, height: DEV.h, transformOrigin: "0 0", transform: `scale(${s})` }}>
                   {SIDE_BUTTONS.map((b, i) => (
                     <div
                       key={i}
@@ -427,7 +401,6 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                           "right" in b
                             ? "linear-gradient(90deg,#8a8274,#d6cebf 55%,#6c6559)"
                             : "linear-gradient(90deg,#6c6559,#c9c0b1 45%,#8a8274)",
-                        transform: "translateZ(-5px)",
                       }}
                     />
                   ))}
@@ -435,7 +408,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                     width={DEV.w}
                     height={DEV.h}
                     viewBox={`0 0 ${DEV.w} ${DEV.h}`}
-                    style={{ ...abs, left: 0, top: 0, overflow: "visible", transform: "translateZ(0px)" }}
+                    style={{ ...abs, left: 0, top: 0, overflow: "visible" }}
                   >
                     <defs>
                       <linearGradient id="cfTi" x1="0" y1="0" x2="1" y2="1">
@@ -469,11 +442,10 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                     width: SCREEN.w,
                     height: SCREEN.h,
                     borderRadius: 55,
-                    clipPath: SCREEN_CLIP,
                     overflow: "hidden",
                     background: "#0b0b0d",
-                    isolation: "isolate",
-                    transform: "translateZ(0.6px)",
+                    // A cue re-render never repaints anything outside the screen.
+                    contain: "layout paint",
                   }}
                 >
                   {/* 1 · Camera scanning the QR on a table card */}
@@ -481,7 +453,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                     <img
                       src={CAMERA_BG}
                       alt=""
-                      style={{ ...abs, left: -24, top: -24, width: 441, height: 900, objectFit: "cover", filter: "blur(7px) brightness(.5) saturate(1.1)" }}
+                      style={{ ...abs, left: 0, top: 0, width: "100%", height: "100%", objectFit: "cover" }}
                     />
                     <div
                       style={{
@@ -938,7 +910,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                           >
                             {col.map((it, ii) => (
                               <div key={ii} style={{ position: "relative", height: it.h, borderRadius: 16, overflow: "hidden", background: "#f2eadf" }}>
-                                <img src={it.src} alt="" decoding="async" style={cover} />
+                                <img src={it.src} alt="" loading="lazy" decoding="async" style={cover} />
                                 <div
                                   style={{
                                     ...fill,
@@ -1059,9 +1031,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                           position: "relative",
                           borderRadius: 26,
                           border: "1px solid rgba(255,255,255,.7)",
-                          background: "rgba(255,255,255,.84)",
-                          backdropFilter: "blur(24px)",
-                          WebkitBackdropFilter: "blur(24px)",
+                          background: "rgba(255,255,255,.96)",
                           boxShadow: "0 14px 40px rgba(18,24,38,.2)",
                           padding: 14,
                         }}
@@ -1204,19 +1174,16 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                       top: 6,
                       width: 429,
                       height: 888,
-                      clipPath: BEZEL_CLIP,
+                      borderRadius: 78,
                       pointerEvents: "none",
                       background:
                         "linear-gradient(121deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,.05) 22%, rgba(255,255,255,0) 34%, rgba(255,255,255,0) 70%, rgba(255,255,255,.06) 86%, rgba(255,255,255,0) 100%)",
-                      transform: "translateZ(1.2px)",
                     }}
                   />
                 </div>
-              </div>
-            </div>
 
-            {/* Floating cards, in front of the phone in depth */}
-            <div className="hd-badge" style={{ ...abs, zIndex: 3, transform: "translateZ(70px)" }}>
+            {/* Floating cards */}
+            <div className="hd-badge" style={{ ...abs, zIndex: 3 }}>
             <div
               className="hd-float"
               style={{
@@ -1225,9 +1192,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                 gap: 8,
                 borderRadius: 999,
                 border: "1px solid rgba(255,255,255,.75)",
-                background: "rgba(255,255,255,.72)",
-                backdropFilter: "blur(18px)",
-                WebkitBackdropFilter: "blur(18px)",
+                background: "rgba(255,255,255,.94)",
                 padding: "8px 14px 8px 10px",
                 boxShadow: "0 16px 44px rgba(18,24,38,.14)",
                 whiteSpace: "nowrap",
@@ -1251,7 +1216,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
             </div>
           </div>
 
-            <div className="hd-qr" style={{ ...abs, top: "62%", width: "clamp(84px, 32%, 128px)", zIndex: 3, transform: "translateZ(60px)" }}>
+            <div className="hd-qr" style={{ ...abs, top: "62%", width: "clamp(84px, 32%, 128px)", zIndex: 3 }}>
             <div
               className="hd-float hd-float-late"
               style={{
@@ -1260,9 +1225,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                 alignItems: "center",
                 borderRadius: 20,
                 border: "1px solid rgba(0,0,0,.08)",
-                background: "rgba(255,255,255,.82)",
-                backdropFilter: "blur(18px)",
-                WebkitBackdropFilter: "blur(18px)",
+                background: "rgba(255,255,255,.96)",
                 padding: "12px 12px 10px",
                 boxShadow: "0 16px 44px rgba(18,24,38,.16)",
               }}
@@ -1285,7 +1248,6 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                 {copy.cards.qrLabel}
               </p>
             </div>
-          </div>
           </div>
         </div>
       </div>
