@@ -7,12 +7,17 @@ export type Point = [number, number];
 /** The live screen, in CSS px (an iPhone 15 Pro viewport). */
 export const SCREEN = { w: 393, h: 852 } as const;
 
-/** The screen's corners in the 1024×768 photo: top-left, top-right, bottom-right, bottom-left. */
+/**
+ * The screen's corners in the 1024×768 photo: top-left, top-right,
+ * bottom-right, bottom-left. Measured from the photo — lines fitted to the
+ * inner edge of the bezel on all four sides, intersected, then pushed 4 px
+ * outwards so the live screen tucks under the bezel instead of stopping short.
+ */
 export const CORNERS: Point[] = [
-  [401, 119],
-  [588, 133],
-  [680, 643],
-  [487, 650],
+  [398, 113],
+  [583, 138],
+  [677, 659],
+  [488, 647],
 ];
 
 /** The part of the photo the hero shows. */

@@ -36,7 +36,11 @@ import type { Dict } from "@/lib/i18n/index";
 
 type Copy = Dict["landing"]["heroDevice"];
 
+// The photo has its backdrop and its screen glass cut out; the live screen
+// sits underneath, framed by the phone's real bezel and Dynamic Island.
 const HAND = "/landing/hand-iphone.webp";
+// The glass's shape in the photo, grown 3 px so it hides under the bezel.
+const SCREEN_MASK = "url(/landing/hand-iphone-screen.png)";
 const GP = "/gallery-preview/";
 const GUEST = ["/explainer/assets/phone-cake.webp", "/explainer/assets/phone-nana.webp", GP + "p7.jpg"];
 const CAMERA_BG = GP + "p5.jpg";
@@ -381,15 +385,22 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
               }}
             >
               <div style={{ ...abs, left: 0, top: 0, width: 1024, height: 768, transformOrigin: "0 0", transform: `scale(${s}) translate(${-CROP.x}px, ${-CROP.y}px)` }}>
-                <img
-                  src={HAND}
-                  alt=""
-                  fetchPriority="high"
-                  decoding="async"
-                  style={{ ...abs, left: 0, top: 0, width: 1024, height: 768, display: "block", filter: "brightness(1.04) contrast(1.03)" }}
-                />
-
-                {/* ─── The live screen, warped onto the phone ─── */}
+                {/* ─── The live screen, warped onto the phone, under the photo ─── */}
+                <div
+                  style={{
+                    ...abs,
+                    left: 0,
+                    top: 0,
+                    width: 1024,
+                    height: 768,
+                    WebkitMaskImage: SCREEN_MASK,
+                    maskImage: SCREEN_MASK,
+                    WebkitMaskSize: "1024px 768px",
+                    maskSize: "1024px 768px",
+                    WebkitMaskRepeat: "no-repeat",
+                    maskRepeat: "no-repeat",
+                  }}
+                >
                 <div
                   style={{
                     ...abs,
@@ -399,7 +410,6 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                     height: SCREEN.h,
                     transformOrigin: "0 0",
                     transform: SCREEN_MATRIX,
-                    borderRadius: 58,
                     overflow: "hidden",
                     background: "#0b0b0d",
                     isolation: "isolate",
@@ -1086,19 +1096,6 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                     <span style={{ ...abs, left: 44, top: 18, fontSize: 17, fontWeight: 600 }}>9:41</span>
                     <StatusIcons battery="rgba(23,32,51,.5)" />
                   </div>
-                  <div style={{ ...abs, left: 133, top: 11, width: 127, height: 37, borderRadius: 20, background: "#000", boxShadow: "0 0 0 1px rgba(255,255,255,.04)" }}>
-                    <div
-                      style={{
-                        ...abs,
-                        right: 12,
-                        top: 11,
-                        width: 15,
-                        height: 15,
-                        borderRadius: "50%",
-                        background: "radial-gradient(circle at 35% 35%, #1d2433, #050608 60%)",
-                      }}
-                    />
-                  </div>
                   <div
                     style={{
                       ...abs,
@@ -1115,7 +1112,6 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                   <div
                     style={{
                       ...fill,
-                      borderRadius: 58,
                       pointerEvents: "none",
                       background:
                         "linear-gradient(118deg, rgba(255,255,255,.20) 0%, rgba(255,255,255,.06) 26%, rgba(255,255,255,0) 42%, rgba(255,255,255,0) 78%, rgba(255,255,255,.05) 100%)",
@@ -1123,12 +1119,23 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                     }}
                   />
                 </div>
+                </div>
+
+                {/* The phone and hand, on top: its bezel frames the screen. */}
+                <img
+                  src={HAND}
+                  alt=""
+                  fetchPriority="high"
+                  decoding="async"
+                  style={{ ...abs, left: 0, top: 0, width: 1024, height: 768, display: "block", filter: "brightness(1.04) contrast(1.03)" }}
+                />
+
               </div>
             </div>
           </div>
 
           {/* Floating cards */}
-          <div className="hd-float" style={{ ...abs, right: "-7%", top: "1%", zIndex: 3 }}>
+          <div className="hd-float hd-badge" style={{ ...abs, zIndex: 3 }}>
             <div
               style={{
                 display: "flex",
@@ -1162,7 +1169,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
             </div>
           </div>
 
-          <div className="hd-float hd-float-late" style={{ ...abs, left: "-7%", top: "52%", width: "clamp(86px, 26%, 116px)", zIndex: 3 }}>
+          <div className="hd-float hd-float-late hd-qr" style={{ ...abs, top: "52%", width: "clamp(86px, 26%, 116px)", zIndex: 3 }}>
             <div
               style={{
                 display: "flex",

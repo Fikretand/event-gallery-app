@@ -539,7 +539,12 @@ Newest first — useful for picking back up.
   WebP (`public/landing/hand-iphone.webp`, 43 KB, matte keyed on the cool
   backdrop vs warm skin), and live HTML warped onto the screen with a
   homography (`src/lib/hero-device/homography.ts`, tested: corners land on the
-  photo within 0.5 px). A 12 s story on 28 cues: camera scans the real QR →
+  photo within 0.5 px). The screen glass is cut out of the photo too and the
+  live screen renders *under* it, clipped by `hand-iphone-screen.png` (the
+  glass shape grown 3 px), so the phone's real bezel, corners and Dynamic
+  Island frame it. Corners were measured by fitting lines to the bezel's inner
+  edge; if the photo is ever replaced, both images and `CORNERS` must be
+  regenerated together. A 12 s story on 28 cues: camera scans the real QR →
   guest sends 3 photos → notification → "hidden until you approve" sheet →
   2 approved move into the gallery (counter 244→246) → gallery scrolls, tab
   pill slides. Runs only when decoded, ≥15 % visible and the tab is visible;
