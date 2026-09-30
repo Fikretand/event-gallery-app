@@ -217,7 +217,8 @@ export default async function HomePage({
               {d.galleryBandEyebrow}
             </p>
             <h2 className="font-display mt-3 text-3xl font-semibold leading-tight tracking-tight text-[var(--color-ink)] sm:text-4xl">
-              {d.galleryBandTitle}
+              {d.galleryBandTitle}{" "}
+              <em className="block italic text-[var(--color-accent)]">{d.galleryBandTitleAccent}</em>
             </h2>
             <p className="mt-4 text-sm leading-7 text-black/60 sm:text-base">{d.galleryBandBody}</p>
           </div>
@@ -374,7 +375,6 @@ export default async function HomePage({
                 {d.faqTitle}
               </h2>
               <p className="mt-4 max-w-sm text-sm leading-7 text-black/62">{d.faqBody}</p>
-              <AudienceCtas locale={locale as Locale} stacked showPricingLink className="mt-6 max-w-sm" />
             </div>
             <div className="space-y-3">
               {dm.faqs.map((faq, index) => (

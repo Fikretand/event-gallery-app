@@ -11,6 +11,27 @@ import { cn } from "@/lib/utils";
 
 type BillingMode = "monthly" | "yearly";
 
+/**
+ * "39 KM" / "€19" as one unit: the number big, the currency smaller, never
+ * split across lines, and the billing period on its own line underneath.
+ * Before, the price and its label shared a flex row, so "39 KM" wrapped to
+ * two lines on one card and stayed on one line on the next.
+ */
+function PriceTag({ value, label }: { value: string; label: string }) {
+  const m = /^(\D*?)\s*([\d.,]+)\s*(\D*)$/.exec(value.trim());
+  const [prefix, amount, suffix] = m ? [m[1], m[2], m[3]] : ["", value, ""];
+  return (
+    <div className="mt-6">
+      <p className="flex items-baseline gap-1.5 whitespace-nowrap font-semibold tracking-tight text-[var(--color-ink)]">
+        {prefix ? <span className="text-2xl">{prefix}</span> : null}
+        <span className="text-5xl">{amount}</span>
+        {suffix ? <span className="text-2xl">{suffix}</span> : null}
+      </p>
+      <p className="mt-1 text-sm leading-5 text-black/55">{label}</p>
+    </div>
+  );
+}
+
 function extractLocale(pathname: string): Locale {
   return pathname.startsWith("/bs") ? "bs" : "en";
 }
@@ -35,10 +56,7 @@ export function OneTimePlanCard({ compact = false }: { compact?: boolean }) {
         <p className="mt-2 max-w-xs text-sm leading-6 text-black/62">{plan.summary}</p>
       </div>
 
-      <div className="mt-6 flex items-end gap-3">
-        <span className="text-5xl font-semibold tracking-tight text-[var(--color-ink)]">{baseCouple.price}</span>
-        <span className="pb-1 text-sm leading-5 text-black/55">{plan.priceLabel}</span>
-      </div>
+      <PriceTag value={baseCouple.price} label={plan.priceLabel} />
       <p className="mt-2 text-sm text-[var(--color-moss)]">{ui.oneTimePerfect}</p>
 
       <MarketingButtonLink
@@ -128,22 +146,19 @@ export function PricingShowcase() {
                   : "border-black/10 bg-white/82",
               )}
             >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="font-display text-3xl font-semibold tracking-tight text-[var(--color-ink)]">{plan.name}</p>
-                  <p className="mt-2 max-w-xs text-sm leading-6 text-black/62">{plan.summary}</p>
-                </div>
-                {plan.featured ? (
-                  <span className="rounded-full bg-[#dff3fb] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#156480]">
-                    {ui.mostPopular}
-                  </span>
-                ) : null}
+              {/* The badge sits on the card's top edge, so the name and summary
+                  wrap exactly like the other cards'. */}
+              {plan.featured ? (
+                <span className="absolute -top-3 left-7 rounded-full bg-[#dff3fb] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#156480] ring-1 ring-[#9edffc]">
+                  {ui.mostPopular}
+                </span>
+              ) : null}
+              <div>
+                <p className="font-display text-3xl font-semibold tracking-tight text-[var(--color-ink)]">{plan.name}</p>
+                <p className="mt-2 max-w-xs text-sm leading-6 text-black/62">{plan.summary}</p>
               </div>
 
-              <div className="mt-6 flex items-end gap-3">
-                <span className="text-5xl font-semibold tracking-tight text-[var(--color-ink)]">{price}</span>
-                <span className="pb-1 text-sm leading-5 text-black/55">{label}</span>
-              </div>
+              <PriceTag value={price} label={label} />
               <p className="mt-2 text-sm text-[var(--color-moss)]">
                 {isYearly
                   ? t(plan.yearlyTotalNote, { total: plan.yearlyTotal })

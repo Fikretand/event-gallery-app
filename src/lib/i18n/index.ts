@@ -95,6 +95,8 @@ export interface Dict {
     stats: Array<{ value: string; label: string }>;
     galleryBandEyebrow: string;
     galleryBandTitle: string;
+    /** Second line of the band's title, set in accent italic. */
+    galleryBandTitleAccent: string;
     galleryBandBody: string;
     /** The interactive "how it works" section: switcher copy plus the words drawn inside its four animated scenes. */
     howItWorks: {
@@ -912,6 +914,8 @@ export interface Dict {
   forCouples: {
     eyebrow: string;
     title: string;
+    /** Second line of the headline, in accent italic. */
+    titleAccent: string;
     body: string;
     ctaPrimary: string;
     ctaSecondary: string;

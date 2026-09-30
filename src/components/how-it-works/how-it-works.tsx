@@ -343,7 +343,7 @@ export function HowItWorks({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
         >
           {copy.title}
         </h2>
-        <p style={{ marginTop: 14, fontSize: 16, lineHeight: "26px", color: "rgba(0,0,0,.6)", maxWidth: "34rem", textWrap: "pretty" }}>{copy.sub}</p>
+        <p style={{ marginTop: 14, fontSize: 18, lineHeight: "28px", color: "rgba(0,0,0,.6)", maxWidth: "36rem", textWrap: "pretty" }}>{copy.sub}</p>
       </div>
 
       <div style={{ display: "flex", flexDirection: "row-reverse", flexWrap: "wrap", alignItems: "center", gap: 40 }}>
@@ -500,7 +500,7 @@ export function HowItWorks({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                   <span style={numStyle(st, 44, 16)}>{st.n}</span>
                 </span>
                 <span style={{ position: "relative", minWidth: 0, paddingTop: 2 }}>
-                  <span style={{ display: "block", fontSize: 17, lineHeight: "24px", fontWeight: 600, color: st.titleC }}>{st.title}</span>
+                  <span style={{ display: "block", fontSize: 19, lineHeight: "26px", fontWeight: 600, color: st.titleC }}>{st.title}</span>
                   {/* Only the active step shows its text, so the list stays
                       short enough to sit beside the stage on a laptop screen.
                       The 0fr → 1fr row animates the height. */}
@@ -513,7 +513,7 @@ export function HowItWorks({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                     }}
                   >
                     <span style={{ display: "block", minHeight: 0, overflow: "hidden" }}>
-                      <span style={{ display: "block", marginTop: 6, fontSize: 14, lineHeight: "22px", color: st.bodyC, textWrap: "pretty" }}>{st.body}</span>
+                      <span style={{ display: "block", marginTop: 6, fontSize: 16, lineHeight: "25px", color: st.bodyC, textWrap: "pretty" }}>{st.body}</span>
                       <span
                         aria-hidden="true"
                         style={{ display: "block", marginTop: 14, height: 2, borderRadius: 2, background: "rgba(0,0,0,.06)", overflow: "hidden" }}
@@ -594,15 +594,15 @@ export function HowItWorks({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                   }}
                 >
                   <span style={numStyle(st, 42, 15)}>{st.n}</span>
-                  <span style={{ fontSize: 11.5, lineHeight: "14px", fontWeight: 600, color: st.titleC, textAlign: "center", overflowWrap: "anywhere" }}>
+                  <span style={{ fontSize: 12.5, lineHeight: "15px", fontWeight: 600, color: st.titleC, textAlign: "center", overflowWrap: "anywhere" }}>
                     {st.label}
                   </span>
                 </button>
               ))}
             </div>
             <div style={{ marginTop: 18, minHeight: 150 }}>
-              <p style={{ fontSize: 19, lineHeight: "26px", fontWeight: 600, color: "#172033" }}>{copy.steps[a].title}</p>
-              <p style={{ marginTop: 6, fontSize: 15, lineHeight: "24px", color: "rgba(0,0,0,.62)", textWrap: "pretty" }}>{copy.steps[a].body}</p>
+              <p style={{ fontSize: 21, lineHeight: "28px", fontWeight: 600, color: "#172033" }}>{copy.steps[a].title}</p>
+              <p style={{ marginTop: 6, fontSize: 17, lineHeight: "27px", color: "rgba(0,0,0,.62)", textWrap: "pretty" }}>{copy.steps[a].body}</p>
               <div aria-hidden="true" style={{ marginTop: 16, height: 2, borderRadius: 2, background: "rgba(0,0,0,.06)", overflow: "hidden" }}>
                 <span
                   style={{

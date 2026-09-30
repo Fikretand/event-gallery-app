@@ -533,6 +533,22 @@ src/
 
 Newest first — useful for picking back up.
 
+- **Landing copy pass (owner's notes).** Hero: "Svaka uspomena sa vašeg događaja,
+  na jednom mjestu." / "Pogledaj fotografije koje inače nikad i ne bi došle do
+  tebe." Copy uses the spaced en dash " – ", never "—" (both dicts, QR card
+  presets, posters). "Kurirati" → "odobriti/uređivati". "QR prijenos gostiju"
+  in marketing copy → "skeniraj i pošalji" phrasing (dashboard controls keep
+  "prijenos"). **Krštenje is gone:** the event page is now
+  `/dogadjaji/maturalna-vecer` (hand-written, bs + en), `next.config.ts`
+  308-redirects `/{en,bs}/dogadjaji/krstenje` there, and the QR card template
+  became "Maturalna večer – elegantno" (id `baptism-soft` kept so saved drafts
+  load). The line "Fotografov album je savršen. / Ali noć je živjela na još 93
+  telefona." is the /for-couples headline (`forCouples.titleAccent`) and the
+  landing mosaic title (`galleryBandTitleAccent`). How-it-works text is 2 px
+  larger. Pricing cards render prices through `PriceTag` (number big, currency
+  small, never wrapped, period on its own line) and Pro's "most popular" badge
+  sits on the card edge so its text wraps like Solo's. Spotlight reads
+  "Istaknuti fotografi"; the landing FAQ no longer has sign-up CTAs.
 - **Hero phone: flat and light (perf fix).** `src/components/hero-device/hero-device.tsx`.
   History: v1 put live HTML on a photo of a hand + iPhone (homography, cut-out
   screen hole) — read as pasted on, rejected. v2 (Claude Design) drew the phone

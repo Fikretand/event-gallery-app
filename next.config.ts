@@ -23,6 +23,18 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/api/events/[slug]/qr-poster": ["./public/fonts/poster/**/*.ttf"],
   },
+  async redirects() {
+    // The christening page was replaced by prom night ("maturalna večer"),
+    // which fits the BiH market better. Keep old links and search results
+    // landing somewhere useful.
+    return [
+      {
+        source: "/:locale(en|bs)/dogadjaji/krstenje",
+        destination: "/:locale/dogadjaji/maturalna-vecer",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     // Galleries and guest upload pages are reachable by link alone, so assume
     // the link will eventually leak — into a group chat, a screenshot, a

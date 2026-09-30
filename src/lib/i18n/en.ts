@@ -29,7 +29,7 @@ export const dict: Dict = {
   },
   landing: {
     badgeTag: "No app needed",
-    badgeText: "Private gallery with QR uploads",
+    badgeText: "Private gallery · Scan & send",
     heroDevice: {
       screen: {
         eventName: "Mia & Dario",
@@ -47,7 +47,7 @@ export const dict: Dict = {
         notifTime: "now",
         notifText: "Guests just added 3 new photos",
         sheetEyebrow: "Guest uploads",
-        sheetTitle: "New uploads — hidden until you approve",
+        sheetTitle: "New uploads – hidden until you approve",
         hidden: "Hidden",
         approved: "Approved",
         galleryEyebrow: "Private gallery",
@@ -59,13 +59,13 @@ export const dict: Dict = {
         tabs: ["All", "Ceremony", "Reception", "Guests"],
       },
       cards: {
-        qrLabel: "Scan to upload",
+        qrLabel: "Scan & send",
         privateBadge: "Private · Not on Google",
       },
     },
-    heroTitle: "Every memory from your event, gathered in one private place.",
+    heroTitle: "Every memory from your event, in one place.",
     heroBody:
-      "Private gallery with guest uploads by QR code and PIN-protected delivery. No app required for guests.",
+      "See the photos that would otherwise never reach you.",
     ctaPrimary: "Start for free",
     ctaSecondary: "View pricing",
     heroCaveat: "Free to start · No credit card required · Live in 2 minutes",
@@ -75,21 +75,22 @@ export const dict: Dict = {
       { value: "0", label: "Public galleries" },
     ],
     galleryBandEyebrow: "Every angle, one gallery",
-    galleryBandTitle: "The whole day, seen through everyone's eyes.",
+    galleryBandTitle: "The photographer's album is perfect.",
+    galleryBandTitleAccent: "But the night lived on 93 more phones.",
     galleryBandBody:
-      "Guests catch the moments you'd otherwise miss — candid, spontaneous, real. Every photo lands in one private gallery, ready to relive and download.",
+      "Guests catch the moments you'd otherwise miss – candid, spontaneous, real. Every photo lands in one private gallery, ready to relive and download.",
     howItWorks: {
       eyebrow: "How it works",
-      title: "Four steps from the first toast to a finished gallery.",
-      sub: "Guests install nothing and sign up for nothing. You see every photo first, and nothing is ever public.",
+      title: "Four steps from creating your account to a finished gallery.",
+      sub: "Guests install nothing and sign up for nothing. You see every photo first.",
       tablist: "How Confetti works, step by step",
       play: "Resume auto-play",
       pause: "Pause auto-play",
       steps: [
         { label: "Create", title: "Create your event", body: "Name, date and an optional upload PIN. Done in under two minutes." },
-        { label: "Share", title: "Share the QR code", body: "Print it for the tables or the entrance. Guests scan it with their phone camera and upload — no app, no account." },
-        { label: "Curate", title: "Review and curate", body: "Every upload arrives hidden, seen only by you. Show, hide or delete — nothing reaches the gallery without your OK." },
-        { label: "Deliver", title: "Deliver the gallery", body: "Share one private link, PIN optional. Everyone browses and downloads the originals in full quality — not chat-compressed copies." },
+        { label: "Share", title: "Share the QR code", body: "Print it for the tables or the entrance. Guests scan it with their phone camera and upload – no app, no account." },
+        { label: "Approve", title: "Review and approve", body: "Every upload arrives hidden, seen only by you. Show, hide or delete – nothing reaches the gallery without your OK." },
+        { label: "Deliver", title: "Deliver the gallery", body: "Share one private link, with an optional PIN for extra protection. Everyone downloads the originals in full quality – not the shrunken, blurry copies WhatsApp and Viber send." },
       ],
       ui: {
         newEvent: "New event",
@@ -100,7 +101,7 @@ export const dict: Dict = {
         pin: "Upload PIN",
         create: "Create event",
         created: "Event created",
-        scanLabel: "Scan to upload",
+        scanLabel: "Scan & send",
         cameraHint: "Point at the QR code",
         guestUpload: "Guest upload",
         noApp: "No app · No account",
@@ -161,7 +162,7 @@ export const dict: Dict = {
     forCouplesCtaSecondary: "One-time pricing",
     whoForEyebrow: "Who it's for",
     whoForTitle: "Two ways to use Confetti.",
-    photographerCardBody: "Run multiple client events with QR guest uploads and private gallery delivery.",
+    photographerCardBody: "Run multiple client events: guests scan the QR and send their photos, you hand over a private gallery.",
     coupleCardBody: "Host a single event and collect every guest photo in one private gallery.",
   },
   upload: {
@@ -184,7 +185,7 @@ export const dict: Dict = {
     enterPin: "Enter the gallery PIN to view the client-ready delivery set and any approved guest uploads.",
     visibleFiles: "{{count}} visible files",
     browseCurated:
-      "Every favourite the photographer picked out, together with the moments your guests captured — all gathered in one place to relive and download.",
+      "Every favourite the photographer picked out, together with the moments your guests captured – all gathered in one place to relive and download.",
     privateNoAccess: "This private gallery opens after the correct PIN is entered.",
     expired: "This gallery has expired and is no longer available.",
     archived:
@@ -212,7 +213,7 @@ export const dict: Dict = {
     cover: "Cover",
     byGuest: "by {{name}}",
     emptyTitle: "Nothing to show here yet",
-    emptyBody: "The photographer hasn't shared anything in this view yet — check back soon.",
+    emptyBody: "The photographer hasn't shared anything in this view yet – check back soon.",
     swipeHint: "Swipe to browse",
     sectionEyebrow: "Section",
     moreMoments: "More moments",
@@ -353,7 +354,7 @@ export const dict: Dict = {
       managePlan: "Manage plan →",
       noEvents: "No events yet",
       noEventsBody: "Create your first event to generate guest upload links, a QR code, and a private gallery.",
-      trialActive: "Free trial — {{days}} {{unit}} remaining",
+      trialActive: "Free trial – {{days}} {{unit}} remaining",
       trialExpired: "Your free trial has expired",
       trialActiveBody: "{{used}} / {{limit}} photos used · Upgrade to remove all limits",
       trialExpiredBody: "Upgrade to keep uploading and managing your events.",
@@ -368,7 +369,7 @@ export const dict: Dict = {
       guestUploads: "Guest uploads",
       storageUsed: "Storage used",
       downloads: "Downloads",
-      guestUploadLink: "Guest link — this is the link in the QR code",
+      guestUploadLink: "Guest link – this is the link in the QR code",
       guestUploadLinkBody: "Your QR code points here. Guests use it to send their photos; you can also share the same link by message.",
       clientGalleryLink: "Client gallery link",
       clientGalleryLinkBody: "Send it to your client after the event, once you have chosen and prepared the photos. The gallery only shows what you uploaded or approved.",
@@ -688,7 +689,7 @@ export const dict: Dict = {
       soloFeatures: [
         "Up to 5 events running at once",
         "100 GB of storage",
-        "Guest photo and video uploads by QR code",
+        "Guests scan the QR and send photos and video",
         "Private gallery with a PIN",
         "Download everything as a ZIP",
       ],
@@ -704,7 +705,7 @@ export const dict: Dict = {
       switchTo: "Switch to {{name}}",
       get: "Get {{name}}",
       paymentsNote:
-        "Online payments aren't live yet. Contact us to activate your plan via bank transfer — we'll switch it on for your account.",
+        "Online payments aren't live yet. Contact us to activate your plan via bank transfer – we'll switch it on for your account.",
       paymentsUnavailable: "Online checkout is being set up. Choosing a plan will show how to activate it in the meantime.",
       networkError: "Network error. Please try again.",
       genericError: "Something went wrong.",
@@ -832,7 +833,7 @@ export const dict: Dict = {
         italic: "Italic",
         resetTemplate: "Restore the original template",
         selectHint: "Tap a text, image or shape on the card to edit it.",
-        desktopTip: "Double-click text to edit it. Drag to move — objects snap to the centre. Zoom: Ctrl + mouse wheel or the + and − keys, and 0 shows the whole card; when zoomed in, drag an empty spot to move around. Shortcuts: Del removes, Esc deselects, Ctrl+Z undoes, Ctrl+D duplicates.",
+        desktopTip: "Double-click text to edit it. Drag to move – objects snap to the centre. Zoom: Ctrl + mouse wheel or the + and − keys, and 0 shows the whole card; when zoomed in, drag an empty spot to move around. Shortcuts: Del removes, Esc deselects, Ctrl+Z undoes, Ctrl+D duplicates.",
         exportFailed: "The download failed. Please try again.",
         selected: "Selected",
         textType: "Text",
@@ -851,16 +852,16 @@ export const dict: Dict = {
         "See the QR card, pick a template and download it as a PDF, or edit it to your taste.",
     },
     paymentBanner: {
-      activatedTitle: "Payment received — you're all set.",
+      activatedTitle: "Payment received – you're all set.",
       activatedBody: "Your {{plan}} plan is active. Trial limits no longer apply.",
-      pendingTitle: "Payment received — activating your plan.",
+      pendingTitle: "Payment received – activating your plan.",
       pendingBody: "This usually takes a few seconds. The page refreshes on its own.",
     },
     billing: {
       title: "Plan & billing",
       eyebrow: "Choose a plan, upgrade, or manage your subscription",
       backToDashboard: "← Dashboard",
-      paymentReceived: "Payment received — your plan is being activated. It may take a few seconds to reflect here.",
+      paymentReceived: "Payment received – your plan is being activated. It may take a few seconds to reflect here.",
       currentPlan: "Current plan",
       planLabelAdmin: "Admin",
       planLabelActive: "{{plan}} · active",
@@ -884,11 +885,11 @@ export const dict: Dict = {
       ],
       buyOneEvent: "Buy One Event · {{price}}",
       checkoutOpening: "Opening checkout…",
-      checkoutSecure: "Secure payment — card or bank, invoice sent by email.",
+      checkoutSecure: "Secure payment – card or bank, invoice sent by email.",
       checkoutEmailHint: "Use {{email}} at checkout so we can activate your plan automatically.",
       checkoutError: "We couldn't open the checkout. Please try again in a moment.",
-      onlineCheckoutSetup: "Online checkout is being set up. Contact us to activate your plan — we'll switch it on for your account.",
-      checkoutComingSoon: "Online checkout is being set up — coming soon.",
+      onlineCheckoutSetup: "Online checkout is being set up. Contact us to activate your plan – we'll switch it on for your account.",
+      checkoutComingSoon: "Online checkout is being set up – coming soon.",
     },
   },
   coupleDashboard: {
@@ -918,10 +919,10 @@ export const dict: Dict = {
     createEventBtn: "Create your event →",
     steps: [
       { title: "Set up your event", body: "Give it a name, date, and optional PIN protection for your gallery." },
-      { title: "Share the QR code", body: "Print or display it — guests scan and upload photos instantly, no app needed." },
+      { title: "Share the QR code", body: "Print or display it – guests scan and upload photos instantly, no app needed." },
       { title: "Enjoy your gallery", body: "All memories in one private, PIN-protected place you can revisit and download." },
     ],
-    trialActive: "Free trial — {{days}} {{unit}} remaining",
+    trialActive: "Free trial – {{days}} {{unit}} remaining",
     trialExpired: "Your free trial has expired",
     trialPhotosUsed: "{{used}} / {{limit}} photos used · Upgrade to remove all limits",
     trialExpiredBody: "Upgrade to keep uploading and accessing your event gallery.",
@@ -949,7 +950,7 @@ export const dict: Dict = {
   forPhotographers: {
     eyebrow: "For photographers",
     title: "Replace scattered delivery tools with one event workflow.",
-    body: "Built for wedding and event photographers who want QR guest uploads, private client delivery, and one product that feels intentional from setup to handoff.",
+    body: "Built for wedding and event photographers who want guests to scan and send their photos, private client delivery, and one product that feels intentional from setup to handoff.",
     workflowEyebrow: "Workflow",
     workflowTitle: "A better event-day system from capture to delivery.",
     workflowBody: "Confetti isn't another folder. It's a controlled event workflow designed around how photographers actually manage uploads, review, and client handoff.",
@@ -968,7 +969,7 @@ export const dict: Dict = {
       },
       {
         title: "Moderate before delivery",
-        body: "Keep guest uploads hidden until you approve them, then unhide, delete, or restore as you curate the gallery.",
+        body: "Keep guest uploads hidden until you approve them, then unhide, delete, or restore as you shape the gallery.",
       },
       {
         title: "Deliver a polished gallery",
@@ -991,8 +992,9 @@ export const dict: Dict = {
   },
   forCouples: {
     eyebrow: "For couples & event hosts",
-    title: "Every photo from every guest, in one place, without the chaos.",
-    body: "Confetti gives you a simple one-event home for guest uploads and private sharing — without forcing family and friends into another app.",
+    title: "The photographer's album is perfect.",
+    titleAccent: "But the night lived on 93 more phones.",
+    body: "Every photo from every guest, in one place. Guests scan the QR and send their photos, and you share them privately – without forcing family and friends into another app.",
     ctaPrimary: "Create an account for your event",
     ctaSecondary: "See pricing",
     benefitsEyebrow: "Why hosts love it",
@@ -1000,7 +1002,7 @@ export const dict: Dict = {
     highlightsTitle: "One simple setup, one private place, one less thing to worry about.",
     howItWorksEyebrow: "How it works",
     howItWorks: [
-      "Create your event and generate a guest upload QR code.",
+      "Create your event and get a QR code – guests scan it and send their photos.",
       "Print the QR code and put it on the tables or at the entrance, so everyone can send photos right away.",
       "Open the private gallery later and keep every guest memory together in one place.",
     ],
@@ -1012,14 +1014,14 @@ export const dict: Dict = {
         yearlyLabel: "per month, billed yearly",
         monthlyLabel: "per month, billed monthly",
         savingsLabel: "Save {{percent}}% by paying yearly",
-        yearlyTotalNote: "Charged once a year — {{total}}",
+        yearlyTotalNote: "Charged once a year – {{total}}",
         summary:
           "For photographers running a handful of events at a time, with private client delivery and guest uploads in one place.",
         ctaLabel: "Start free as a photographer",
         features: [
           "Up to 5 events running at once",
           "100 GB of storage",
-          "Guest photo and video uploads by QR code",
+          "Guests scan the QR and send photos and video",
           "Private gallery with a PIN",
           "Gallery sections and moderation",
           "Download everything as a ZIP",
@@ -1030,7 +1032,7 @@ export const dict: Dict = {
         yearlyLabel: "per month, billed yearly",
         monthlyLabel: "per month, billed monthly",
         savingsLabel: "Save {{percent}}% by paying yearly",
-        yearlyTotalNote: "Charged once a year — {{total}}",
+        yearlyTotalNote: "Charged once a year – {{total}}",
         summary:
           "The same Confetti, sized for a full season: five times the events and five times the storage.",
         ctaLabel: "Start free as a photographer",
@@ -1045,9 +1047,9 @@ export const dict: Dict = {
       name: "One Event",
       priceLabel: "one-time",
       summary:
-        "For couples and event hosts who want QR guest uploads and one private gallery for shared memories.",
+        "For couples and event hosts who want guests to scan a QR and send their photos into one private gallery.",
       ctaLabel: "Create one event",
-      trialCtaLabel: "Start free — one event",
+      trialCtaLabel: "Start free – one event",
       features: [
         "1 private event",
         "No limit on how many photos guests send",
@@ -1076,7 +1078,7 @@ export const dict: Dict = {
     coupleBenefits: [
       {
         title: "Every guest memory in one place",
-        body: "Family and friends scan the code and send their moments instantly — from every angle.",
+        body: "Family and friends scan the code and send their moments instantly – from every angle.",
       },
       {
         title: "No app, no confusion",
@@ -1096,12 +1098,12 @@ export const dict: Dict = {
       {
         question: "How much does it cost?",
         answer:
-          "For a single event — a wedding, birthday or christening — you pay {{oneEvent}} once, no subscription. Photographers pick a plan: Solo at {{soloMonthly}} a month (up to {{soloEvents}} active events) or Pro at {{proMonthly}} a month (up to {{proEvents}}). Billed yearly, Solo comes to {{soloYearly}} and Pro to {{proYearly}} a month.",
+          "For a single event – a wedding, birthday or prom night – you pay {{oneEvent}} once, no subscription. Photographers pick a plan: Solo at {{soloMonthly}} a month (up to {{soloEvents}} active events) or Pro at {{proMonthly}} a month (up to {{proEvents}}). Billed yearly, Solo comes to {{soloYearly}} and Pro to {{proYearly}} a month.",
       },
       {
         question: "Can I do everything from my phone?",
         answer:
-          "Yes. Guests upload from their phones, and from yours you can create the event, review and approve photos, edit the QR card and download the gallery. A computer is not required — just more comfortable for large galleries.",
+          "Yes. Guests upload from their phones, and from yours you can create the event, review and approve photos, edit the QR card and download the gallery. A computer is not required – just more comfortable for large galleries.",
       },
       {
         question: "Do guests need an app or an account?",
@@ -1111,7 +1113,7 @@ export const dict: Dict = {
       {
         question: "Who can see the photos?",
         answer:
-          "Only the people you give the gallery link to — and with a PIN on, the link alone is not enough. The gallery is not on any public list or on Google. Everything guests send is seen by you first; only what you approve goes into the gallery.",
+          "Only the people you give the gallery link to – and with a PIN on, the link alone is not enough. The gallery is not on any public list or on Google. Everything guests send is seen by you first; only what you approve goes into the gallery.",
       },
       {
         question: "How long is the gallery available?",
@@ -1121,12 +1123,12 @@ export const dict: Dict = {
       {
         question: "Can I download every photo in full quality?",
         answer:
-          "Yes — one by one or all as a ZIP, in original quality. Unlike Viber or WhatsApp, nothing gets compressed. A large gallery downloads in a few ZIP parts.",
+          "Yes – one by one or all as a ZIP, in original quality. Unlike Viber or WhatsApp, nothing gets compressed. A large gallery downloads in a few ZIP parts.",
       },
       {
         question: "What happens when the free trial ends?",
         answer:
-          "New uploads pause until you choose a plan. Nothing is deleted — everything that arrived stays in your account.",
+          "New uploads pause until you choose a plan. Nothing is deleted – everything that arrived stays in your account.",
       },
     ],
     testimonials: [
@@ -1174,19 +1176,19 @@ export const dict: Dict = {
     breadcrumbHome: "Home",
     eventTypesLabel: "Event types",
     ctaTitle: "Set up a gallery for your event",
-    ctaBody: "Takes under two minutes. Try it free — 7 days or 20 photos, no card needed.",
+    ctaBody: "Takes under two minutes. Try it free – 7 days or 20 photos, no card needed.",
     ctaPrimary: "Start free",
     ctaSecondary: "See pricing",
     eventTypes: [
       {
         slug: "vjencanje",
         name: "Wedding",
-        seoTitle: "Wedding gallery — guests upload photos by QR code",
+        seoTitle: "Wedding gallery – guests upload photos by QR code",
         seoDescription:
           "One QR code on the tables and guests send photos straight into your private gallery. No app, no group chats. 79 KM, paid once.",
         heroTitle: "Every photo from your wedding, in one place",
         heroBody:
-          "Your photographer captures what was planned. Your guests catch what was not — the laughter at the table, the kids on the dance floor, the moment nobody else saw. Confetti gathers all of it into one private gallery.",
+          "Your photographer captures what was planned. Your guests catch what was not – the laughter at the table, the kids on the dance floor, the moment nobody else saw. Confetti gathers all of it into one private gallery.",
         sections: [
           {
             title: "A QR code on the table, nothing to explain",
@@ -1194,7 +1196,7 @@ export const dict: Dict = {
           },
           {
             title: "You decide what stays",
-            body: "Everything guests send reaches you first. Hide the blurry ones, drop duplicates, arrange the rest into sections — ceremony, dinner, dancing. Guests only ever see the finished gallery.",
+            body: "Everything guests send reaches you first. Hide the blurry ones, drop duplicates, arrange the rest into sections – ceremony, dinner, dancing. Guests only ever see the finished gallery.",
           },
           {
             title: "A gallery you will actually open again",
@@ -1214,12 +1216,12 @@ export const dict: Dict = {
       {
         slug: "rodjendan",
         name: "Birthday",
-        seoTitle: "Birthday gallery — collect photos from every guest",
+        seoTitle: "Birthday gallery – collect photos from every guest",
         seoDescription:
           "Instead of twenty people promising to send photos, one QR code and one private gallery. No app for guests. 79 KM, paid once.",
         heroTitle: "The birthday photos that otherwise never arrive",
         heroBody:
-          "Everyone took pictures. Nobody sent them. Confetti solves exactly that — a guest scans the code while still at the party, and the photos are yours before the cake is finished.",
+          "Everyone took pictures. Nobody sent them. Confetti solves exactly that – a guest scans the code while still at the party, and the photos are yours before the cake is finished.",
         sections: [
           {
             title: "Works for a child's party and an eighteenth alike",
@@ -1244,41 +1246,41 @@ export const dict: Dict = {
         ],
       },
       {
-        slug: "krstenje",
-        name: "Christening",
-        seoTitle: "Christening gallery — private photos, family only",
+        slug: "maturalna-vecer",
+        name: "Prom night",
+        seoTitle: "Prom night gallery – the whole class's photos in one place",
         seoDescription:
-          "Photos of your child in one private place, not on social media. Family uploads by QR code. 79 KM, paid once.",
-        heroTitle: "Christening photos that stay in the family",
+          "Graduates, parents and teachers scan a QR code and send their prom photos into one private gallery. No app, no account. 79 KM, paid once.",
+        heroTitle: "Prom night as every graduate saw it",
         heroBody:
-          "For a christening, a first communion or a family gathering, what matters most is that photos of a child do not end up somewhere they should not. A Confetti gallery is unlisted and blocked from search engines.",
+          "At prom everyone is shooting – graduates, parents, teachers. Instead of the photos staying scattered across a hundred phones and group chats, everyone scans a QR code and sends them into one private gallery.",
         sections: [
           {
-            title: "Private, not semi-public",
-            body: "The gallery appears in no public listing and is blocked from search engines. Only someone with the link can open it, and you can add a PIN you share out loud.",
+            title: "The whole class, one gallery",
+            body: "Everyone scans the code on the table and sends their photos. By the end of the night it is all in one place, not in ten different groups.",
           },
           {
-            title: "Grandparents can send too",
-            body: "A guest needs neither an account nor an app. They scan the code with their phone and send — as simple as sending a message.",
+            title: "Private, for the class and their families",
+            body: "The gallery appears in no public listing and is blocked from search engines. Only someone with the link can open it, and with a PIN even the link is not enough – which matters when the photos are of young people.",
           },
           {
-            title: "You control what is shown",
-            body: "Every photo sent reaches you first. Anything you would rather others did not see is hidden with one click.",
+            title: "The organiser sees everything first",
+            body: "Every photo sent reaches the organiser first. Anything that should not be in the gallery is hidden or deleted before anyone sees it.",
           },
         ],
         checklistTitle: "What you get",
         checklist: [
-          "A gallery that does not appear in search engines",
-          "Optional PIN for another layer",
-          "Family uploads without an account or app",
+          "One QR code for the whole hall",
+          "Graduates and parents send without an account or app",
           "Moderation before anyone sees anything",
-          "Download everything as a ZIP",
+          "Optional PIN for another layer",
+          "Originals in full quality, download as a ZIP",
         ],
       },
       {
         slug: "firmska-proslava",
         name: "Company party",
-        seoTitle: "Company party gallery — photos that stay internal",
+        seoTitle: "Company party gallery – photos that stay internal",
         seoDescription:
           "New Year, an anniversary or a team day: colleagues send photos by QR code into a gallery that stays internal. 79 KM, paid once.",
         heroTitle: "Photos from the party that stay inside the company",
@@ -1310,7 +1312,7 @@ export const dict: Dict = {
       {
         slug: "konferencija",
         name: "Conference",
-        seoTitle: "Conference gallery — every session in one place",
+        seoTitle: "Conference gallery – every session in one place",
         seoDescription:
           "Attendees and photographers upload into one gallery split by session. No app, no accounts. 79 KM, paid once.",
         heroTitle: "The conference as everyone in the room saw it",
@@ -1319,7 +1321,7 @@ export const dict: Dict = {
         sections: [
           {
             title: "Sections by session or by day",
-            body: "Split the gallery however suits — by day, by room, by talk. Anyone looking for a particular session finds it immediately.",
+            body: "Split the gallery however suits – by day, by room, by talk. Anyone looking for a particular session finds it immediately.",
           },
           {
             title: "A QR code on the badge or on the screen",
@@ -1343,7 +1345,7 @@ export const dict: Dict = {
     howItWorks: {
       seoTitle: "How it works",
       seoDescription:
-        "From creating an event to a delivered gallery in four steps. Guests need no app and no account — just a QR code.",
+        "From creating an event to a delivered gallery in four steps. Guests need no app and no account – just a QR code.",
       title: "How Confetti works",
       body: "Four steps. The first takes two minutes; the rest happen on their own.",
       steps: [
@@ -1365,7 +1367,7 @@ export const dict: Dict = {
         {
           n: "04",
           title: "Deliver the gallery",
-          body: "Share the gallery link. Whoever has it browses and downloads — one photo at a time, or everything as a ZIP.",
+          body: "Share the gallery link. Whoever has it browses and downloads – one photo at a time, or everything as a ZIP.",
         },
       ],
       note: "Guests never create an account. Only the person organising the event does.",
@@ -1375,7 +1377,7 @@ export const dict: Dict = {
       seoDescription:
         "How long links last, who can see a gallery, how downloads work, and the maximum file size.",
       title: "Frequently asked questions",
-      body: "If something is missing here, ask — we will add it.",
+      body: "If something is missing here, ask – we will add it.",
       groups: [
         {
           heading: "Gallery privacy",
@@ -1393,7 +1395,7 @@ export const dict: Dict = {
             {
               question: "Do I have to set a PIN?",
               answer:
-                "No. Without one, anyone with the link can open the gallery — convenient when sharing with family. If the photos warrant another layer, turn the PIN on in the event settings.",
+                "No. Without one, anyone with the link can open the gallery – convenient when sharing with family. If the photos warrant another layer, turn the PIN on in the event settings.",
             },
             {
               question: "What if a guest uploads something inappropriate?",
@@ -1442,12 +1444,12 @@ export const dict: Dict = {
             {
               question: "How do I print the QR code?",
               answer:
-                "From the event dashboard, download the QR code on its own as an image, or design a card in the editor — ten templates for different kinds of event — and export it as an A4 PDF or PNG ready to print. On A4 the templates keep the code about 5 cm wide; if you shrink the card for tables, make sure the code stays large enough for a phone to catch.",
+                "From the event dashboard, download the QR code on its own as an image, or design a card in the editor – ten templates for different kinds of event – and export it as an A4 PDF or PNG ready to print. On A4 the templates keep the code about 5 cm wide; if you shrink the card for tables, make sure the code stays large enough for a phone to catch.",
             },
             {
               question: "Can I have several QR codes, say for the church and the venue?",
               answer:
-                "An event has one QR code, but you can print as many copies as you like and put them everywhere — tables, the entrance, the bar. Separate codes for different parts of the day do not exist yet; afterwards you sort the photos into gallery sections yourself, for example ceremony, dinner, dancing.",
+                "An event has one QR code, but you can print as many copies as you like and put them everywhere – tables, the entrance, the bar. Separate codes for different parts of the day do not exist yet; afterwards you sort the photos into gallery sections yourself, for example ceremony, dinner, dancing.",
             },
           ],
         },
@@ -1462,7 +1464,7 @@ export const dict: Dict = {
             {
               question: "Which formats are supported?",
               answer:
-                "Photos: JPG, PNG, HEIC and HEIF — so whatever an iPhone shoots by default. Video: MP4 and MOV.",
+                "Photos: JPG, PNG, HEIC and HEIF – so whatever an iPhone shoots by default. Video: MP4 and MOV.",
             },
             {
               question: "How many photos can guests send?",
@@ -1478,7 +1480,7 @@ export const dict: Dict = {
       seoDescription:
         "Exactly how gallery privacy works: an unlisted link, an optional PIN, photos behind expiring links, and no indexing.",
       title: "How private your gallery actually is",
-      body: "The word \u201Cprivate\u201D gets used loosely in this business. Here is exactly what it means here — and what it does not.",
+      body: "The word \u201Cprivate\u201D gets used loosely in this business. Here is exactly what it means here – and what it does not.",
       sections: [
         {
           title: "The gallery is published nowhere",
@@ -1494,7 +1496,7 @@ export const dict: Dict = {
         },
         {
           title: "The PIN is your choice, and it changes the rules",
-          body: "Without a PIN, anyone with the link can open the gallery — convenient, but it means the link is the thing to protect. With a PIN, the link alone is not enough. For sensitive events, use a PIN and share it out loud rather than in the same message as the link.",
+          body: "Without a PIN, anyone with the link can open the gallery – convenient, but it means the link is the thing to protect. With a PIN, the link alone is not enough. For sensitive events, use a PIN and share it out loud rather than in the same message as the link.",
         },
         {
           title: "A link that cannot be guessed",
@@ -1511,19 +1513,19 @@ export const dict: Dict = {
   },
   seo: {
     home: {
-      title: "Private event galleries with QR guest uploads",
+      title: "Private event galleries – guests scan and send their photos",
       description:
         "Collect every photo your guests take through one QR code, keep it in a PIN-protected gallery, and download it all as a ZIP. No app for guests. From 79 KM for a single event.",
     },
     pricing: {
       title: "Pricing",
       description:
-        "One Event costs 79 KM once. Photographers pay from 39 KM a month for Solo or 79 KM for Pro, billed yearly. Start free — no card needed.",
+        "One Event costs 79 KM once. Photographers pay from 39 KM a month for Solo or 79 KM for Pro, billed yearly. Start free – no card needed.",
     },
     forPhotographers: {
       title: "For photographers",
       description:
-        "Run client events end to end: guest uploads by QR, moderation before anything is shown, and a PIN-protected gallery you hand over. Up to 25 events at once on Pro.",
+        "Run client events end to end: guests scan and send their photos, moderation before anything is shown, and a PIN-protected gallery you hand over. Up to 25 events at once on Pro.",
     },
     forCouples: {
       title: "For couples and event hosts",
@@ -1551,7 +1553,7 @@ export const dict: Dict = {
     mostPopular: "Most popular",
     includes: "Includes",
     oneTimePlan: "One-time plan",
-    oneTimePerfect: "Perfect for one private event — wedding, birthday, or anything worth keeping.",
+    oneTimePerfect: "Perfect for one private event – wedding, birthday, or anything worth keeping.",
     trialNote: "7 days or 20 photos · no card needed",
   },
   testimonialsUi: {
@@ -1563,10 +1565,10 @@ export const dict: Dict = {
   getStarted: {
     eyebrow: "Get started",
     title: "How are you using Confetti?",
-    body: "Pick the right fit — you can always upgrade later.",
+    body: "Pick the right fit – you can always upgrade later.",
     photographerLabel: "I'm a photographer",
     photographerTitle: "Multiple events, one calm workflow",
-    photographerBody: "Manage client events, QR guest uploads, and private gallery delivery from one dashboard. Built for photographers running multiple events.",
+    photographerBody: "Manage client events, the photos guests send by scanning a QR, and private gallery delivery from one dashboard. Built for photographers running multiple events.",
     photographerPlan: "Solo from 39 KM/mo · Pro from 79 KM/mo",
     photographerCta: "Create photographer account",
     eventLabel: "I'm hosting an event",

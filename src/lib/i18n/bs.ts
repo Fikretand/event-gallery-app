@@ -29,7 +29,7 @@ export const dict: Dict = {
   },
   landing: {
     badgeTag: "Bez aplikacije",
-    badgeText: "Privatna galerija uz QR prijenos",
+    badgeText: "Privatna galerija · Skeniraj i pošalji",
     heroDevice: {
       screen: {
         eventName: "Mia & Dario",
@@ -47,7 +47,7 @@ export const dict: Dict = {
         notifTime: "sada",
         notifText: "Gosti su upravo dodali 3 nove fotografije",
         sheetEyebrow: "Prijenosi gostiju",
-        sheetTitle: "Novi prijenosi — skriveni dok ih ne odobriš",
+        sheetTitle: "Novi prijenosi – skriveni dok ih ne odobriš",
         hidden: "Skriveno",
         approved: "Odobreno",
         galleryEyebrow: "Privatna galerija",
@@ -59,13 +59,13 @@ export const dict: Dict = {
         tabs: ["Sve", "Ceremonija", "Recepcija", "Gosti"],
       },
       cards: {
-        qrLabel: "Skeniraj za prijenos",
+        qrLabel: "Skeniraj i pošalji",
         privateBadge: "Privatno · Nije na Googleu",
       },
     },
-    heroTitle: "Svaka uspomena sa vašeg događaja, na jednom privatnom mjestu.",
+    heroTitle: "Svaka uspomena sa vašeg događaja, na jednom mjestu.",
     heroBody:
-      "Privatna galerija s prijenosom gostiju putem QR koda i PIN-zaštitom. Gostima nije potrebna aplikacija.",
+      "Pogledaj fotografije koje inače nikad i ne bi došle do tebe.",
     ctaPrimary: "Počni besplatno",
     ctaSecondary: "Pogledaj cijene",
     heroCaveat: "Besplatno za početak · Kartica nije potrebna · Aktivno za 2 minute",
@@ -75,21 +75,22 @@ export const dict: Dict = {
       { value: "0", label: "Javnih galerija" },
     ],
     galleryBandEyebrow: "Svaki ugao, jedna galerija",
-    galleryBandTitle: "Cijeli dan, viđen očima svih prisutnih.",
+    galleryBandTitle: "Fotografov album je savršen.",
+    galleryBandTitleAccent: "Ali noć je živjela na još 93 telefona.",
     galleryBandBody:
-      "Gosti uhvate trenutke koje biste inače propustili — spontane, iskrene, stvarne. Svaka fotografija završi u jednoj privatnoj galeriji, spremna da je iznova proživite i preuzmete.",
+      "Gosti uhvate trenutke koje biste inače propustili – spontane, iskrene, stvarne. Svaka fotografija završi u jednoj privatnoj galeriji, spremna da je iznova proživite i preuzmete.",
     howItWorks: {
       eyebrow: "Kako funkcioniše",
-      title: "Četiri koraka od prve zdravice do gotove galerije.",
-      sub: "Gosti ništa ne instaliraju i ne otvaraju nalog. Svaku fotografiju prvi vidiš ti, a ništa nikad nije javno.",
+      title: "Četiri koraka od kreiranja profila do gotove galerije.",
+      sub: "Gosti ništa ne instaliraju i ne otvaraju nalog. Svaku fotografiju prvi vidiš ti.",
       tablist: "Kako Confetti funkcioniše, korak po korak",
       play: "Nastavi automatsko prikazivanje",
       pause: "Pauziraj automatsko prikazivanje",
       steps: [
         { label: "Kreiraj", title: "Kreiraj događaj", body: "Naziv, datum i opcionalni PIN za prijenos. Gotovo za manje od dvije minute." },
-        { label: "Podijeli", title: "Podijeli QR kod", body: "Odštampaj ga za stolove ili ulaz. Gosti ga skeniraju kamerom telefona i šalju — bez aplikacije, bez naloga." },
-        { label: "Kuriraj", title: "Pregledaj i kuriraj", body: "Svaki prijenos stiže skriven i vidiš ga samo ti. Prikaži, sakrij ili obriši — ništa ne ulazi u galeriju bez tvog odobrenja." },
-        { label: "Isporuči", title: "Isporuči galeriju", body: "Podijeli jedan privatni link, uz opcionalni PIN. Svi pregledaju i preuzimaju originale u punoj kvaliteti — ne kompresovane kopije iz chata." },
+        { label: "Podijeli", title: "Podijeli QR kod", body: "Odštampaj ga za stolove ili ulaz. Gosti ga skeniraju kamerom telefona i šalju – bez aplikacije, bez naloga." },
+        { label: "Odobri", title: "Pregledaj i odobri", body: "Svaki prijenos stiže skriven i vidiš ga samo ti. Prikaži, sakrij ili obriši – ništa ne ulazi u galeriju bez tvog odobrenja." },
+        { label: "Isporuči", title: "Isporuči galeriju", body: "Podijeli jedan privatni link, uz mogućnost dodatne zaštite PIN-om. Svi preuzimaju originale u punoj kvaliteti – ne smanjene i mutne kopije kakve stižu preko WhatsAppa i Vibera." },
       ],
       ui: {
         newEvent: "Novi događaj",
@@ -100,7 +101,7 @@ export const dict: Dict = {
         pin: "PIN za prijenos",
         create: "Kreiraj događaj",
         created: "Događaj kreiran",
-        scanLabel: "Skeniraj za prijenos",
+        scanLabel: "Skeniraj i pošalji",
         cameraHint: "Usmjeri kameru na QR kod",
         guestUpload: "Prijenos gostiju",
         noApp: "Bez aplikacije · Bez naloga",
@@ -143,8 +144,8 @@ export const dict: Dict = {
       { label: "Privatnost", href: "/privacy" },
       { label: "Uslovi", href: "/terms" },
     ],
-    photographerSpotlightEyebrow: "Istaknuti fotografe",
-    photographerSpotlightTitle: "Fotografe koje možda želite rezervisati.",
+    photographerSpotlightEyebrow: "Istaknuti fotografi",
+    photographerSpotlightTitle: "Fotografi koje možda želite rezervisati.",
     photographerSpotlightBody:
       "Mali spotlight za fotografe koji su već na Confettiju. Uključeno u svaki plan za fotografe.",
     faqEyebrow: "Česta pitanja",
@@ -162,7 +163,7 @@ export const dict: Dict = {
     forCouplesCtaSecondary: "Jednokratna cijena",
     whoForEyebrow: "Za koga je",
     whoForTitle: "Dva načina korištenja Confettija.",
-    photographerCardBody: "Vodi više klijentskih događaja uz QR prijenos gostiju i isporuku privatne galerije.",
+    photographerCardBody: "Vodi više klijentskih događaja: gosti skeniraju QR i pošalju slike, a ti predaješ privatnu galeriju.",
     coupleCardBody: "Organizuj jedan događaj i sakupi svaku fotografiju gostiju u jednoj privatnoj galeriji.",
   },
   upload: {
@@ -185,7 +186,7 @@ export const dict: Dict = {
     enterPin: "Unesite PIN galerije za pregled isporučenih fotografija i odobrenih gostujućih slika.",
     visibleFiles: "{{count}} vidljivih fajlova",
     browseCurated:
-      "Sve najdraže fotografije koje je fotograf izdvojio, uz trenutke koje su zabilježili vaši gosti — sve na jednom mjestu da ih iznova proživite i preuzmete.",
+      "Sve najdraže fotografije koje je fotograf izdvojio, uz trenutke koje su zabilježili vaši gosti – sve na jednom mjestu da ih iznova proživite i preuzmete.",
     privateNoAccess: "Ova privatna galerija se otvara nakon unosa ispravnog PIN-a.",
     expired: "Ova galerija je istekla i više nije dostupna.",
     archived:
@@ -213,7 +214,7 @@ export const dict: Dict = {
     cover: "Naslovna",
     byGuest: "od {{name}}",
     emptyTitle: "Ovdje još nema ničega",
-    emptyBody: "Fotograf još nije podijelio ništa u ovom prikazu — provjerite uskoro.",
+    emptyBody: "Fotograf još nije podijelio ništa u ovom prikazu – provjerite uskoro.",
     swipeHint: "Prevucite za pregled",
     sectionEyebrow: "Sekcija",
     moreMoments: "Više trenutaka",
@@ -354,8 +355,8 @@ export const dict: Dict = {
       planSoloDesc: "5 aktivnih događaja, 100 GB prostora",
       managePlan: "Upravljaj planom →",
       noEvents: "Još nema događaja",
-      noEventsBody: "Kreiraj prvi događaj — dobiješ QR kod, link preko kojeg gosti šalju fotografije i privatnu galeriju.",
-      trialActive: "Besplatna proba — još {{days}} {{unit}}",
+      noEventsBody: "Kreiraj prvi događaj – dobiješ QR kod, link preko kojeg gosti šalju fotografije i privatnu galeriju.",
+      trialActive: "Besplatna proba – još {{days}} {{unit}}",
       trialExpired: "Besplatna proba je istekla",
       trialActiveBody: "Iskorišteno {{used}} / {{limit}} fotografija · Pređi na plaćeni plan da ukloniš ograničenja",
       trialExpiredBody: "Pređi na plaćeni plan da nastaviš sa korištenjem.",
@@ -370,7 +371,7 @@ export const dict: Dict = {
       guestUploads: "Prijenosi gostiju",
       storageUsed: "Iskorišten prostor",
       downloads: "Skidanja",
-      guestUploadLink: "Link za goste — ovo je link iz QR koda",
+      guestUploadLink: "Link za goste – ovo je link iz QR koda",
       guestUploadLinkBody: "Na ovu adresu vodi vaš QR kod. Preko nje gosti šalju fotografije; isti link možete poslati i porukom.",
       clientGalleryLink: "Link galerije za klijenta",
       clientGalleryLinkBody: "Šaljete ga klijentu nakon događaja, kada odaberete i pripremite fotografije. U galeriji se vidi samo ono što ste sami postavili ili odobrili.",
@@ -513,15 +514,15 @@ export const dict: Dict = {
         noAccountNeeded: "Originali se čuvaju u punoj kvaliteti",
         viewUploads: "Pogledaj fajlove ↓",
       },
-      permanentLinksNote: "Ovi javni linkovi su trajni za ovaj događaj. Preimenovanje događaja mijenja samo prikazni naziv — već podijeljeni linkovi i isprintani QR kodovi nastavljaju da rade.",
+      permanentLinksNote: "Ovi javni linkovi su trajni za ovaj događaj. Preimenovanje događaja mijenja samo prikazni naziv – već podijeljeni linkovi i isprintani QR kodovi nastavljaju da rade.",
       openGuestPage: "Otvori stranicu za goste",
       openGuestUploadPage: "Otvori stranicu za goste",
       openClientGallery: "Otvori galeriju klijenta",
       openPrivateGallery: "Otvori privatnu galeriju",
       eventExpired: "Ovaj događaj je istekao. Prijenosi gostiju i pristup galeriji klijenta su blokirani dok ne produžiš datum isteka.",
       eventExpiredCouple: "Ovaj događaj je istekao. Prijenosi gostiju i pristup privatnoj galeriji su blokirani dok ne produžiš datum isteka.",
-      coverImageHint: "Postavi naslovnu sliku u Galery manageru — lakše prepoznaš događaj na prvi pogled.",
-      coverImageHintCouple: "Postavi naslovnu sliku — lakše prepoznaš svoj događaj na prvi pogled.",
+      coverImageHint: "Postavi naslovnu sliku u Galery manageru – lakše prepoznaš događaj na prvi pogled.",
+      coverImageHintCouple: "Postavi naslovnu sliku – lakše prepoznaš svoj događaj na prvi pogled.",
       guestQrCode: "QR kod za goste",
       qrSharingHint: "Odštampajte ga i stavite na stolove, ulaz ili šank. Gosti ga skeniraju telefonom i šalju fotografije bez instaliranja aplikacije.",
       uploadProTitle: "Otpremi pro galeriju",
@@ -690,7 +691,7 @@ export const dict: Dict = {
       soloFeatures: [
         "Do 5 događaja istovremeno",
         "100 GB prostora",
-        "Foto i video prijenos gostiju putem QR koda",
+        "Gosti skeniraju QR i pošalju fotografije i video",
         "Privatna galerija sa PIN-om",
         "Preuzimanje svega kao ZIP",
       ],
@@ -706,7 +707,7 @@ export const dict: Dict = {
       switchTo: "Prebaci na {{name}}",
       get: "Uzmi {{name}}",
       paymentsNote:
-        "Online plaćanja još nisu aktivna. Kontaktiraj nas da aktiviramo tvoj plan putem bankovnog transfera — uključit ćemo ga za tvoj račun.",
+        "Online plaćanja još nisu aktivna. Kontaktiraj nas da aktiviramo tvoj plan putem bankovnog transfera – uključit ćemo ga za tvoj račun.",
       paymentsUnavailable: "Online naplata se postavlja. Odabir plana će pokazati kako ga aktivirati u međuvremenu.",
       networkError: "Greška u mreži. Pokušaj ponovo.",
       genericError: "Nešto je pošlo po zlu.",
@@ -746,7 +747,7 @@ export const dict: Dict = {
       savedNotice: "Profil sačuvan.",
       changePassword: {
         title: "Promjena lozinke",
-        body: "Za promjenu je potrebna trenutna lozinka — tako niko ne može promijeniti lozinku sa računara na kojem ste ostali prijavljeni.",
+        body: "Za promjenu je potrebna trenutna lozinka – tako niko ne može promijeniti lozinku sa računara na kojem ste ostali prijavljeni.",
         current: "Trenutna lozinka",
         next: "Nova lozinka",
         confirm: "Ponovite novu lozinku",
@@ -834,7 +835,7 @@ export const dict: Dict = {
         italic: "Koso",
         resetTemplate: "Vrati izvorni predložak",
         selectHint: "Dodirnite tekst, sliku ili oblik na kartici da ga uredite.",
-        desktopTip: "Dvoklik na tekst ga uređuje. Prevucite element da ga pomjerite — sam se poravna po sredini. Zumiranje: Ctrl + kotačić miša ili tipke + i −, a 0 vraća cijelu karticu; kad je uvećano, prevucite prazan dio da se pomjerite. Prečice: Del briše, Esc poništava odabir, Ctrl+Z vraća korak, Ctrl+D duplira.",
+        desktopTip: "Dvoklik na tekst ga uređuje. Prevucite element da ga pomjerite – sam se poravna po sredini. Zumiranje: Ctrl + kotačić miša ili tipke + i −, a 0 vraća cijelu karticu; kad je uvećano, prevucite prazan dio da se pomjerite. Prečice: Del briše, Esc poništava odabir, Ctrl+Z vraća korak, Ctrl+D duplira.",
         exportFailed: "Preuzimanje nije uspjelo. Pokušajte ponovo.",
         selected: "Odabrano",
         textType: "Tekst",
@@ -853,16 +854,16 @@ export const dict: Dict = {
         "Pogledajte karticu s QR kodom, izaberite predložak i preuzmite je kao PDF, ili je uredite po svom ukusu.",
     },
     paymentBanner: {
-      activatedTitle: "Uplata primljena — sve je spremno.",
+      activatedTitle: "Uplata primljena – sve je spremno.",
       activatedBody: "Vaš {{plan}} plan je aktivan. Ograničenja probnog perioda više ne važe.",
-      pendingTitle: "Uplata primljena — aktiviramo vaš plan.",
+      pendingTitle: "Uplata primljena – aktiviramo vaš plan.",
       pendingBody: "Obično traje par sekundi. Stranica se sama osvježava.",
     },
     billing: {
       title: "Plan i naplata",
       eyebrow: "Odaberi plan, nadogradi ili upravljaj pretplatom",
       backToDashboard: "← Dashboard",
-      paymentReceived: "Uplata primljena — tvoj plan se aktivira. Može potrajati par sekundi da se prikaže ovdje.",
+      paymentReceived: "Uplata primljena – tvoj plan se aktivira. Može potrajati par sekundi da se prikaže ovdje.",
       currentPlan: "Trenutni plan",
       planLabelAdmin: "Admin",
       planLabelActive: "{{plan}} · aktivan",
@@ -886,11 +887,11 @@ export const dict: Dict = {
       ],
       buyOneEvent: "Kupi Jedan događaj · {{price}}",
       checkoutOpening: "Otvaram plaćanje…",
-      checkoutSecure: "Sigurno plaćanje — kartica ili banka, račun stiže na email.",
+      checkoutSecure: "Sigurno plaćanje – kartica ili banka, račun stiže na email.",
       checkoutEmailHint: "Koristite {{email}} prilikom plaćanja kako bismo automatski aktivirali vaš plan.",
       checkoutError: "Nismo uspjeli otvoriti plaćanje. Pokušajte ponovo za trenutak.",
       onlineCheckoutSetup: "Online checkout se podešava. Javite nam se da aktiviramo plan za vaš nalog.",
-      checkoutComingSoon: "Online plaćanje se podešava — uskoro.",
+      checkoutComingSoon: "Online plaćanje se podešava – uskoro.",
     },
   },
   coupleDashboard: {
@@ -908,7 +909,7 @@ export const dict: Dict = {
     galleryBody: "Vaša privatna galerija sa svim prikupljenim fotografijama i videima.",
     galleryLink: "Otvori galeriju →",
     uploadLinkTitle: "Link za prijenos",
-    uploadLinkBody: "Direktna stranica za prijenos gostiju — kopirajte i podijelite gdje god želite.",
+    uploadLinkBody: "Direktna stranica za prijenos gostiju – kopirajte i podijelite gdje god želite.",
     uploadLinkCta: "Otvori stranicu za prijenos →",
     fullManageTitle: "Kompletno upravljanje događajem",
     fullManageBody: "Moderišite prijenose, upravljajte sekcijama galerije, postavite naslovnu sliku i preuzmite sve kao ZIP.",
@@ -920,17 +921,17 @@ export const dict: Dict = {
     createEventBtn: "Kreiraj događaj →",
     steps: [
       { title: "Postavite događaj", body: "Dajte mu naziv, datum i opcionalno PIN zaštitu za galeriju." },
-      { title: "Podijelite QR kod", body: "Isprintajte ili prikažite — gosti skeniraju i šalju fotografije odmah, bez aplikacije." },
+      { title: "Podijelite QR kod", body: "Isprintajte ili prikažite – gosti skeniraju i šalju fotografije odmah, bez aplikacije." },
       { title: "Uživajte u galeriji", body: "Sva sjećanja na jednom privatnom, PIN-zaštićenom mjestu koje možete posjetiti i preuzeti." },
     ],
-    trialActive: "Besplatna proba — još {{days}} {{unit}}",
+    trialActive: "Besplatna proba – još {{days}} {{unit}}",
     trialExpired: "Vaš besplatni trial je istekao",
     trialPhotosUsed: "{{used}} / {{limit}} fotografija iskorišteno · Nadogradite da uklonite limite",
     trialExpiredBody: "Nadogradite da nastavite s prijenosom i pristupom galeriji.",
     trialChoosePlan: "Nadogradi sada →",
   },
   pricing: {
-    eyebrow: "Koriste ga fotografi kojima treba privatna isporuka i prijenos gostiju na jednom mjestu.",
+    eyebrow: "Koriste ga fotografi kojima treba privatna isporuka i slike gostiju na jednom mjestu.",
     title: "Privatne galerije koje štede više stresa nego što koštaju.",
     body: "Odaberite ponavljajući plan za vaše fotografsko poslovanje ili jednokratni plan za jedan događaj. Confetti drži linkove stabilnima, galerije privatnima, a preuzimanja jednostavnima.",
     features: [
@@ -951,9 +952,9 @@ export const dict: Dict = {
   forPhotographers: {
     eyebrow: "Za fotografe",
     title: "Zamijeni raštrkane alate za isporuku jednim tokom rada za događaje.",
-    body: "Napravljeno za fotografe vjenčanja i događaja koji žele QR prijenos gostiju, privatnu isporuku klijentima i jedan proizvod koji djeluje promišljeno od postavke do predaje.",
+    body: "Napravljeno za fotografe vjenčanja i događaja koji žele da gosti skeniraju QR i pošalju slike, privatnu isporuku klijentima i jedan proizvod koji djeluje promišljeno od postavke do predaje.",
     workflowEyebrow: "Tok rada",
-    workflowTitle: "Bolji sistem za dan događaja — od snimanja do isporuke.",
+    workflowTitle: "Bolji sistem za dan događaja – od snimanja do isporuke.",
     workflowBody: "Confetti nije još jedan folder. To je kontrolisan tok rada osmišljen oko toga kako fotografi zaista upravljaju prijenosima, pregledom i predajom klijentima.",
     switchTitle: "Bolju isporuku je lakše prodati nego još jedan alat za skladištenje.",
     switchSubtitle: "Zašto fotografi prelaze",
@@ -970,7 +971,7 @@ export const dict: Dict = {
       },
       {
         title: "Moderiraj prije isporuke",
-        body: "Drži prijenose gostiju skrivene dok ne odobriš, pa otkrij, obriši ili vrati dok kuriraš galeriju.",
+        body: "Drži prijenose gostiju skrivene dok ne odobriš, pa otkrij, obriši ili vrati dok uređuješ galeriju.",
       },
       {
         title: "Isporuči dotjeranu galeriju",
@@ -993,8 +994,9 @@ export const dict: Dict = {
   },
   forCouples: {
     eyebrow: "Za parove i organizatore događaja",
-    title: "Svaka fotografija od svakog gosta, na jednom mjestu, bez haosa.",
-    body: "Confetti vam daje jednostavno mjesto za jedan događaj — prijenos gostiju i privatno dijeljenje, bez tjeranja porodice i prijatelja u još jednu aplikaciju.",
+    title: "Fotografov album je savršen.",
+    titleAccent: "Ali noć je živjela na još 93 telefona.",
+    body: "Svaka fotografija od svakog gosta, na jednom mjestu. Gosti skeniraju QR i pošalju slike, a vi ih dijelite privatno – bez tjeranja porodice i prijatelja u još jednu aplikaciju.",
     ctaPrimary: "Napravi nalog za svoj događaj",
     ctaSecondary: "Pogledaj cijene",
     benefitsEyebrow: "Zašto ga organizatori vole",
@@ -1002,7 +1004,7 @@ export const dict: Dict = {
     highlightsTitle: "Jedna jednostavna postavka, jedno privatno mjesto, jedna briga manje.",
     howItWorksEyebrow: "Kako funkcioniše",
     howItWorks: [
-      "Kreiraj događaj i generiši QR kod za prijenos gostiju.",
+      "Kreiraj događaj i dobij QR kod – gosti ga skeniraju i pošalju slike.",
       "Odštampaj QR kod i stavi ga na stolove ili ulaz, pa svako može odmah slati fotografije.",
       "Otvori privatnu galeriju kasnije i čuvaj sve uspomene gostiju na jednom mjestu.",
     ],
@@ -1014,14 +1016,14 @@ export const dict: Dict = {
         yearlyLabel: "mjesečno, naplata godišnje",
         monthlyLabel: "mjesečno, naplata svaki mjesec",
         savingsLabel: "Uštedi {{percent}}% uz godišnje plaćanje",
-        yearlyTotalNote: "Naplaćuje se jednom godišnje — {{total}}",
+        yearlyTotalNote: "Naplaćuje se jednom godišnje – {{total}}",
         summary:
-          "Za fotografe koji vode nekoliko događaja istovremeno — privatna isporuka klijentima i prijenos gostiju na jednom mjestu.",
+          "Za fotografe koji vode nekoliko događaja istovremeno – privatna isporuka klijentima i slike gostiju na jednom mjestu.",
         ctaLabel: "Počni besplatno kao fotograf",
         features: [
           "Do 5 događaja istovremeno",
           "100 GB prostora",
-          "Foto i video prijenos gostiju putem QR koda",
+          "Gosti skeniraju QR i pošalju fotografije i video",
           "Privatna galerija sa PIN-om",
           "Sekcije u galeriji i moderacija",
           "Preuzimanje svega kao ZIP",
@@ -1032,7 +1034,7 @@ export const dict: Dict = {
         yearlyLabel: "mjesečno, naplata godišnje",
         monthlyLabel: "mjesečno, naplata svaki mjesec",
         savingsLabel: "Uštedi {{percent}}% uz godišnje plaćanje",
-        yearlyTotalNote: "Naplaćuje se jednom godišnje — {{total}}",
+        yearlyTotalNote: "Naplaćuje se jednom godišnje – {{total}}",
         summary:
           "Isti Confetti, samo za punu sezonu: pet puta više događaja i pet puta više prostora.",
         ctaLabel: "Počni besplatno kao fotograf",
@@ -1047,9 +1049,9 @@ export const dict: Dict = {
       name: "Jedan događaj",
       priceLabel: "jednokratno",
       summary:
-        "Za parove i organizatore koji žele QR prijenos gostiju i jednu privatnu galeriju za zajednička sjećanja.",
+        "Za parove i organizatore koji žele da gosti skeniraju QR i pošalju slike u jednu privatnu galeriju.",
       ctaLabel: "Kreiraj jedan događaj",
-      trialCtaLabel: "Počni besplatno — jedan događaj",
+      trialCtaLabel: "Počni besplatno – jedan događaj",
       features: [
         "1 privatni događaj",
         "Bez ograničenja koliko fotografija gosti pošalju",
@@ -1064,7 +1066,7 @@ export const dict: Dict = {
     photographerBenefits: [
       {
         title: "Jedan događaj, dva toka",
-        body: "Gostujuće fotografije i vaša finalna galerija — sve u istom radnom prostoru.",
+        body: "Gostujuće fotografije i vaša finalna galerija – sve u istom radnom prostoru.",
       },
       {
         title: "QR predaja koja djeluje premium",
@@ -1078,7 +1080,7 @@ export const dict: Dict = {
     coupleBenefits: [
       {
         title: "Svaka uspomena gosta na jednom mjestu",
-        body: "Porodica i prijatelji skeniraju kod i šalju slike odmah — iz svakog ugla.",
+        body: "Porodica i prijatelji skeniraju kod i šalju slike odmah – iz svakog ugla.",
       },
       {
         title: "Bez aplikacije, bez zabune",
@@ -1098,12 +1100,12 @@ export const dict: Dict = {
       {
         question: "Koliko košta?",
         answer:
-          "Za jedan događaj — vjenčanje, rođendan, krštenje — plaćaš jednom {{oneEvent}}, bez pretplate. Fotografi biraju paket: Solo {{soloMonthly}} mjesečno (do {{soloEvents}} aktivnih događaja) ili Pro {{proMonthly}} mjesečno (do {{proEvents}}). Uz godišnje plaćanje Solo izađe {{soloYearly}}, a Pro {{proYearly}} mjesečno.",
+          "Za jedan događaj – vjenčanje, rođendan, maturalna večer – plaćaš jednom {{oneEvent}}, bez pretplate. Fotografi biraju paket: Solo {{soloMonthly}} mjesečno (do {{soloEvents}} aktivnih događaja) ili Pro {{proMonthly}} mjesečno (do {{proEvents}}). Uz godišnje plaćanje Solo izađe {{soloYearly}}, a Pro {{proYearly}} mjesečno.",
       },
       {
         question: "Mogu li sve raditi preko mobitela?",
         answer:
-          "Da. Gosti šalju s mobitela, a ti s mobitela napraviš događaj, pregledaš i odobriš slike, uređuješ QR karticu i preuzmeš galeriju. Računar nije potreban — samo je udobniji za velike galerije.",
+          "Da. Gosti šalju s mobitela, a ti s mobitela napraviš događaj, pregledaš i odobriš slike, uređuješ QR karticu i preuzmeš galeriju. Računar nije potreban – samo je udobniji za velike galerije.",
       },
       {
         question: "Trebaju li gosti aplikaciju ili nalog?",
@@ -1113,7 +1115,7 @@ export const dict: Dict = {
       {
         question: "Ko može vidjeti fotografije?",
         answer:
-          "Samo onaj kome daš link galerije — a ako uključiš PIN, ni link nije dovoljan. Galerija nije ni na jednom javnom popisu niti na Googleu. Sve što gosti pošalju prvo vidiš samo ti; u galeriju ide ono što odobriš.",
+          "Samo onaj kome daš link galerije – a ako uključiš PIN, ni link nije dovoljan. Galerija nije ni na jednom javnom popisu niti na Googleu. Sve što gosti pošalju prvo vidiš samo ti; u galeriju ide ono što odobriš.",
       },
       {
         question: "Koliko dugo je galerija dostupna?",
@@ -1123,12 +1125,12 @@ export const dict: Dict = {
       {
         question: "Mogu li preuzeti sve fotografije u punoj kvaliteti?",
         answer:
-          "Da — pojedinačno ili sve kao ZIP, u originalnoj kvaliteti. Za razliku od Vibera i WhatsAppa, ništa se ne smanjuje. Veliku galeriju preuzmeš u nekoliko ZIP dijelova.",
+          "Da – pojedinačno ili sve kao ZIP, u originalnoj kvaliteti. Za razliku od Vibera i WhatsAppa, ništa se ne smanjuje. Veliku galeriju preuzmeš u nekoliko ZIP dijelova.",
       },
       {
         question: "Šta se desi kad besplatna proba istekne?",
         answer:
-          "Slanje novih slika se zaustavi dok ne odabereš paket. Ništa se ne briše — sve što je stiglo ostaje u tvom nalogu.",
+          "Slanje novih slika se zaustavi dok ne odabereš paket. Ništa se ne briše – sve što je stiglo ostaje u tvom nalogu.",
       },
     ],
     testimonials: [
@@ -1153,16 +1155,16 @@ export const dict: Dict = {
     ],
     photographerSwitchReasons: [
       "Jedan privatni tok rada umjesto spajanja upload linkova, foldera i naknadnih poruka.",
-      "Prijenosi gostiju skriveni dok ih ne odobrite — pregledate prvo i prikažete samo ono što ide u finalnu galeriju.",
+      "Prijenosi gostiju skriveni dok ih ne odobrite – pregledate prvo i prikažete samo ono što ide u finalnu galeriju.",
       "Stabilni QR i linkovi galerije koji rade i nakon preimenovanja događaja ili štampanja natpisa.",
       "Profesionalnija predaja klijentima koja djeluje kao dio vaše usluge, a ne kao naknadna pomisao.",
     ],
     couplePlanHighlights: [
       "Neograničeni prijenos fotografija gostiju s jednog QR koda koji gosti mogu otvoriti za sekunde.",
-      "Video gostiju uključen uz razumnu upotrebu — plan ostaje jednostavan bez zastrašujućih limita.",
+      "Video gostiju uključen uz razumnu upotrebu – plan ostaje jednostavan bez zastrašujućih limita.",
       "Jedna zaštićena galerija koja čuva svaku uspomenu gostiju na jednom privatnom mjestu.",
       "Jednostavne sekcije galerije za organizaciju trenutaka poput Ceremonije, Recepcije ili Fotografisanja.",
-      "Jednostavna preuzimanja naknadno — bez traženja po chatovima, dijeljenim diskovima ili porukama.",
+      "Jednostavna preuzimanja naknadno – bez traženja po chatovima, dijeljenim diskovima ili porukama.",
       "Jednokratno postavljanje dovoljno elegantno za bilo koju proslavu, a ne kao još jedan generički link aplikacije.",
     ],
     trustBadges: [
@@ -1177,19 +1179,19 @@ export const dict: Dict = {
     eventTypesLabel: "Tipovi događaja",
     ctaTitle: "Napravite galeriju za svoj događaj",
     ctaBody:
-      "Postavljanje traje manje od dvije minute. Probaj besplatno — 7 dana ili 20 fotografija, bez kartice.",
+      "Postavljanje traje manje od dvije minute. Probaj besplatno – 7 dana ili 20 fotografija, bez kartice.",
     ctaPrimary: "Počni besplatno",
     ctaSecondary: "Pogledaj cijene",
     eventTypes: [
       {
         slug: "vjencanje",
         name: "Vjenčanje",
-        seoTitle: "Galerija za vjenčanje — gosti šalju slike QR kodom",
+        seoTitle: "Galerija za vjenčanje – gosti šalju slike QR kodom",
         seoDescription:
           "Jedan QR kod na stolovima, a gosti šalju fotografije direktno u vašu privatnu galeriju. Bez aplikacije, bez grupa na WhatsAppu. 79 KM jednokratno.",
         heroTitle: "Sve slike sa vašeg vjenčanja, na jednom mjestu",
         heroBody:
-          "Fotograf snimi ono što je planirano. Gosti uhvate ono što nije — smijeh za stolom, djecu na podiju, momenat koji niko drugi nije vidio. Confetti sve to sakuplja u jednu privatnu galeriju.",
+          "Fotograf snimi ono što je planirano. Gosti uhvate ono što nije – smijeh za stolom, djecu na podiju, momenat koji niko drugi nije vidio. Confetti sve to sakuplja u jednu privatnu galeriju.",
         sections: [
           {
             title: "QR kod na stolu, bez objašnjavanja",
@@ -1197,7 +1199,7 @@ export const dict: Dict = {
           },
           {
             title: "Vi odlučujete šta ostaje",
-            body: "Sve što gosti pošalju prvo vidite vi. Sakrijte neuspjele kadrove, obrišite duplikate, rasporedite ostalo po sekcijama — ceremonija, restoran, igranka. Gosti vide samo finalnu verziju.",
+            body: "Sve što gosti pošalju prvo vidite vi. Sakrijte neuspjele kadrove, obrišite duplikate, rasporedite ostalo po sekcijama – ceremonija, restoran, igranka. Gosti vide samo finalnu verziju.",
           },
           {
             title: "Galerija koju stvarno otvorite ponovo",
@@ -1217,12 +1219,12 @@ export const dict: Dict = {
       {
         slug: "rodjendan",
         name: "Rođendan",
-        seoTitle: "Galerija za rođendan — sakupite slike svih gostiju",
+        seoTitle: "Galerija za rođendan – sakupite slike svih gostiju",
         seoDescription:
           "Umjesto dvadeset ljudi koji obećaju da će poslati slike, jedan QR kod i jedna privatna galerija. Bez aplikacije za goste. 79 KM jednokratno.",
         heroTitle: "Slike sa rođendana koje inače nikad ne stignu",
         heroBody:
-          "Svako je slikao. Niko nije poslao. Confetti rješava tačno taj problem — gost skenira kod dok je još na proslavi i slike su kod vas prije nego što je torta pojedena.",
+          "Svako je slikao. Niko nije poslao. Confetti rješava tačno taj problem – gost skenira kod dok je još na proslavi i slike su kod vas prije nego što je torta pojedena.",
         sections: [
           {
             title: "Radi i za dječiji i za osamnaesti",
@@ -1247,41 +1249,41 @@ export const dict: Dict = {
         ],
       },
       {
-        slug: "krstenje",
-        name: "Krštenje",
-        seoTitle: "Galerija za krštenje — privatne slike samo za porodicu",
+        slug: "maturalna-vecer",
+        name: "Maturalna večer",
+        seoTitle: "Galerija za maturalnu večer – slike cijelog razreda na jednom mjestu",
         seoDescription:
-          "Slike djeteta na jednom privatnom mjestu, bez objavljivanja na društvenim mrežama. Porodica šalje QR kodom. 79 KM jednokratno.",
-        heroTitle: "Slike krštenja koje ostaju u porodici",
+          "Maturanti, roditelji i profesori skeniraju QR kod i pošalju slike sa maturalne večeri u jednu privatnu galeriju. Bez aplikacije, bez naloga. 79 KM jednokratno.",
+        heroTitle: "Maturalna večer iz ugla svakog maturanta",
         heroBody:
-          "Za krštenje, prvu pričest ili porodično okupljanje najvažnije je da slike djeteta ne završe negdje gdje im nije mjesto. Confetti galerija nije javna i ne pojavljuje se u pretraživačima.",
+          "Na maturalnoj večeri snimaju svi – maturanti, roditelji, profesori. Umjesto da slike ostanu razbacane po stotinu telefona i grupnih chatova, svi ih skeniranjem QR koda pošalju u jednu privatnu galeriju.",
         sections: [
           {
-            title: "Privatno, ne polujavno",
-            body: "Galerija nema javni popis i ne indeksira se u pretraživačima. Otvara je samo onaj ko ima link, a možete dodati i PIN koji dijelite usmeno.",
+            title: "Cijeli razred, jedna galerija",
+            body: "Svako skenira kod sa stola i pošalje svoje slike. Na kraju večeri sve je na jednom mjestu, a ne u deset različitih grupa.",
           },
           {
-            title: "Djed i nana također mogu poslati",
-            body: "Gostu ne treba ni nalog ni aplikacija. Skenira kod telefonom i pošalje slike — isto kao slanje poruke.",
+            title: "Privatno, samo za razred i porodice",
+            body: "Galerija se ne pojavljuje u pretraživačima i nema javni popis. Otvara je samo onaj ko ima link, a uz PIN ni link nije dovoljan – važno kad su na slikama mladi ljudi.",
           },
           {
-            title: "Vi kontrolišete šta se vidi",
-            body: "Svaka poslana slika prvo dođe vama. Šta ne želite da drugi vide, sakrijete jednim klikom.",
+            title: "Organizator vidi sve prvi",
+            body: "Svaka poslana slika prvo stiže organizatoru. Šta ne treba biti u galeriji, sakrije se ili obriše prije nego je iko vidi.",
           },
         ],
         checklistTitle: "Šta dobijate",
         checklist: [
-          "Galerija koja se ne pojavljuje u pretraživačima",
-          "Opcionalni PIN za dodatnu zaštitu",
-          "Porodica šalje bez naloga i aplikacije",
+          "Jedan QR kod za cijelu salu",
+          "Maturanti i roditelji šalju bez naloga i aplikacije",
           "Moderacija prije nego iko išta vidi",
-          "Preuzimanje svega kao ZIP",
+          "Opcionalni PIN za dodatnu zaštitu",
+          "Originali u punoj kvaliteti, preuzimanje kao ZIP",
         ],
       },
       {
         slug: "firmska-proslava",
         name: "Firmska proslava",
-        seoTitle: "Galerija za firmsku proslavu — slike bez javnog objavljivanja",
+        seoTitle: "Galerija za firmsku proslavu – slike bez javnog objavljivanja",
         seoDescription:
           "Nova godina, godišnjica firme ili team building: kolege šalju slike QR kodom u galeriju koja ostaje interna. 79 KM jednokratno.",
         heroTitle: "Slike sa proslave koje ostaju unutar firme",
@@ -1313,7 +1315,7 @@ export const dict: Dict = {
       {
         slug: "konferencija",
         name: "Konferencija",
-        seoTitle: "Galerija za konferenciju — slike sa svih sesija na jednom mjestu",
+        seoTitle: "Galerija za konferenciju – slike sa svih sesija na jednom mjestu",
         seoDescription:
           "Učesnici i fotografi šalju slike u jednu galeriju podijeljenu po sesijama. Bez aplikacije, bez naloga. 79 KM jednokratno.",
         heroTitle: "Konferencija iz ugla svih koji su bili tamo",
@@ -1322,7 +1324,7 @@ export const dict: Dict = {
         sections: [
           {
             title: "Sekcije po sesijama ili danima",
-            body: "Galeriju dijelite na sekcije kako vam odgovara — po danima, salama ili predavanjima. Ko traži određenu sesiju, nađe je odmah.",
+            body: "Galeriju dijelite na sekcije kako vam odgovara – po danima, salama ili predavanjima. Ko traži određenu sesiju, nađe je odmah.",
           },
           {
             title: "QR kod na badge ili na platno",
@@ -1346,7 +1348,7 @@ export const dict: Dict = {
     howItWorks: {
       seoTitle: "Kako funkcioniše",
       seoDescription:
-        "Od kreiranja događaja do isporučene galerije u četiri koraka. Gostima ne treba aplikacija ni nalog — samo QR kod.",
+        "Od kreiranja događaja do isporučene galerije u četiri koraka. Gostima ne treba aplikacija ni nalog – samo QR kod.",
       title: "Kako Confetti funkcioniše",
       body: "Četiri koraka. Prvi traje dvije minute, ostali se dese sami.",
       steps: [
@@ -1368,7 +1370,7 @@ export const dict: Dict = {
         {
           n: "04",
           title: "Isporučite galeriju",
-          body: "Podijelite link galerije. Ko ga ima, pregleda slike i preuzima ih — pojedinačno ili sve odjednom kao ZIP.",
+          body: "Podijelite link galerije. Ko ga ima, pregleda slike i preuzima ih – pojedinačno ili sve odjednom kao ZIP.",
         },
       ],
       note: "Gosti nikad ne prave nalog. Nalog pravi samo onaj ko organizuje događaj.",
@@ -1378,7 +1380,7 @@ export const dict: Dict = {
       seoDescription:
         "Koliko traju linkovi, ko može vidjeti galeriju, kako se preuzimaju slike i koja je maksimalna veličina fajla.",
       title: "Česta pitanja",
-      body: "Ako nešto nije ovdje, pitajte — dopunit ćemo.",
+      body: "Ako nešto nije ovdje, pitajte – dopunit ćemo.",
       groups: [
         {
           heading: "Privatnost galerije",
@@ -1386,17 +1388,17 @@ export const dict: Dict = {
             {
               question: "Ko sve može vidjeti moju galeriju?",
               answer:
-                "Samo onaj ko ima link. Galerija se ne pojavljuje ni u jednom javnom popisu i blokirana je za pretraživače. Ako dodate PIN, link sam po sebi nije dovoljan — traži se i PIN.",
+                "Samo onaj ko ima link. Galerija se ne pojavljuje ni u jednom javnom popisu i blokirana je za pretraživače. Ako dodate PIN, link sam po sebi nije dovoljan – traži se i PIN.",
             },
             {
               question: "Da li se slike pojavljuju na Googleu?",
               answer:
-                "Ne. Stranice galerija šalju pretraživačima izričitu zabranu indeksiranja, i to na dva načina — u samoj stranici i u HTTP zaglavlju. Same fotografije se ne serviraju sa javne adrese nego preko linka koji ističe.",
+                "Ne. Stranice galerija šalju pretraživačima izričitu zabranu indeksiranja, i to na dva načina – u samoj stranici i u HTTP zaglavlju. Same fotografije se ne serviraju sa javne adrese nego preko linka koji ističe.",
             },
             {
               question: "Moram li postaviti PIN?",
               answer:
-                "Ne morate. Bez PIN-a galeriju otvara svako ko ima link — to je praktično kad je dijelite porodici. Ako slike žele dodatni sloj zaštite, uključite PIN u postavkama događaja.",
+                "Ne morate. Bez PIN-a galeriju otvara svako ko ima link – to je praktično kad je dijelite porodici. Ako slike žele dodatni sloj zaštite, uključite PIN u postavkama događaja.",
             },
             {
               question: "Šta ako gost pošalje neprikladnu fotografiju?",
@@ -1446,12 +1448,12 @@ export const dict: Dict = {
             {
               question: "Kako da odštampam QR kod?",
               answer:
-                "U dashboardu događaja preuzmete sam QR kod kao sliku, ili uredite karticu u editoru — deset predložaka za različite događaje — i izvezete je kao PDF ili PNG u A4 formatu, spremnu za štampu. Na A4 predlošci drže kod širokim oko 5 cm; ako karticu smanjujete za stolove, pazite da kod ne postane premali da ga telefon uhvati.",
+                "U dashboardu događaja preuzmete sam QR kod kao sliku, ili uredite karticu u editoru – deset predložaka za različite događaje – i izvezete je kao PDF ili PNG u A4 formatu, spremnu za štampu. Na A4 predlošci drže kod širokim oko 5 cm; ako karticu smanjujete za stolove, pazite da kod ne postane premali da ga telefon uhvati.",
             },
             {
               question: "Mogu li imati više QR kodova, npr. za crkvu i salu?",
               answer:
-                "Jedan događaj ima jedan QR kod, ali ga možete odštampati u koliko god primjeraka hoćete i staviti svuda — na stolove, ulaz, šank. Zasebni kodovi za različite dijelove dana za sada ne postoje; fotografije poslije sami razvrstate u sekcije galerije, npr. ceremonija, restoran, igranka.",
+                "Jedan događaj ima jedan QR kod, ali ga možete odštampati u koliko god primjeraka hoćete i staviti svuda – na stolove, ulaz, šank. Zasebni kodovi za različite dijelove dana za sada ne postoje; fotografije poslije sami razvrstate u sekcije galerije, npr. ceremonija, restoran, igranka.",
             },
           ],
         },
@@ -1466,7 +1468,7 @@ export const dict: Dict = {
             {
               question: "Koji formati su podržani?",
               answer:
-                "Fotografije: JPG, PNG, HEIC i HEIF — dakle i ono što iPhone snima podrazumijevano. Video: MP4 i MOV.",
+                "Fotografije: JPG, PNG, HEIC i HEIF – dakle i ono što iPhone snima podrazumijevano. Video: MP4 i MOV.",
             },
             {
               question: "Koliko slika mogu gosti poslati?",
@@ -1482,7 +1484,7 @@ export const dict: Dict = {
       seoDescription:
         "Kako tačno funkcioniše privatnost galerije: link koji se ne objavljuje, opcionalni PIN, slike iza linkova koji ističu, i zabrana indeksiranja.",
       title: "Koliko je vaša galerija zaista privatna",
-      body: "Riječ „privatno\u201C se u ovoj branši koristi olako. Evo tačno šta znači kod nas — i šta ne znači.",
+      body: "Riječ „privatno\u201C se u ovoj branši koristi olako. Evo tačno šta znači kod nas – i šta ne znači.",
       sections: [
         {
           title: "Galerija se ne objavljuje nigdje",
@@ -1490,7 +1492,7 @@ export const dict: Dict = {
         },
         {
           title: "Pretraživači je ne indeksiraju",
-          body: "Stranice galerija i stranice za slanje nose izričitu zabranu indeksiranja, poslanu i u samoj stranici i u HTTP zaglavlju. Zabranjene su i u robots datoteci. Ne oslanjamo se samo na robots — zabranjena adresa se i dalje može pojaviti u rezultatima ako je neko negdje linka, zato postoji i zabrana u zaglavlju.",
+          body: "Stranice galerija i stranice za slanje nose izričitu zabranu indeksiranja, poslanu i u samoj stranici i u HTTP zaglavlju. Zabranjene su i u robots datoteci. Ne oslanjamo se samo na robots – zabranjena adresa se i dalje može pojaviti u rezultatima ako je neko negdje linka, zato postoji i zabrana u zaglavlju.",
         },
         {
           title: "Fotografije nisu na javnoj adresi",
@@ -1498,7 +1500,7 @@ export const dict: Dict = {
         },
         {
           title: "PIN je vaš izbor, i mijenja pravila",
-          body: "Bez PIN-a galeriju otvara svako ko ima link — praktično, ali znači da je link ono što morate čuvati. Sa PIN-om link sam nije dovoljan. Za osjetljivije događaje preporučujemo PIN koji dijelite usmeno, a ne u istoj poruci u kojoj je link.",
+          body: "Bez PIN-a galeriju otvara svako ko ima link – praktično, ali znači da je link ono što morate čuvati. Sa PIN-om link sam nije dovoljan. Za osjetljivije događaje preporučujemo PIN koji dijelite usmeno, a ne u istoj poruci u kojoj je link.",
         },
         {
           title: "Link koji se ne može pogoditi",
@@ -1515,19 +1517,19 @@ export const dict: Dict = {
   },
   seo: {
     home: {
-      title: "Privatne galerije za događaje uz QR prijenos gostiju",
+      title: "Privatne galerije za događaje – gosti skeniraju i pošalju slike",
       description:
         "Sakupite svaku fotografiju koju gosti naprave kroz jedan QR kod, čuvajte je u galeriji zaštićenoj PIN-om i preuzmite sve kao ZIP. Gostima ne treba aplikacija. Od 79 KM za jedan događaj.",
     },
     pricing: {
       title: "Cijene",
       description:
-        "Jedan događaj košta 79 KM jednokratno. Fotografi plaćaju od 39 KM mjesečno za Solo ili 79 KM za Pro, uz godišnju naplatu. Počnite besplatno — kartica nije potrebna.",
+        "Jedan događaj košta 79 KM jednokratno. Fotografi plaćaju od 39 KM mjesečno za Solo ili 79 KM za Pro, uz godišnju naplatu. Počnite besplatno – kartica nije potrebna.",
     },
     forPhotographers: {
       title: "Za fotografe",
       description:
-        "Vodite klijentske događaje od početka do kraja: prijenos gostiju putem QR koda, moderacija prije nego se išta prikaže i galerija sa PIN-om koju predajete klijentu. Do 25 događaja istovremeno na Pro planu.",
+        "Vodite klijentske događaje od početka do kraja: gosti skeniraju QR i pošalju slike, moderacija prije nego se išta prikaže i galerija sa PIN-om koju predajete klijentu. Do 25 događaja istovremeno na Pro planu.",
     },
     forCouples: {
       title: "Za parove i organizatore",
@@ -1555,7 +1557,7 @@ export const dict: Dict = {
     mostPopular: "Najpopularnije",
     includes: "Uključuje",
     oneTimePlan: "Jednokratni plan",
-    oneTimePerfect: "Savršeno za jedan privatni događaj — vjenčanje, rođendan ili bilo šta vrijedno pamćenja.",
+    oneTimePerfect: "Savršeno za jedan privatni događaj – vjenčanje, rođendan ili bilo šta vrijedno pamćenja.",
     trialNote: "7 dana ili 20 fotografija · bez kartice",
   },
   testimonialsUi: {
@@ -1567,10 +1569,10 @@ export const dict: Dict = {
   getStarted: {
     eyebrow: "Početak",
     title: "Kako koristite Confetti?",
-    body: "Odaberite odgovarajući plan — uvijek možete nadograditi kasnije.",
+    body: "Odaberite odgovarajući plan – uvijek možete nadograditi kasnije.",
     photographerLabel: "Ja sam fotograf",
     photographerTitle: "Više događaja, jedan miran tok rada",
-    photographerBody: "Upravljajte klijentskim događajima, QR prijenosom gostiju i privatnom galerijom sa jednog dashboarda. Napravljeno za fotografe koji vode više događaja.",
+    photographerBody: "Upravljajte klijentskim događajima, slikama koje gosti pošalju preko QR koda i privatnom galerijom sa jednog dashboarda. Napravljeno za fotografe koji vode više događaja.",
     photographerPlan: "Solo od 39 KM/mj · Pro od 79 KM/mj",
     photographerCta: "Kreiraj fotograf nalog",
     eventLabel: "Organizujem događaj",

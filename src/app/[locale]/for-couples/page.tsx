@@ -69,7 +69,8 @@ export default async function ForCouplesPage({
               {d.eyebrow}
             </p>
             <h1 className="font-display text-4xl font-semibold leading-[1.04] tracking-tight text-[var(--color-ink)] sm:text-6xl">
-              {d.title}
+              {d.title}{" "}
+              <em className="block italic text-[var(--color-accent)]">{d.titleAccent}</em>
             </h1>
             <p className="max-w-2xl text-base leading-7 text-black/65 sm:text-lg sm:leading-8">
               {d.body}

@@ -217,7 +217,7 @@ function renderConfettiBurst(data: PosterData): string {
   <!-- Subtitle -->
   <text x="620" y="1410" text-anchor="middle"
         font-family="Inter" font-size="46" fill="${C.ink}">
-    Sve sa večeri —
+    Sve sa večeri –
   </text>
   <text x="620" y="1470" text-anchor="middle"
         font-family="Playfair Display" font-style="italic" font-size="46" fill="${C.accent}">
