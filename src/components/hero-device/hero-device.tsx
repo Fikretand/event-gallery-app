@@ -14,12 +14,11 @@ import {
   type PointerEvent,
 } from "react";
 
-import { CORNERS, CROP, SCREEN, homographyMatrix3d } from "@/lib/hero-device/homography";
 import type { Dict } from "@/lib/i18n/index";
 
 /**
  * The landing hero's right column: a hand holding a tilted iPhone whose screen
- * is live HTML, warped onto the photo with a homography, playing a 12-second
+ * is live HTML inside the same 3D object, playing a 12-second
  * story — a guest scans the QR, sends three photos, the host gets a
  * notification, approves two of them out of the "hidden until you approve"
  * sheet, and the private gallery scrolls with the new photos in it.
@@ -36,11 +35,6 @@ import type { Dict } from "@/lib/i18n/index";
 
 type Copy = Dict["landing"]["heroDevice"];
 
-// The photo has its backdrop and its screen glass cut out; the live screen
-// sits underneath, framed by the phone's real bezel and Dynamic Island.
-const HAND = "/landing/hand-iphone.webp";
-// The glass's shape in the photo, grown 3 px so it hides under the bezel.
-const SCREEN_MASK = "url(/landing/hand-iphone-screen.png)";
 const GP = "/gallery-preview/";
 const GUEST = ["/explainer/assets/phone-cake.webp", "/explainer/assets/phone-nana.webp", GP + "p7.jpg"];
 const CAMERA_BG = GP + "p5.jpg";
@@ -53,16 +47,53 @@ const LOOP = 12000;
 /** The frame shown under reduced motion: the gallery with the notification on it. */
 const STILL_T = 4000;
 
-const SCREEN_MATRIX = homographyMatrix3d(SCREEN.w, SCREEN.h, CORNERS);
 const E = "cubic-bezier(.22,1,.36,1)";
 const IO = "cubic-bezier(.45,0,.55,1)";
 const SPR = "cubic-bezier(.34,1.45,.64,1)";
 const N = "none";
 const SERIF = "var(--font-display)";
 const MONO = "var(--font-jetbrains), ui-monospace, monospace";
-// The photo's backdrop is cut out (transparent WebP), so only the wrist, where
-// the photo ends, needs fading into the page.
-const WRIST_FADE = "linear-gradient(180deg, #000 0%, #000 84%, transparent 100%)";
+
+// ─── The phone, drawn in code ─────────────────────────────────────
+// A photo of a phone with HTML pasted onto its screen never lines up with
+// the glass; here the frame, bezel and screen are one 3D object.
+const DEV = { w: 441, h: 900 } as const;
+const SCREEN = { w: 393, h: 852 } as const;
+
+/** Continuous ("squircle") rounded rectangle as an SVG path, like Apple's corners. */
+function squircle(w: number, h: number, r: number, o = 0) {
+  const a = Math.min(r * 1.32, w / 2, h / 2);
+  const c = a * 0.24;
+  const x0 = o;
+  const y0 = o;
+  const x1 = o + w;
+  const y1 = o + h;
+  const n = (v: number) => +v.toFixed(2);
+  return (
+    `M${n(x0 + a)} ${n(y0)}H${n(x1 - a)}C${n(x1 - c)} ${n(y0)} ${n(x1)} ${n(y0 + c)} ${n(x1)} ${n(y0 + a)}` +
+    `V${n(y1 - a)}C${n(x1)} ${n(y1 - c)} ${n(x1 - c)} ${n(y1)} ${n(x1 - a)} ${n(y1)}` +
+    `H${n(x0 + a)}C${n(x0 + c)} ${n(y1)} ${n(x0)} ${n(y1 - c)} ${n(x0)} ${n(y1 - a)}` +
+    `V${n(y0 + a)}C${n(x0)} ${n(y0 + c)} ${n(x0 + c)} ${n(y0)} ${n(x0 + a)} ${n(y0)}Z`
+  );
+}
+const OUTER = squircle(DEV.w, DEV.h, 70);
+const BEZEL = squircle(429, 888, 64, 6);
+const OUTER_CLIP = `path('${OUTER}')`;
+const BEZEL_CLIP = `path('${squircle(429, 888, 64)}')`;
+const SCREEN_CLIP = `path('${squircle(SCREEN.w, SCREEN.h, 55)}')`;
+/** Slices behind the front face give the frame its thickness when it turns. */
+const DEPTH = Array.from({ length: 8 }, (_, i) => ({
+  z: -(i + 1) * 1.25,
+  bg: i === 7 ? "#3b3630" : "linear-gradient(90deg, #5d564c, #a1988a 30%, #7b7366 70%, #4d473f)",
+}));
+const SIDE_BUTTONS: CSSProperties[] = [
+  { left: -4, top: 176, height: 54 },
+  { left: -4, top: 262, height: 90 },
+  { left: -4, top: 372, height: 90 },
+  { right: -4, top: 300, height: 140 },
+];
+/** How the phone rests: turned a little away, tipped toward the viewer. */
+const REST_POSE = "rotateY(-18deg) rotateX(6deg) rotateZ(2deg)";
 
 const COLS = [
   [
@@ -141,7 +172,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
   );
 
   const [cue, setCue] = useState(0);
-  const [s, setS] = useState(420 / CROP.w);
+  const [s, setS] = useState(560 / DEV.h);
   const [tabRects, setTabRects] = useState<Rect[] | null>(null);
 
   const stageRef = useRef<HTMLDivElement>(null);
@@ -203,7 +234,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
     const stage = stageRef.current;
     if (!stage) return;
 
-    const ro = new ResizeObserver(([e]) => setS(e.contentRect.width / CROP.w));
+    const ro = new ResizeObserver(([e]) => setS(e.contentRect.height / DEV.h));
     ro.observe(stage);
 
     const io = new IntersectionObserver(
@@ -225,7 +256,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
     // scene never plays over a blank screen.
     let alive = true;
     Promise.all(
-      [HAND, CAMERA_BG, ...GUEST].map((src) => {
+      [CAMERA_BG, ...GUEST].map((src) => {
         const img = new Image();
         img.src = src;
         return img.decode().catch(() => {});
@@ -258,7 +289,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
     const r = e.currentTarget.getBoundingClientRect();
     const nx = (e.clientX - r.left) / r.width - 0.5;
     const ny = (e.clientY - r.top) / r.height - 0.5;
-    el.style.transform = `rotateY(${(nx * 7).toFixed(2)}deg) rotateX(${(-ny * 5).toFixed(2)}deg)`;
+    el.style.transform = `rotateY(${(nx * 12).toFixed(2)}deg) rotateX(${(-ny * 8).toFixed(2)}deg)`;
   };
   const onPointerLeave = () => {
     if (tiltRef.current) tiltRef.current.style.transform = "";
@@ -335,84 +366,114 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
       data-hero-device=""
       onPointerMove={onPointerMove}
       onPointerLeave={onPointerLeave}
-      style={{ position: "relative", display: "flex", justifyContent: "center", alignSelf: "end", perspective: 1400 }}
+      className="lg:self-start"
+      style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", perspective: 1600 }}
     >
       <div
         ref={stageRef}
         style={{
           position: "relative",
-          // Also capped by the viewport height, so the whole device fits under
-          // the sticky nav on a short laptop screen.
-          width: "min(420px, 80vw, calc((100svh - 120px) * 0.6977))",
-          aspectRatio: "480 / 688",
+          // Capped by the viewport height too (nav, hero padding, margins), so
+          // the whole phone is visible on a 1366×610 laptop screen.
+          height: "min(560px, calc(100svh - 190px), calc(75vw * 900 / 441))",
+          aspectRatio: "441 / 900",
+          margin: "16px 0 40px",
         }}
       >
         <div
           style={{
             ...abs,
-            left: "14%",
-            top: "12%",
-            width: "78%",
-            height: "66%",
+            left: "-40%",
+            right: "-40%",
+            top: "6%",
+            bottom: "10%",
             borderRadius: "50%",
-            background: "radial-gradient(closest-side, rgba(226,121,82,.26), rgba(226,121,82,.08) 60%, transparent)",
-            filter: "blur(28px)",
+            background: "radial-gradient(closest-side, rgba(226,121,82,.24), rgba(226,121,82,.07) 55%, transparent)",
+            filter: "blur(30px)",
             pointerEvents: "none",
           }}
         />
         <div
           style={{
             ...abs,
-            left: "30%",
-            right: "6%",
-            bottom: "6%",
-            height: "14%",
+            left: "6%",
+            right: "2%",
+            bottom: "-7%",
+            height: "9%",
             borderRadius: "50%",
-            background: "radial-gradient(closest-side, rgba(120,72,44,.20), transparent)",
-            filter: "blur(18px)",
+            background: "radial-gradient(closest-side, rgba(110,66,38,.30), rgba(110,66,38,.10) 55%, transparent)",
+            filter: "blur(10px)",
             pointerEvents: "none",
           }}
         />
 
-        <div ref={tiltRef} style={{ ...fill, transformStyle: "preserve-3d", transition: `transform 700ms ${E}`, willChange: "transform" }}>
-          <div className="hd-idle" style={fill}>
-            <div
-              style={{
-                ...fill,
-                overflow: "hidden",
-                WebkitMaskImage: WRIST_FADE,
-                maskImage: WRIST_FADE,
-              }}
-            >
-              <div style={{ ...abs, left: 0, top: 0, width: 1024, height: 768, transformOrigin: "0 0", transform: `scale(${s}) translate(${-CROP.x}px, ${-CROP.y}px)` }}>
-                {/* ─── The live screen, warped onto the phone, under the photo ─── */}
+        <div className="hd-enter" style={{ ...fill, transformStyle: "preserve-3d" }}>
+          <div ref={tiltRef} style={{ ...fill, transformStyle: "preserve-3d", transition: `transform 800ms ${E}` }}>
+            <div className="hd-drift" style={{ ...fill, transformStyle: "preserve-3d" }}>
+              <div style={{ ...fill, transformStyle: "preserve-3d", transform: REST_POSE }}>
+                <div style={{ ...abs, left: 0, top: 0, width: DEV.w, height: DEV.h, transformOrigin: "0 0", transform: `scale(${s})`, transformStyle: "preserve-3d" }}>
+                  {DEPTH.map((layer) => (
+                    <div key={layer.z} style={{ ...fill, clipPath: OUTER_CLIP, background: layer.bg, transform: `translateZ(${layer.z}px)` }} />
+                  ))}
+                  {SIDE_BUTTONS.map((b, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        ...abs,
+                        ...b,
+                        width: 8,
+                        borderRadius: 4,
+                        background:
+                          "right" in b
+                            ? "linear-gradient(90deg,#8a8274,#d6cebf 55%,#6c6559)"
+                            : "linear-gradient(90deg,#6c6559,#c9c0b1 45%,#8a8274)",
+                        transform: "translateZ(-5px)",
+                      }}
+                    />
+                  ))}
+                  <svg
+                    width={DEV.w}
+                    height={DEV.h}
+                    viewBox={`0 0 ${DEV.w} ${DEV.h}`}
+                    style={{ ...abs, left: 0, top: 0, overflow: "visible", transform: "translateZ(0px)" }}
+                  >
+                    <defs>
+                      <linearGradient id="cfTi" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stopColor="#f1ebe1" />
+                        <stop offset=".16" stopColor="#c3baab" />
+                        <stop offset=".46" stopColor="#9b9282" />
+                        <stop offset=".72" stopColor="#b9b0a1" />
+                        <stop offset=".9" stopColor="#8a8173" />
+                        <stop offset="1" stopColor="#6f675b" />
+                      </linearGradient>
+                      <linearGradient id="cfRim" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stopColor="rgba(255,255,255,.95)" />
+                        <stop offset=".35" stopColor="rgba(255,255,255,.25)" />
+                        <stop offset=".7" stopColor="rgba(255,255,255,.08)" />
+                        <stop offset="1" stopColor="rgba(255,255,255,.35)" />
+                      </linearGradient>
+                    </defs>
+                    <path d={OUTER} fill="url(#cfTi)" />
+                    <path d={OUTER} fill="none" stroke="url(#cfRim)" strokeWidth="1.4" />
+                    <path d={BEZEL} fill="none" stroke="rgba(40,34,28,.55)" strokeWidth="1" />
+                    <path d={BEZEL} fill="#0a0a0b" />
+                    <path d={BEZEL} fill="none" stroke="rgba(255,255,255,.07)" strokeWidth="1" />
+                  </svg>
+
+                {/* ─── The live screen ─── */}
                 <div
                   style={{
                     ...abs,
-                    left: 0,
-                    top: 0,
-                    width: 1024,
-                    height: 768,
-                    WebkitMaskImage: SCREEN_MASK,
-                    maskImage: SCREEN_MASK,
-                    WebkitMaskSize: "1024px 768px",
-                    maskSize: "1024px 768px",
-                    WebkitMaskRepeat: "no-repeat",
-                    maskRepeat: "no-repeat",
-                  }}
-                >
-                <div
-                  style={{
-                    ...abs,
-                    left: 0,
-                    top: 0,
+                    left: 24,
+                    top: 24,
                     width: SCREEN.w,
                     height: SCREEN.h,
-                    transformOrigin: "0 0",
-                    transform: SCREEN_MATRIX,
+                    borderRadius: 55,
+                    clipPath: SCREEN_CLIP,
                     overflow: "hidden",
                     background: "#0b0b0d",
                     isolation: "isolate",
+                    transform: "translateZ(0.6px)",
                   }}
                 >
                   {/* 1 · Camera scanning the QR on a table card */}
@@ -1108,35 +1169,56 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                       transition: "background 300ms",
                     }}
                   />
+                  {/* Dynamic Island */}
+                  <div style={{ ...abs, left: 133, top: 11, width: 127, height: 37, borderRadius: 20, background: "#000", boxShadow: "0 0 0 1px rgba(255,255,255,.04)" }}>
+                    <div
+                      style={{
+                        ...abs,
+                        right: 12,
+                        top: 11,
+                        width: 15,
+                        height: 15,
+                        borderRadius: "50%",
+                        background: "radial-gradient(circle at 35% 35%, #1d2433, #050608 60%)",
+                      }}
+                    />
+                  </div>
                   {/* Glass */}
                   <div
                     style={{
                       ...fill,
+                      borderRadius: 55,
                       pointerEvents: "none",
                       background:
-                        "linear-gradient(118deg, rgba(255,255,255,.20) 0%, rgba(255,255,255,.06) 26%, rgba(255,255,255,0) 42%, rgba(255,255,255,0) 78%, rgba(255,255,255,.05) 100%)",
-                      boxShadow: "inset 0 0 0 1px rgba(255,255,255,.06), inset 0 0 18px rgba(0,0,0,.18)",
+                        "linear-gradient(121deg, rgba(255,255,255,.13) 0%, rgba(255,255,255,.04) 24%, rgba(255,255,255,0) 38%, rgba(255,255,255,0) 80%, rgba(255,255,255,.04) 100%)",
+                      boxShadow: "inset 0 0 0 1.5px rgba(0,0,0,.55), inset 0 0 22px rgba(0,0,0,.28)",
                     }}
                   />
                 </div>
+
+                  {/* Sheen across the whole front glass, bezel included */}
+                  <div
+                    style={{
+                      ...abs,
+                      left: 6,
+                      top: 6,
+                      width: 429,
+                      height: 888,
+                      clipPath: BEZEL_CLIP,
+                      pointerEvents: "none",
+                      background:
+                        "linear-gradient(121deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,.05) 22%, rgba(255,255,255,0) 34%, rgba(255,255,255,0) 70%, rgba(255,255,255,.06) 86%, rgba(255,255,255,0) 100%)",
+                      transform: "translateZ(1.2px)",
+                    }}
+                  />
                 </div>
-
-                {/* The phone and hand, on top: its bezel frames the screen. */}
-                <img
-                  src={HAND}
-                  alt=""
-                  fetchPriority="high"
-                  decoding="async"
-                  style={{ ...abs, left: 0, top: 0, width: 1024, height: 768, display: "block", filter: "brightness(1.04) contrast(1.03)" }}
-                />
-
               </div>
             </div>
-          </div>
 
-          {/* Floating cards */}
-          <div className="hd-float hd-badge" style={{ ...abs, zIndex: 3 }}>
+            {/* Floating cards, in front of the phone in depth */}
+            <div className="hd-badge" style={{ ...abs, zIndex: 3, transform: "translateZ(70px)" }}>
             <div
+              className="hd-float"
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -1169,8 +1251,9 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
             </div>
           </div>
 
-          <div className="hd-float hd-float-late hd-qr" style={{ ...abs, top: "52%", width: "clamp(86px, 26%, 116px)", zIndex: 3 }}>
+            <div className="hd-qr" style={{ ...abs, top: "62%", width: "clamp(84px, 32%, 128px)", zIndex: 3, transform: "translateZ(60px)" }}>
             <div
+              className="hd-float hd-float-late"
               style={{
                 display: "flex",
                 flexDirection: "column",
@@ -1202,6 +1285,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                 {copy.cards.qrLabel}
               </p>
             </div>
+          </div>
           </div>
         </div>
       </div>

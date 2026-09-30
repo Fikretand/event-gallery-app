@@ -145,7 +145,9 @@ export default async function HomePage({
       <SiteNav />
 
       {/* ─── Hero ─────────────────────────────────────────────────── */}
-      <section className="shell pb-10 pt-14 sm:pb-16 sm:pt-20">
+      {/* The phone's glow and 3D depth reach past the column; clip at the viewport, not the shell. */}
+      <div className="overflow-x-clip">
+      <section className="shell pb-[clamp(40px,6vw,64px)] pt-[clamp(40px,6vw,72px)]">
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <div>
             {/* Pill: a green "no app" tag, one plain sentence, and a jump to how it works. */}
@@ -179,6 +181,7 @@ export default async function HomePage({
           <HeroDevice copy={d.heroDevice} qrSvg={mockupQrSvg} />
         </div>
       </section>
+      </div>
 
       {/* ─── Stats strip — quiet, chromeless row between the hero and how it works ── */}
       <section className="shell pb-10">

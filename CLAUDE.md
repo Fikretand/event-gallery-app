@@ -533,27 +533,27 @@ src/
 
 Newest first — useful for picking back up.
 
-- **Hero: hand-held phone from a Claude Design handoff** (`Hero Device.dc.html`).
-  `src/components/hero-device/hero-device.tsx`: the owner's hand+iPhone photo
-  (rights confirmed by the owner) with its backdrop cut out to a transparent
-  WebP (`public/landing/hand-iphone.webp`, 43 KB, matte keyed on the cool
-  backdrop vs warm skin), and live HTML warped onto the screen with a
-  homography (`src/lib/hero-device/homography.ts`, tested: corners land on the
-  photo within 0.5 px). The screen glass is cut out of the photo too and the
-  live screen renders *under* it, clipped by `hand-iphone-screen.png` (the
-  glass shape grown 3 px), so the phone's real bezel, corners and Dynamic
-  Island frame it. Corners were measured by fitting lines to the bezel's inner
-  edge; if the photo is ever replaced, both images and `CORNERS` must be
-  regenerated together. A 12 s story on 28 cues: camera scans the real QR →
+- **Hero: phone drawn in code (Claude Design handoff v2, `Hero Device v2.dc.html`).**
+  `src/components/hero-device/hero-device.tsx`. The first version put live HTML
+  on a photo of a hand holding an iPhone (homography + a cut-out screen hole);
+  however precisely the corners were fitted, a flat screen on a photographed,
+  curved phone read as pasted on, and the owner rejected it. Now the phone is
+  one CSS-3D object: squircle SVG frame (titanium gradients), black bezel, side
+  buttons, 8 depth slices for thickness, Dynamic Island, glass sheen, resting
+  pose `rotateY(-18) rotateX(6) rotateZ(2)`; the screen is a child of it, so it
+  cannot drift. Entrance (900 ms) and idle drift (7 s) are CSS keyframes
+  (`hd-enter`, `hd-drift`); mouse tilt ±12°/±8°. Height
+  `min(560px, 100svh − 190px, 75vw·900/441)` so it fits a 1366×610 laptop; the
+  hero is wrapped in `overflow-x-clip` because the glow and 3D depth reach past
+  the column. The 12 s screen story is unchanged: camera scans the real QR →
   guest sends 3 photos → notification → "hidden until you approve" sheet →
-  2 approved move into the gallery (counter 244→246) → gallery scrolls, tab
-  pill slides. Runs only when decoded, ≥15 % visible and the tab is visible;
-  reduced motion shows the frame at 4 s. Mouse tilt, touch-only idle float.
-  Copy in `landing.heroDevice`; the old SVG phone and its `phoneMockup*` /
-  `phoneNotification*` / `qrScanLabel` keys are gone (recoverable from
-  `d03bf31`). The hero pill is now a link to `#how-it-works`: green "Bez
-  aplikacije" tag with a ping dot, one sentence (`badgeTag` / `badgeText`),
-  gradient hairline border, one-time sheen.
+  2 approved move into the gallery (244→246) → gallery scrolls, tab pill slides.
+  Runs only when decoded, ≥15 % visible and the tab is visible; reduced motion
+  shows the frame at 4 s at rest. Copy in `landing.heroDevice`. The hero pill
+  is a link to `#how-it-works`: green "Bez aplikacije" tag with a ping dot, one
+  sentence (`badgeTag` / `badgeText`), gradient hairline border, one-time sheen.
+  Safari/iOS renders `preserve-3d` + `clip-path` + `backdrop-filter` its own way
+  — worth a look on a real iPhone.
 - **Landing order: hero → stats → how it works → photo mosaic → who it's for.**
   The three-card feature strip ("Postavi jednom / Gosti šalju odmah / Isporuka
   ostaje privatna") repeated the steps and is gone, with `landing.features` and
