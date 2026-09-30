@@ -334,7 +334,7 @@ export function HowItWorks({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
   const focusRing = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e27952]";
 
   return (
-    <section data-hiw="" ref={rootRef} className="shell" style={{ padding: "64px 0 80px" }}>
+    <section id="how-it-works" data-hiw="" ref={rootRef} className="shell" style={{ padding: "64px 0 80px", scrollMarginTop: 40 }}>
       <div style={{ maxWidth: "40rem", marginBottom: 40 }}>
         <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[var(--color-moss)]">{copy.eyebrow}</p>
         <h2

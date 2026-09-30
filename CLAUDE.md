@@ -533,6 +533,22 @@ src/
 
 Newest first — useful for picking back up.
 
+- **Hero: hand-held phone from a Claude Design handoff** (`Hero Device.dc.html`).
+  `src/components/hero-device/hero-device.tsx`: the owner's hand+iPhone photo
+  (rights confirmed by the owner) with its backdrop cut out to a transparent
+  WebP (`public/landing/hand-iphone.webp`, 43 KB, matte keyed on the cool
+  backdrop vs warm skin), and live HTML warped onto the screen with a
+  homography (`src/lib/hero-device/homography.ts`, tested: corners land on the
+  photo within 0.5 px). A 12 s story on 28 cues: camera scans the real QR →
+  guest sends 3 photos → notification → "hidden until you approve" sheet →
+  2 approved move into the gallery (counter 244→246) → gallery scrolls, tab
+  pill slides. Runs only when decoded, ≥15 % visible and the tab is visible;
+  reduced motion shows the frame at 4 s. Mouse tilt, touch-only idle float.
+  Copy in `landing.heroDevice`; the old SVG phone and its `phoneMockup*` /
+  `phoneNotification*` / `qrScanLabel` keys are gone (recoverable from
+  `d03bf31`). The hero pill is now a link to `#how-it-works`: green "Bez
+  aplikacije" tag with a ping dot, one sentence (`badgeTag` / `badgeText`),
+  gradient hairline border, one-time sheen.
 - **Landing order: hero → stats → how it works → photo mosaic → who it's for.**
   The three-card feature strip ("Postavi jednom / Gosti šalju odmah / Isporuka
   ostaje privatna") repeated the steps and is gone, with `landing.features` and

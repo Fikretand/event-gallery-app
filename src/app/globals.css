@@ -129,16 +129,6 @@ select {
 /* The push notification on the landing phone: drops in from under the
    camera island, stays long enough to read, leaves, and comes back. `both`
    keeps it hidden until its first entrance. */
-@keyframes phone-notif {
-  0%, 6% { opacity: 0; transform: translateY(-115%) scale(0.94); }
-  13%, 58% { opacity: 1; transform: translateY(0) scale(1); }
-  66%, 100% { opacity: 0; transform: translateY(-115%) scale(0.94); }
-}
-
-.phone-notif {
-  animation: phone-notif 7.5s cubic-bezier(0.22, 1, 0.36, 1) 1.4s infinite both;
-}
-
 /* ── Upload page ─────────────────────────────────────────── */
 
 @keyframes upload-float {
@@ -294,17 +284,69 @@ select {
   .float-card-delay {
     animation: none;
   }
-  .phone-notif {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
 }
 
 /* "How it works" scenes: under reduced motion every scene is shown at its
    final frame, so nothing should transition into it. */
 @media (prefers-reduced-motion: reduce) {
   [data-hiw] * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ─── Hero device ──────────────────────────────────────────────── */
+.hd-float {
+  animation: float-up 6s ease-in-out infinite;
+}
+.hd-float-late {
+  animation-delay: 1.8s;
+}
+@keyframes hd-idle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+/* The device drifts on touch screens only; with a mouse it tilts instead. */
+@media (hover: none) {
+  .hd-idle {
+    animation: hd-idle 9s ease-in-out infinite;
+  }
+}
+
+/* ─── Hero pill ────────────────────────────────────────────────── */
+.hero-pill {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.72)) padding-box,
+    linear-gradient(120deg, rgba(226, 121, 82, 0.55), rgba(56, 88, 77, 0.3) 55%, rgba(226, 121, 82, 0.25)) border-box;
+}
+.hero-pill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.75) 50%, transparent 70%);
+  transform: translateX(-120%);
+  animation: hero-pill-sheen 1.6s ease-out 0.6s 1 both;
+  pointer-events: none;
+}
+@keyframes hero-pill-sheen {
+  to { transform: translateX(120%); }
+}
+.hero-pill-ping {
+  animation: hero-pill-ping 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+@keyframes hero-pill-ping {
+  0% { transform: scale(1); opacity: 0.55; }
+  80%, 100% { transform: scale(2.6); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-hero-device] *,
+  .hd-float,
+  .hd-idle,
+  .hero-pill::after,
+  .hero-pill-ping {
     transition: none !important;
     animation: none !important;
   }

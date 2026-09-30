@@ -53,7 +53,40 @@ export interface Dict {
     pricingLink: string;
   };
   landing: {
+    /** Small green tag at the start of the hero pill. */
+    badgeTag: string;
     badgeText: string;
+    /** Words drawn inside the hero's hand-held phone and its two floating cards. */
+    heroDevice: {
+      screen: {
+        eventName: string;
+        eventNameCaps: string;
+        eventMeta: string;
+        camChip: string;
+        cameraMode: string;
+        noApp: string;
+        addPhotos: string;
+        addPhotosSub: string;
+        selected: string;
+        sending: string;
+        sent: string;
+        send: string;
+        notifTime: string;
+        notifText: string;
+        sheetEyebrow: string;
+        sheetTitle: string;
+        hidden: string;
+        approved: string;
+        galleryEyebrow: string;
+        galleryName: string;
+        date: string;
+        photosWord: string;
+        guests: string;
+        pin: string;
+        tabs: string[];
+      };
+      cards: { qrLabel: string; privateBadge: string };
+    };
     heroTitle: string;
     heroBody: string;
     ctaPrimary: string;
@@ -134,16 +167,7 @@ export interface Dict {
     whoForTitle: string;
     photographerCardBody: string;
     coupleCardBody: string;
-    phoneMockupGalleryName: string;
-    phoneMockupDate: string;
-    phoneMockupMeta: string;
-    phoneMockupGuests: string;
-    phoneMockupPinProtected: string;
-    phoneMockupTabs: string[];
-    phoneNotification: string;
     /** "now" — the time on the phone notification. */
-    phoneNotificationTime: string;
-    qrScanLabel: string;
   };
   upload: {
     badge: string;
