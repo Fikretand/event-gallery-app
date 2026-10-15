@@ -7,9 +7,11 @@ file — they live only in Vercel.
 ## Organization
 - Polar org: `confetti-ba` (`66327521-47b8-4fdf-81ba-7fa162a9f3d5`)
 - Dashboard: https://polar.sh/dashboard/confetti-ba
-- Status on 2026-10-15: **not yet approved** (`checkout_payments: false`).
-  Submit the organization details for review in the dashboard; nothing can be
-  bought until Polar approves it.
+- Status: **approved and live** since 2026-10-15 (checkout, renewals,
+  payouts, refunds enabled). Support email: `podrska@confetti.ba`.
+- End-to-end test passed 2026-10-15: One Event bought with a single-use 100%
+  code → order `15d0dc4a-…` paid → webhook activated the account
+  (`subscription_status = 'active'`, `subscription_provider = 'polar'`).
 
 ## Code (already in place, unchanged)
 | What | Where |

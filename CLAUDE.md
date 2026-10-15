@@ -312,18 +312,17 @@ thumbnails) is **done**. What is genuinely left:
    `add_upload_session_id_to_media.sql`. The billing one is not optional —
    without it every payment webhook and the admin "mark as paid" action fail
    silently and paying customers stay on the free trial.
-2. **Polar is switched to production** (org `confetti-ba`, see `POLAR_SETUP.md`):
-   five BAM products, production token + webhook secret in Vercel, every
-   `POLAR_*` var pointed at production. **Still blocking:** Polar has not
-   approved the org yet (status `created`, `checkout_payments: false`) — the
-   owner must submit the organization details for review in the dashboard;
-   until then no checkout succeeds, and plans are activated by hand in the
-   admin panel. Then run the 100%-discount test in `POLAR_SETUP.md`.
-   A payout account is linked, but confirm payouts actually reach BiH.
-   Payhip remains the fallback (the €39 One Event product works); its Solo/Pro
-   products were never created either, and its webhook verification assumes a
-   form-encoded `security_token` while the docs describe a newer
-   JSON+signature scheme — see `src/app/api/billing/webhook/route.ts`.
+2. **Polar is live in production** (org `confetti-ba`, see `POLAR_SETUP.md`).
+   Approved by Polar on 2026-10-15 (checkout, renewals, payouts, refunds all
+   enabled; support email `podrska@confetti.ba`). Proven end to end the same
+   day with a 100%-discount One Event order: Polar order paid → webhook →
+   `users.subscription_status = 'active'`, `subscription_provider = 'polar'`,
+   `subscription_external_id` = order id. Still worth watching: the first real
+   payout reaching the BiH bank account. Payhip remains the fallback (the €39
+   One Event product works); its Solo/Pro products were never created, and its
+   webhook verification assumes a form-encoded `security_token` while the docs
+   describe a newer JSON+signature scheme — see
+   `src/app/api/billing/webhook/route.ts`.
 3. **Supabase free → Pro** before any real traffic (500 MB DB / 2 GB bandwidth
    is spent quickly by image previews).
 4. **Legal:** `src/lib/legal.ts` is a reviewed-by-nobody draft. Fill every
@@ -542,9 +541,14 @@ Newest first — useful for picking back up.
   descriptions, spotlight listed for every photographer); the owner put the
   production token and webhook secret into Vercel themselves (never through
   chat); `POLAR_SERVER=production` and the five product ids set. The sandbox
-  checkout no longer works from production. Blocked on Polar approving the
-  org. Do not list webhook endpoints through the MCP — the response includes
-  their signing secrets.
+  checkout no longer works from production. Polar approved the org the same
+  evening and a 100%-discount One Event test order activated a fresh couple
+  account through the webhook (test account `ficosarajevo22@gmail.com`, to be
+  deleted from the admin panel). Do not list webhook endpoints through the MCP —
+  the response includes their signing secrets. Support mail is Zoho Mail (free,
+  EU) on `podrska@confetti.ba`; DNS for confetti.ba is now editable in the
+  Globalhost panel (DNS Management activated), though its API timed out on the
+  first edits and support added the MX/SPF/DKIM/DMARC records by ticket.
 - **UX/a11y audit of the guest path + fixes.** Audited with axe (WCAG 2.2 AA) at
   390 / 1366 px against a local build. Guest pages were rendered with a scratch
   mock of PostgREST + R2, since production is not reachable from the sandbox. Fixes:
