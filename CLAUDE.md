@@ -182,6 +182,8 @@ requested plan are set, and falls through to Payhip / LemonSqueezy otherwise.
   "activating" and re-checks the server a few times.
 - Env: `POLAR_ACCESS_TOKEN`, `POLAR_WEBHOOK_SECRET`, `POLAR_SERVER`
   (`sandbox` while testing), `POLAR_PRODUCT_{ONE_EVENT,SOLO_*,PRO_*}`.
+  **Since 2026-10-15 all of them point at production org `confetti-ba`**;
+  ids and the test checklist are in `POLAR_SETUP.md`.
 
 **Payhip** stays wired as the fallback: One Event (€39, key `6VaFA`) via the
 `Payhip.Checkout.open` overlay, webhook at `/api/billing/webhook` with
@@ -310,15 +312,14 @@ thumbnails) is **done**. What is genuinely left:
    `add_upload_session_id_to_media.sql`. The billing one is not optional —
    without it every payment webhook and the admin "mark as paid" action fail
    silently and paying customers stay on the free trial.
-2. **Polar:** set `POLAR_ACCESS_TOKEN`, `POLAR_WEBHOOK_SECRET` and
-   `POLAR_PRODUCT_ONE_EVENT` in Vercel, and register the webhook endpoint
-   `<APP_URL>/api/billing/polar/webhook` in Polar (subscribe at minimum to
-   `order.paid`, `order.refunded`, `subscription.active`,
-   `subscription.canceled`, `subscription.revoked`). Test with
-   `POLAR_SERVER=sandbox` first. Still to create in Polar: the Solo/Pro
-   subscription products → `POLAR_PRODUCT_{SOLO,PRO}_{MONTHLY,YEARLY}`.
-   Also confirm Bosnia and Herzegovina is on Polar's supported-payout-country
-   list — that was never verified from here.
+2. **Polar is switched to production** (org `confetti-ba`, see `POLAR_SETUP.md`):
+   five BAM products, production token + webhook secret in Vercel, every
+   `POLAR_*` var pointed at production. **Still blocking:** Polar has not
+   approved the org yet (status `created`, `checkout_payments: false`) — the
+   owner must submit the organization details for review in the dashboard;
+   until then no checkout succeeds, and plans are activated by hand in the
+   admin panel. Then run the 100%-discount test in `POLAR_SETUP.md`.
+   A payout account is linked, but confirm payouts actually reach BiH.
    Payhip remains the fallback (the €39 One Event product works); its Solo/Pro
    products were never created either, and its webhook verification assumes a
    form-encoded `security_token` while the docs describe a newer
@@ -533,6 +534,17 @@ src/
 
 Newest first — useful for picking back up.
 
+- **Polar → production (`confetti-ba`, 66327521-…).** The generic Polar setup
+  prompt was not followed literally: checkout (`/api/billing/checkout`) and the
+  webhook (`/api/billing/polar/webhook`, custom Standard-Webhooks verification)
+  already existed and were proven in sandbox. Done: four subscription products
+  created via the Polar MCP next to the existing One Event (all BAM, Bosnian
+  descriptions, spotlight listed for every photographer); the owner put the
+  production token and webhook secret into Vercel themselves (never through
+  chat); `POLAR_SERVER=production` and the five product ids set. The sandbox
+  checkout no longer works from production. Blocked on Polar approving the
+  org. Do not list webhook endpoints through the MCP — the response includes
+  their signing secrets.
 - **UX/a11y audit of the guest path + fixes.** Audited with axe (WCAG 2.2 AA) at
   390 / 1366 px against a local build. Guest pages were rendered with a scratch
   mock of PostgREST + R2, since production is not reachable from the sandbox. Fixes:
