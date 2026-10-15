@@ -20,6 +20,7 @@ const NAV = {
     startShort: "Start",
     switchLabel: "BS",
     switchTitle: "Prebaci na bosanski",
+    menuLabel: "Main",
   },
   bs: {
     forPhotographers: "Za fotografe",
@@ -30,6 +31,7 @@ const NAV = {
     startShort: "Počni",
     switchLabel: "EN",
     switchTitle: "Switch to English",
+    menuLabel: "Glavni meni",
   },
 };
 
@@ -80,7 +82,7 @@ export function SiteNav() {
           {env.appName}
         </Link>
 
-        <nav className="hidden items-center gap-1 text-sm font-medium md:flex">
+        <nav aria-label={nav.menuLabel} className="hidden items-center gap-1 text-sm font-medium md:flex">
           <Link
             href={localePath(locale, "/for-photographers")}
             className="rounded-full px-4 py-2 text-black/65 transition hover:bg-white/80 hover:text-[var(--color-ink)]"
@@ -101,7 +103,8 @@ export function SiteNav() {
           </Link>
         </nav>
 
-        <nav className="flex items-center gap-1 text-sm font-medium sm:gap-2">
+        {/* Actions, not navigation: language, log in, start. */}
+        <div className="flex items-center gap-1 text-sm font-medium sm:gap-2">
           {/* Language switcher */}
           <Link
             href={switchPath}
@@ -125,7 +128,7 @@ export function SiteNav() {
             <span className="sm:hidden">{nav.startShort}</span>
             <span className="hidden sm:inline">{nav.startFree}</span>
           </MarketingButtonLink>
-        </nav>
+        </div>
       </div>
     </header>
   );

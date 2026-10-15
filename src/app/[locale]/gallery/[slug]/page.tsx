@@ -72,22 +72,20 @@ export default async function GalleryPage({
     return (
       <main className="py-10">
         <section className="shell">
-          <Panel className="mx-auto max-w-4xl bg-white/94">
-            <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-              <div className="overflow-hidden rounded-[28px] border border-black/10 bg-[var(--color-paper)] shadow-inner">
-                {cover ? (
-                  // eslint-disable-next-line @next/next/no-img-element
+          {/* Without a cover photo the form stands alone: an empty frame took
+              half a phone screen and pushed the PIN field out of sight. */}
+          <Panel className={cover ? "mx-auto max-w-4xl bg-white/94" : "mx-auto max-w-lg bg-white/94"}>
+            <div className={cover ? "grid gap-6 lg:grid-cols-[0.95fr_1.05fr]" : "grid"}>
+              {cover ? (
+                <div className="overflow-hidden rounded-[28px] border border-black/10 bg-[var(--color-paper)] shadow-inner">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={cover.previewUrl ?? cover.thumbnailUrl ?? undefined}
                     alt={title}
                     className="aspect-[4/5] h-full w-full object-cover"
                   />
-                ) : (
-                  <div className="flex aspect-[4/5] h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(235,132,88,0.18),_transparent_55%),linear-gradient(135deg,_rgba(23,32,51,0.08),_rgba(255,248,240,0.92))] p-8 text-center text-sm leading-6 text-black/60">
-                    {d.privateNoAccess}
-                  </div>
-                )}
-              </div>
+                </div>
+              ) : null}
 
               <div className="flex flex-col justify-center">
                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">
@@ -134,7 +132,7 @@ export default async function GalleryPage({
     <main className="py-6 sm:py-10">
       <section className="shell space-y-4 sm:space-y-6">
         <Panel className="bg-white/94 p-5 sm:p-6">
-          <div className="grid gap-5 sm:gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <div className={cover ? "grid gap-5 sm:gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center" : "grid"}>
             <div className="order-2 space-y-4 lg:order-1">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)] sm:text-sm">
                 {d.clientGallery}
@@ -162,20 +160,17 @@ export default async function GalleryPage({
               </div>
             </div>
 
-            <div className="order-1 overflow-hidden rounded-[24px] border border-black/10 bg-[var(--color-paper)] shadow-inner sm:rounded-[28px] lg:order-2">
-              {cover ? (
-                // eslint-disable-next-line @next/next/no-img-element
+            {/* No cover, no frame: the placeholder only repeated the text beside it. */}
+            {cover ? (
+              <div className="order-1 overflow-hidden rounded-[24px] border border-black/10 bg-[var(--color-paper)] shadow-inner sm:rounded-[28px] lg:order-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={cover.previewUrl ?? cover.thumbnailUrl ?? undefined}
                   alt={title}
                   className="aspect-[16/10] h-full w-full object-cover"
                 />
-              ) : (
-                <div className="flex aspect-[16/10] h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(235,132,88,0.18),_transparent_55%),linear-gradient(135deg,_rgba(23,32,51,0.08),_rgba(255,248,240,0.92))] p-8 text-center text-sm leading-6 text-black/60">
-                  {d.browseCurated}
-                </div>
-              )}
-            </div>
+              </div>
+            ) : null}
           </div>
         </Panel>
 

@@ -112,9 +112,17 @@ export function MediaGrid({
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [touchCurrentX, setTouchCurrentX] = useState<number | null>(null);
 
+  // Guests see only the tabs that would show something: a "Videos" tab on a
+  // gallery without a single video is a dead end. The owner keeps every tab.
   const filterOptions = ownerMode
     ? (["all", "photos", "videos", "photographer", "guest", "deleted"] as const)
-    : (["all", "photos", "videos", "photographer", "guest"] as const);
+    : (["all", "photos", "videos", "photographer", "guest"] as const).filter((value) => {
+        if (value === "all") return true;
+        const live = media.filter((item) => !item.deleted_at);
+        if (value === "photos") return live.some((item) => !item.mime_type.startsWith("video/"));
+        if (value === "videos") return live.some((item) => item.mime_type.startsWith("video/"));
+        return live.some((item) => item.source_type === value);
+      });
 
   const visibleItems = useMemo(
     () =>
@@ -473,6 +481,7 @@ export function MediaGrid({
                     {t(vs.downloadAllZip, { count: visibleItems.length })}
                   </Button>
                 ) : null}
+                {ownerMode || selectedVisibleIds.length > 0 ? (
                 <Button
                   variant={selectedVisibleIds.length > 0 ? "secondary" : "ghost"}
                   className={cn(
@@ -487,6 +496,7 @@ export function MediaGrid({
                     ? t(vs.downloadSelectedZip, { count: selectedVisibleIds.length })
                     : vs.downloadSelected}
                 </Button>
+                ) : null}
               </div>
             ) : null}
           </div>
@@ -506,7 +516,6 @@ export function MediaGrid({
             <SectionGroup
               key={section.id}
               title={section.name}
-              eyebrow={vs.sectionEyebrow}
               items={visibleItems.filter((item) => item.section_id === section.id)}
               renderCard={renderCard}
             />
@@ -706,7 +715,7 @@ export function MediaGrid({
               </span>
             ) : null}
             {isCover ? (
-              <span className="absolute right-2 top-2 rounded-full bg-[var(--color-accent)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white shadow-sm">
+              <span className="absolute right-2 top-2 rounded-full bg-[var(--color-accent-strong)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white shadow-sm">
                 {vs.cover}
               </span>
             ) : null}
@@ -720,16 +729,17 @@ export function MediaGrid({
           {/* Select toggle */}
           <label
             className={cn(
-              "absolute left-2 top-2 z-10 inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border backdrop-blur transition",
+              "absolute left-2 top-2 z-10 inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 shadow-sm backdrop-blur transition",
               checked
-                ? "border-[var(--color-accent)] bg-[var(--color-accent)] text-white"
-                : "border-white/70 bg-white/60 text-transparent hover:bg-white/85",
+                ? "border-[var(--color-accent-strong)] bg-[var(--color-accent-strong)] text-white"
+                : "border-white bg-black/25 text-transparent hover:bg-black/40",
             )}
             title={vs.select}
           >
             <input
               type="checkbox"
               className="sr-only"
+              aria-label={vs.select}
               checked={checked}
               onChange={(event) =>
                 setSelected((current) =>
@@ -792,7 +802,7 @@ export function MediaGrid({
             </span>
           ) : null}
           {isCover ? (
-            <span className="absolute right-4 top-4 rounded-full bg-[var(--color-accent)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-white">
+            <span className="absolute right-4 top-4 rounded-full bg-[var(--color-accent-strong)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-white">
               {vs.cover}
             </span>
           ) : null}
@@ -898,7 +908,7 @@ function SectionGroup({
   title,
   items,
   renderCard,
-  eyebrow = "Section",
+  eyebrow,
 }: {
   title: string;
   items: MediaView[];
@@ -908,8 +918,10 @@ function SectionGroup({
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">{eyebrow}</p>
-        <h3 className="font-display mt-2 text-2xl font-semibold text-[var(--color-ink)]">{title}</h3>
+        {eyebrow ? (
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">{eyebrow}</p>
+        ) : null}
+        <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">{title}</h2>
       </div>
       <div className="stagger-children grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">{items.map((item) => renderCard(item))}</div>
     </div>

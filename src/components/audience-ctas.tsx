@@ -48,7 +48,7 @@ export function AudienceCtas({
           href={lp("/signup?intent=photographer")}
           className={cn(
             card,
-            "bg-[var(--color-accent)] text-white shadow-[0_12px_32px_rgba(226,121,82,0.30)] hover:shadow-[0_16px_40px_rgba(226,121,82,0.38)]",
+            "bg-[var(--color-accent-strong)] text-white shadow-[0_12px_32px_rgba(226,121,82,0.30)] hover:shadow-[0_16px_40px_rgba(226,121,82,0.38)]",
           )}
         >
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] bg-white/20">
@@ -60,7 +60,7 @@ export function AudienceCtas({
           </span>
           <span className="min-w-0 flex-1">
             <span className="block text-[15px] font-semibold leading-5">{s.photographerTitle}</span>
-            <span className="mt-0.5 block text-xs leading-4 text-white/85">
+            <span className="mt-0.5 block text-xs leading-4 text-white">
               {t(s.photographerBody, { days: TRIAL_DURATION_DAYS, unit: daysWord(TRIAL_DURATION_DAYS, locale) })}
             </span>
           </span>
@@ -90,7 +90,7 @@ export function AudienceCtas({
       {showPricingLink ? (
         <Link
           href={lp("/pricing")}
-          className="text-sm font-semibold text-[var(--color-moss)] underline-offset-4 hover:underline"
+          className="inline-block py-1 text-sm font-semibold text-[var(--color-moss)] underline-offset-4 hover:underline"
         >
           {s.pricingLink}
         </Link>

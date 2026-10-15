@@ -92,7 +92,7 @@ export function QrPosterPicker({
         {editorHref && (
           <a
             href={editorHref}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-105"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--color-accent-strong)] px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-105"
           >
             {s.customize}
           </a>

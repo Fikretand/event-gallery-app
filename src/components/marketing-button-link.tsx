@@ -7,7 +7,7 @@ type Tone = "accent" | "ink" | "ghost";
 
 const toneClasses: Record<Tone, string> = {
   accent:
-    "relative z-10 inline-flex items-center justify-center rounded-full bg-[var(--color-accent)] shadow-[0_16px_36px_rgba(226,121,82,0.24)] transition hover:-translate-y-0.5",
+    "relative z-10 inline-flex items-center justify-center rounded-full bg-[var(--color-accent-strong)] shadow-[0_16px_36px_rgba(226,121,82,0.24)] transition hover:-translate-y-0.5",
   ink: "relative z-10 inline-flex items-center justify-center rounded-full bg-[var(--color-ink)] transition hover:-translate-y-0.5",
   ghost:
     "inline-flex items-center justify-center rounded-full border border-black/10 bg-white/80 text-[var(--color-ink)] transition hover:bg-white",

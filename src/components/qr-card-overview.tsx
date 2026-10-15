@@ -123,7 +123,7 @@ export function QrCardOverview({
             <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
               <Link
                 href={editorHref}
-                className="inline-flex items-center justify-center rounded-full bg-[var(--color-accent)] px-6 py-2.5 text-sm font-semibold text-white shadow-[0_6px_18px_rgba(226,121,82,0.3)] transition hover:brightness-105"
+                className="inline-flex items-center justify-center rounded-full bg-[var(--color-accent-strong)] px-6 py-2.5 text-sm font-semibold text-white shadow-[0_6px_18px_rgba(226,121,82,0.3)] transition hover:brightness-105"
               >
                 ✎ {s.edit}
               </Link>

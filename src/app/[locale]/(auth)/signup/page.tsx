@@ -37,22 +37,21 @@ export default async function SignupPage({
           <p className="max-w-xl text-base leading-7 text-black/65 lg:text-lg lg:leading-8">
             {isCouple ? d.signupCoupleBody : d.signupPhotographerBody}
           </p>
-          <div className="overflow-hidden rounded-[28px] border border-black/10 bg-white/75 shadow-[0_24px_80px_rgba(18,24,38,0.08)]">
+          {/* Illustration from tablet up. On a phone it was a card repeating the
+              sentence above it, and it pushed the form below the fold. */}
+          <div className="hidden overflow-hidden rounded-[28px] border border-black/10 bg-white/75 shadow-[0_24px_80px_rgba(18,24,38,0.08)] sm:block">
             <Image
               src="/confetti-hero.svg"
-              alt="Confetti private gallery illustration"
+              alt=""
               width={920}
               height={760}
-              className="hidden h-auto w-full sm:block"
+              className="h-auto w-full"
               priority
             />
-            <div className="px-5 py-5 text-sm leading-6 text-black/58 sm:hidden">
-              {isCouple ? d.signupCoupleMobile : d.signupPhotographerMobile}
-            </div>
           </div>
           <p className="text-sm text-black/55">
             {d.alreadyHaveAccess}{" "}
-            <Link href={`/${locale}/login`} className="font-semibold text-[var(--color-accent)]">
+            <Link href={`/${locale}/login`} className="font-semibold text-[var(--color-accent-strong)]">
               {d.logIn}
             </Link>
             .

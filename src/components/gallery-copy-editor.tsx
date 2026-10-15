@@ -196,7 +196,7 @@ export function GalleryCopyEditor({
         <button
           type="submit"
           disabled={isSaving}
-          className="shrink-0 rounded-full bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_6px_18px_rgba(226,121,82,0.3)] transition hover:brightness-105 disabled:opacity-60"
+          className="shrink-0 rounded-full bg-[var(--color-accent-strong)] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_6px_18px_rgba(226,121,82,0.3)] transition hover:brightness-105 disabled:opacity-60"
         >
           {isSaving ? s.saving : s.save}
         </button>

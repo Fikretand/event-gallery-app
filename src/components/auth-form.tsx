@@ -128,20 +128,21 @@ export function AuthForm({
         {mode === "signup" ? <input type="hidden" name="plan" value={plan} /> : null}
         {mode === "signup" ? <input type="hidden" name="locale" value={locale} /> : null}
         <div className="space-y-2">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">
-            {mode === "login"
-              ? s.formWelcomeBack
-              : isCoupleSignup
-                ? s.formStartCoupleEvent
-                : s.formStartWorkspace}
-          </p>
-          <h1 className="text-3xl font-semibold text-[var(--color-ink)]">
+          {/* The signup page already says who the account is for right above;
+              saying it again over the form was the same label twice. */}
+          {mode === "login" ? (
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">
+              {s.formWelcomeBack}
+            </p>
+          ) : null}
+          {/* h2: the page around the form owns the one h1. */}
+          <h2 className="text-3xl font-semibold text-[var(--color-ink)]">
             {mode === "login"
               ? s.formLoginTitle
               : isCoupleSignup
                 ? s.formCreateCoupleTitle
                 : s.formCreatePhotographerTitle}
-          </h1>
+          </h2>
         </div>
 
         {mode === "signup" ? (
@@ -172,7 +173,7 @@ export function AuthForm({
 
         {mode === "login" ? (
           <div className="flex justify-end">
-            <Link href={forgotHref} className="text-sm font-semibold text-[var(--color-accent)]">
+            <Link href={forgotHref} className="inline-block py-1 text-sm font-semibold text-[var(--color-accent-strong)]">
               {s.formForgotPassword}
             </Link>
           </div>

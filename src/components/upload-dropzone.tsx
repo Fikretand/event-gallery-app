@@ -156,7 +156,6 @@ function itemId(file: File) {
 export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audience = "photographer", strings, nextLink }: Props) {
   const router = useRouter();
   const [guestName, setGuestName]   = useState("");
-  const [guestEmail, setGuestEmail] = useState("");
   const [pin, setPin]               = useState("");
   const [items, setItems]           = useState<UploadItem[]>([]);
   const [success, setSuccess]       = useState<string | null>(null);
@@ -297,7 +296,6 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             guestName:  guestName  || undefined,
-            guestEmail: guestEmail || undefined,
             pin:        pin        || undefined,
             files: targetItems.map((item) => ({
               name: item.file.name,
@@ -462,7 +460,13 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
         onChange={(e) => setPin(e.target.value)}
         className="rounded-2xl border border-black/10 bg-[var(--color-paper)] px-4 py-3 text-sm placeholder:text-black/28 focus:border-[var(--color-accent)] focus:outline-none"
         placeholder={s.pinPlaceholder}
-        type="password"
+        // Shared event PIN, read off a card: shown, not masked, and never
+        // offered to the phone's password manager.
+        type="text"
+        autoComplete="off"
+        autoCapitalize="none"
+        autoCorrect="off"
+        spellCheck={false}
       />
     </label>
   );
@@ -487,7 +491,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
                     isDone
                       ? "bg-[var(--color-moss)] text-white"
                       : isActive
-                        ? "bg-[var(--color-accent)] text-white shadow-[0_4px_16px_rgba(226,121,82,0.38)]"
+                        ? "bg-[var(--color-accent-strong)] text-white shadow-[0_4px_16px_rgba(226,121,82,0.38)]"
                         : "bg-black/8 text-black/30",
                   )}
                 >
@@ -496,7 +500,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
                 <span
                   className={cn(
                     "text-xs font-medium transition-colors",
-                    isActive ? "text-[var(--color-accent)]" : isDone ? "text-[var(--color-moss)]" : "text-black/32",
+                    isActive ? "text-[var(--color-accent-strong)]" : isDone ? "text-[var(--color-moss)]" : "text-black/32",
                   )}
                 >
                   {label}
@@ -520,7 +524,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
       {phase === "choose" && (
         <div className="rounded-[32px] border border-black/8 bg-white/92 p-6 shadow-[0_8px_48px_rgba(18,24,38,0.07)] md:p-8">
           <div className="text-center">
-            <div className="upload-icon-float mx-auto mb-5 flex h-24 w-24 items-center justify-center rounded-[28px] bg-[var(--color-accent-soft)] text-5xl shadow-[0_8px_32px_rgba(226,121,82,0.18)]">
+            <div className="upload-icon-float mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-[22px] bg-[var(--color-accent-soft)] text-4xl shadow-[0_8px_32px_rgba(226,121,82,0.18)] md:mb-5 md:h-24 md:w-24 md:rounded-[28px] md:text-5xl">
               📷
             </div>
             <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)] md:text-3xl">
@@ -531,54 +535,24 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
             </p>
           </div>
 
-          {/* Optional guest fields */}
-          {target === "guest" && (
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <label className="flex flex-col gap-1.5">
-                <span className="text-sm font-medium text-[var(--color-ink)]">
-                  {s.nameLabel}{" "}
-                  <span className="font-normal text-black/35">{s.optional}</span>
-                </span>
-                <input
-                  value={guestName}
-                  onChange={(e) => setGuestName(e.target.value)}
-                  className="rounded-2xl border border-black/10 bg-[var(--color-paper)] px-4 py-3 text-sm placeholder:text-black/28 focus:border-[var(--color-accent)] focus:outline-none"
-                  placeholder={s.namePlaceholder}
-                />
-              </label>
-              <label className="flex flex-col gap-1.5">
-                <span className="text-sm font-medium text-[var(--color-ink)]">
-                  {s.emailLabel}{" "}
-                  <span className="font-normal text-black/35">{s.optional}</span>
-                </span>
-                <input
-                  value={guestEmail}
-                  onChange={(e) => setGuestEmail(e.target.value)}
-                  className="rounded-2xl border border-black/10 bg-[var(--color-paper)] px-4 py-3 text-sm placeholder:text-black/28 focus:border-[var(--color-accent)] focus:outline-none"
-                  placeholder={s.emailPlaceholder}
-                  type="email"
-                />
-              </label>
-
-              {pinRequired && pinField}
-            </div>
-          )}
-
           {/* Primary CTA */}
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="mt-6 flex w-full items-center justify-center gap-3 rounded-[20px] bg-[var(--color-accent)] px-6 py-5 text-lg font-semibold text-white shadow-[0_8px_28px_rgba(226,121,82,0.38)] transition-all hover:brightness-105 active:scale-[0.98] md:py-4 md:text-base"
+            className="mt-6 flex w-full items-center justify-center gap-3 rounded-[20px] bg-[var(--color-accent-strong)] px-6 py-5 text-lg font-semibold text-white shadow-[0_8px_28px_rgba(226,121,82,0.38)] transition-all hover:brightness-105 active:scale-[0.98] md:py-4 md:text-base"
           >
             <span className="text-xl">📷</span>
             {s.selectPhotosBtn}
           </button>
 
-          {/* Subtle info row */}
-          <p className="mt-4 text-center text-xs text-black/36">
-            JPG, PNG, HEIC{allowVideo ? ", MP4, MOV" : ""}
-            {" · "}{s.noAccountNeeded}
-          </p>
+          {/* Subtle info row. The guest page lists the same facts as chips
+              right under this card, so only the owner's upload shows it. */}
+          {target !== "guest" && (
+            <p className="mt-4 text-center text-xs text-black/55">
+              JPG, PNG, HEIC{allowVideo ? ", MP4, MOV" : ""}
+              {" · "}{s.noAccountNeeded}
+            </p>
+          )}
         </div>
       )}
 
@@ -644,8 +618,26 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
             </div>
           </div>
 
-          {target === "guest" && pinRequired ? (
-            <div className="rounded-[24px] border border-black/8 bg-white/92 p-4">{pinField}</div>
+          {/* Asked here, after the photos are picked, not before: at the event the
+              guest came for one button, and a form in front of it loses people. */}
+          {target === "guest" ? (
+            <div className="grid gap-3 rounded-[24px] border border-black/8 bg-white/92 p-4">
+              <label className="flex flex-col gap-1.5">
+                <span className="text-sm font-medium text-[var(--color-ink)]">
+                  {s.nameLabel}{" "}
+                  <span className="font-normal text-black/55">{s.optional}</span>
+                </span>
+                <input
+                  value={guestName}
+                  onChange={(e) => setGuestName(e.target.value)}
+                  className="rounded-2xl border border-black/10 bg-[var(--color-paper)] px-4 py-3 text-sm placeholder:text-black/40 focus:border-[var(--color-accent)] focus:outline-none"
+                  placeholder={s.namePlaceholder}
+                  autoComplete="name"
+                  autoCapitalize="words"
+                />
+              </label>
+              {pinRequired && pinField}
+            </div>
           ) : null}
 
           {/* Send button */}
@@ -653,7 +645,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
             type="button"
             onClick={startUpload}
             disabled={isPending || activeItems.length === 0}
-            className="flex w-full items-center justify-center gap-3 rounded-[20px] bg-[var(--color-accent)] px-6 py-5 text-lg font-semibold text-white shadow-[0_8px_28px_rgba(226,121,82,0.38)] transition-all hover:brightness-105 active:scale-[0.98] disabled:opacity-60 md:py-4 md:text-base"
+            className="flex w-full items-center justify-center gap-3 rounded-[20px] bg-[var(--color-accent-strong)] px-6 py-5 text-lg font-semibold text-white shadow-[0_8px_28px_rgba(226,121,82,0.38)] transition-all hover:brightness-105 active:scale-[0.98] disabled:opacity-60 md:py-4 md:text-base"
           >
             <span className="text-xl">✉️</span>
             {s.sendBtn}
@@ -785,7 +777,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
             <button
               type="button"
               onClick={() => { setSuccess(null); setError(null); setItems([]); inputRef.current?.click(); }}
-              className="inline-flex items-center gap-2 rounded-[16px] bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-white shadow-[0_6px_20px_rgba(226,121,82,0.32)] transition hover:brightness-105"
+              className="inline-flex items-center gap-2 rounded-[16px] bg-[var(--color-accent-strong)] px-6 py-3 text-sm font-semibold text-white shadow-[0_6px_20px_rgba(226,121,82,0.32)] transition hover:brightness-105"
             >
               + {s.uploadAnotherBtn}
             </button>

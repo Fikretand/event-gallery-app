@@ -311,7 +311,7 @@ export default async function HomePage({
               {d.pricingTitle}
             </h2>
           </div>
-          <Link href={lp("/pricing")} className="text-sm font-semibold text-[var(--color-moss)] underline-offset-4 hover:underline">
+          <Link href={lp("/pricing")} className="inline-block py-1 text-sm font-semibold text-[var(--color-moss)] underline-offset-4 hover:underline">
             {d.pricingLink}
           </Link>
         </div>
@@ -423,11 +423,11 @@ export default async function HomePage({
         <div className="shell flex flex-col gap-6 py-10 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="font-display text-lg font-semibold text-[var(--color-ink)]">Confetti</p>
-            <p className="mt-1 text-xs text-black/45">{d.footerTagline}</p>
+            <p className="mt-1 text-xs text-black/60">{d.footerTagline}</p>
           </div>
-          <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-black/50">
+          <nav className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-black/65">
             {d.footerLinks.map((link) => (
-              <Link key={link.href} href={lp(link.href)} className="hover:text-[var(--color-ink)]">
+              <Link key={link.href} href={lp(link.href)} className="inline-block py-1.5 hover:text-[var(--color-ink)]">
                 {link.label}
               </Link>
             ))}

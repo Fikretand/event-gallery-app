@@ -533,6 +533,39 @@ src/
 
 Newest first — useful for picking back up.
 
+- **UX/a11y audit of the guest path + fixes.** Audited with axe (WCAG 2.2 AA) at
+  390 / 1366 px against a local build. Guest pages were rendered with a scratch
+  mock of PostgREST + R2, since production is not reachable from the sandbox. Fixes:
+  - **Filled buttons** use `--color-accent-strong` `#bf5530` (4.61:1 under white).
+    `#e27952` was 2.96:1, which fails AA. The light accent stays for dots, icons
+    and large headings.
+  - **Mobile fields** are 16 px (unlayered rule in `globals.css`), because iOS
+    zooms into anything smaller.
+  - **PIN fields** are plain text: a shared PIN typed off a card, and no
+    password-manager prompt. There is no numeric keyboard, because owner PINs are
+    free text.
+  - **Guest upload.** "Choose photos" comes first. Name and PIN are asked in the
+    review step. The email field is gone; it was only a fallback label for the
+    name. The duplicate info line is removed, and the deadline shows the date
+    without the time.
+  - **Public gallery.**
+    - Copy: "Galerija događaja", "U galeriji: N", and no "Sekcija" eyebrow.
+      Sections are `h2`.
+    - Controls: tabs with nothing behind them are hidden, and the select ring is
+      visible. "Preuzmi odabrano" appears only once something is selected.
+    - No empty cover frames, on the PIN screen or in the header.
+    - The PIN placeholder says "organizator", not "fotograf".
+  - **Signup.** One `h1` (the form heading is `h2`). There is no repeated
+    eyebrow, and the mobile card that repeated the intro is gone.
+  - **Small fixes.** The header's action group is a `div`, not a second `nav`.
+    Footer and standalone links are ≥ 28 px tall, and greys were bumped where
+    they failed.
+  - **Not done, on purpose:** the 4-class password rule. Supabase enforces the
+    same rule server-side (Auth → Password Requirements). Relax it there first,
+    then `password-policy.ts`, or the form accepts passwords Supabase refuses.
+  - `uploadDropzone.email*`, `galleryViewer.sectionEyebrow` and
+    `gallery.privateNoAccess` were dropped from `COPY_FIELDS`, because nothing
+    renders them now.
 - **Landing copy pass (owner's notes).** Hero: "Svaka uspomena sa vašeg događaja,
   na jednom mjestu." / "Pogledaj fotografije koje inače nikad i ne bi došle do
   tebe." Copy uses the spaced en dash " – ", never "—" (both dicts, QR card

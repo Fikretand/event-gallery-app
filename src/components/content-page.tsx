@@ -22,7 +22,7 @@ export function Breadcrumbs({ trail }: { trail: Crumb[] }) {
         {trail.map((crumb, i) => (
           <li key={crumb.label} className="flex items-center gap-2">
             {crumb.href ? (
-              <Link href={crumb.href} className="hover:text-[var(--color-ink)]">
+              <Link href={crumb.href} className="inline-block py-1 hover:text-[var(--color-ink)]">
                 {crumb.label}
               </Link>
             ) : (

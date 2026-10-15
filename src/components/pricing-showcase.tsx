@@ -68,7 +68,7 @@ export function OneTimePlanCard({ compact = false }: { compact?: boolean }) {
       </MarketingButtonLink>
 
       <div className="mt-7 border-t border-black/8 pt-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/45">{ui.includes}</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/60">{ui.includes}</p>
         <div className="mt-4 space-y-3">
           {plan.features.map((feature) => (
             <div key={feature} className="flex items-start gap-3 text-sm leading-6 text-[var(--color-ink)]">
@@ -174,7 +174,7 @@ export function PricingShowcase() {
               </MarketingButtonLink>
 
               <div className="mt-7 border-t border-black/8 pt-6">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/45">{ui.includes}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/60">{ui.includes}</p>
                 <div className="mt-4 space-y-3">
                   {plan.features.map((feature) => (
                     <div key={feature} className="flex items-start gap-3 text-sm leading-6 text-[var(--color-ink)]">

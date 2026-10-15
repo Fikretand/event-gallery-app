@@ -158,7 +158,7 @@ export function EventCoverPicker({
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={isWorking}
-            className={cn(buttonBase, "bg-[var(--color-accent)] text-white shadow-[0_6px_18px_rgba(226,121,82,0.3)] hover:brightness-105")}
+            className={cn(buttonBase, "bg-[var(--color-accent-strong)] text-white shadow-[0_6px_18px_rgba(226,121,82,0.3)] hover:brightness-105")}
           >
             {s.uploadBtn}
           </button>

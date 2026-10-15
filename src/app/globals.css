@@ -8,6 +8,9 @@
   --color-paper: #f2eadf;
   --color-ink: #172033;
   --color-accent: #e27952;
+  /* Filled buttons with white text: #e27952 under white is 2.96:1, below the
+     4.5:1 WCAG AA asks of body-size text. Same hue, darker. */
+  --color-accent-strong: #bf5530;
   --color-accent-soft: #f6d3c3;
   --color-moss: #38584d;
   --font-sans: var(--font-inter), "Segoe UI", system-ui, sans-serif;
@@ -72,6 +75,17 @@ input,
 textarea,
 select {
   font: inherit;
+}
+
+/* iOS Safari zooms the page into any field smaller than 16px when it gets
+   focus, and the guest is left pinching back out. Unlayered, so it wins over
+   a text-sm utility on phones; desktop keeps the designed size. */
+@media (max-width: 767px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]),
+  textarea,
+  select {
+    font-size: 16px;
+  }
 }
 
 ::selection {

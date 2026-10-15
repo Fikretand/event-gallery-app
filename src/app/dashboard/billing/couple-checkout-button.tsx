@@ -116,7 +116,7 @@ export function CoupleCheckoutButton({
       <div className="mt-5">
         <button
           disabled
-          className="w-full cursor-not-allowed rounded-2xl bg-[var(--color-accent)] px-5 py-3 text-sm font-semibold text-white opacity-60"
+          className="w-full cursor-not-allowed rounded-2xl bg-[var(--color-accent-strong)] px-5 py-3 text-sm font-semibold text-white opacity-60"
         >
           {label}
         </button>
@@ -132,7 +132,7 @@ export function CoupleCheckoutButton({
         <button
           onClick={isPolar ? openPolarCheckout : openPayhipCheckout}
           disabled={busy}
-          className="w-full rounded-2xl bg-[var(--color-accent)] px-5 py-3 text-sm font-semibold text-white transition hover:brightness-105 disabled:cursor-wait disabled:opacity-70"
+          className="w-full rounded-2xl bg-[var(--color-accent-strong)] px-5 py-3 text-sm font-semibold text-white transition hover:brightness-105 disabled:cursor-wait disabled:opacity-70"
         >
           {busy ? strings.checkoutOpening : label}
         </button>

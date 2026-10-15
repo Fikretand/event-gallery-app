@@ -15,7 +15,7 @@ interface GalleryUnlockStrings {
 
 const EN_DEFAULTS: GalleryUnlockStrings = {
   pinLabel: "Gallery PIN",
-  pinPlaceholder: "Enter the PIN from your photographer",
+  pinPlaceholder: "PIN from the host",
   unlocking: "Unlocking…",
   unlock: "Unlock gallery",
   wrongPin: "That PIN isn't right. Check it and try again.",
@@ -41,9 +41,15 @@ export function GalleryUnlockForm({
         <span>{s.pinLabel}</span>
         <input
           name="pin"
-          type="password"
+          // Plain text, not a password: everyone at the event shares this PIN,
+          // so masking it only makes it harder to type off a printed card, and a
+          // password field invites the phone to save it as a login.
+          type="text"
           autoComplete="off"
-          className="rounded-2xl border border-black/10 bg-white px-4 py-3"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          className="rounded-2xl border border-black/10 bg-white px-4 py-3 tracking-[0.08em]"
           placeholder={s.pinPlaceholder}
           required
         />
