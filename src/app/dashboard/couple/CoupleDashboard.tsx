@@ -3,13 +3,21 @@ import { redirect } from "next/navigation";
 
 import { DashboardHeader } from "@/components/dashboard-header";
 import { PaymentSuccessBanner } from "@/components/payment-success-banner";
+import { RetentionNotice } from "@/components/retention-notice";
 import { SetupNotice } from "@/components/setup-notice";
 import { Panel } from "@/components/ui/panel";
 import { getAccountTypeForUser, getRequiredUser, getUserProfile } from "@/lib/auth";
 import { hasActiveSubscription } from "@/lib/billing";
 import { hasSupabase } from "@/lib/env";
-import { getDictionary, t, type Locale, daysWord } from "@/lib/i18n/index";
-import { computeTrialState, countUserMediaFiles, getEventLifecycleStatus, listOwnerEvents } from "@/lib/events";
+import { getDictionary, localePrefix, t, type Locale, daysWord } from "@/lib/i18n/index";
+import {
+  computeTrialState,
+  countUserMediaFiles,
+  getEventLifecycleStatus,
+  getRetentionAccessEndsAt,
+  listOwnerEvents,
+} from "@/lib/events";
+import { retentionSchedule } from "@/lib/retention";
 import type { TrialState } from "@/lib/types";
 import { absoluteUrl, cn, formatDate } from "@/lib/utils";
 
@@ -86,6 +94,16 @@ export async function CoupleDashboard({
         <section className="shell grid gap-5">
           {paymentBanner}
           {trial && <TrialBanner trial={trial} d={d} locale={locale} />}
+          {profile ? (
+            <RetentionNotice
+              schedule={retentionSchedule(profile, getRetentionAccessEndsAt(event))}
+              kind="couple"
+              strings={dict.dashboard.retention}
+              locale={locale}
+              href={`${localePrefix(locale)}/dashboard/events/${event.slug}/gallery`}
+              cta={dict.dashboard.retention.openGallery}
+            />
+          ) : null}
 
           {/* Event card */}
           <Panel className="bg-white/92">

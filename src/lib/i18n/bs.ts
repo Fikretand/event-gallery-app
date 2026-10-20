@@ -362,6 +362,15 @@ export const dict: Dict = {
       trialExpiredBody: "Pređi na plaćeni plan da nastaviš sa korištenjem.",
       choosePlan: "Odaberi plan →",
     },
+    retention: {
+      title: "Fajlovi se trajno brišu {{date}}",
+      urgentTitle: "Još {{days}} {{unit}} do trajnog brisanja fajlova",
+      coupleBody:
+        "Galerija je zatvorena za goste. Do tog datuma fotografije i video i dalje vidite ovdje i možete ih preuzeti – nakon toga se brišu i ne mogu se vratiti.",
+      trialBody:
+        "Proba je istekla, a plan nije izabran. Ako ga ne izaberete do tog datuma, fotografije i video s vaših događaja se brišu i ne mogu se vratiti.",
+      openGallery: "Preuzmi fajlove →",
+    },
     event: {
       backToEvents: "Nazad na događaje",
       eventDate: "Datum događaja: {{date}}",
@@ -1116,7 +1125,7 @@ export const dict: Dict = {
       {
         question: "Koliko dugo je galerija dostupna?",
         answer:
-          "Kod plana za jedan događaj gosti šalju slike 30 dana, a galerija je otvorena 90 dana. Fotografi sami biraju datum isteka za svaki događaj. Prije isteka sve preuzmeš kao ZIP.",
+          "Kod plana za jedan događaj gosti šalju slike 30 dana, a galerija je otvorena 90 dana. Kad se zatvori, ti još {{graceDays}} dana vidiš sve u svom panelu i preuzmeš kao ZIP – nakon toga se fajlovi trajno brišu. Fotografi s pretplatom sami biraju datum isteka i njihovi fajlovi se ne brišu.",
       },
       {
         question: "Mogu li preuzeti sve fotografije u punoj kvaliteti?",

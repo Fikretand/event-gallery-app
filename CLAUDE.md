@@ -112,6 +112,14 @@ These are loaded server-side by Resvg for the poster API, and client-side via
   `event_activity`)
 - Cover image picker
 - ZIP batch download via `jszip`
+- **Retention** (`src/lib/retention.ts`, tested): a closed One Event gallery
+  keeps its files 30 days after access ends, then the nightly cron deletes
+  them from R2. Events of photographers who never paid lose theirs 60 days
+  after the trial ends. Paying photographers and admins are never touched.
+  Dashboards show the same dates as a warning (`RetentionNotice`, red in the
+  last 7 days). The purge runs inside `/api/internal/purge-deleted-media`
+  (Hobby allows two crons) and stays a **dry run until `RETENTION_PURGE=on`**
+  in Vercel; it logs `[retention] {...}` either way.
 
 ### Dashboard (full i18n EN + BS)
 - `/dashboard` — photographer event list + usage cards + trial banner
@@ -323,8 +331,10 @@ thumbnails) is **done**. What is genuinely left:
    webhook verification assumes a form-encoded `security_token` while the docs
    describe a newer JSON+signature scheme — see
    `src/app/api/billing/webhook/route.ts`.
-3. **Supabase free → Pro** before any real traffic (500 MB DB / 2 GB bandwidth
-   is spent quickly by image previews).
+3. **Supabase free → Pro** before real traffic, mainly for daily backups and
+   because free projects pause after a week idle. Photos never pass through
+   Supabase (they are served from R2 by signed URL), so its DB size and
+   bandwidth grow slowly: about 1 KB per media row.
 4. **Legal:** `src/lib/legal.ts` is a reviewed-by-nobody draft. Fill every
    `[bracketed]` placeholder (entity, address, contact email, governing law),
    have a lawyer read it, then delete the `draftNotice` field from each doc so
@@ -383,8 +393,8 @@ wrappers trust the URL and never redirect.
 - Flag any new unauthenticated API endpoint loudly.
 
 ### Supabase free-tier ceiling
-500 MB DB + 2 GB bandwidth — exhausted by any real traffic with image
-previews. Migrate to Pro before user testing scales.
+500 MB DB + 2 GB bandwidth. Media bytes live in R2 and never count against
+either; the reasons to move to Pro are backups and the idle pause.
 
 ### Content pages (the SEO ones)
 `/dogadjaji/[tip]`, `/kako-funkcionise`, `/pitanja`,
@@ -533,6 +543,16 @@ src/
 
 Newest first — useful for picking back up.
 
+- **Retention purge for expired galleries (dry run).** `src/lib/retention.ts`
+  holds the rules; `purgeExpiredEventMedia` in `events.ts` applies them
+  (≤400 files per run, reuses `permanentlyDeleteMediaById`, logs one
+  `media_permanently_deleted` activity per event with
+  `metadata.reason = "retention"` — the action column has a CHECK constraint,
+  so no new action name). Verified against a local PostgREST mock: dry run
+  reports only the expired couple event and the never-paid trial; with
+  `RETENTION_PURGE=on` it deletes exactly those rows and a second run does
+  nothing. Owner turns it on after reading a real dry-run report. Landing FAQ
+  and the Privacy draft (§6) state the rule.
 - **Polar → production (`confetti-ba`, 66327521-…).** The generic Polar setup
   prompt was not followed literally: checkout (`/api/billing/checkout`) and the
   webhook (`/api/billing/polar/webhook`, custom Standard-Webhooks verification)

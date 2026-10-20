@@ -17,6 +17,8 @@ export const env = {
   r2PublicBaseUrl: optional(process.env.R2_PUBLIC_BASE_URL),
   mediaWorkerSecret: optional(process.env.MEDIA_WORKER_SECRET),
   cronSecret: optional(process.env.CRON_SECRET),
+  /** "on" lets the nightly cron delete expired galleries' files; anything else is a dry run. */
+  retentionPurge: optional(process.env.RETENTION_PURGE),
   // ── Payments (LemonSqueezy — dormant until configured) ──
   lemonSqueezyApiKey: optional(process.env.LEMONSQUEEZY_API_KEY),
   lemonSqueezyStoreId: optional(process.env.LEMONSQUEEZY_STORE_ID),

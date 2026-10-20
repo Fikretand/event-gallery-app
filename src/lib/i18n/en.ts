@@ -360,6 +360,15 @@ export const dict: Dict = {
       trialExpiredBody: "Upgrade to keep uploading and managing your events.",
       choosePlan: "Choose a plan →",
     },
+    retention: {
+      title: "Your files will be deleted on {{date}}",
+      urgentTitle: "{{days}} {{unit}} until your files are deleted",
+      coupleBody:
+        "The gallery is closed to guests. Until that date you can still see the photos and videos here and download them – after that they are deleted and cannot be restored.",
+      trialBody:
+        "Your trial has ended and no plan was chosen. If you don't choose one by that date, the photos and videos from your events are deleted and cannot be restored.",
+      openGallery: "Download your files →",
+    },
     event: {
       backToEvents: "Back to your events",
       eventDate: "Event date: {{date}}",
@@ -1114,7 +1123,7 @@ export const dict: Dict = {
       {
         question: "How long is the gallery available?",
         answer:
-          "On the one-event plan guests can upload for 30 days and the gallery stays open for 90. Photographers set the expiry date for each event themselves. Before it expires you can download everything as a ZIP.",
+          "On the one-event plan guests can upload for 30 days and the gallery stays open for 90. Once it closes, you still see everything in your dashboard for {{graceDays}} more days and can download it as a ZIP – after that the files are deleted for good. Photographers on a subscription set each event's expiry themselves, and their files are not deleted.",
       },
       {
         question: "Can I download every photo in full quality?",

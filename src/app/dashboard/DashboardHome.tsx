@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { DashboardHeader } from "@/components/dashboard-header";
 import { PaymentSuccessBanner } from "@/components/payment-success-banner";
+import { RetentionNotice } from "@/components/retention-notice";
 import { DashboardEventList } from "@/components/dashboard-event-list";
 import { SetupNotice } from "@/components/setup-notice";
 import { Panel } from "@/components/ui/panel";
@@ -18,6 +19,7 @@ import {
   listOwnerEvents,
 } from "@/lib/events";
 import { getDictionary, localePrefix, t, type Locale, daysWord } from "@/lib/i18n/index";
+import { retentionSchedule } from "@/lib/retention";
 import type { TrialState } from "@/lib/types";
 import { cn, formatBytes } from "@/lib/utils";
 
@@ -97,6 +99,17 @@ export async function DashboardHome({
         ) : null}
 
         {trial && <TrialBanner trial={trial} strings={d} prefix={prefix} locale={locale} />}
+        {/* Only for photographers who never paid: their events' files go after the grace period. */}
+        {profile && events.length > 0 ? (
+          <RetentionNotice
+            schedule={retentionSchedule(profile, null)}
+            kind="trial"
+            strings={d.retention}
+            locale={locale}
+            href={`${prefix}/dashboard/billing`}
+            cta={h.choosePlan}
+          />
+        ) : null}
 
         <div className="grid gap-4 xl:grid-cols-[1.6fr_1fr_1fr]">
           <UsageCard

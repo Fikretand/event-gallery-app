@@ -367,6 +367,14 @@ export interface Dict {
       choosePlan: string;
     };
     // Event detail page
+    // Warning before an expired gallery's files are deleted (src/lib/retention.ts)
+    retention: {
+      title: string;        // "Files will be deleted on {{date}}"
+      urgentTitle: string;  // "{{days}} {{unit}} until your files are deleted"; unit from daysWord()
+      coupleBody: string;
+      trialBody: string;
+      openGallery: string;
+    };
     event: {
       backToEvents: string;
       eventDate: string;

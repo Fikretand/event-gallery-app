@@ -112,6 +112,8 @@ const EN_PRIVACY: LegalDoc = {
       heading: "6. Retention",
       bullets: [
         "One-time (couple) plan: guest uploads open for 30 days from the event date; private gallery access for up to 90 days from the event date.",
+        "When a one-time plan gallery closes, its photos and videos stay available to the account owner for 30 more days and are then permanently deleted from storage.",
+        "If a photographer's free trial ends without a paid plan, the photos and videos from their events are permanently deleted 60 days after the trial ends.",
         "Deleted media is soft-deleted and recoverable for 7 days, then permanently removed from storage.",
         "Account data is kept while your account is active and deleted (or anonymised) on request or after account closure, subject to any legal retention obligations.",
       ],
@@ -316,6 +318,8 @@ const BS_PRIVACY: LegalDoc = {
       heading: "6. Čuvanje podataka",
       bullets: [
         "Jednokratni plan (par): prijenos gostiju otvoren 30 dana od datuma događaja; pristup privatnoj galeriji do 90 dana od datuma događaja.",
+        "Kada se galerija jednokratnog plana zatvori, fotografije i video ostaju dostupni vlasniku naloga još 30 dana, a zatim se trajno brišu iz pohrane.",
+        "Ako fotografu istekne besplatna proba bez izbora plaćenog plana, fotografije i video s njegovih događaja trajno se brišu 60 dana nakon isteka probe.",
         "Obrisani mediji se meko brišu i mogu se vratiti 7 dana, a zatim se trajno uklanjaju iz pohrane.",
         "Podaci o nalogu čuvaju se dok je nalog aktivan i brišu se (ili anonimiziraju) na zahtjev ili nakon zatvaranja naloga, uz eventualne zakonske obaveze čuvanja.",
       ],

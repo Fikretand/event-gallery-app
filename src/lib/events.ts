@@ -13,6 +13,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { grantGalleryAccess, hasGalleryAccess, hashPin, randomSlugSuffix, verifyPin } from "@/lib/security";
 import { createSignedDownloadUrl, deleteStoredObject, publicMediaUrl } from "@/lib/storage";
 import { enrichMediaWithUrls, processMediaRecord } from "@/lib/media";
+import { isNeverPaid, retentionSchedule, shouldPurge } from "@/lib/retention";
 import type {
   AccountUsage,
   AccountType,
@@ -854,6 +855,112 @@ export async function purgeExpiredDeletedMedia(retentionDays = 7) {
   }
 
   return ids.length;
+}
+
+/** The gallery end used for retention: the owner's expiry, else the One Event default. */
+export function getRetentionAccessEndsAt(event: Pick<EventRecord, "created_at" | "event_date" | "expires_at">) {
+  return event.expires_at ?? getCoupleAccessEndsAt(event);
+}
+
+/**
+ * Removes the files of events whose retention period has run out (rules in
+ * retention.ts): closed One Event galleries after their grace period, and the
+ * events of photographers who never paid. Paying photographers and admins are
+ * never touched. The event rows stay, so the owner's history does not vanish.
+ *
+ * `dryRun` only reports. Deletion cannot be undone, so it stays a dry run until
+ * RETENTION_PURGE=on is set in Vercel, after a dry-run report has been read.
+ * One run stops at `maxFiles` to fit the function's time limit; the next night
+ * carries on where it stopped.
+ */
+export async function purgeExpiredEventMedia({
+  now = new Date(),
+  dryRun = true,
+  maxFiles = 400,
+}: { now?: Date; dryRun?: boolean; maxFiles?: number } = {}) {
+  const admin = createSupabaseAdminClient();
+  if (!admin) {
+    throw new Error("Supabase admin access is not configured.");
+  }
+
+  const { data: owners, error: ownersError } = await admin
+    .from("users")
+    .select("id, account_type, role, created_at, subscription_status, subscription_external_id");
+  if (ownersError) throw new Error(ownersError.message);
+
+  // Anyone who could have something to purge; the exact rule is per event below.
+  const candidates = new Map(
+    (owners ?? [])
+      .filter((owner) => owner.account_type === "couple" || isNeverPaid(owner))
+      .filter((owner) => owner.role !== "admin")
+      .map((owner) => [owner.id as string, owner]),
+  );
+
+  const due: { event: EventRecord; purgeAt: Date }[] = [];
+  const ownerIds = [...candidates.keys()];
+  for (let i = 0; i < ownerIds.length; i += 200) {
+    const { data: events, error } = await admin
+      .from("events")
+      .select("id, owner_user_id, slug, created_at, event_date, expires_at")
+      .in("owner_user_id", ownerIds.slice(i, i + 200));
+    if (error) throw new Error(error.message);
+
+    for (const event of (events ?? []) as EventRecord[]) {
+      const owner = candidates.get(event.owner_user_id);
+      if (!owner) continue;
+      const schedule = retentionSchedule(owner, getRetentionAccessEndsAt(event));
+      if (schedule && shouldPurge(schedule, now)) {
+        due.push({ event, purgeAt: schedule.purgeAt });
+      }
+    }
+  }
+
+  const report: { slug: string; ownerUserId: string; purgeAt: string; files: number; bytes: number }[] = [];
+  let budget = maxFiles;
+
+  for (const { event, purgeAt } of due) {
+    if (budget <= 0) break;
+
+    // Soft-deleted files too: everything the event still holds in R2 goes.
+    const { data: files, error } = await admin
+      .from("media_files")
+      .select("id, size_bytes")
+      .eq("event_id", event.id)
+      .limit(budget);
+    if (error) throw new Error(error.message);
+    if (!files || files.length === 0) continue;
+
+    const bytes = files.reduce((sum, file) => sum + Number(file.size_bytes ?? 0), 0);
+    report.push({
+      slug: event.slug,
+      ownerUserId: event.owner_user_id,
+      purgeAt: purgeAt.toISOString(),
+      files: files.length,
+      bytes,
+    });
+    budget -= files.length;
+
+    if (dryRun) continue;
+
+    for (const file of files) {
+      await permanentlyDeleteMediaById(file.id as string);
+    }
+    // The action list is fixed by a check constraint; the reason goes in metadata.
+    await recordEventActivity({
+      eventId: event.id,
+      action: "media_permanently_deleted",
+      metadata: { reason: "retention", files: files.length, bytes },
+    });
+  }
+
+  return {
+    dryRun,
+    eventsDue: due.length,
+    events: report.length,
+    files: report.reduce((sum, row) => sum + row.files, 0),
+    bytes: report.reduce((sum, row) => sum + row.bytes, 0),
+    report,
+  };
 }
 
 export async function recordCompletedUpload(input: {

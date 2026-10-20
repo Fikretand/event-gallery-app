@@ -4,6 +4,7 @@ import Link from "next/link";
 import { EventCoverPicker } from "@/components/event-cover-picker";
 import { EventLinkCard } from "@/components/event-link-card";
 import { QrPosterPicker } from "@/components/qr-poster-picker";
+import { RetentionNotice } from "@/components/retention-notice";
 import { Panel } from "@/components/ui/panel";
 import { getEventAnalyticsCached, getOwnerEventContext } from "@/lib/event-context";
 import {
@@ -12,11 +13,13 @@ import {
   getCoupleUploadEndsAt,
   getEventCoverMap,
   getEventLifecycleStatus,
+  getRetentionAccessEndsAt,
   isEventExpired,
   listEventMedia,
 } from "@/lib/events";
 import { getDictionary, localePrefix, t, type Locale } from "@/lib/i18n/index";
 import { enrichMediaWithUrls } from "@/lib/media";
+import { retentionSchedule } from "@/lib/retention";
 import { cn, formatBytes, formatDate, statusBadgeClass } from "@/lib/utils";
 
 /**
@@ -67,6 +70,17 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
         <div className="rounded-[24px] bg-[#fff0eb] px-5 py-4 text-sm leading-6 text-[#8a1c1c]">
           {isCouple ? e.eventExpiredCouple : e.eventExpired}
         </div>
+      ) : null}
+      {isCouple ? (
+        <RetentionNotice
+          // Couples own their account, so only the account type matters here.
+          schedule={retentionSchedule({ account_type: "couple", created_at: event.created_at }, getRetentionAccessEndsAt(event))}
+          kind="couple"
+          strings={d.retention}
+          locale={locale}
+          href={galleryHref}
+          cta={d.retention.openGallery}
+        />
       ) : null}
 
       <Panel className="bg-white/90">

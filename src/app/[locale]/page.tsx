@@ -15,6 +15,7 @@ import { listPublicPhotographers } from "@/lib/events";
 import { daysWord, getDictionary, t, type Locale } from "@/lib/i18n/index";
 import { PRO_ACTIVE_EVENT_LIMIT, SOLO_ACTIVE_EVENT_LIMIT, TRIAL_DURATION_DAYS, TRIAL_PHOTO_LIMIT } from "@/lib/constants";
 import { ONE_EVENT_BAM, PLAN_PRICING_BAM, formatBam } from "@/lib/pricing";
+import { COUPLE_PURGE_GRACE_DAYS } from "@/lib/retention";
 import { publicMetadata } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/utils";
 
@@ -127,6 +128,7 @@ export default async function HomePage({
     proYearly: formatBam(PLAN_PRICING_BAM.pro.yearly),
     soloEvents: SOLO_ACTIVE_EVENT_LIMIT,
     proEvents: PRO_ACTIVE_EVENT_LIMIT,
+    graceDays: COUPLE_PURGE_GRACE_DAYS,
   };
 
   const publicPhotographers = await listPublicPhotographers();
