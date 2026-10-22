@@ -280,9 +280,13 @@ export async function createEvent(input: {
   requirePinForGallery: boolean;
   maxGuestUploadMb: number;
 }) {
-  const supabase = await createSupabaseServerClient();
+  // Written with the service role: browsers have no INSERT/UPDATE on events or
+  // event_settings (migration revoke_client_event_writes.sql), because the
+  // plan limits and the One Event rules are checked here, not in the database.
+  // ownerUserId always comes from the server-side session.
+  const supabase = createSupabaseAdminClient();
   if (!supabase) {
-    throw new Error("Supabase is not configured.");
+    throw new Error("Supabase admin access is not configured.");
   }
 
   const baseSlug = slugify(input.title) || "event";
@@ -337,14 +341,16 @@ export async function updateEvent(ownerUserId: string, slug: string, input: {
   requirePinForGallery: boolean;
   maxGuestUploadMb: number;
 }) {
-  const supabase = await createSupabaseServerClient();
-  if (!supabase) {
-    throw new Error("Supabase is not configured.");
-  }
-
+  // Ownership is resolved with the caller's own client first; the write itself
+  // goes through the service role (see createEvent), still scoped to the owner.
   const existing = await getOwnerEventBySlug(ownerUserId, slug);
   if (!existing) {
     throw new Error("Event not found.");
+  }
+
+  const supabase = createSupabaseAdminClient();
+  if (!supabase) {
+    throw new Error("Supabase admin access is not configured.");
   }
 
   const { data: updatedEvent, error: eventError } = await supabase
@@ -664,9 +670,8 @@ export async function assignMediaSection(ownerUserId: string, mediaId: string, s
 }
 
 export async function setEventCoverImage(ownerUserId: string, slug: string, coverImageId: string | null) {
-  const supabase = await createSupabaseServerClient();
   const admin = createSupabaseAdminClient();
-  if (!supabase || !admin) {
+  if (!admin) {
     throw new Error("Supabase is not configured.");
   }
 
@@ -695,7 +700,7 @@ export async function setEventCoverImage(ownerUserId: string, slug: string, cove
     }
   }
 
-  const { data: updated, error } = await supabase
+  const { data: updated, error } = await admin
     .from("events")
     .update({
       cover_image_id: coverImageId,

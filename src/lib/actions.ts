@@ -545,7 +545,7 @@ export async function unlockGalleryAction(
  * sent; an empty one means "back to the standard text" and is not stored.
  */
 export async function updateEventCopyAction(slug: string, formData: FormData) {
-  const { user, supabase } = await getRequiredUser();
+  const { user } = await getRequiredUser();
   const event = await getOwnerEventBySlug(user.id, slug);
   if (!event) {
     return { error: "EVENT_NOT_FOUND" as const };
@@ -557,7 +557,12 @@ export async function updateEventCopyAction(slug: string, formData: FormData) {
   }
   const customCopy = sanitizeCustomCopy(raw);
 
-  const { error } = await supabase
+  // Service role, scoped to the owner checked above: browsers cannot write events.
+  const admin = createSupabaseAdminClient();
+  if (!admin) {
+    return { error: "SAVE_FAILED" as const };
+  }
+  const { error } = await admin
     .from("events")
     .update({ custom_copy: customCopy })
     .eq("id", event.id)

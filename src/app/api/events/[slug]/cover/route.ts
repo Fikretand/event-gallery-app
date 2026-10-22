@@ -55,7 +55,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
       }
     }
 
-    const { data: updated, error } = await supabase
+    const { data: updated, error } = await admin
       .from("events")
       .update({
         cover_image_id: coverImageId,
