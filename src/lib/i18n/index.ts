@@ -1138,6 +1138,10 @@ export interface Dict {
     /** {{done}} of {{total}} */
     progress: string;
     tryAgain: string;
+    duplicatesSkipped: string;
+    sendAnyway: string;
+    sentTitle: string;
+    sentPendingNote: string;
     statuses: {
       queued: string;
       requesting: string;

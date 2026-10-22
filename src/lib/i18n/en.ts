@@ -1643,6 +1643,10 @@ export const dict: Dict = {
     keepPageOpen: "Please keep this page open until it finishes",
     progress: "{{done}} of {{total}} sent",
     tryAgain: "Try again →",
+    duplicatesSkipped: "{{count}} already sent from this phone – skipped.",
+    sendAnyway: "Send anyway",
+    sentTitle: "Just sent",
+    sentPendingNote: "Only you can see these until the host approves them.",
     statuses: {
       queued: "Waiting",
       requesting: "Preparing",

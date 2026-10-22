@@ -1647,6 +1647,10 @@ export const dict: Dict = {
     keepPageOpen: "Molimo ne zatvarajte ovu stranicu dok slanje ne završi",
     progress: "Poslano {{done}} od {{total}}",
     tryAgain: "Pokušaj ponovo →",
+    duplicatesSkipped: "{{count}} već poslano s ovog telefona – preskočeno.",
+    sendAnyway: "Ipak pošalji",
+    sentTitle: "Upravo poslano",
+    sentPendingNote: "Vidiš ih samo ti dok ih organizator ne odobri.",
     statuses: {
       queued: "Čeka",
       requesting: "Priprema",

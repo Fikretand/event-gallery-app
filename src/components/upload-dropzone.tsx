@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 
 import type { AccountType } from "@/lib/types";
 import type { Dict } from "@/lib/i18n/index";
+import { fileFingerprint, readSentFingerprints, rememberSentFingerprints, splitAlreadySent } from "@/lib/upload-dedupe";
 import { RetryableUploadError, isRetryableStatus, runPool, uploadConcurrency, withRetry } from "@/lib/upload-queue";
 import { cn, formatBytes } from "@/lib/utils";
 
@@ -208,6 +209,10 @@ function itemId(file: File) {
   return `${file.name}-${file.size}-${file.lastModified}`;
 }
 
+/** Thumbnails of what was just sent, shown on this device only. */
+type SentPreview = { id: string; url: string; isVideo: boolean };
+const SENT_PREVIEW_LIMIT = 24;
+
 export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audience = "photographer", strings, nextLink }: Props) {
   const router = useRouter();
   const [guestName, setGuestName]   = useState("");
@@ -217,6 +222,14 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
   const [error, setError]           = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement | null>(null);
+  // Picked files this device already sent to this event, held back until the
+  // guest says "send anyway". The thumbnails of what was sent stay for the
+  // whole visit (bounded by SENT_PREVIEW_LIMIT) and are released on leaving.
+  const [skipped, setSkipped]       = useState<File[]>([]);
+  const [sentPreviews, setSentPreviews] = useState<SentPreview[]>([]);
+  const previewUrls = useRef<string[]>([]);
+
+  useEffect(() => () => previewUrls.current.forEach((url) => URL.revokeObjectURL(url)), []);
 
   // ─── Resolved i18n strings (fall back to English) ─────────────────────────
   const s = useMemo(() => ({
@@ -254,6 +267,10 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
     keepPageOpen:   strings?.keepPageOpen ?? "Please keep this page open until it finishes",
     progress:       strings?.progress ?? "{{done}} of {{total}} sent",
     tryAgain:       strings?.tryAgain ?? "Try again →",
+    duplicatesSkipped: strings?.duplicatesSkipped ?? "{{count}} already sent from this phone – skipped.",
+    sendAnyway:     strings?.sendAnyway ?? "Send anyway",
+    sentTitle:      strings?.sentTitle ?? "Just sent",
+    sentPendingNote: strings?.sentPendingNote ?? "Only you can see these until the host approves them.",
     statuses: strings?.statuses ?? {
       queued: "Waiting", requesting: "Preparing", uploading: "Uploading",
       waiting: "Waiting for internet", retrying: "Trying again",
@@ -328,7 +345,12 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
     setItems((current) => current.map((item) => (item.id === id ? { ...item, ...patch } : item)));
   }
 
-  function mergeFiles(nextFiles: File[]) {
+  function mergeFiles(picked: File[], { allowRepeats = false } = {}) {
+    const { fresh, duplicates } = allowRepeats
+      ? { fresh: picked, duplicates: [] as File[] }
+      : splitAlreadySent(picked, readSentFingerprints(endpoint));
+    setSkipped(duplicates);
+    const nextFiles = fresh;
     setItems((current) => {
       const merged = [...current];
       for (const file of nextFiles) {
@@ -348,6 +370,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
     startTransition(async () => {
       let uploadedAny = false;
       let failedAny = false;
+      const sentNow: File[] = [];
 
       try {
         targetItems.forEach((item) => updateItem(item.id, { status: "requesting", progress: 0, message: undefined }));
@@ -460,6 +483,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
             );
 
             uploadedAny = true;
+            sentNow.push(currentItem.file);
             updateItem(currentItem.id, { status: "done", progress: 100, message: undefined });
           } catch (itemError) {
             failedAny = true;
@@ -469,6 +493,24 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
 
         setItems((current) => current.filter((item) => item.status !== "done"));
         if (inputRef.current) inputRef.current.value = "";
+
+        if (sentNow.length > 0) {
+          rememberSentFingerprints(endpoint, sentNow.map(fileFingerprint));
+          const fresh = sentNow.slice(-SENT_PREVIEW_LIMIT).map((file) => {
+            const url = URL.createObjectURL(file);
+            previewUrls.current.push(url);
+            return { id: itemId(file), url, isVideo: file.type.startsWith("video") };
+          });
+          setSentPreviews((current) => {
+            const next = [...current, ...fresh];
+            // Release what falls off the end so a long evening of uploads stays light.
+            for (const old of next.slice(0, Math.max(0, next.length - SENT_PREVIEW_LIMIT))) {
+              URL.revokeObjectURL(old.url);
+              previewUrls.current = previewUrls.current.filter((url) => url !== old.url);
+            }
+            return next.slice(-SENT_PREVIEW_LIMIT);
+          });
+        }
 
         if (uploadedAny && !failedAny) {
           setSuccess(copy.successLabel);
@@ -514,6 +556,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
 
   function clearList() {
     setItems([]);
+    setSkipped([]);
     setError(null);
     setSuccess(null);
     if (inputRef.current) inputRef.current.value = "";
@@ -556,6 +599,43 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
         spellCheck={false}
       />
     </label>
+  );
+
+  const skippedNotice = skipped.length > 0 && (
+    <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-black/8 bg-[var(--color-paper)]/70 px-4 py-3 text-sm text-[var(--color-ink)]">
+      <span>{fill(s.duplicatesSkipped, { count: skipped.length })}</span>
+      <button
+        type="button"
+        onClick={() => mergeFiles(skipped, { allowRepeats: true })}
+        className="shrink-0 rounded-full border border-black/10 bg-white px-3 py-1.5 text-sm font-semibold text-[var(--color-ink)] transition hover:bg-[var(--color-paper)]"
+      >
+        {s.sendAnyway}
+      </button>
+    </div>
+  );
+
+  // Only this device has these files; the guest sees their photos right away
+  // instead of wondering where they went while the host has not approved them.
+  const sentStrip = sentPreviews.length > 0 && (
+    <div className="mt-5 text-left">
+      <p className="text-sm font-semibold text-[var(--color-ink)]">{s.sentTitle}</p>
+      {target === "guest" ? <p className="mt-0.5 text-xs leading-5 text-black/55">{s.sentPendingNote}</p> : null}
+      <ul className="mt-3 grid grid-cols-4 gap-1.5 sm:grid-cols-6">
+        {sentPreviews.map((preview) => (
+          <li key={preview.id} className="relative aspect-square overflow-hidden rounded-xl bg-black/5">
+            {preview.isVideo ? (
+              <video src={preview.url} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={preview.url} alt="" className="h-full w-full object-cover" />
+            )}
+            {preview.isVideo ? (
+              <span className="absolute bottom-1 right-1 rounded-full bg-black/60 px-1.5 text-[10px] text-white" aria-hidden>▶</span>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 
   // ─── Render ───────────────────────────────────────────────────────────────
@@ -631,12 +711,13 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
             <span className="text-xl">📷</span>
             {s.selectPhotosBtn}
           </button>
+          {skippedNotice}
 
           {/* Subtle info row. The guest page lists the same facts as chips
               right under this card, so only the owner's upload shows it. */}
           {target !== "guest" && (
             <p className="mt-4 text-center text-xs text-black/55">
-              JPG, PNG, HEIC{allowVideo ? ", MP4, MOV" : ""}
+              JPG, PNG{allowVideo ? ", MP4, MOV" : ""}
               {" · "}{s.noAccountNeeded}
             </p>
           )}
@@ -650,8 +731,10 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
           {success && (
             <div className="rounded-2xl border border-[var(--color-moss)]/15 bg-[#eef8f2] px-5 py-3 text-sm font-medium text-[var(--color-moss)]">
               {success}
+              {sentStrip}
             </div>
           )}
+          {skippedNotice}
 
           {/* File list card */}
           <div className="rounded-[32px] border border-black/8 bg-white/92 p-5 shadow-[0_8px_40px_rgba(18,24,38,0.06)] md:p-6">
@@ -861,6 +944,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
           {s.successNext ? (
             <p className="fade-up-in-delay mx-auto mt-2 max-w-sm text-sm leading-6 text-black/48">{s.successNext}</p>
           ) : null}
+          {sentStrip ? <div className="fade-up-in-delay relative">{sentStrip}</div> : null}
 
           <div className="fade-up-in-delay-2 mt-6 flex flex-col items-center justify-center gap-2 sm:flex-row">
             <button
