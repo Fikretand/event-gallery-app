@@ -1,11 +1,12 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef, useState, type ChangeEvent } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PROFILE_AVATAR_MAX_MB } from "@/lib/constants";
+import { t, type Dict } from "@/lib/i18n/index";
 import type { UserRecord } from "@/lib/types";
-import type { Dict } from "@/lib/i18n/index";
 
 export function PhotographerProfileForm({
   profile,
@@ -24,34 +25,114 @@ export function PhotographerProfileForm({
   const [state, formAction, isPending] = useActionState(action, undefined);
   const s = strings;
 
+  // The chosen photo shows at once, before the save. `pickedFor` is the action
+  // state it was chosen under, so "not saved yet" ends with the next success
+  // without an effect having to reset it.
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [preview, setPreview] = useState<{ url: string; pickedFor: typeof state } | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
+  const previewUrl = useRef<string | null>(null);
+
+  useEffect(() => () => {
+    if (previewUrl.current) URL.revokeObjectURL(previewUrl.current);
+  }, []);
+
+  function replacePreview(next: { url: string; pickedFor: typeof state } | null) {
+    if (previewUrl.current) URL.revokeObjectURL(previewUrl.current);
+    previewUrl.current = next?.url ?? null;
+    setPreview(next);
+  }
+
+  function onPickImage(event: ChangeEvent<HTMLInputElement>) {
+    const input = event.currentTarget;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    let problem: string | null = null;
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) problem = s.imageWrongType;
+    else if (file.size > PROFILE_AVATAR_MAX_MB * 1024 * 1024) problem = t(s.imageTooLarge, { mb: PROFILE_AVATAR_MAX_MB });
+
+    if (problem) {
+      // Never submit a file that the server would refuse anyway.
+      input.value = "";
+      setImageError(problem);
+      return;
+    }
+    setImageError(null);
+    replacePreview({ url: URL.createObjectURL(file), pickedFor: state });
+  }
+
+  function revertImage() {
+    if (fileInput.current) fileInput.current.value = "";
+    setImageError(null);
+    replacePreview(null);
+  }
+
+  // Saved once a success arrives after the pick; an error leaves it unsaved.
+  const pending = Boolean(preview && !(state?.success && state !== preview.pickedFor));
+  const shownUrl = preview?.url ?? avatarPreviewUrl ?? null;
+
   return (
     <form action={formAction} className="space-y-5">
-      <div className="grid gap-5 md:grid-cols-[0.8fr_1.2fr]">
+      <div className="grid gap-5 md:grid-cols-[0.8fr_1.2fr] [&>*]:min-w-0">
         <div className="rounded-[24px] border border-black/10 bg-[var(--color-paper)]/55 p-5">
           <p className="text-sm font-semibold text-[var(--color-ink)]">{s.profileImage}</p>
-          <div className="mt-4 overflow-hidden rounded-[24px] border border-black/10 bg-white">
-            {avatarPreviewUrl ? (
+          <button
+            type="button"
+            onClick={() => fileInput.current?.click()}
+            aria-label={s.changeImage}
+            className="relative mx-auto mt-4 block aspect-square w-full max-w-[220px] overflow-hidden rounded-full border border-black/10 bg-white outline-none focus-visible:ring-4 focus-visible:ring-[var(--color-accent)]/30"
+          >
+            {shownUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatarPreviewUrl} alt={profile.full_name ?? "Profile"} className="aspect-square w-full object-cover" />
+              <img src={shownUrl} alt="" className="h-full w-full object-cover" />
             ) : (
-              <div className="flex aspect-square items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(235,132,88,0.16),_transparent_55%),linear-gradient(135deg,_rgba(23,32,51,0.08),_rgba(255,248,240,0.92))] p-6 text-center text-sm leading-6 text-black/45">
+              <span className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(235,132,88,0.16),_transparent_55%),linear-gradient(135deg,_rgba(23,32,51,0.08),_rgba(255,248,240,0.92))] p-6 text-center text-sm leading-6 text-black/45">
                 {s.imagePlaceholder}
-              </div>
+              </span>
             )}
+          </button>
+          <input
+            ref={fileInput}
+            type="file"
+            name="avatar"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={onPickImage}
+            className="sr-only"
+            tabIndex={-1}
+          />
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => fileInput.current?.click()}
+              className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-semibold text-[var(--color-ink)] transition hover:bg-[var(--color-paper)]"
+            >
+              {s.changeImage}
+            </button>
+            {pending ? (
+              <button
+                type="button"
+                onClick={revertImage}
+                className="inline-flex items-center justify-center rounded-full px-3 py-2 text-sm font-semibold text-black/60 underline-offset-4 hover:underline"
+              >
+                {s.revertImage}
+              </button>
+            ) : null}
           </div>
-          <label className="mt-4 flex flex-col gap-2 text-sm font-medium text-[var(--color-ink)]">
-            <span>{s.uploadNewImage}</span>
-            <input
-              type="file"
-              name="avatar"
-              accept="image/*"
-              className="rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
-            />
-            <span className="text-xs font-normal text-black/55">{s.imageHint}</span>
-          </label>
+          {imageError ? (
+            <p role="alert" className="mt-3 rounded-2xl bg-[#fff0eb] px-3 py-2 text-center text-xs font-medium text-[#8a1c1c]">
+              {imageError}
+            </p>
+          ) : pending ? (
+            <p className="mt-3 rounded-2xl bg-[#fff6f1] px-3 py-2 text-center text-xs font-semibold text-[var(--color-ink)]">
+              {s.imagePending}
+            </p>
+          ) : (
+            <p className="mt-3 text-center text-xs text-black/55">{t(s.imageHint, { mb: PROFILE_AVATAR_MAX_MB })}</p>
+          )}
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="grid gap-5 md:grid-cols-2 [&>*]:min-w-0 [&_input]:w-full [&_input]:min-w-0 [&_textarea]:w-full [&_textarea]:min-w-0">
           <Input label={s.nameLabel} name="fullName" defaultValue={profile.full_name ?? ""} required />
           <Input label={s.cityLabel} name="city" defaultValue={profile.city ?? ""} placeholder="Sarajevo" />
           <Input label={s.phoneLabel} name="phone" defaultValue={profile.phone ?? ""} placeholder="+387 ..." />

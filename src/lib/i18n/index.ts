@@ -642,6 +642,11 @@ export interface Dict {
       imagePlaceholder: string;
       uploadNewImage: string;
       imageHint: string;
+      changeImage: string;
+      imagePending: string;
+      revertImage: string;
+      imageTooLarge: string;
+      imageWrongType: string;
       nameLabel: string;
       cityLabel: string;
       phoneLabel: string;
