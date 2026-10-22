@@ -594,9 +594,12 @@ Newest first — useful for picking back up.
   names. Both exploits re-run against the fixed code and fail.
   Migration `bind_object_keys_to_owner.sql` (revoke client writes on
   media_files except `section_id`, drop `avatar_url` from the users grant,
-  CHECK constraints on key shapes) is **applied only after this deploy**, on
-  the owner's confirmation — the old profile save wrote `avatar_url` as
-  `authenticated`. Still open from the audit (medium): One Event bought by a
+  CHECK constraints on key shapes) was **applied 2026-10-22**, after deploy
+  `b060c22` was READY and on the owner's confirmation (the old profile save
+  wrote `avatar_url` as `authenticated`, hence the order). Verified after:
+  browser roles keep only SELECT/DELETE on media_files plus UPDATE of
+  `section_id`; `avatar_url` is out of the users grant; all three constraints
+  validated. Still open from the audit (medium): One Event bought by a
   photographer activates a paid photographer plan; owners can write plan-limit
   columns (`events`, `media_files.size_bytes`) directly; the guest-upload quota
   reads usage through the anonymous client (always 0); upload size/type are not

@@ -19,6 +19,7 @@
 --   users.avatar_url: nothing. The profile save writes it with the service
 --     role, and only a key it generated itself (src/lib/actions.ts).
 --
+-- Applied to production 2026-10-22, after deploy b060c22.
 -- Order: apply only after the code that stops writing avatar_url as
 -- `authenticated` is deployed, or the old profile save fails.
 --
