@@ -2,7 +2,7 @@ import { createHmac } from "node:crypto";
 
 import { describe, expect, it } from "vitest";
 
-import { planFitsAccount, polarWebhookKeys } from "@/lib/billing";
+import { billingEventDecision, planFitsAccount, polarWebhookKeys } from "@/lib/billing";
 
 /**
  * Polar's dashboard shows the webhook signing secret as `whsec_<base64>`, and
@@ -75,5 +75,43 @@ describe("planFitsAccount", () => {
   it("refuses an unknown product", () => {
     expect(planFitsAccount(null, "photographer")).toBe(false);
     expect(planFitsAccount(undefined, "couple")).toBe(false);
+  });
+});
+
+describe("billingEventDecision", () => {
+  const base = { status: "active", externalId: "sub_1", currentExternalId: "sub_1" };
+
+  it("ignores a delivery older than the last one applied", () => {
+    // Audit lead: revoked, then a retried older order.paid re-activated the account.
+    expect(
+      billingEventDecision({ ...base, eventAt: new Date("2026-10-01T10:00:00Z"), lastAppliedAt: "2026-10-02T10:00:00Z" }),
+    ).toBe("stale");
+  });
+
+  it("applies the same moment again (order.created and order.paid share it)", () => {
+    expect(
+      billingEventDecision({ ...base, eventAt: new Date("2026-10-02T10:00:00Z"), lastAppliedAt: "2026-10-02T10:00:00Z" }),
+    ).toBe("apply");
+  });
+
+  it("does not let a refund of an old purchase cancel the current one", () => {
+    expect(
+      billingEventDecision({
+        eventAt: new Date("2026-10-03T00:00:00Z"),
+        lastAppliedAt: "2026-10-02T00:00:00Z",
+        status: "canceled",
+        externalId: "order_old",
+        currentExternalId: "sub_new",
+      }),
+    ).toBe("other_entitlement");
+  });
+
+  it("applies a new purchase and the first event an account ever gets", () => {
+    expect(
+      billingEventDecision({ eventAt: new Date(), lastAppliedAt: null, status: "active", externalId: "sub_2", currentExternalId: "sub_1" }),
+    ).toBe("apply");
+    expect(
+      billingEventDecision({ eventAt: null, lastAppliedAt: undefined, status: "canceled", externalId: "x", currentExternalId: null }),
+    ).toBe("apply");
   });
 });

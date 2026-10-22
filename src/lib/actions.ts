@@ -526,6 +526,7 @@ export async function unlockGalleryAction(
       GALLERY_UNLOCK_RATE_LIMIT.maxRequests,
       GALLERY_UNLOCK_RATE_LIMIT.windowMs,
       incrementRateLimitCount,
+      { failClosed: true },
     )
   ) {
     return { error: GALLERY_PIN_RATE_LIMITED };

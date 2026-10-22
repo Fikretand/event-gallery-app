@@ -63,6 +63,33 @@ export function planFitsAccount(plan: CheckoutPlanId | null | undefined, account
   return accountType === "couple" ? plan === "couple" : plan === "solo" || plan === "pro";
 }
 
+/**
+ * Whether a billing event should change the account, given what was applied
+ * before. Webhooks can arrive late, twice, or out of order:
+ *
+ * - "stale": older than the last event applied (a retried `order.paid` landing
+ *   after the `subscription.revoked` that followed it must not re-activate).
+ * - "other_entitlement": a downgrade (refund, cancel, past due) for a purchase
+ *   that is not the one the account holds now — refunding an old order must
+ *   not cancel the subscription bought since.
+ */
+export function billingEventDecision(input: {
+  eventAt: Date | null;
+  lastAppliedAt: string | null | undefined;
+  status: string | null;
+  externalId: string | null;
+  currentExternalId: string | null | undefined;
+}): "apply" | "stale" | "other_entitlement" {
+  if (input.eventAt && input.lastAppliedAt && input.eventAt.getTime() < new Date(input.lastAppliedAt).getTime()) {
+    return "stale";
+  }
+  const downgrade = input.status !== "active" && input.status !== "trialing";
+  if (downgrade && input.currentExternalId && input.externalId !== input.currentExternalId) {
+    return "other_entitlement";
+  }
+  return "apply";
+}
+
 // ── Polar (Merchant of Record) ───────────────────────────────────────────────
 
 function polarClient() {

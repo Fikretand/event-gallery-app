@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 import { validateEvent } from "@polar-sh/sdk/webhooks.js";
 
-import { planFitsAccount, planFromPolarProduct, polarWebhookKeys } from "@/lib/billing";
+import { billingEventDecision, planFitsAccount, planFromPolarProduct, polarWebhookKeys } from "@/lib/billing";
 import { env } from "@/lib/env";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { SubscriptionStatus } from "@/lib/types";
@@ -37,6 +37,8 @@ type Resolution = {
   externalId: string | null;
   status: SubscriptionStatus;
   renewsAt: string | null;
+  /** When Polar last changed the order/subscription: orders the deliveries. */
+  eventAt: Date | null;
 };
 
 function asMetadataUserId(metadata: Record<string, unknown> | undefined | null): string | null {
@@ -168,6 +170,7 @@ export async function POST(request: Request) {
         externalId: order.subscriptionId ?? order.id,
         status: refunded ? "canceled" : "active",
         renewsAt: null,
+        eventAt: order.modifiedAt ?? order.createdAt ?? null,
       };
       break;
     }
@@ -198,6 +201,7 @@ export async function POST(request: Request) {
           status === "active" || status === "trialing"
             ? (subscription.currentPeriodEnd?.toISOString() ?? null)
             : null,
+        eventAt: subscription.modifiedAt ?? subscription.createdAt ?? null,
       };
       break;
     }
@@ -213,18 +217,24 @@ export async function POST(request: Request) {
   }
 
   // ── Resolve the account: metadata/external id first, email as fallback ────
-  let userId = resolved.userId;
-  let accountType: string | null = null;
-  if (userId) {
-    const { data } = await admin.from("users").select("id, account_type").eq("id", userId).maybeSingle();
-    if (!data?.id) userId = null;
-    else accountType = (data.account_type as string | null) ?? null;
+  type AccountRow = {
+    id: string;
+    account_type: string | null;
+    subscription_event_at: string | null;
+    subscription_external_id: string | null;
+  };
+  const accountColumns = "id, account_type, subscription_event_at, subscription_external_id";
+  let account: AccountRow | null = null;
+  if (resolved.userId) {
+    const { data } = await admin.from("users").select(accountColumns).eq("id", resolved.userId).maybeSingle();
+    account = (data as AccountRow | null) ?? null;
   }
-  if (!userId && email) {
-    const { data } = await admin.from("users").select("id, account_type").eq("email", email).maybeSingle();
-    userId = (data?.id as string | undefined) ?? null;
-    accountType = (data?.account_type as string | null | undefined) ?? null;
+  if (!account && email) {
+    const { data } = await admin.from("users").select(accountColumns).eq("email", email).maybeSingle();
+    account = (data as AccountRow | null) ?? null;
   }
+  const userId = account?.id ?? null;
+  const accountType = account?.account_type ?? null;
 
   if (!userId) {
     // Nothing to activate. Acknowledge (a 4xx would make Polar retry forever)
@@ -250,11 +260,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ received: true, event: event.type, note: "plan does not fit account" });
   }
 
+  const decision = billingEventDecision({
+    eventAt: resolved.eventAt,
+    lastAppliedAt: account?.subscription_event_at,
+    status: resolved.status,
+    externalId: resolved.externalId,
+    currentExternalId: account?.subscription_external_id,
+  });
+  if (decision !== "apply") {
+    console.log("[polar-webhook] not applied", { event: event.type, userId, decision, externalId: resolved.externalId });
+    return NextResponse.json({ received: true, event: event.type, note: decision });
+  }
+
   const update: Record<string, unknown> = {
     subscription_provider: "polar",
     subscription_external_id: resolved.externalId,
     subscription_status: resolved.status,
     subscription_renews_at: resolved.renewsAt,
+    subscription_event_at: (resolved.eventAt ?? new Date()).toISOString(),
   };
 
   // Photographer plans carry a feature tier; the couple one-time purchase does

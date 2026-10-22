@@ -103,6 +103,9 @@ function isHeif(media: Pick<MediaFileRecord, "mime_type" | "original_filename">)
   return /^image\/hei[cf]/i.test(media.mime_type) || /\.hei[cf]$/i.test(media.original_filename ?? "");
 }
 
+/** Larger images are stored and downloadable, but not thumbnailed. */
+export const IMAGE_THUMBNAIL_MAX_BYTES = 80 * 1024 * 1024;
+
 export async function processMediaRecord(media: MediaFileRecord) {
   if (!media.mime_type.startsWith("image/")) {
     return {
@@ -118,6 +121,13 @@ export async function processMediaRecord(media: MediaFileRecord) {
   if (!isEventObjectKey(media.storage_key, media.event_id)) {
     reportForeignKey("processMediaRecord", { mediaId: media.id, eventId: media.event_id });
     throw new Error("Media key is outside its event.");
+  }
+
+  // The whole original is read into memory to make the thumbnail. A camera
+  // photo is a few MB; anything this large is kept, just without a preview,
+  // rather than risk taking the function down with it.
+  if (Number(media.size_bytes) > IMAGE_THUMBNAIL_MAX_BYTES) {
+    return { width: null, height: null, thumbnailKey: null, durationSeconds: null, status: "ready" as const };
   }
 
   const sourceBuffer = await getStoredObjectBuffer(media.storage_key);

@@ -1093,7 +1093,9 @@ export async function markMediaReady(mediaId: string) {
   }
 }
 
-export async function markMediaProcessing(mediaId: string) {
+export const MAX_PROCESSING_ATTEMPTS = 3;
+
+export async function markMediaProcessing(mediaId: string, attempts?: number) {
   const admin = createSupabaseAdminClient();
   if (!admin) {
     throw new Error("Supabase admin access is not configured.");
@@ -1101,9 +1103,7 @@ export async function markMediaProcessing(mediaId: string) {
 
   const { error } = await admin
     .from("media_files")
-    .update({
-      status: "processing",
-    })
+    .update(attempts === undefined ? { status: "processing" } : { status: "processing", processing_attempts: attempts })
     .eq("id", mediaId);
 
   if (error) {
@@ -1140,7 +1140,15 @@ export async function processMediaById(mediaId: string) {
     throw new Error("Media not found.");
   }
 
-  await markMediaProcessing(mediaId);
+  // A file whose processing keeps killing the function (memory, timeout) never
+  // reaches the catch below, stays "processing", and used to head every
+  // nightly recovery run for good. After a few starts it is given up on.
+  if ((media.processing_attempts ?? 0) >= MAX_PROCESSING_ATTEMPTS) {
+    await markMediaFailed(mediaId);
+    throw new Error("Processing was attempted too many times.");
+  }
+
+  await markMediaProcessing(mediaId, (media.processing_attempts ?? 0) + 1);
 
   try {
     const processed = await processMediaRecord(media);
@@ -1205,52 +1213,30 @@ export async function recordDownload(input: {
   });
 }
 
+/**
+ * Adds to a rate-limit window and returns the new count, in one statement
+ * (`increment_rate_limit`, migration round3_additive.sql). The old
+ * select-then-insert let concurrent requests each see "no row yet": 140 PIN
+ * guesses got through a limit of 8. Null when the database cannot answer.
+ */
 export async function incrementRateLimitCount(input: { key: string; count: number; windowStart: string }) {
   const admin = createSupabaseAdminClient();
   if (!admin) {
     return null;
   }
 
-  const { data: existing } = await admin
-    .from("guest_upload_rate_limits")
-    .select("id, count")
-    .eq("bucket_key", input.key)
-    .eq("window_started_at", input.windowStart)
-    .maybeSingle();
+  const { data, error } = await admin.rpc("increment_rate_limit", {
+    p_key: input.key,
+    p_window_start: input.windowStart,
+    p_by: input.count,
+  });
 
-  if (!existing) {
-    const { data: inserted, error } = await admin
-      .from("guest_upload_rate_limits")
-      .insert({
-        bucket_key: input.key,
-        count: input.count,
-        window_started_at: input.windowStart,
-      })
-      .select("count")
-      .single();
-
-    if (error) {
-      return null;
-    }
-
-    return inserted.count as number;
-  }
-
-  const nextCount = (existing.count as number) + 1;
-  const { data: updated, error } = await admin
-    .from("guest_upload_rate_limits")
-    .update({
-      count: nextCount,
-    })
-    .eq("id", existing.id)
-    .select("count")
-    .single();
-
-  if (error) {
+  if (error || typeof data !== "number") {
+    console.error("[rate-limit] increment failed", { key: input.key, message: error?.message });
     return null;
   }
 
-  return updated.count as number;
+  return data;
 }
 
 export async function verifyGalleryPinAndGrantAccess(event: EventRecord, pin: string) {

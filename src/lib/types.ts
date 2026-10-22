@@ -60,10 +60,14 @@ export type EventSettingsRecord = {
   require_pin_for_upload: boolean;
   require_pin_for_gallery: boolean;
   max_guest_upload_mb: number;
+  /** Guests may record a video message (added in round3_additive.sql). */
+  allow_video_messages?: boolean;
   gallery_visibility: "private";
   created_at?: string;
   updated_at?: string;
 };
+
+export type MediaPurpose = "media" | "message";
 
 export type MediaFileRecord = {
   id: string;
@@ -85,6 +89,10 @@ export type MediaFileRecord = {
   hidden_at: string | null;
   deleted_at: string | null;
   created_at: string;
+  /** 'message' for a guest's video message, 'media' for everything else. */
+  purpose?: MediaPurpose;
+  /** How many times processing was started; the nightly recovery stops at 3. */
+  processing_attempts?: number;
   // Guest info joined from guest_upload_sessions (always null for photographer uploads)
   guest_name?: string | null;
   guest_email?: string | null;

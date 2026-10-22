@@ -18,7 +18,7 @@ vi.mock("@/lib/storage", () => ({
 
 import sharp from "sharp";
 
-import { enrichMediaWithUrls, processMediaRecord } from "./media";
+import { enrichMediaWithUrls, IMAGE_THUMBNAIL_MAX_BYTES, processMediaRecord } from "./media";
 import type { MediaFileRecord } from "./types";
 
 const EVENT = "11111111-2222-3333-4444-555555555555";
@@ -47,6 +47,13 @@ describe("processMediaRecord", () => {
     expect(result.width).toBe(40);
     expect(result.thumbnailKey).toBe(`events/${EVENT}/thumbs/m-1.jpg`);
     expect(storage.put).toEqual([`events/${EVENT}/thumbs/m-1.jpg`]);
+  });
+
+  it("does not read a very large image into memory", async () => {
+    storage.buffer = Buffer.from("would be read");
+    const result = await processMediaRecord(media({ size_bytes: IMAGE_THUMBNAIL_MAX_BYTES + 1 }));
+    expect(result).toMatchObject({ status: "ready", thumbnailKey: null });
+    expect(storage.put).toEqual([]);
   });
 
   it("keeps an undecodable HEIC as ready, without a thumbnail", async () => {
