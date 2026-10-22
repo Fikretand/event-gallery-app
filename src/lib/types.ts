@@ -137,6 +137,8 @@ export type UploadGrant = {
 export type MediaView = MediaFileRecord & {
   previewUrl: string | null;
   thumbnailUrl: string | null;
+  /** Gallery visitors' reports on this file; owner views only. */
+  report_count?: number;
 };
 
 export type PublicPhotographerProfile = {

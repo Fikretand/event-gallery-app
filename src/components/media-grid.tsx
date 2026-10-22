@@ -38,6 +38,13 @@ const DEFAULT_VIEWER_STRINGS: ViewerStrings = {
   next: "Next",
   downloadFailed: "Download failed. Please try again.",
   zipFailed: "ZIP download failed. Please try again.",
+  report: "Report",
+  reportTitle: "Tell the host about this photo",
+  reportReasons: { inappropriate: "Inappropriate", private: "Private – should not be here", other: "Something else" },
+  reportSend: "Send report",
+  reportCancel: "Cancel",
+  reportThanks: "Thank you, the host has been told.",
+  reportFailed: "The report was not sent. Please try again.",
 };
 
 type OwnerStrings = Dict["dashboard"]["mediaOwner"];
@@ -65,7 +72,12 @@ const DEFAULT_OWNER_STRINGS: OwnerStrings = {
   emptyBodyPhotographer: "Upload the pro gallery or review incoming guest files to start building the event story.",
   emptyBodyCouple: "Upload your gallery files or review guest uploads to start building the full event story.",
   emptyFilterTitle: "No {{filter}} files in this view yet",
+  reported: "Reported ({{count}})",
+  dismissReports: "Dismiss reports",
 };
+
+type ReportReason = keyof ViewerStrings["reportReasons"];
+const REPORT_REASON_KEYS: ReportReason[] = ["inappropriate", "private", "other"];
 
 const SWIPE_THRESHOLD = 48;
 
@@ -111,6 +123,11 @@ export function MediaGrid({
   const [error, setError] = useState<string | null>(null);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [touchCurrentX, setTouchCurrentX] = useState<number | null>(null);
+  // Report panel in the public viewer: open for one file at a time.
+  const [reportFor, setReportFor] = useState<string | null>(null);
+  const [reportReason, setReportReason] = useState<ReportReason>("inappropriate");
+  const [reportState, setReportState] = useState<"idle" | "sending" | "failed">("idle");
+  const [reportedIds, setReportedIds] = useState<string[]>([]);
 
   // Guests see only the tabs that would show something: a "Videos" tab on a
   // gallery without a single video is a dead end. The owner keeps every tab.
@@ -297,6 +314,36 @@ export function MediaGrid({
 
       await new Promise((resolve) => window.setTimeout(resolve, 150));
     }
+  }
+
+  async function sendReport(id: string) {
+    setReportState("sending");
+    try {
+      const response = await fetch(`/api/media/${id}/report`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: reportReason }),
+      });
+      if (!response.ok) throw new Error(String(response.status));
+      setReportedIds((current) => [...current, id]);
+      setReportFor(null);
+      setReportState("idle");
+    } catch {
+      setReportState("failed");
+    }
+  }
+
+  async function dismissReports(id: string) {
+    setBusyId(id);
+    setError(null);
+    const response = await fetch(`/api/media/${id}/report`, { method: "DELETE" });
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      setError(payload.error ?? "Failed to dismiss reports.");
+      setBusyId(null);
+      return;
+    }
+    window.location.reload();
   }
 
   async function toggleHidden(id: string, hidden: boolean) {
@@ -574,9 +621,28 @@ export function MediaGrid({
               </div>
 
               <div className="flex shrink-0 items-center gap-2">
+                {!ownerMode && !reportedIds.includes(activeItem.id) ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setReportState("idle");
+                      setReportFor(reportFor === activeItem.id ? null : activeItem.id);
+                    }}
+                    aria-expanded={reportFor === activeItem.id}
+                    aria-label={vs.report}
+                    className="inline-flex h-9 min-w-9 items-center justify-center gap-1.5 rounded-full border border-white/15 bg-white/8 px-2.5 text-xs font-semibold text-white/80 transition hover:border-white/25 hover:bg-white/15"
+                  >
+                    <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                      <path d="M3.5 14V2.5m0 0h7.5l-1.5 3 1.5 3H3.5" />
+                    </svg>
+                    <span className="hidden sm:inline">{vs.report}</span>
+                  </button>
+                ) : null}
                 <Button
                   variant="secondary"
-                  className="hidden sm:inline-flex"
+                  // max-sm: wins over the Button's own inline-flex; "hidden" did not, so
+                  // phones showed this and the icon button below side by side.
+                  className="max-sm:hidden"
                   onClick={() => handleDownload([activeItem.id])}
                 >
                   {vs.download}
@@ -602,6 +668,54 @@ export function MediaGrid({
                 </button>
               </div>
             </div>
+
+            {!ownerMode && reportFor === activeItem.id ? (
+              <div className="border-b border-white/10 bg-white/5 px-3 py-3 sm:px-5">
+                <p className="text-sm font-semibold">{vs.reportTitle}</p>
+                <div className="mt-2 flex flex-wrap gap-2" role="radiogroup" aria-label={vs.reportTitle}>
+                  {REPORT_REASON_KEYS.map((reason) => (
+                    <button
+                      key={reason}
+                      type="button"
+                      role="radio"
+                      aria-checked={reportReason === reason}
+                      onClick={() => setReportReason(reason)}
+                      className={cn(
+                        "rounded-full border px-3 py-1.5 text-xs font-semibold transition",
+                        reportReason === reason
+                          ? "border-white bg-white text-[var(--color-ink)]"
+                          : "border-white/20 text-white/80 hover:border-white/40",
+                      )}
+                    >
+                      {vs.reportReasons[reason]}
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => sendReport(activeItem.id)}
+                    disabled={reportState === "sending"}
+                    className="rounded-full bg-[var(--color-accent-strong)] px-4 py-2 text-xs font-semibold text-white transition hover:brightness-105 disabled:opacity-60"
+                  >
+                    {vs.reportSend}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setReportFor(null)}
+                    className="rounded-full px-3 py-2 text-xs font-semibold text-white/70 hover:text-white"
+                  >
+                    {vs.reportCancel}
+                  </button>
+                  {reportState === "failed" ? <span role="alert" className="text-xs text-[#ffb4a2]">{vs.reportFailed}</span> : null}
+                </div>
+              </div>
+            ) : null}
+            {!ownerMode && reportedIds.includes(activeItem.id) ? (
+              <p role="status" className="border-b border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-white/80 sm:px-5">
+                {vs.reportThanks}
+              </p>
+            ) : null}
 
             <div
               className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-[var(--color-viewer-surface)]"
@@ -677,6 +791,7 @@ export function MediaGrid({
     const isDeleted = Boolean(item.deleted_at);
     const purgeMessage = formatDaysUntilPurge(item.deleted_at);
     const guestName = item.guest_name ?? item.guest_email;
+    const reportCount = item.report_count ?? 0;
 
     // ── Public gallery: a clean photo tile — image fills the card, select +
     //    download live as unobtrusive overlays, no technical filename chrome. ──
@@ -806,6 +921,11 @@ export function MediaGrid({
               {vs.cover}
             </span>
           ) : null}
+          {reportCount > 0 && !isDeleted ? (
+            <span className="absolute bottom-4 left-4 rounded-full bg-[#8a1c1c] px-3 py-1 text-xs font-semibold text-white shadow-sm">
+              ⚑ {t(os.reported, { count: reportCount })}
+            </span>
+          ) : null}
         </button>
 
         <div className="space-y-3 p-4">
@@ -868,6 +988,12 @@ export function MediaGrid({
                     disabled={busyId === item.id || busyId === "cover"}
                   >
                     {isCover ? os.clearCover : os.setCover}
+                  </Button>
+                ) : null}
+
+                {reportCount > 0 && !isDeleted ? (
+                  <Button variant="ghost" onClick={() => dismissReports(item.id)} disabled={busyId === item.id}>
+                    {os.dismissReports}
                   </Button>
                 ) : null}
 

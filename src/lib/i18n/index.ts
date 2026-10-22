@@ -254,6 +254,13 @@ export interface Dict {
     next: string;
     downloadFailed: string;
     zipFailed: string;
+    report: string;
+    reportTitle: string;
+    reportReasons: { inappropriate: string; private: string; other: string };
+    reportSend: string;
+    reportCancel: string;
+    reportThanks: string;
+    reportFailed: string;
   };
   auth: {
     // Login page
@@ -440,6 +447,7 @@ export interface Dict {
         galleryLinkLabel: string;
         manageGallery: string;
         pendingReview: string;
+        reportedFiles: string;
         galleryTitle: string;
         galleryBody: string;
         galleryBodyCouple: string;
@@ -727,6 +735,8 @@ export interface Dict {
       emptyBodyPhotographer: string;
       emptyBodyCouple: string;
       emptyFilterTitle: string; // {{filter}}
+      reported: string; // {{count}}
+      dismissReports: string;
     };
     // Profile page
     profile: {

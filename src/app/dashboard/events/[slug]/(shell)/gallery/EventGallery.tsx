@@ -10,6 +10,7 @@ import { eventLinks, listEventMedia, listGallerySections } from "@/lib/events";
 import { getDictionary, type Locale } from "@/lib/i18n/index";
 import { COPY_FIELDS, COPY_GROUPS, defaultCopy, sanitizeCustomCopy } from "@/lib/custom-copy";
 import { enrichMediaWithUrls } from "@/lib/media";
+import { countReportsByMedia } from "@/lib/media-reports";
 
 /**
  * Everything about the gallery on one page: add files, the sections that
@@ -24,10 +25,12 @@ export async function EventGallery({ locale, slug }: { locale: Locale; slug: str
 
   const { event, accountType, isCouple } = await getOwnerEventContext(slug);
 
-  const [media, sections] = await Promise.all([
+  const [files, sections, reportCounts] = await Promise.all([
     listEventMedia(event.id, { includeHidden: true, includeDeleted: true, sourceType: "all" }).then(enrichMediaWithUrls),
     listGallerySections(event.id),
+    countReportsByMedia(event.id),
   ]);
+  const media = files.map((item) => ({ ...item, report_count: reportCounts.get(item.id) ?? 0 }));
 
   const links = eventLinks(event.slug);
   const liveMedia = media.filter((item) => !item.deleted_at);

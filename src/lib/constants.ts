@@ -17,6 +17,12 @@ export const GALLERY_UNLOCK_RATE_LIMIT = {
   windowMs: 15 * 60 * 1000,
 };
 
+/** "Report inappropriate" from the public gallery, per address. */
+export const MEDIA_REPORT_RATE_LIMIT = {
+  maxRequests: 10,
+  windowMs: 15 * 60 * 1000,
+};
+
 export const GUEST_UPLOAD_RATE_LIMIT = {
   windowMs: 60_000,
   maxRequests: 20,

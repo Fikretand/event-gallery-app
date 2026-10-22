@@ -19,6 +19,7 @@ import {
 } from "@/lib/events";
 import { getDictionary, localePrefix, t, type Locale } from "@/lib/i18n/index";
 import { enrichMediaWithUrls } from "@/lib/media";
+import { countReportsByMedia } from "@/lib/media-reports";
 import { retentionSchedule } from "@/lib/retention";
 import { cn, formatBytes, formatDate, statusBadgeClass } from "@/lib/utils";
 
@@ -37,11 +38,12 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
 
   const { event, isCouple } = await getOwnerEventContext(slug);
 
-  const [analytics, media, qrCode, coverMap] = await Promise.all([
+  const [analytics, media, qrCode, coverMap, reportCounts] = await Promise.all([
     getEventAnalyticsCached(event.id),
     listEventMedia(event.id, { includeHidden: true, includeDeleted: false, sourceType: "all" }).then(enrichMediaWithUrls),
     generateUploadQrDataUrl(event.slug),
     getEventCoverMap([event]),
+    countReportsByMedia(event.id),
   ]);
 
   const cover = event.cover_image_id ? coverMap.get(event.cover_image_id) : null;
@@ -57,6 +59,8 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
     .map((item) => ({ id: item.id, thumbnailUrl: item.thumbnailUrl as string }));
   // Guest uploads arrive hidden; these are the ones nobody has let through yet.
   const pendingGuestFiles = media.filter((item) => item.source_type === "guest" && item.hidden_at).length;
+  // Reported files still in the gallery (a deleted one needs no more attention).
+  const reportedFiles = media.filter((item) => (reportCounts.get(item.id) ?? 0) > 0).length;
 
   const stats = [
     { label: e.mediaFiles, value: String(analytics.mediaCount) },
@@ -130,6 +134,16 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
               >
                 <span>{t(l.pendingReview, { count: pendingGuestFiles })}</span>
                 <span className="shrink-0 text-[var(--color-accent)]">{l.manageGallery}</span>
+              </Link>
+            ) : null}
+
+            {reportedFiles > 0 ? (
+              <Link
+                href={galleryHref}
+                className="flex flex-col gap-1 rounded-[20px] border border-[#8a1c1c]/20 bg-[#fff0eb] px-4 py-3 text-sm font-semibold text-[#8a1c1c] transition hover:bg-[#ffe6dd] sm:flex-row sm:items-center sm:justify-between sm:gap-3"
+              >
+                <span>⚑ {t(l.reportedFiles, { count: reportedFiles })}</span>
+                <span className="shrink-0">{l.manageGallery}</span>
               </Link>
             ) : null}
           </div>
