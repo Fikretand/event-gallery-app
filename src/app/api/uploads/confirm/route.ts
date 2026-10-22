@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { processMediaById, recordCompletedUpload } from "@/lib/events";
+import { findMediaByStorageKey, processMediaById, recordCompletedUpload } from "@/lib/events";
 import { verifyUploadConfirmToken } from "@/lib/security";
 import type { MediaSourceType } from "@/lib/types";
 
@@ -52,6 +52,13 @@ export async function POST(request: Request) {
       thumbnailKey = rawThumbKey;
     }
 
+    // A repeated confirm (a retry after a lost answer, or a replayed grant)
+    // gets the row that already exists: no duplicate, no second processing.
+    const existing = await findMediaByStorageKey(objectKey);
+    if (existing) {
+      return NextResponse.json({ mediaId: existing.id });
+    }
+
     const media = await recordCompletedUpload({
       eventId,
       objectKey,
@@ -63,7 +70,17 @@ export async function POST(request: Request) {
       thumbnailKey,
     });
 
-    await processMediaById(media.id);
+    // The file is stored and recorded at this point. A thumbnail that cannot
+    // be made is not a failed upload: reporting it as one sends the guest to
+    // upload the same photo again. processMediaById already marks the row.
+    try {
+      await processMediaById(media.id);
+    } catch (processError) {
+      console.error("[upload-confirm] processing failed", {
+        mediaId: media.id,
+        error: processError instanceof Error ? processError.message : String(processError),
+      });
+    }
 
     return NextResponse.json({ mediaId: media.id });
   } catch (error) {

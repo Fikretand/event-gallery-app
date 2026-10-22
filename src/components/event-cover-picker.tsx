@@ -110,7 +110,8 @@ export function EventCoverPicker({
       <input
         ref={inputRef}
         type="file"
-        accept=".jpg,.jpeg,.png,.heic,.heif,image/jpeg,image/png,image/heic,image/heif"
+        // No HEIC: iOS then hands over a JPEG, which every browser can show.
+        accept=".jpg,.jpeg,.png,image/jpeg,image/png"
         className="hidden"
         onChange={(event) => {
           const file = event.target.files?.[0];

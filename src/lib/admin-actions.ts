@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { getRequiredUser } from "@/lib/auth";
+import { isEventObjectKey, isUserAvatarKey, reportForeignKey } from "@/lib/object-keys";
 import { deleteStoredObject } from "@/lib/storage";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { PhotographerPlanTier, SubscriptionStatus } from "@/lib/types";
@@ -91,19 +92,25 @@ export async function adminDeleteUserAction(targetUserId: string) {
   if (profileError) throw new Error(profileError.message);
   if (eventsError) throw new Error(eventsError.message);
 
+  // Only keys inside this account's own namespaces: a tampered row must not
+  // turn an admin delete into a delete of another tenant's files.
   const keys: string[] = [];
-  if (profile?.avatar_url) keys.push(profile.avatar_url);
+  if (isUserAvatarKey(profile?.avatar_url, targetUserId)) keys.push(profile.avatar_url);
+  else if (profile?.avatar_url) reportForeignKey("adminDeleteUserAction", { targetUserId });
 
   const eventIds = (events ?? []).map((event) => event.id);
   if (eventIds.length > 0) {
     const { data: media, error: mediaError } = await admin
       .from("media_files")
-      .select("storage_key, thumbnail_key")
+      .select("event_id, storage_key, thumbnail_key")
       .in("event_id", eventIds);
     if (mediaError) throw new Error(mediaError.message);
     for (const item of media ?? []) {
-      if (item.storage_key) keys.push(item.storage_key);
-      if (item.thumbnail_key) keys.push(item.thumbnail_key);
+      for (const key of [item.storage_key, item.thumbnail_key]) {
+        if (!key) continue;
+        if (isEventObjectKey(key, item.event_id)) keys.push(key);
+        else reportForeignKey("adminDeleteUserAction", { targetUserId, eventId: item.event_id });
+      }
     }
   }
 

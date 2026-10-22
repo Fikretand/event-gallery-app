@@ -13,6 +13,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { grantGalleryAccess, hasGalleryAccess, hashPin, randomSlugSuffix, verifyPin } from "@/lib/security";
 import { createSignedDownloadUrl, deleteStoredObject, publicMediaUrl } from "@/lib/storage";
 import { enrichMediaWithUrls, processMediaRecord } from "@/lib/media";
+import { isEventObjectKey, isUserAvatarKey, reportForeignKey } from "@/lib/object-keys";
 import { isNeverPaid, retentionSchedule, shouldPurge } from "@/lib/retention";
 import type {
   AccountUsage,
@@ -175,8 +176,13 @@ export async function getPhotographerPlanTier(ownerUserId: string) {
 }
 
 
-export async function getPublicProfileAvatarUrl(key: string | null) {
+export async function getPublicProfileAvatarUrl(key: string | null, userId: string) {
   if (!key) {
+    return null;
+  }
+
+  if (!isUserAvatarKey(key, userId)) {
+    reportForeignKey("getPublicProfileAvatarUrl", { userId });
     return null;
   }
 
@@ -202,7 +208,7 @@ export async function listPublicPhotographers(limit = 6) {
   return Promise.all(
     profiles.map(async (profile) => ({
       ...profile,
-      avatarPreviewUrl: await getPublicProfileAvatarUrl(profile.avatar_url),
+      avatarPreviewUrl: await getPublicProfileAvatarUrl(profile.avatar_url, profile.id),
     })),
   );
 }
@@ -444,8 +450,13 @@ export async function getEventCoverMap(events: EventRecord[]) {
     return new Map<string, Awaited<ReturnType<typeof enrichMediaWithUrls>>[number]>();
   }
 
+  // A cover must be media of the same event; cover_image_id is owner-writable.
+  const eventByCover = new Map(
+    events.filter((event) => event.cover_image_id).map((event) => [event.cover_image_id as string, event.id]),
+  );
   const { data } = await admin.from("media_files").select("*").in("id", coverImageIds).is("deleted_at", null);
-  const coverViews = await enrichMediaWithUrls((data ?? []) as MediaFileRecord[]);
+  const covers = ((data ?? []) as MediaFileRecord[]).filter((item) => eventByCover.get(item.id) === item.event_id);
+  const coverViews = await enrichMediaWithUrls(covers);
 
   return new Map(coverViews.map((item) => [item.id, item]));
 }
@@ -778,6 +789,21 @@ export async function restoreMediaById(mediaId: string) {
   }
 }
 
+/**
+ * The R2 objects a media row may delete: its original and thumbnail, but only
+ * when they sit inside the row's own event. A key pointing elsewhere is
+ * skipped and logged, never deleted.
+ */
+function ownedObjectKeys(media: Pick<MediaFileRecord, "event_id" | "storage_key" | "thumbnail_key">) {
+  const keys: string[] = [];
+  for (const key of [media.storage_key, media.thumbnail_key]) {
+    if (!key) continue;
+    if (isEventObjectKey(key, media.event_id)) keys.push(key);
+    else reportForeignKey("media delete", { eventId: media.event_id });
+  }
+  return keys;
+}
+
 export async function permanentlyDeleteMediaById(mediaId: string) {
   const admin = createSupabaseAdminClient();
   if (!admin) {
@@ -789,10 +815,7 @@ export async function permanentlyDeleteMediaById(mediaId: string) {
     throw new Error("Media not found.");
   }
 
-  await Promise.all([
-    deleteStoredObject(media.storage_key),
-    deleteStoredObject(media.thumbnail_key),
-  ]);
+  await Promise.all(ownedObjectKeys(media).map((key) => deleteStoredObject(key)));
 
   await admin
     .from("events")
@@ -825,9 +848,7 @@ export async function permanentlyDeleteEventBySlug(ownerUserId: string, slug: st
     sourceType: "all",
   });
 
-  await Promise.all(
-    media.flatMap((item) => [deleteStoredObject(item.storage_key), deleteStoredObject(item.thumbnail_key)]),
-  );
+  await Promise.all(media.flatMap((item) => ownedObjectKeys(item).map((key) => deleteStoredObject(key))));
 
   const { error } = await supabase.from("events").delete().eq("id", event.id).eq("owner_user_id", ownerUserId);
   if (error) {
@@ -961,6 +982,31 @@ export async function purgeExpiredEventMedia({
     bytes: report.reduce((sum, row) => sum + row.bytes, 0),
     report,
   };
+}
+
+/**
+ * The row already recorded for an object, if any. Confirm is retried on a
+ * dropped connection, and a confirm whose answer was lost must not make a
+ * second row for the same file.
+ */
+export async function findMediaByStorageKey(objectKey: string) {
+  const admin = createSupabaseAdminClient();
+  if (!admin) {
+    throw new Error("Supabase admin access is not configured.");
+  }
+
+  const { data, error } = await admin
+    .from("media_files")
+    .select("id")
+    .eq("storage_key", objectKey)
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as { id: string } | null;
 }
 
 export async function recordCompletedUpload(input: {

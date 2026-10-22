@@ -44,7 +44,9 @@ import {
 } from "@/lib/events";
 import { COPY_FIELDS, sanitizeCustomCopy } from "@/lib/custom-copy";
 import { isRateLimited } from "@/lib/rate-limit";
+import { isUserAvatarKey, reportForeignKey } from "@/lib/object-keys";
 import { deleteStoredObject, putStoredObject } from "@/lib/storage";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function loginAction(_: { error?: string } | undefined | void, formData: FormData) {
@@ -306,14 +308,31 @@ export async function updatePhotographerProfileAction(
     }
 
     const extension = avatar.name.includes(".") ? avatar.name.split(".").pop()?.toLowerCase() : "jpg";
-    avatarKey = `users/${user.id}/avatar/${randomUUID()}.${extension || "jpg"}`;
-    const uploadResult = await putStoredObject(avatarKey, Buffer.from(await avatar.arrayBuffer()), avatar.type);
+    const newAvatarKey = `users/${user.id}/avatar/${randomUUID()}.${extension || "jpg"}`;
+    const uploadResult = await putStoredObject(newAvatarKey, Buffer.from(await avatar.arrayBuffer()), avatar.type);
     if (!uploadResult) {
       return { error: "Avatar upload is not available until R2 storage is configured." };
     }
 
+    // avatar_url is written by the server only (service role), so a client
+    // cannot point it at someone else's file before this replace deletes it.
+    const admin = createSupabaseAdminClient();
+    if (!admin) {
+      return { error: "Supabase is not configured yet." };
+    }
+    const { error: avatarError } = await admin.from("users").update({ avatar_url: newAvatarKey }).eq("id", user.id);
+    if (avatarError) {
+      await deleteStoredObject(newAvatarKey);
+      return { error: avatarError.message };
+    }
+    avatarKey = newAvatarKey;
+
     if (profile.avatar_url && profile.avatar_url !== avatarKey) {
-      await deleteStoredObject(profile.avatar_url);
+      if (isUserAvatarKey(profile.avatar_url, user.id)) {
+        await deleteStoredObject(profile.avatar_url);
+      } else {
+        reportForeignKey("updatePhotographerProfileAction", { userId: user.id });
+      }
     }
   }
 
@@ -330,7 +349,6 @@ export async function updatePhotographerProfileAction(
       full_name: String(formData.get("fullName") ?? "").trim() || null,
       city: String(formData.get("city") ?? "").trim() || null,
       phone: String(formData.get("phone") ?? "").trim() || null,
-      avatar_url: avatarKey,
       website_url: websiteUrl || null,
       instagram_url: instagramUrl || null,
       facebook_url: facebookUrl || null,

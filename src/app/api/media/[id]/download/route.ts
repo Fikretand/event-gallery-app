@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { isEventObjectKey, reportForeignKey } from "@/lib/object-keys";
 import { createSignedDownloadUrl } from "@/lib/storage";
 import { canViewGallery, getMediaById, recordDownload } from "@/lib/events";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -25,6 +26,11 @@ export async function POST(_: Request, { params }: { params: Promise<{ id: strin
 
     if (!isOwner && !publicAccess) {
       return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+    }
+
+    if (!isEventObjectKey(media.storage_key, media.event_id)) {
+      reportForeignKey("media download", { mediaId: media.id, eventId: media.event_id });
+      return NextResponse.json({ error: "Media not found." }, { status: 404 });
     }
 
     const url = await createSignedDownloadUrl(media.storage_key, media.original_filename);

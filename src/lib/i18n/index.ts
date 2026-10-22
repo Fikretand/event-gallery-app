@@ -203,6 +203,32 @@ export interface Dict {
     wrongPin: string;
     tooManyAttempts: string;
   };
+  /** Full-screen slideshow for a TV or projector at the venue. */
+  liveSlideshow: {
+    /** Corner card: what the QR code is for. */
+    scanTitle: string;
+    scanBody: string;
+    /** "{{count}}" photos and videos shown. */
+    inGallery: string;
+    /** Shown while there is nothing to show yet. */
+    emptyTitle: string;
+    emptyBody: string;
+    fullscreen: string;
+    exitFullscreen: string;
+    /** Owner-only switch: include guest uploads nobody has approved yet. */
+    includePending: string;
+    includePendingWarning: string;
+    /** Badge on a photo that arrived since the screen was opened. */
+    newBadge: string;
+    /** The gallery is PIN-protected and this browser has not unlocked it. */
+    lockedTitle: string;
+    lockedBody: string;
+    lockedCta: string;
+    /** Owner dashboard: the link that opens the slideshow. */
+    dashboardTitle: string;
+    dashboardBody: string;
+    dashboardCta: string;
+  };
   // Strings inside the shared MediaGrid when shown on the public gallery.
   galleryViewer: {
     filterAll: string;
@@ -1111,6 +1137,10 @@ export interface Dict {
       queued: string;
       requesting: string;
       uploading: string;
+      /** The phone lost its connection; the file resumes when it is back. */
+      waiting: string;
+      /** A failed attempt is being sent again automatically. */
+      retrying: string;
       confirming: string;
       done: string;
       error: string;

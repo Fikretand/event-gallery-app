@@ -29,7 +29,7 @@ export async function DashboardProfile({
   }
 
   const isCouple = accountType === "couple";
-  const avatarPreviewUrl = await getPublicProfileAvatarUrl(profile.avatar_url);
+  const avatarPreviewUrl = await getPublicProfileAvatarUrl(profile.avatar_url, user.id);
   const prefix = localePrefix(locale);
 
   return (

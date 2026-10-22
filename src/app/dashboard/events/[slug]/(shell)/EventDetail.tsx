@@ -32,6 +32,7 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
   const d = dict.dashboard;
   const e = d.event;
   const l = e.layout;
+  const live = dict.liveSlideshow;
   const prefix = localePrefix(locale);
 
   const { event, isCouple } = await getOwnerEventContext(slug);
@@ -182,6 +183,19 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
               strings={d.qrPicker}
               editorHref={`${prefix}/dashboard/events/${event.slug}/qr`}
             />
+          </div>
+
+          <div className="mt-5 border-t border-black/8 pt-5">
+            <h3 className="font-semibold text-[var(--color-ink)]">{live.dashboardTitle}</h3>
+            <p className="mt-1 text-sm leading-6 text-black/62">{live.dashboardBody}</p>
+            <a
+              href={`/${locale}/gallery/${event.slug}/live`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center justify-center rounded-full bg-[var(--color-ink)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-black"
+            >
+              {live.dashboardCta}
+            </a>
           </div>
         </Panel>
 

@@ -6,9 +6,18 @@ import { useMemo, useRef, useState, useTransition } from "react";
 
 import type { AccountType } from "@/lib/types";
 import type { Dict } from "@/lib/i18n/index";
+import { RetryableUploadError, isRetryableStatus, runPool, uploadConcurrency, withRetry } from "@/lib/upload-queue";
 import { cn, formatBytes } from "@/lib/utils";
 
-type UploadStatusValue = "queued" | "requesting" | "uploading" | "confirming" | "done" | "error";
+type UploadStatusValue =
+  | "queued"
+  | "requesting"
+  | "uploading"
+  | "waiting"
+  | "retrying"
+  | "confirming"
+  | "done"
+  | "error";
 
 type UploadItem = {
   id: string;
@@ -124,13 +133,42 @@ function extractVideoThumbnail(file: File): Promise<Blob | null> {
   });
 }
 
+// A transfer that has not moved a byte for this long is treated as a dropped
+// connection and started again, instead of hanging on "Uploading" for ever.
+const STALL_MS = 60_000;
+
 function uploadFile(uploadUrl: string, file: File, onProgress: (progress: number) => void) {
   return new Promise<void>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
+    let lastProgressAt = Date.now();
+    let settled = false;
+
+    const finish = (error?: Error) => {
+      if (settled) return;
+      settled = true;
+      window.clearInterval(watchdog);
+      window.removeEventListener("offline", onOffline);
+      if (error) reject(error);
+      else resolve();
+    };
+    // Losing the network mid-file: stop now and let the retry wait for it.
+    const onOffline = () => {
+      xhr.abort();
+      finish(new RetryableUploadError(NETWORK_ERROR));
+    };
+    const watchdog = window.setInterval(() => {
+      if (Date.now() - lastProgressAt > STALL_MS) {
+        xhr.abort();
+        finish(new RetryableUploadError(NETWORK_ERROR));
+      }
+    }, 5_000);
+    window.addEventListener("offline", onOffline);
+
     xhr.open("PUT", uploadUrl);
     xhr.setRequestHeader("Content-Type", file.type);
 
     xhr.upload.addEventListener("progress", (event) => {
+      lastProgressAt = Date.now();
       if (event.lengthComputable) {
         onProgress(Math.round((event.loaded / event.total) * 100));
       }
@@ -138,15 +176,32 @@ function uploadFile(uploadUrl: string, file: File, onProgress: (progress: number
 
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 300) {
-        resolve();
+        finish();
+      } else if (isRetryableStatus(xhr.status)) {
+        finish(new RetryableUploadError(`Upload failed with status ${xhr.status}`));
       } else {
-        reject(new Error(`Upload failed with status ${xhr.status}`));
+        finish(new Error(`Upload failed with status ${xhr.status}`));
       }
     };
 
-    xhr.onerror = () => reject(new Error(NETWORK_ERROR));
+    xhr.onerror = () => finish(new RetryableUploadError(NETWORK_ERROR));
     xhr.send(file);
   });
+}
+
+function waitForOnline() {
+  if (typeof navigator === "undefined" || navigator.onLine) return Promise.resolve();
+  return new Promise<void>((resolve) => window.addEventListener("online", () => resolve(), { once: true }));
+}
+
+const sleep = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms));
+
+// Four tries per step, waiting 2 s, 5 s, then 10 s between them. Time spent
+// offline is waited out on top and does not use up a try.
+const RETRY = { attempts: 4, delaysMs: [2_000, 5_000, 10_000], waitForOnline, sleep };
+
+function isTouchDevice() {
+  return typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches === true;
 }
 
 function itemId(file: File) {
@@ -201,6 +256,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
     tryAgain:       strings?.tryAgain ?? "Try again →",
     statuses: strings?.statuses ?? {
       queued: "Waiting", requesting: "Preparing", uploading: "Uploading",
+      waiting: "Waiting for internet", retrying: "Trying again",
       confirming: "Saving", done: "Done", error: "Failed",
     },
     errFilesRequired: strings?.errFilesRequired ?? "Add at least one file before sending.",
@@ -224,6 +280,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
   /** Per-file failures: say whether it was the connection, never show raw status text. */
   function itemErrorText(error: unknown) {
     if (error instanceof TypeError) return s.errNetwork; // fetch() could not reach the server
+    if (error instanceof RetryableUploadError) return s.errNetwork;
     if (error instanceof Error && error.message === NETWORK_ERROR) return s.errNetwork;
     return s.errUpload;
   }
@@ -238,9 +295,12 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
   );
 
   // ─── Accepted file types ───────────────────────────────────────────────────
+  // HEIC is left out on purpose. iPhones shoot HEIC, and iOS hands the page a
+  // JPEG instead when the page does not ask for HEIC. Our image pipeline (sharp
+  // without an HEVC decoder) cannot read HEIC, and most browsers cannot show it.
   const accept = useMemo(() => {
-    const base = [".jpg", ".jpeg", ".png", ".heic", ".heif"];
-    return allowVideo ? [...base, ".mp4", ".mov"].join(",") : base.join(",");
+    const base = ["image/jpeg", "image/png", ".jpg", ".jpeg", ".png"];
+    return allowVideo ? [...base, "video/mp4", "video/quicktime", ".mp4", ".mov"].join(",") : base.join(",");
   }, [allowVideo]);
 
   // ─── Derived counts ────────────────────────────────────────────────────────
@@ -287,40 +347,59 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
 
     startTransition(async () => {
       let uploadedAny = false;
+      let failedAny = false;
 
       try {
         targetItems.forEach((item) => updateItem(item.id, { status: "requesting", progress: 0, message: undefined }));
 
-        const response = await fetch(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            guestName:  guestName  || undefined,
-            pin:        pin        || undefined,
-            files: targetItems.map((item) => ({
-              name: item.file.name,
-              size: item.file.size,
-              type: item.file.type,
-            })),
-          }),
-        });
+        const payload = await withRetry(async () => {
+          const response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              guestName:  guestName  || undefined,
+              pin:        pin        || undefined,
+              files: targetItems.map((item) => ({
+                name: item.file.name,
+                size: item.file.size,
+                type: item.file.type,
+              })),
+            }),
+          });
 
-        // A gateway timeout answers in HTML; treat an unreadable body as "no details".
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(startErrorText(payload));
+          // A gateway timeout answers in HTML; treat an unreadable body as "no details".
+          const body = await response.json().catch(() => ({}));
+          if (isRetryableStatus(response.status)) throw new RetryableUploadError(startErrorText(body));
+          if (!response.ok) throw new Error(startErrorText(body));
+          return body;
+        }, RETRY);
 
         const grants = payload.grants as Grant[];
 
-        for (let index = 0; index < grants.length; index += 1) {
-          const grant       = grants[index];
+        // Several files at once; each one retries on its own, so a blip on one
+        // file never stops the rest.
+        await runPool(grants, uploadConcurrency(isTouchDevice()), async (grant, index) => {
           const currentItem = targetItems[index];
 
           updateItem(currentItem.id, { status: "uploading", progress: 0, message: undefined });
 
-          try {
-            await uploadFile(grant.uploadUrl, currentItem.file, (progress) => {
-              updateItem(currentItem.id, { progress });
+          const retryStatus = () => {
+            updateItem(currentItem.id, {
+              status: typeof navigator !== "undefined" && !navigator.onLine ? "waiting" : "retrying",
+              progress: 0,
             });
+          };
+
+          try {
+            await withRetry(
+              () => {
+                updateItem(currentItem.id, { status: "uploading" });
+                return uploadFile(grant.uploadUrl, currentItem.file, (progress) => {
+                  updateItem(currentItem.id, { progress });
+                });
+              },
+              { ...RETRY, onRetry: retryStatus },
+            );
 
             updateItem(currentItem.id, { status: "confirming", progress: 100 });
 
@@ -348,42 +427,50 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
               }
             }
 
-            const confirmResponse = await fetch("/api/uploads/confirm", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                eventId:         payload.eventId,
-                objectKey:       grant.objectKey,
-                originalFilename: grant.originalFilename,
-                mimeType:        grant.contentType,
-                sizeBytes:       grant.size,
-                sourceType:      grant.sourceType,
-                uploadSessionId: payload.uploadSessionId ?? null,
-                confirmToken:    grant.confirmToken,
-                thumbnailKey,
-                thumbnailConfirmToken,
-              }),
-            });
+            // Safe to repeat: the server answers a second confirm of the same
+            // object with the row it already made.
+            await withRetry(
+              async () => {
+                const confirmResponse = await fetch("/api/uploads/confirm", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    eventId:         payload.eventId,
+                    objectKey:       grant.objectKey,
+                    originalFilename: grant.originalFilename,
+                    mimeType:        grant.contentType,
+                    sizeBytes:       grant.size,
+                    sourceType:      grant.sourceType,
+                    uploadSessionId: payload.uploadSessionId ?? null,
+                    confirmToken:    grant.confirmToken,
+                    thumbnailKey,
+                    thumbnailConfirmToken,
+                  }),
+                });
 
-            const confirmPayload = await confirmResponse.json();
-            if (!confirmResponse.ok) {
-              throw new Error(confirmPayload.error ?? `Failed to confirm ${currentItem.file.name}.`);
-            }
+                const confirmPayload = await confirmResponse.json().catch(() => ({}));
+                if (isRetryableStatus(confirmResponse.status)) {
+                  throw new RetryableUploadError(confirmPayload.error ?? `Failed to confirm ${currentItem.file.name}.`);
+                }
+                if (!confirmResponse.ok) {
+                  throw new Error(confirmPayload.error ?? `Failed to confirm ${currentItem.file.name}.`);
+                }
+              },
+              { ...RETRY, onRetry: retryStatus },
+            );
 
             uploadedAny = true;
             updateItem(currentItem.id, { status: "done", progress: 100, message: undefined });
           } catch (itemError) {
+            failedAny = true;
             updateItem(currentItem.id, { status: "error", message: itemErrorText(itemError) });
           }
-        }
-
-        const finalItems   = items.map((item) => targetItems.find((t) => t.id === item.id) ?? item);
-        const stillFailed  = finalItems.some((item) => item.status === "error");
+        });
 
         setItems((current) => current.filter((item) => item.status !== "done"));
         if (inputRef.current) inputRef.current.value = "";
 
-        if (uploadedAny && !stillFailed) {
+        if (uploadedAny && !failedAny) {
           setSuccess(copy.successLabel);
         } else if (uploadedAny) {
           setSuccess(copy.partialLabel);
@@ -700,7 +787,9 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
                         ? "text-[#c0392b]"
                         : item.status === "done"
                           ? "text-[var(--color-moss)]"
-                          : "text-black/40",
+                          : item.status === "waiting" || item.status === "retrying"
+                            ? "text-[var(--color-accent-strong)]"
+                            : "text-black/60",
                     )}
                   >
                     {statusLabel(item.status)}

@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import sharp from "sharp";
 
+import { isEventObjectKey, reportForeignKey } from "@/lib/object-keys";
 import { signUploadConfirmToken } from "@/lib/security";
 import { createSignedDownloadUrl, createSignedUploadUrl, getStoredObjectBuffer, publicMediaUrl, putStoredObject } from "@/lib/storage";
 import type {
@@ -75,10 +76,19 @@ export async function enrichMediaWithUrls<T extends MediaFileRecord>(
 ): Promise<(T & { previewUrl: string | null; thumbnailUrl: string | null })[]> {
   return Promise.all(
     media.map(async (item) => {
-      const previewUrl = publicMediaUrl(item.storage_key) ?? (await createSignedDownloadUrl(item.storage_key));
+      // Sign only objects inside the row's own event (see object-keys.ts).
+      const storageKey = isEventObjectKey(item.storage_key, item.event_id) ? item.storage_key : null;
+      const thumbnailKey = isEventObjectKey(item.thumbnail_key, item.event_id) ? item.thumbnail_key : null;
+      if (!storageKey || (item.thumbnail_key && !thumbnailKey)) {
+        reportForeignKey("enrichMediaWithUrls", { mediaId: item.id, eventId: item.event_id });
+      }
+
+      const previewUrl = storageKey
+        ? publicMediaUrl(storageKey) ?? (await createSignedDownloadUrl(storageKey))
+        : null;
       const thumbnailUrl =
-        publicMediaUrl(item.thumbnail_key) ??
-        (item.thumbnail_key ? await createSignedDownloadUrl(item.thumbnail_key) : previewUrl);
+        publicMediaUrl(thumbnailKey) ??
+        (thumbnailKey ? await createSignedDownloadUrl(thumbnailKey) : previewUrl);
 
       return {
         ...item,
@@ -87,6 +97,10 @@ export async function enrichMediaWithUrls<T extends MediaFileRecord>(
       };
     }),
   );
+}
+
+function isHeif(media: Pick<MediaFileRecord, "mime_type" | "original_filename">) {
+  return /^image\/hei[cf]/i.test(media.mime_type) || /\.hei[cf]$/i.test(media.original_filename ?? "");
 }
 
 export async function processMediaRecord(media: MediaFileRecord) {
@@ -101,24 +115,48 @@ export async function processMediaRecord(media: MediaFileRecord) {
     };
   }
 
+  if (!isEventObjectKey(media.storage_key, media.event_id)) {
+    reportForeignKey("processMediaRecord", { mediaId: media.id, eventId: media.event_id });
+    throw new Error("Media key is outside its event.");
+  }
+
   const sourceBuffer = await getStoredObjectBuffer(media.storage_key);
   if (!sourceBuffer) {
     throw new Error("Unable to load the uploaded image from storage.");
   }
 
-  const image = sharp(sourceBuffer).rotate();
-  const metadata = await image.metadata();
-  const thumbnailBuffer = await image
-    .clone()
-    .resize(1200, 1200, {
-      fit: "inside",
-      withoutEnlargement: true,
-    })
-    .jpeg({
-      quality: 82,
-      mozjpeg: true,
-    })
-    .toBuffer();
+  let metadata: sharp.Metadata;
+  let thumbnailBuffer: Buffer;
+  try {
+    const image = sharp(sourceBuffer).rotate();
+    metadata = await image.metadata();
+    thumbnailBuffer = await image
+      .clone()
+      .resize(1200, 1200, {
+        fit: "inside",
+        withoutEnlargement: true,
+      })
+      .jpeg({
+        quality: 82,
+        mozjpeg: true,
+      })
+      .toBuffer();
+  } catch (error) {
+    // The bundled sharp has no HEVC decoder, so an iPhone HEIC that reaches
+    // the server (dragged in from a computer) cannot be thumbnailed. The
+    // original is safely stored and downloads as-is; keep it, just without a
+    // preview, instead of failing the guest's upload.
+    if (isHeif(media)) {
+      return {
+        width: null,
+        height: null,
+        thumbnailKey: null,
+        durationSeconds: null,
+        status: "ready" as const,
+      };
+    }
+    throw error;
+  }
 
   const thumbnailKey = `events/${media.event_id}/thumbs/${media.id}.jpg`;
   await putStoredObject(thumbnailKey, thumbnailBuffer, "image/jpeg");

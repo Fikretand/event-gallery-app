@@ -121,6 +121,36 @@ These are loaded server-side by Resvg for the poster API, and client-side via
   (Hobby allows two crons) and stays a **dry run until `RETENTION_PURGE=on`**
   in Vercel; it logs `[retention] {...}` either way.
 
+### Live view for the venue screen
+- `/[locale]/gallery/[slug]/live` (`live-slideshow.tsx`, data from
+  `src/lib/live-slides.ts`, polled from `/api/events/[slug]/live` every 12 s):
+  full-screen slideshow for a TV or projector. Photos change every 7 s, videos
+  play muted up to 20 s, new arrivals play next with a "Novo" badge, a QR code
+  in the corner opens the guest upload page, the screen is kept awake (Wake
+  Lock). Access is the public gallery's (owner, or open/unexpired/PIN-unlocked).
+- The API returns slim slides only (id, kind, signed URL, poster) — never guest
+  names, emails or storage keys.
+- Guest uploads arrive hidden, so by default only approved files show. **Only
+  the owner** can tick "show new guest photos before I approve them"
+  (`?pending=1`); `isPendingGuestUpload` counts only files hidden at the moment
+  they were recorded, never ones the owner hid later on purpose.
+- Linked from the event overview ("Prikaz uživo za ekran u sali").
+
+### Guest upload resilience
+- `upload-dropzone.tsx` sends in parallel (3 lanes on touch devices, 5 on
+  desktop) through `runPool`/`withRetry` in `src/lib/upload-queue.ts` (tested).
+- A dropped connection or a stalled transfer (60 s without progress) is retried
+  up to 4 times (2 s / 5 s / 10 s); while the phone is offline the file shows
+  "Čeka internet" and resumes when the connection is back. 4xx refusals are not
+  retried. Verified end to end with Playwright (offline blip, 503, 403).
+- `/api/uploads/confirm` is idempotent on the object key
+  (`findMediaByStorageKey`), so a retried or replayed confirm never makes a
+  second row. A thumbnail that cannot be made no longer fails the confirm.
+- **HEIC:** the bundled sharp has no HEVC decoder. The file inputs no longer
+  list HEIC, so iOS hands over a JPEG; a HEIC that still arrives (dragged in on
+  a computer) is kept as `ready` without a thumbnail. **Still to confirm on a
+  real iPhone** that Safari converts.
+
 ### Dashboard (full i18n EN + BS)
 - `/dashboard` — photographer event list + usage cards + trial banner
 - `/dashboard/events/[slug]` — event detail + management
@@ -386,6 +416,10 @@ preference land on `/{pref}/dashboard/{suffix}` automatically. Locale-prefixed
 wrappers trust the URL and never redirect.
 
 ### Security guardrails
+- **Object keys:** every place that signs, reads or deletes an R2 object with
+  service credentials first checks the key with `isEventObjectKey` /
+  `isUserAvatarKey` (`src/lib/object-keys.ts`). Row columns are not trusted to
+  stay inside their namespace; a new sink must do the same.
 - Never expose service-role keys client-side.
 - Always validate ownership before any write — `user_id` on events/media.
 - Don't trust client-supplied `eventId`, `mediaId`, `slug` without
@@ -499,6 +533,9 @@ src/
 │   ├── storage.ts, security.ts, rate-limit.ts, upload-validation.ts
 │   ├── auth.ts, account.ts, marketing.ts
 │   ├── seo.ts                       # publicMetadata / privateMetadata
+│   ├── object-keys.ts               # R2 key must sit in its row's namespace
+│   ├── upload-queue.ts              # upload pool + retry/offline wait
+│   ├── live-slides.ts               # venue live view data + access
 │   ├── pricing.ts                   # the only place a price is written down
 │   ├── billing.ts                   # Polar + Payhip + LemonSqueezy helpers
 │   ├── billing-status.ts            # plan/status wording, shared w/ client
@@ -518,6 +555,7 @@ src/
 └── components/
     ├── ui/{button, input, panel}.tsx
     ├── upload-dropzone.tsx
+    ├── live-slideshow.tsx           # full-screen venue live view
     ├── media-grid.tsx
     ├── collapsible-section.tsx      # Gallery manager collapser
     ├── qr-poster-picker.tsx         # Plain QR + "Prilagodi" buttons
@@ -542,6 +580,29 @@ src/
 ## 9. RECENT SESSION LOG
 
 Newest first — useful for picking back up.
+
+- **Security audit fixes + upload resilience + HEIC + live view.** The
+  Cloudflare security-audit skill (quick profile, run-1, reports outside the
+  repo) confirmed 10 findings. Fixed here, the two **high** ones:
+  (1) any account could set its own `users.avatar_url` to another tenant's key
+  and have the avatar replace delete that file; (2) an owner could point their
+  own `media_files.storage_key` / `thumbnail_key` at another tenant's object
+  and download it, or delete it via permanent-delete, event delete or the
+  purge. Now every sink checks `object-keys.ts`, the avatar is written only by
+  the service role, covers resolve only within their own event, and
+  download-batch dedupes ids, caps them at 500 and strips paths from ZIP entry
+  names. Both exploits re-run against the fixed code and fail.
+  Migration `bind_object_keys_to_owner.sql` (revoke client writes on
+  media_files except `section_id`, drop `avatar_url` from the users grant,
+  CHECK constraints on key shapes) is **applied only after this deploy**, on
+  the owner's confirmation — the old profile save wrote `avatar_url` as
+  `authenticated`. Still open from the audit (medium): One Event bought by a
+  photographer activates a paid photographer plan; owners can write plan-limit
+  columns (`events`, `media_files.size_bytes`) directly; the guest-upload quota
+  reads usage through the anonymous client (always 0); upload size/type are not
+  bound to the stored object; the gallery PIN rate limit is non-atomic.
+  Also this session: parallel guest uploads with retry/offline resume,
+  idempotent confirm, HEIC handling, and the live view (see §3).
 
 - **Retention purge for expired galleries (dry run).** `src/lib/retention.ts`
   holds the rules; `purgeExpiredEventMedia` in `events.ts` applies them

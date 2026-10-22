@@ -2,11 +2,14 @@ import JSZip from "jszip";
 import { NextResponse } from "next/server";
 
 import { canViewGallery, getMediaById, recordDownload } from "@/lib/events";
+import { isEventObjectKey, reportForeignKey } from "@/lib/object-keys";
 import { getStoredObjectBuffer } from "@/lib/storage";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 function zipEntryName(filename: string, usedNames: Map<string, number>) {
-  const cleaned = filename.trim() || "file";
+  // Guest-supplied name: keep only the last path segment and drop control
+  // characters, so no entry can unpack outside the folder it is extracted to.
+  const cleaned = (filename.split(/[\\/]/).pop() ?? "").replace(/[\u0000-\u001f\u007f]/g, "").trim() || "file";
   const match = cleaned.match(/^(.*?)(\.[^.]+)?$/);
   const base = (match?.[1] || "file").trim() || "file";
   const ext = match?.[2] || "";
@@ -33,14 +36,27 @@ export const maxDuration = 60;
 // finished archive, so peak memory is ~2x this — keep it comfortably inside
 // the serverless memory limit.
 const ZIP_MAX_TOTAL_BYTES = 300 * 1024 * 1024;
+const ZIP_MAX_FILES = 500;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as { ids?: string[] };
-    const ids = Array.isArray(body.ids) ? body.ids.filter((value) => typeof value === "string") : [];
+    const ids = Array.isArray(body.ids)
+      ? [...new Set(body.ids.filter((value) => typeof value === "string" && UUID_RE.test(value)))]
+      : [];
 
     if (ids.length < 2) {
       return NextResponse.json({ error: "Select at least two files to create a ZIP." }, { status: 400 });
+    }
+
+    // Every id costs a database lookup before access is known, so the request
+    // size is bounded up front rather than by the platform's body limit.
+    if (ids.length > ZIP_MAX_FILES) {
+      return NextResponse.json(
+        { error: `Select at most ${ZIP_MAX_FILES} files per ZIP and download in batches.` },
+        { status: 413 },
+      );
     }
 
     const supabase = await createSupabaseServerClient();
@@ -101,6 +117,11 @@ export async function POST(request: Request) {
 
     const zip = new JSZip();
     const usedNames = new Map<string, number>();
+
+    if (resolvedMedia.some((media) => !isEventObjectKey(media.storage_key, media.event_id))) {
+      reportForeignKey("download-batch", { eventId: firstEventId });
+      return NextResponse.json({ error: "One or more files could not be found." }, { status: 404 });
+    }
 
     for (const media of resolvedMedia) {
       const buffer = await getStoredObjectBuffer(media.storage_key);
