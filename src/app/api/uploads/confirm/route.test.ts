@@ -61,7 +61,7 @@ describe("POST /api/uploads/confirm", () => {
 
     expect(response.status).toBe(200);
     expect(mocks.recordCompletedUpload).toHaveBeenCalledWith(
-      expect.objectContaining({ sizeBytes: 2_000_000, mimeType: "image/jpeg", eventId: "ev-1", sourceType: "guest" }),
+      expect.objectContaining({ sizeBytes: 2_000_000, mimeType: "image/jpeg", eventId: "ev-1", sourceType: "guest", purpose: "media" }),
     );
   });
 
@@ -86,6 +86,22 @@ describe("POST /api/uploads/confirm", () => {
     mocks.headStoredObject.mockResolvedValue(null);
     expect((await confirm({})).status).toBe(409);
     expect(mocks.recordCompletedUpload).not.toHaveBeenCalled();
+  });
+
+  it("records a video message under its own key even when guest video is off", async () => {
+    mocks.headStoredObject.mockResolvedValue({ size: 5_000_000, contentType: "video/mp4" });
+    const response = await confirm({ objectKey: "events/ev-1/guest/messages/m.mp4" });
+
+    expect(response.status).toBe(200);
+    expect(mocks.recordCompletedUpload).toHaveBeenCalledWith(
+      expect.objectContaining({ purpose: "message", mimeType: "video/mp4", sourceType: "guest" }),
+    );
+  });
+
+  it("refuses a photo stored under a message key", async () => {
+    mocks.headStoredObject.mockResolvedValue({ size: 1000, contentType: "image/jpeg" });
+    const response = await confirm({ objectKey: "events/ev-1/guest/messages/m.jpg" });
+    expect(response.status).toBe(415);
   });
 
   it("returns the existing row for a repeated confirm without a second record", async () => {

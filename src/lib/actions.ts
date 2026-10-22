@@ -621,6 +621,7 @@ export async function updateEventAction(
       galleryPin: String(formData.get("galleryPin") ?? ""),
       allowGuestUpload: formData.get("allowGuestUpload") === "on",
       allowGuestVideo: formData.get("allowGuestVideo") === "on",
+      allowVideoMessages: formData.get("allowVideoMessages") === "on",
       requirePinForUpload: formData.get("requirePinForUpload") === "on",
       requirePinForGallery: formData.get("requirePinForGallery") === "on",
       maxGuestUploadMb: Number(formData.get("maxGuestUploadMb") ?? "250"),

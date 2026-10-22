@@ -5,13 +5,7 @@ import sharp from "sharp";
 import { isEventObjectKey, reportForeignKey } from "@/lib/object-keys";
 import { signUploadConfirmToken } from "@/lib/security";
 import { createSignedDownloadUrl, createSignedUploadUrl, getStoredObjectBuffer, publicMediaUrl, putStoredObject } from "@/lib/storage";
-import type {
-  EventRecord,
-  MediaFileRecord,
-  MediaSourceType,
-  UploadGrant,
-  UploadRequestFile,
-} from "@/lib/types";
+import type { EventRecord, MediaFileRecord, MediaPurpose, MediaSourceType, UploadGrant, UploadRequestFile } from "@/lib/types";
 
 function normalizeExtension(fileName: string) {
   const parts = fileName.split(".");
@@ -27,6 +21,7 @@ export async function buildUploadGrants(
   event: EventRecord,
   files: UploadRequestFile[],
   sourceType: MediaSourceType,
+  { purpose = "media" }: { purpose?: MediaPurpose } = {},
 ): Promise<UploadGrant[]> {
   const grants: UploadGrant[] = [];
 
@@ -34,7 +29,9 @@ export async function buildUploadGrants(
     const extension = normalizeExtension(file.name);
     const objectKey =
       sourceType === "guest"
-        ? `events/${event.id}/guest/${currentYearMonth()}/${randomUUID()}.${extension}`
+        ? purpose === "message"
+          ? `events/${event.id}/guest/messages/${randomUUID()}.${extension}`
+          : `events/${event.id}/guest/${currentYearMonth()}/${randomUUID()}.${extension}`
         : `events/${event.id}/photographer/originals/${randomUUID()}.${extension}`;
 
     const uploadUrl = await createSignedUploadUrl(objectKey, file.type);

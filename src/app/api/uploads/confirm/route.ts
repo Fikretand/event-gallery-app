@@ -5,6 +5,7 @@ import { verifyUploadConfirmToken } from "@/lib/security";
 import { deleteStoredObject, headStoredObject } from "@/lib/storage";
 import type { MediaSourceType } from "@/lib/types";
 import { checkStoredUpload } from "@/lib/upload-validation";
+import { purposeFromObjectKey } from "@/lib/video-messages";
 
 // Object keys are minted as `events/{eventId}/{guest|photographer}/…` by the
 // presign route. Because the confirm token signs the key, deriving the event +
@@ -63,7 +64,8 @@ export async function POST(request: Request) {
     if (!stored) {
       return NextResponse.json({ error: "The file has not arrived yet." }, { status: 409 });
     }
-    const verdict = checkStoredUpload(stored, sourceType, await getEventSettingsById(eventId));
+    const purpose = purposeFromObjectKey(objectKey);
+    const verdict = checkStoredUpload(stored, sourceType, await getEventSettingsById(eventId), purpose);
     if (verdict !== "ok") {
       await deleteStoredObject(objectKey).catch(() => {});
       console.error("[upload-confirm] stored object refused", { objectKey, verdict, size: stored.size, type: stored.contentType });
@@ -79,6 +81,7 @@ export async function POST(request: Request) {
       originalFilename: String(payload.originalFilename),
       mimeType: stored.contentType.split(";")[0].trim().toLowerCase(),
       sizeBytes: stored.size,
+      purpose,
       sourceType,
       uploadSessionId: payload.uploadSessionId ? String(payload.uploadSessionId) : null,
       thumbnailKey,

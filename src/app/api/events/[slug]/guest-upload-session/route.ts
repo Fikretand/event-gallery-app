@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { GUEST_UPLOAD_RATE_LIMIT } from "@/lib/constants";
+import { ACCEPTED_VIDEO_TYPES, GUEST_UPLOAD_RATE_LIMIT } from "@/lib/constants";
 import { buildUploadGrants } from "@/lib/media";
 import { computeTrialState, countUserMediaFiles, createGuestUploadSession, getAccountUsage, getEventAccountType, getPublicEventBySlug, incrementRateLimitCount, isEventExpired, isGuestUploadWindowClosed, trialBatchExceeds } from "@/lib/events";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -8,6 +8,7 @@ import { isRateLimited } from "@/lib/rate-limit";
 import { hashIp, verifyPin } from "@/lib/security";
 import type { UploadRequestFile } from "@/lib/types";
 import { validateUploadFiles } from "@/lib/upload-validation";
+import { settingsForPurpose, videoMessagesEnabled } from "@/lib/video-messages";
 
 export async function POST(request: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
@@ -37,6 +38,20 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
 
     const payload = await request.json();
     const files = (payload.files ?? []) as UploadRequestFile[];
+    // A video message (one clip, for the hosts) rides the same upload path; its
+    // grant gets a key under guest/messages/, which is what marks it at confirm.
+    const purpose = payload.purpose === "message" ? "message" : "media";
+    if (purpose === "message") {
+      if (!videoMessagesEnabled(event.event_settings)) {
+        return NextResponse.json({ error: "Video messages are off for this event.", code: "MESSAGES_DISABLED" }, { status: 403 });
+      }
+      if (files.length !== 1 || !ACCEPTED_VIDEO_TYPES.includes(files[0]?.type)) {
+        return NextResponse.json({ error: "A video message is one video.", code: "MESSAGE_INVALID" }, { status: 400 });
+      }
+      if (!String(payload.guestName ?? "").trim()) {
+        return NextResponse.json({ error: "Please add your name to the message.", code: "NAME_REQUIRED" }, { status: 400 });
+      }
+    }
 
     const ip =
       request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
@@ -59,7 +74,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
       return NextResponse.json({ error: "Incorrect upload PIN.", code: "WRONG_PIN" }, { status: 403 });
     }
 
-    validateUploadFiles(files, "guest", event.event_settings);
+    validateUploadFiles(files, "guest", settingsForPurpose(event.event_settings, purpose));
 
     // ── Trial + storage enforcement for the event owner ──────────────────────
     // This deliberately runs for every account type. It used to be wrapped in
@@ -115,7 +130,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
         guestEmail: payload.guestEmail,
         ipHash: hashIp(ip),
       }),
-      buildUploadGrants(event, files, "guest"),
+      buildUploadGrants(event, files, "guest", { purpose }),
     ]);
 
     return NextResponse.json({

@@ -8,7 +8,9 @@ import { t, type Dict } from "@/lib/i18n/index";
 import type { AccountType, GallerySectionRecord, MediaView } from "@/lib/types";
 import { cn, formatBytes, formatDaysUntilPurge } from "@/lib/utils";
 
-type Filter = "all" | "photos" | "videos" | "photographer" | "guest" | "deleted";
+type Filter = "all" | "photos" | "videos" | "photographer" | "guest" | "messages" | "deleted";
+
+const isMessage = (item: MediaView) => item.purpose === "message";
 
 type ViewerStrings = Dict["galleryViewer"];
 
@@ -45,6 +47,9 @@ const DEFAULT_VIEWER_STRINGS: ViewerStrings = {
   reportCancel: "Cancel",
   reportThanks: "Thank you, the host has been told.",
   reportFailed: "The report was not sent. Please try again.",
+  messagesTitle: "Video messages",
+  messageFrom: "From {{name}}",
+  filterMessages: "Messages",
 };
 
 type OwnerStrings = Dict["dashboard"]["mediaOwner"];
@@ -113,9 +118,15 @@ export function MediaGrid({
             ? vs.filterPhotographer
             : value === "guest"
               ? vs.filterGuest
-              : "Deleted";
+              : value === "messages"
+                ? vs.filterMessages
+                : "Deleted";
   const sourceLabel = (source: string) =>
     source === "guest" ? vs.filterGuest : vs.filterPhotographer;
+  // Guest video messages have their own block in the public gallery, so the
+  // photo grid, its tabs and "download all" work on everything else.
+  const messages = useMemo(() => media.filter((item) => isMessage(item) && !item.deleted_at && !item.hidden_at), [media]);
+  const gridMedia = useMemo(() => (ownerMode ? media : media.filter((item) => !isMessage(item))), [media, ownerMode]);
   const [filter, setFilter] = useState<Filter>("all");
   const [selected, setSelected] = useState<string[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -132,10 +143,12 @@ export function MediaGrid({
   // Guests see only the tabs that would show something: a "Videos" tab on a
   // gallery without a single video is a dead end. The owner keeps every tab.
   const filterOptions = ownerMode
-    ? (["all", "photos", "videos", "photographer", "guest", "deleted"] as const)
+    ? (["all", "photos", "videos", "photographer", "guest", "messages", "deleted"] as const).filter(
+        (value) => value !== "messages" || media.some((item) => isMessage(item) && !item.deleted_at),
+      )
     : (["all", "photos", "videos", "photographer", "guest"] as const).filter((value) => {
         if (value === "all") return true;
-        const live = media.filter((item) => !item.deleted_at);
+        const live = gridMedia.filter((item) => !item.deleted_at);
         if (value === "photos") return live.some((item) => !item.mime_type.startsWith("video/"));
         if (value === "videos") return live.some((item) => item.mime_type.startsWith("video/"));
         return live.some((item) => item.source_type === value);
@@ -143,13 +156,17 @@ export function MediaGrid({
 
   const visibleItems = useMemo(
     () =>
-      media.filter((item) => {
+      gridMedia.filter((item) => {
         if (filter === "deleted") {
           return Boolean(item.deleted_at);
         }
 
         if (item.deleted_at) {
           return false;
+        }
+
+        if (filter === "messages") {
+          return isMessage(item);
         }
 
         if (filter === "photos") {
@@ -162,7 +179,7 @@ export function MediaGrid({
 
         return filter === "all" || item.source_type === filter;
       }),
-    [filter, media],
+    [filter, gridMedia],
   );
 
   const visibleSections = useMemo(() => {
@@ -552,6 +569,33 @@ export function MediaGrid({
 
       {error ? <div className="rounded-2xl bg-[#fff0eb] px-4 py-3 text-sm text-[#8a1c1c]">{error}</div> : null}
 
+      {!ownerMode && messages.length > 0 ? (
+        <section aria-labelledby="video-messages-title" className="rounded-[26px] border border-black/10 bg-white/90 p-4 sm:p-5">
+          <h2 id="video-messages-title" className="font-display text-xl font-semibold text-[var(--color-ink)]">
+            {vs.messagesTitle}
+          </h2>
+          <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+            {messages.map((item) => (
+              <li key={item.id} className="overflow-hidden rounded-[20px] border border-black/8 bg-[var(--color-viewer-surface)]">
+                <video
+                  src={item.previewUrl ?? undefined}
+                  poster={item.thumbnailUrl ?? undefined}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="aspect-video w-full bg-black object-contain"
+                />
+                {item.guest_name ? (
+                  <p className="bg-white px-4 py-2.5 text-sm font-semibold text-[var(--color-ink)]">
+                    {t(vs.messageFrom, { name: item.guest_name })}
+                  </p>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
       {visibleItems.length === 0 ? (
         <div className="rounded-[26px] border border-dashed border-black/10 bg-white/80 px-6 py-12 text-center">
           <p className="text-lg font-semibold text-[var(--color-ink)]">{emptyTitle}</p>
@@ -919,6 +963,11 @@ export function MediaGrid({
           {isCover ? (
             <span className="absolute right-4 top-4 rounded-full bg-[var(--color-accent-strong)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-white">
               {vs.cover}
+            </span>
+          ) : null}
+          {isMessage(item) ? (
+            <span className="absolute bottom-4 right-4 rounded-full bg-[var(--color-ink)] px-3 py-1 text-xs font-semibold text-white shadow-sm">
+              🎥 {vs.filterMessages}
             </span>
           ) : null}
           {reportCount > 0 && !isDeleted ? (

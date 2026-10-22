@@ -56,6 +56,8 @@ export async function listLiveSlides(eventId: string, includePending: boolean) {
 
   const visible = rows
     .filter((row) => row.status !== "failed")
+    // Video messages are spoken to the hosts; the slideshow is silent.
+    .filter((row) => row.purpose !== "message")
     .filter((row) => !row.hidden_at || (includePending && isPendingGuestUpload(row)))
     .slice(0, LIVE_SLIDE_LIMIT);
 

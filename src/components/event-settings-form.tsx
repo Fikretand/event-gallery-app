@@ -114,6 +114,15 @@ export function EventSettingsForm({
           {s.allowGuestVideo}
         </label>
         <label className="flex items-center gap-3 rounded-2xl border border-black/10 bg-[var(--color-paper)]/60 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
+          <input
+            type="checkbox"
+            name="allowVideoMessages"
+            defaultChecked={event.event_settings?.allow_video_messages ?? true}
+            className="size-4"
+          />
+          {s.allowVideoMessages}
+        </label>
+        <label className="flex items-center gap-3 rounded-2xl border border-black/10 bg-[var(--color-paper)]/60 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
           <input type="checkbox" name="requirePinForUpload" defaultChecked={event.event_settings?.require_pin_for_upload ?? false} className="size-4" />
           {s.requirePinUpload}
         </label>

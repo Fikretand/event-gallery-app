@@ -6,7 +6,7 @@ import {
   MAX_PHOTOGRAPHER_FILES_PER_UPLOAD,
   MAX_PHOTOGRAPHER_UPLOAD_MB,
 } from "@/lib/constants";
-import type { EventSettingsRecord, MediaSourceType, UploadRequestFile } from "@/lib/types";
+import type { EventSettingsRecord, MediaPurpose, MediaSourceType, UploadRequestFile } from "@/lib/types";
 
 function extension(fileName: string) {
   const parts = fileName.split(".");
@@ -31,12 +31,14 @@ export function checkStoredUpload(
   stored: { size: number; contentType: string },
   sourceType: MediaSourceType,
   settings?: EventSettingsRecord | null,
+  purpose: MediaPurpose = "media",
 ): "ok" | "too_large" | "empty" | "bad_type" {
   const { maxBytes, allowVideo } = uploadLimitsFor(sourceType, settings);
   const type = stored.contentType.split(";")[0].trim().toLowerCase();
   const isImage = ACCEPTED_IMAGE_TYPES.includes(type);
   const isVideo = ACCEPTED_VIDEO_TYPES.includes(type);
-  if (!isImage && !(isVideo && allowVideo)) return "bad_type";
+  // A video message is a video, whatever the event's guest-video switch says.
+  if (purpose === "message" ? !isVideo : !isImage && !(isVideo && allowVideo)) return "bad_type";
   if (!Number.isSafeInteger(stored.size) || stored.size <= 0) return "empty";
   if (stored.size > maxBytes) return "too_large";
   return "ok";

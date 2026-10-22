@@ -261,6 +261,9 @@ export interface Dict {
     reportCancel: string;
     reportThanks: string;
     reportFailed: string;
+    messagesTitle: string;
+    messageFrom: string;
+    filterMessages: string;
   };
   auth: {
     // Login page
@@ -636,6 +639,7 @@ export interface Dict {
       statusNotSet: string;
       allowGuestUpload: string;
       allowGuestVideo: string;
+      allowVideoMessages: string;
       requirePinUpload: string;
       requirePinGalleryPhotographer: string;
       requirePinGalleryCouple: string;
@@ -1101,6 +1105,23 @@ export interface Dict {
     alreadyHaveAccount: string;
     logIn: string;
   };
+  videoMessage: {
+    title: string;
+    body: string;
+    recordBtn: string;
+    retakeBtn: string;
+    nameLabel: string;
+    namePlaceholder: string;
+    nameRequired: string;
+    tooLong: string; // {{seconds}}
+    notVideo: string;
+    sendBtn: string;
+    sending: string; // {{progress}}
+    sentTitle: string;
+    sentBody: string;
+    another: string;
+    failed: string;
+  };
   uploadDropzone: {
     // Step indicator
     stepChoose: string;
@@ -1189,6 +1210,9 @@ export interface Dict {
       TRIAL_LIMIT: string;
       TRIAL_BATCH_TOO_LARGE: string;
       HOST_TRIAL_BATCH_TOO_LARGE: string;
+      MESSAGES_DISABLED: string;
+      MESSAGE_INVALID: string;
+      NAME_REQUIRED: string;
       STORAGE_FULL: string;
     };
   };

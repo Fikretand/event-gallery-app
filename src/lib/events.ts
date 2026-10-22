@@ -23,6 +23,7 @@ import type {
   EventAnalytics,
   EventRecord,
   EventSettingsRecord,
+  MediaPurpose,
   GallerySectionRecord,
   MediaFileRecord,
   PhotographerPlanTier,
@@ -331,6 +332,7 @@ export async function updateEvent(ownerUserId: string, slug: string, input: {
   galleryPin?: string;
   allowGuestUpload: boolean;
   allowGuestVideo: boolean;
+  allowVideoMessages?: boolean;
   requirePinForUpload: boolean;
   requirePinForGallery: boolean;
   maxGuestUploadMb: number;
@@ -369,6 +371,7 @@ export async function updateEvent(ownerUserId: string, slug: string, input: {
     .update({
       allow_guest_upload: input.allowGuestUpload,
       allow_guest_video: input.allowGuestVideo,
+      ...(input.allowVideoMessages === undefined ? {} : { allow_video_messages: input.allowVideoMessages }),
       require_pin_for_upload: input.requirePinForUpload,
       require_pin_for_gallery: input.requirePinForGallery,
       max_guest_upload_mb: input.maxGuestUploadMb,
@@ -1042,6 +1045,7 @@ export async function recordCompletedUpload(input: {
   uploadedByUserId?: string | null;
   uploadSessionId?: string | null;
   thumbnailKey?: string | null;
+  purpose?: MediaPurpose;
 }) {
   const admin = createSupabaseAdminClient();
   if (!admin) {
@@ -1064,6 +1068,7 @@ export async function recordCompletedUpload(input: {
       hidden_at: hiddenAt,
       upload_session_id: input.uploadSessionId ?? null,
       thumbnail_key: input.thumbnailKey ?? null,
+      purpose: input.purpose ?? "media",
     })
     .select("*")
     .single();

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { UploadDropzone } from "@/components/upload-dropzone";
+import { VideoMessage } from "@/components/video-message";
 import { formatDate } from "@/lib/utils";
 import {
   getCoupleUploadEndsAt,
@@ -11,6 +12,7 @@ import {
 } from "@/lib/events";
 import { applyCustomCopy, customTitle } from "@/lib/custom-copy";
 import { getDictionary, type Locale } from "@/lib/i18n/index";
+import { videoMessagesEnabled } from "@/lib/video-messages";
 import { t } from "@/lib/i18n/index";
 
 export default async function UploadPage({
@@ -86,13 +88,23 @@ export default async function UploadPage({
             <p className="mt-2 text-sm leading-6 text-black/55">{closedReason}</p>
           </div>
         ) : (
-          <UploadDropzone
-            endpoint={`/api/events/${event.slug}/guest-upload-session`}
-            target="guest"
-            allowVideo={settings?.allow_guest_video ?? false}
-            pinRequired={settings?.require_pin_for_upload ?? false}
-            strings={dict.uploadDropzone}
-          />
+          <>
+            <UploadDropzone
+              endpoint={`/api/events/${event.slug}/guest-upload-session`}
+              target="guest"
+              allowVideo={settings?.allow_guest_video ?? false}
+              pinRequired={settings?.require_pin_for_upload ?? false}
+              strings={dict.uploadDropzone}
+            />
+            {videoMessagesEnabled(settings) ? (
+              <VideoMessage
+                slug={event.slug}
+                pinRequired={settings?.require_pin_for_upload ?? false}
+                strings={dict.videoMessage}
+                upload={dict.uploadDropzone}
+              />
+            ) : null}
+          </>
         )}
       </div>
 
