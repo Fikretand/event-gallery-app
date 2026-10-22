@@ -1177,6 +1177,8 @@ export interface Dict {
       OWNER_WINDOW_CLOSED: string;
       TRIAL_ENDED: string;
       TRIAL_LIMIT: string;
+      TRIAL_BATCH_TOO_LARGE: string;
+      HOST_TRIAL_BATCH_TOO_LARGE: string;
       STORAGE_FULL: string;
     };
   };

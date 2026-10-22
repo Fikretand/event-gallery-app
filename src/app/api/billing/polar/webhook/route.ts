@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 import { validateEvent } from "@polar-sh/sdk/webhooks.js";
 
-import { planFromPolarProduct, polarWebhookKeys } from "@/lib/billing";
+import { planFitsAccount, planFromPolarProduct, polarWebhookKeys } from "@/lib/billing";
 import { env } from "@/lib/env";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { SubscriptionStatus } from "@/lib/types";
@@ -214,13 +214,16 @@ export async function POST(request: Request) {
 
   // ── Resolve the account: metadata/external id first, email as fallback ────
   let userId = resolved.userId;
+  let accountType: string | null = null;
   if (userId) {
-    const { data } = await admin.from("users").select("id").eq("id", userId).maybeSingle();
+    const { data } = await admin.from("users").select("id, account_type").eq("id", userId).maybeSingle();
     if (!data?.id) userId = null;
+    else accountType = (data.account_type as string | null) ?? null;
   }
   if (!userId && email) {
-    const { data } = await admin.from("users").select("id").eq("email", email).maybeSingle();
+    const { data } = await admin.from("users").select("id, account_type").eq("email", email).maybeSingle();
     userId = (data?.id as string | undefined) ?? null;
+    accountType = (data?.account_type as string | null | undefined) ?? null;
   }
 
   if (!userId) {
@@ -233,6 +236,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ received: true, event: event.type, note: "user not found" });
   }
 
+  const planInfo = resolved.productId ? planFromPolarProduct(resolved.productId) : null;
+  if (!planFitsAccount(planInfo?.plan, accountType)) {
+    // A product this account type cannot hold, or one we do not sell. Leave the
+    // account alone; acknowledge so Polar stops retrying, and log for a refund.
+    console.error("[polar-webhook] product does not fit the account", {
+      event: event.type,
+      userId,
+      accountType,
+      plan: planInfo?.plan ?? "unknown",
+      externalId: resolved.externalId,
+    });
+    return NextResponse.json({ received: true, event: event.type, note: "plan does not fit account" });
+  }
+
   const update: Record<string, unknown> = {
     subscription_provider: "polar",
     subscription_external_id: resolved.externalId,
@@ -242,7 +259,6 @@ export async function POST(request: Request) {
 
   // Photographer plans carry a feature tier; the couple one-time purchase does
   // not — the couple account type already gates the right feature set.
-  const planInfo = resolved.productId ? planFromPolarProduct(resolved.productId) : null;
   if (resolved.status !== "canceled" && (planInfo?.plan === "solo" || planInfo?.plan === "pro")) {
     update.plan_tier = planInfo.plan;
   }

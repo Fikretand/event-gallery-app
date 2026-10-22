@@ -3,6 +3,7 @@ import {
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
+  HeadObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
@@ -128,6 +129,32 @@ export async function deleteStoredObject(key: string | null | undefined, bucket 
       Key: key,
     }),
   );
+}
+
+/**
+ * What R2 actually holds under a key: its size and the content type it was
+ * stored with. The upload grant is signed before the browser sends anything,
+ * so the size and type a client reports at confirm are only claims; this is
+ * the fact. Null when the object is not there (or R2 is not configured).
+ */
+export async function headStoredObject(key: string, bucket = env.r2Bucket) {
+  if (!bucket) {
+    return null;
+  }
+
+  const client = createR2Client();
+  if (!client) {
+    return null;
+  }
+
+  try {
+    const response = await client.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
+    return { size: Number(response.ContentLength ?? 0), contentType: response.ContentType ?? "" };
+  } catch (err) {
+    const status = (err as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode;
+    if (status === 404) return null;
+    throw err;
+  }
 }
 
 export async function getStoredObjectBuffer(key: string, bucket = env.r2Bucket) {

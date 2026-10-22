@@ -15,6 +15,33 @@ function extension(fileName: string) {
 
 const allowedExtensions = new Set(["jpg", "jpeg", "png", "heic", "heif", "mp4", "mov"]);
 
+export function uploadLimitsFor(sourceType: MediaSourceType, settings?: EventSettingsRecord | null) {
+  const maxMb = sourceType === "photographer" ? MAX_PHOTOGRAPHER_UPLOAD_MB : settings?.max_guest_upload_mb ?? DEFAULT_MAX_GUEST_UPLOAD_MB;
+  const allowVideo = sourceType === "photographer" ? true : settings?.allow_guest_video ?? false;
+  return { maxMb, maxBytes: maxMb * 1024 * 1024, allowVideo };
+}
+
+/**
+ * Checks the object R2 actually stored (size and type from a HEAD request)
+ * against the same limits the grant was issued under. The browser could send
+ * any bytes to a presigned URL and report anything at confirm; this is what
+ * the database records instead.
+ */
+export function checkStoredUpload(
+  stored: { size: number; contentType: string },
+  sourceType: MediaSourceType,
+  settings?: EventSettingsRecord | null,
+): "ok" | "too_large" | "empty" | "bad_type" {
+  const { maxBytes, allowVideo } = uploadLimitsFor(sourceType, settings);
+  const type = stored.contentType.split(";")[0].trim().toLowerCase();
+  const isImage = ACCEPTED_IMAGE_TYPES.includes(type);
+  const isVideo = ACCEPTED_VIDEO_TYPES.includes(type);
+  if (!isImage && !(isVideo && allowVideo)) return "bad_type";
+  if (!Number.isSafeInteger(stored.size) || stored.size <= 0) return "empty";
+  if (stored.size > maxBytes) return "too_large";
+  return "ok";
+}
+
 export function validateUploadFiles(
   files: UploadRequestFile[],
   sourceType: MediaSourceType,
@@ -29,8 +56,7 @@ export function validateUploadFiles(
     throw new Error(`You can upload up to ${maxFiles} files at once.`);
   }
 
-  const maxMb = sourceType === "photographer" ? MAX_PHOTOGRAPHER_UPLOAD_MB : settings?.max_guest_upload_mb ?? DEFAULT_MAX_GUEST_UPLOAD_MB;
-  const allowVideo = sourceType === "photographer" ? true : settings?.allow_guest_video ?? false;
+  const { maxMb, allowVideo } = uploadLimitsFor(sourceType, settings);
 
   return files.map((file) => {
     const isImage = ACCEPTED_IMAGE_TYPES.includes(file.type);
@@ -52,6 +78,12 @@ export function validateUploadFiles(
 
     if (isVideo && !allowVideo) {
       throw new Error(`${file.name}: guest video uploads are disabled for this event.`);
+    }
+
+    // A size must be a real whole number: NaN or a string used to slip past
+    // both this cap and the storage quota.
+    if (!Number.isSafeInteger(file.size)) {
+      throw new Error(`${file.name}: file size is invalid.`);
     }
 
     if (file.size <= 0) {

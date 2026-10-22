@@ -50,6 +50,19 @@ export function planFromPayhipProduct(productKey: string): {
   return null;
 }
 
+/**
+ * Whether a purchased plan is one this kind of account can hold. One Event is
+ * the couple product and Solo/Pro are the photographer subscriptions; a
+ * mismatch (a photographer buying One Event, or an unknown product) must not
+ * touch the account, or a 79 KM one-time order would grant a permanent paid
+ * photographer plan. Applies to every status, a refund included: refunding the
+ * stray order must not cancel the subscription the account really has.
+ */
+export function planFitsAccount(plan: CheckoutPlanId | null | undefined, accountType: string | null | undefined) {
+  if (!plan) return false;
+  return accountType === "couple" ? plan === "couple" : plan === "solo" || plan === "pro";
+}
+
 // ── Polar (Merchant of Record) ───────────────────────────────────────────────
 
 function polarClient() {

@@ -210,28 +210,32 @@ create table if not exists public.event_archives (
   updated_at timestamptz not null default now()
 );
 
+-- Role is never read from user metadata: anyone can set that by calling
+-- /auth/v1/signup with the public anon key, and this function runs as
+-- SECURITY DEFINER. Same body as migrations/stop_trusting_signup_metadata.sql.
 create or replace function public.handle_auth_user_created()
 returns trigger
 language plpgsql
 security definer
 set search_path = public
 as $$
+declare
+  meta jsonb := coalesce(new.raw_user_meta_data, '{}'::jsonb);
 begin
-  insert into public.users (id, email, full_name, role, account_type, plan_tier)
+  insert into public.users (id, email, full_name, role, account_type, plan_tier, preferred_locale)
   values (
     new.id,
     new.email,
-    coalesce(new.raw_user_meta_data ->> 'full_name', ''),
-    coalesce(new.raw_user_meta_data ->> 'role', 'photographer'),
-    coalesce(new.raw_user_meta_data ->> 'account_type', 'photographer'),
-    coalesce(new.raw_user_meta_data ->> 'plan_tier', 'solo')
+    coalesce(meta ->> 'full_name', ''),
+    'photographer',
+    case when meta ->> 'account_type' = 'couple' then 'couple' else 'photographer' end,
+    case when meta ->> 'plan_tier' = 'pro' then 'pro' else 'solo' end,
+    case when meta ->> 'locale' in ('en', 'bs') then meta ->> 'locale' end
   )
   on conflict (id) do update
   set email = excluded.email,
       full_name = excluded.full_name,
-      role = excluded.role,
-      account_type = excluded.account_type,
-      plan_tier = excluded.plan_tier;
+      account_type = excluded.account_type;
   return new;
 end;
 $$;

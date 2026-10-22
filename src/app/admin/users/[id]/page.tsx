@@ -7,6 +7,7 @@ import { computeTrialState, countUserMediaFiles, getAccountUsage, listOwnerEvent
 import { formatBytes } from "@/lib/utils";
 import type { UserRecord } from "@/lib/types";
 import { UserDetailActions } from "./user-detail-actions";
+import { requireAdminPage } from "@/lib/admin-guard";
 
 async function getUserDetail(id: string) {
   const admin = createSupabaseAdminClient();
@@ -36,6 +37,7 @@ export default async function UserDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdminPage();
   const { id } = await params;
   const detail = await getUserDetail(id);
   if (!detail) notFound();

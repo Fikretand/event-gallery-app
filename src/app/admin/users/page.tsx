@@ -1,6 +1,7 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { UserRecord } from "@/lib/types";
 import { AdminUsersTable } from "./admin-users-table";
+import { requireAdminPage } from "@/lib/admin-guard";
 
 async function getAllUsers() {
   const admin = createSupabaseAdminClient();
@@ -15,6 +16,7 @@ async function getAllUsers() {
 }
 
 export default async function AdminUsersPage() {
+  await requireAdminPage();
   const users = await getAllUsers();
 
   return (

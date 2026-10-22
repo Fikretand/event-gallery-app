@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { formatBytes } from "@/lib/utils";
 import type { UserRecord } from "@/lib/types";
+import { requireAdminPage } from "@/lib/admin-guard";
 
 async function getDashboardData() {
   const admin = createSupabaseAdminClient();
@@ -42,6 +43,7 @@ async function getDashboardData() {
 }
 
 export default async function AdminDashboardPage() {
+  await requireAdminPage();
   const data = await getDashboardData();
   if (!data) return <p className="text-sm text-black/50">Could not load admin data.</p>;
 

@@ -2,7 +2,7 @@ import { createHmac } from "node:crypto";
 
 import { describe, expect, it } from "vitest";
 
-import { polarWebhookKeys } from "@/lib/billing";
+import { planFitsAccount, polarWebhookKeys } from "@/lib/billing";
 
 /**
  * Polar's dashboard shows the webhook signing secret as `whsec_<base64>`, and
@@ -55,5 +55,25 @@ describe("polarWebhookKeys", () => {
       expect(keys.map((k) => k.label)).toEqual(["utf8(prefixed)", "utf8(bare)", "base64(bare)"]);
       expect(keys.every((k) => k.key.length > 0)).toBe(true);
     }
+  });
+});
+
+describe("planFitsAccount", () => {
+  it("lets a couple hold only One Event", () => {
+    expect(planFitsAccount("couple", "couple")).toBe(true);
+    expect(planFitsAccount("solo", "couple")).toBe(false);
+    expect(planFitsAccount("pro", "couple")).toBe(false);
+  });
+
+  it("lets a photographer hold only Solo or Pro", () => {
+    expect(planFitsAccount("solo", "photographer")).toBe(true);
+    expect(planFitsAccount("pro", "photographer")).toBe(true);
+    // The audit finding: a 79 KM one-time order must not activate a photographer.
+    expect(planFitsAccount("couple", "photographer")).toBe(false);
+  });
+
+  it("refuses an unknown product", () => {
+    expect(planFitsAccount(null, "photographer")).toBe(false);
+    expect(planFitsAccount(undefined, "couple")).toBe(false);
   });
 });

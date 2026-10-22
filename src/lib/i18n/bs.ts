@@ -1682,6 +1682,8 @@ export const dict: Dict = {
       OWNER_WINDOW_CLOSED: "Period za slanje fotografija na ovaj događaj je završen.",
       TRIAL_ENDED: "Besplatna proba je istekla. Odaberite plan da biste nastavili slati fajlove.",
       TRIAL_LIMIT: "Dostignut je limit fotografija besplatne probe. Odaberite plan da biste nastavili.",
+      TRIAL_BATCH_TOO_LARGE: "Ovo je više fotografija nego što je ostalo u besplatnoj probi. Pošalji manje ili odaberi plan.",
+      HOST_TRIAL_BATCH_TOO_LARGE: "Organizator u besplatnoj probi može primiti još samo nekoliko fotografija. Pošalji manje ili mu se javi.",
       STORAGE_FULL: "Nema više prostora na računu. Arhivirajte ili obrišite stare događaje.",
     },
   },

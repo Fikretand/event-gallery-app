@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { canViewGallery, computeTrialState, getCoupleAccessEndsAt, getCoupleUploadEndsAt, getEventLifecycleStatus, getPhotographerPlanLimits, isEventExpired, isGuestUploadWindowClosed, normalizePhotographerPlanTier, requiresGalleryPin, validateCoupleExpiry } from "@/lib/events";
+import { canViewGallery, computeTrialState, getCoupleAccessEndsAt, getCoupleUploadEndsAt, getEventLifecycleStatus, getPhotographerPlanLimits, isEventExpired, isGuestUploadWindowClosed, normalizePhotographerPlanTier, requiresGalleryPin, trialBatchExceeds, validateCoupleExpiry } from "@/lib/events";
 import type { EventRecord } from "@/lib/types";
 
 const baseEvent: EventRecord = {
@@ -256,5 +256,15 @@ describe("validateCoupleExpiry", () => {
 
   it("refuses a date beyond what the plan sells", () => {
     expect(() => validateCoupleExpiry(iso(120 * DAY), max)).toThrow(/90 days/);
+  });
+});
+
+describe("trialBatchExceeds", () => {
+  it("counts the photos in the request, not only the ones stored", () => {
+    // Audit finding 3.10: 0 used and 150 requested used to pass a 20-photo cap.
+    expect(trialBatchExceeds(0, 150, 20)).toBe(true);
+    expect(trialBatchExceeds(18, 3, 20)).toBe(true);
+    expect(trialBatchExceeds(18, 2, 20)).toBe(false);
+    expect(trialBatchExceeds(0, 20, 20)).toBe(false);
   });
 });

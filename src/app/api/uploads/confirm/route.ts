@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 
-import { findMediaByStorageKey, processMediaById, recordCompletedUpload } from "@/lib/events";
+import { findMediaByStorageKey, getEventSettingsById, processMediaById, recordCompletedUpload } from "@/lib/events";
 import { verifyUploadConfirmToken } from "@/lib/security";
+import { deleteStoredObject, headStoredObject } from "@/lib/storage";
 import type { MediaSourceType } from "@/lib/types";
+import { checkStoredUpload } from "@/lib/upload-validation";
 
 // Object keys are minted as `events/{eventId}/{guest|photographer}/…` by the
 // presign route. Because the confirm token signs the key, deriving the event +
@@ -31,11 +33,6 @@ export async function POST(request: Request) {
     const eventId = match[1];
     const sourceType = match[2] as MediaSourceType;
 
-    const sizeBytes = Number(payload.sizeBytes);
-    const mimeType = String(payload.mimeType);
-    if (!Number.isFinite(sizeBytes) || sizeBytes <= 0 || !/^(image|video)\//.test(mimeType)) {
-      return NextResponse.json({ error: "Invalid upload metadata." }, { status: 400 });
-    }
 
     // Optional client-extracted video poster frame. Accept only if its own
     // signed grant verifies and it belongs to the same event; otherwise ignore
@@ -59,12 +56,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ mediaId: existing.id });
     }
 
+    // Size and type come from what R2 holds, not from the request: a guest
+    // could otherwise confirm a 2 MB photo as 9e18 bytes and fill the owner's
+    // quota, or store bytes the event does not accept.
+    const stored = await headStoredObject(objectKey);
+    if (!stored) {
+      return NextResponse.json({ error: "The file has not arrived yet." }, { status: 409 });
+    }
+    const verdict = checkStoredUpload(stored, sourceType, await getEventSettingsById(eventId));
+    if (verdict !== "ok") {
+      await deleteStoredObject(objectKey).catch(() => {});
+      console.error("[upload-confirm] stored object refused", { objectKey, verdict, size: stored.size, type: stored.contentType });
+      return NextResponse.json(
+        { error: verdict === "too_large" ? "The file is larger than this event allows." : "This file type is not accepted." },
+        { status: verdict === "too_large" ? 413 : 415 },
+      );
+    }
+
     const media = await recordCompletedUpload({
       eventId,
       objectKey,
       originalFilename: String(payload.originalFilename),
-      mimeType,
-      sizeBytes,
+      mimeType: stored.contentType.split(";")[0].trim().toLowerCase(),
+      sizeBytes: stored.size,
       sourceType,
       uploadSessionId: payload.uploadSessionId ? String(payload.uploadSessionId) : null,
       thumbnailKey,

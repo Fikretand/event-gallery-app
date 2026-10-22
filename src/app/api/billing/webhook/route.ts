@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 
 import { NextResponse } from "next/server";
 
-import { planFromPayhipProduct } from "@/lib/billing";
+import { planFitsAccount, planFromPayhipProduct } from "@/lib/billing";
 import { env } from "@/lib/env";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
   // ── Look up user by email in public.users ────────────────────────────────
   const { data: userData, error: userError } = await admin
     .from("users")
-    .select("id")
+    .select("id, account_type")
     .eq("email", email)
     .maybeSingle();
 
@@ -72,6 +72,16 @@ export async function POST(request: Request) {
 
   // ── Determine plan from product key ──────────────────────────────────────
   const planInfo = planFromPayhipProduct(productId);
+  if (!planFitsAccount(planInfo?.plan, userData.account_type as string | null)) {
+    // Same rule as the Polar webhook: an order for a product this account type
+    // cannot hold (or an unknown product) never changes the account.
+    console.error("[payhip-webhook] product does not fit the account", {
+      userId,
+      accountType: userData.account_type,
+      plan: planInfo?.plan ?? "unknown",
+    });
+    return NextResponse.json({ received: true, note: "plan does not fit account" });
+  }
 
   // ── Build the update ─────────────────────────────────────────────────────
   const isCancellation =

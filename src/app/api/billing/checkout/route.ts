@@ -8,9 +8,11 @@ import {
   hasPayments,
   hasPolar,
   payhipCheckoutUrl,
+  planFitsAccount,
   type CheckoutPlanId,
   type PlanId,
 } from "@/lib/billing";
+import { getAccountTypeForUser } from "@/lib/auth";
 import { env } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { BillingCycle } from "@/lib/types";
@@ -37,6 +39,13 @@ export async function POST(request: Request) {
     const plan = body.plan as CheckoutPlanId;
     const cycle = (body.cycle ?? "yearly") as BillingCycle;
     const email = user.email ?? "";
+
+    // The webhooks refuse a product the account cannot hold; refusing it here
+    // too keeps a photographer from paying for One Event by mistake.
+    const accountType = await getAccountTypeForUser(supabase, user.id, user.user_metadata?.account_type);
+    if (!planFitsAccount(plan, accountType)) {
+      return NextResponse.json({ error: "PLAN_NOT_FOR_ACCOUNT" }, { status: 400 });
+    }
 
     // NEXT_PUBLIC_APP_URL wins when it is really configured. It falls back to
     // localhost, which a provider will reject as a return URL, so on a

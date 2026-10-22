@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { isCardSizedPng } from "@/lib/png";
 import { renderPosterPdf } from "@/lib/qr-posters-render";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -38,6 +39,12 @@ export async function POST(request: Request) {
   // Bound the input — A4 @ 300 DPI = ~2.5 MB max; allow 10 MB to be safe.
   if (png.byteLength > 10 * 1024 * 1024) {
     return NextResponse.json({ error: "PNG too large." }, { status: 413 });
+  }
+
+  // Bytes alone do not bound the work: a small PNG can declare dimensions that
+  // decode to gigabytes. Nothing larger than an A4 card at 300 DPI is needed.
+  if (!isCardSizedPng(png)) {
+    return NextResponse.json({ error: "PNG dimensions are not a card." }, { status: 413 });
   }
 
   const pdf = await renderPosterPdf(png);

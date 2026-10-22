@@ -229,7 +229,17 @@ export async function getAccountUsage(ownerUserId: string): Promise<AccountUsage
     };
   }
 
-  const events = await listOwnerEvents(ownerUserId);
+  // Read with the service role, never the caller's client: on the guest-upload
+  // route the caller is an anonymous guest, whose RLS-scoped view of the owner's
+  // events is empty — so the quota read 0 used and was never enforced.
+  const { data: ownerEvents, error: eventsError } = await admin
+    .from("events")
+    .select("id, status, expires_at, event_date, created_at")
+    .eq("owner_user_id", ownerUserId);
+  if (eventsError) {
+    throw new Error(eventsError.message);
+  }
+  const events = (ownerEvents ?? []) as EventRecord[];
   const activeEvents = events.filter((event) => getEventLifecycleStatus(event) === "active").length;
   const allEventIds = events.map((event) => event.id);
 
@@ -1009,6 +1019,19 @@ export async function findMediaByStorageKey(objectKey: string) {
   return data as { id: string } | null;
 }
 
+/** The event's upload settings, read with the service role (confirm has no session). */
+export async function getEventSettingsById(eventId: string) {
+  const admin = createSupabaseAdminClient();
+  if (!admin) {
+    throw new Error("Supabase admin access is not configured.");
+  }
+  const { data, error } = await admin.from("event_settings").select("*").eq("event_id", eventId).maybeSingle();
+  if (error) {
+    throw new Error(error.message);
+  }
+  return (data ?? null) as EventSettingsRecord | null;
+}
+
 export async function recordCompletedUpload(input: {
   eventId: string;
   objectKey: string;
@@ -1313,6 +1336,14 @@ export async function countUserMediaFiles(userId: string): Promise<number> {
  * Trial = plan_tier "solo" + account created within TRIAL_DURATION_DAYS.
  * Pro accounts, admins, and paying subscribers are never on trial.
  */
+/**
+ * Whether a batch would take a trial past its photo cap. Checking only the
+ * photos already stored let one request mint grants for 150 files at 0 used.
+ */
+export function trialBatchExceeds(photosUsed: number, requested: number, photosLimit: number) {
+  return photosUsed + requested > photosLimit;
+}
+
 export function computeTrialState(
   createdAt: string,
   planTier: string,

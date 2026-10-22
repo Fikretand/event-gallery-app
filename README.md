@@ -24,7 +24,10 @@ Private event galleries for photographers, built with Next.js, Supabase, and Clo
 
 1. Copy `.env.example` to `.env.local`.
 2. Fill in Supabase and R2 credentials.
-3. Run the SQL in [supabase/schema.sql](/C:/Users/andel/OneDrive/Documents/Playground/event-gallery-app/supabase/schema.sql).
+3. Run the SQL in [supabase/schema.sql](supabase/schema.sql), then every file in
+   [supabase/migrations/](supabase/migrations/). The schema is the starting point;
+   the migrations carry the grants, constraints and fixes made since, and a
+   database built from the schema alone is missing them.
 4. Start the app:
 
 ```bash

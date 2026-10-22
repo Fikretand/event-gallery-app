@@ -1678,6 +1678,8 @@ export const dict: Dict = {
       OWNER_WINDOW_CLOSED: "The upload window for this event has closed.",
       TRIAL_ENDED: "Your free trial has ended. Choose a plan to keep uploading.",
       TRIAL_LIMIT: "You've reached the free trial photo limit. Choose a plan to keep uploading.",
+      TRIAL_BATCH_TOO_LARGE: "That is more photos than your free trial has left. Send fewer, or choose a plan.",
+      HOST_TRIAL_BATCH_TOO_LARGE: "The host's free trial can only take a few more photos. Send fewer, or let them know.",
       STORAGE_FULL: "Your account is out of storage. Archive or delete old events to free space.",
     },
   },

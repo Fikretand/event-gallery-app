@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { PHOTOGRAPHER_UPLOAD_RATE_LIMIT } from "@/lib/constants";
-import { computeTrialState, countUserMediaFiles, getAccountUsage, getEventAccountType, getOwnerEventBySlug, incrementRateLimitCount, isEventExpired, isGuestUploadWindowClosed } from "@/lib/events";
+import { computeTrialState, countUserMediaFiles, getAccountUsage, getEventAccountType, getOwnerEventBySlug, incrementRateLimitCount, isEventExpired, isGuestUploadWindowClosed, trialBatchExceeds } from "@/lib/events";
 import { getUserProfile } from "@/lib/auth";
 import { buildUploadGrants } from "@/lib/media";
 import { isRateLimited } from "@/lib/rate-limit";
@@ -85,6 +85,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
       if (trial.status === "active" && photosUsed >= trial.photosLimit) {
         return NextResponse.json(
           { error: `Trial photo limit reached (${trial.photosLimit} photos). Upgrade to continue uploading.`, code: "TRIAL_LIMIT" },
+          { status: 403 },
+        );
+      }
+      if (trial.status === "active" && trialBatchExceeds(photosUsed, files.length, trial.photosLimit)) {
+        return NextResponse.json(
+          {
+            error: `Your trial has ${trial.photosLimit - photosUsed} photos left. Send fewer, or upgrade.`,
+            code: "TRIAL_BATCH_TOO_LARGE",
+          },
           { status: 403 },
         );
       }

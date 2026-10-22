@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { GUEST_UPLOAD_RATE_LIMIT } from "@/lib/constants";
 import { buildUploadGrants } from "@/lib/media";
-import { computeTrialState, countUserMediaFiles, createGuestUploadSession, getAccountUsage, getEventAccountType, getPublicEventBySlug, incrementRateLimitCount, isEventExpired, isGuestUploadWindowClosed } from "@/lib/events";
+import { computeTrialState, countUserMediaFiles, createGuestUploadSession, getAccountUsage, getEventAccountType, getPublicEventBySlug, incrementRateLimitCount, isEventExpired, isGuestUploadWindowClosed, trialBatchExceeds } from "@/lib/events";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isRateLimited } from "@/lib/rate-limit";
 import { hashIp, verifyPin } from "@/lib/security";
@@ -86,6 +86,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
         if (trial.status === "active" && photosUsed >= trial.photosLimit) {
           return NextResponse.json(
             { error: "The event host has reached their trial photo limit. Please contact the event organiser.", code: "HOST_TRIAL_LIMIT" },
+            { status: 403 },
+          );
+        }
+        if (trial.status === "active" && trialBatchExceeds(photosUsed, files.length, trial.photosLimit)) {
+          return NextResponse.json(
+            { error: "The event host's trial cannot take this many more photos.", code: "HOST_TRIAL_BATCH_TOO_LARGE" },
             { status: 403 },
           );
         }
