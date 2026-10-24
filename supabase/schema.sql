@@ -240,6 +240,9 @@ begin
 end;
 $$;
 
+-- Only the trigger calls this; it is not an RPC (migrations/revoke_signup_trigger_execute.sql).
+revoke execute on function public.handle_auth_user_created() from public, anon, authenticated;
+
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
