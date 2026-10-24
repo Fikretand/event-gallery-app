@@ -118,8 +118,11 @@ These are loaded server-side by Resvg for the poster API, and client-side via
   after the trial ends. Paying photographers and admins are never touched.
   Dashboards show the same dates as a warning (`RetentionNotice`, red in the
   last 7 days). The purge runs inside `/api/internal/purge-deleted-media`
-  (Hobby allows two crons) and stays a **dry run until `RETENTION_PURGE=on`**
-  in Vercel; it logs `[retention] {...}` either way.
+  (Hobby allows two crons). **`RETENTION_PURGE=on` in Vercel production since
+  2026-10-24** (owner's decision: the FAQ and Privacy draft promise this
+  deletion, so it must really happen); any other value is a dry run. It logs
+  `[retention] {...}` either way, but Hobby keeps runtime logs for one hour, so
+  check what is due with a SQL query mirroring `retentionSchedule` instead.
 
 ### Live view for the venue screen
 - `/[locale]/gallery/[slug]/live` (`live-slideshow.tsx`, data from
@@ -418,36 +421,34 @@ thumbnails) is **done**. What is genuinely left:
    to boot in production without it, but not without a *good* one).
 
 6. **Supabase Auth → "Leaked password protection"**: off; one click, free.
-7. **`RETENTION_PURGE=on`** before 2027-01-28, when the first expired gallery
-   (a couple test event) becomes due. Today's dry run deletes nothing.
-8. **Test accounts** `ficosarajevo22@…` / `ficosarajevo23@…` still to delete
+7. **Test accounts** `ficosarajevo21@…`, `ficosarajevo22@…`, `ficosarajevo23@…` still to delete
    (admin panel → delete user does R2 + rows + auth in order), plus a test row
    `zz-selftest` in `guest_upload_rate_limits`. DELETE through the Supabase MCP
    times out waiting for confirmation in the owner's UI.
 
 ### Needs eyes on a real device (cannot be checked from CI)
-9. Fabric QR card editor, the Three.js hero loop in the footer CTA, video
+8. Fabric QR card editor, the Three.js hero loop in the footer CTA, video
    poster extraction on a real upload, and the gallery viewer on iOS Safari.
    Also: a video message from a real iPhone and Android (headless Chromium in
    the sandbox cannot decode H.264, so duration/poster were tested with WebM),
    HEIC → JPEG on iPhone, and a report from a phone.
 
 ### Code work still open
-10. **Real testimonials.** The fabricated ones were removed from every page;
+9. **Real testimonials.** The fabricated ones were removed from every page;
    `marketing-testimonials.tsx` + its data stay in tree so the section can be
    restored once real quotes exist.
-11. **Sentry (or similar).** `src/instrumentation.ts` already implements
+10. **Sentry (or similar).** `src/instrumentation.ts` already implements
    `onRequestError` and logs structured context — forwarding it needs an
    account + DSN.
-12. **Video duration.** Poster frames are extracted client-side; `duration` is
+11. **Video duration.** Poster frames are extracted client-side; `duration` is
    not plumbed through and is not displayed anywhere yet.
-13. **Streaming ZIP.** `/api/media/download-batch` assembles the archive in
+12. **Streaming ZIP.** `/api/media/download-batch` assembles the archive in
     memory (every original buffered, plus the finished ZIP), so it is capped at
     300 MB per request and tells the user to download in batches above that.
     A real wedding gallery exceeds that. The fix is streaming from R2 into a
     streamed ZIP response, or moving the job off the request path.
-14. Email notifications (post-upload, expiry).
-15. Physical print product shop (BiH market).
+13. Email notifications (post-upload, expiry).
+14. Physical print product shop (BiH market).
 
 ## 6. KEY PATTERNS — please follow
 
@@ -695,6 +696,11 @@ Newest first — useful for picking back up.
   policy (intended) and leaked-password protection (owner, §5).
   The one production error seen was a 212-byte corrupt `tiny_test.jpg` on the
   admin's event: recorded, marked failed, upload not lost — as designed.
+  Retention purge switched on (2026-10-24) after checking that the FAQ, the
+  Privacy draft and `retention.ts` say the same thing (30 days after a One
+  Event gallery closes, 60 days after a never-paid trial, paying
+  photographers and admins never). Nothing was due that day; the first
+  candidates are two couple test events (2027-01-28, 2027-02-28).
 
 - **Security audit fixes + upload resilience + HEIC + live view.** The
   Cloudflare security-audit skill (quick profile, run-1, reports outside the
