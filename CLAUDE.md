@@ -1,6 +1,6 @@
 # CLAUDE.md — Confetti Event Gallery App
 
-_Last updated: 2026-09-20._
+_Last updated: 2026-10-24._
 
 ---
 
@@ -150,6 +150,51 @@ These are loaded server-side by Resvg for the poster API, and client-side via
   list HEIC, so iOS hands over a JPEG; a HEIC that still arrives (dragged in on
   a computer) is kept as `ready` without a thumbnail. **Still to confirm on a
   real iPhone** that Safari converts.
+- **Confirm trusts R2, not the request:** it HEADs the object and records the
+  stored size and content type; anything over the event's limit or of a type it
+  does not accept is deleted (413/415). Images over 80 MB are kept without a
+  thumbnail; a file is given up on after 3 processing starts.
+- **"Just sent"** (`upload-dropzone.tsx`): after sending, the guest sees
+  thumbnails of their own files ("only you can see these until the host
+  approves them") — local object URLs, at most 24, kept for the visit.
+- **Duplicate skip** (`src/lib/upload-dedupe.ts`, tested): a file this phone
+  already sent to the same event (name + size + lastModified, in localStorage
+  per event, ≤ 2000) is skipped with "N already sent – skipped" and a
+  "send anyway" button.
+- XHR upload, retry policy and video poster extraction live in
+  `src/lib/upload-client.ts`, shared with the video message recorder.
+
+### Guest video messages
+- Under the photo upload, "Leave a video message" (`video-message.tsx`) opens
+  the phone's front camera (`capture="user"`, no recording code). Name is
+  required; > 90 s (`MESSAGE_MAX_SECONDS`) is refused in the browser from the
+  video metadata. Same presigned path and retry as photos.
+- A file is a message because of its key, `events/<id>/guest/messages/…`,
+  minted by the session route for `purpose: "message"` and signed into the
+  confirm grant (`src/lib/video-messages.ts`, tested). Confirm sets
+  `media_files.purpose = 'message'` and accepts only a video there, even when
+  the event's guest-video switch is off.
+- Messages arrive hidden like every guest upload. Approved ones get their own
+  "Video poruke" block in the public gallery (not in the photo grid, tabs or
+  ZIP); the owner has a "Poruke" filter; the live view skips them (silent).
+- Setting `event_settings.allow_video_messages` (default on); card title/body
+  and the gallery heading are in `COPY_FIELDS`.
+
+### Reports ("Prijavi")
+- The public viewer has a report button with a reason (inappropriate /
+  private / other). `POST /api/media/[id]/report` — **unauthenticated** —
+  needs current gallery access (`canViewGallery`), only accepts files the
+  gallery shows (404 otherwise), allows 10 per address per 15 min, and stores
+  one report per file and address in `media_reports` (service role only;
+  `src/lib/media-reports.ts`).
+- The owner sees "Prijavljeno (N)" on the file, "Odbaci prijave" (DELETE on the
+  same route, owner only) and a line on the event overview. Nothing is hidden
+  automatically.
+
+### Profile
+- The picked avatar shows at once ("save the profile to keep it", "keep the old
+  one"); JPG/PNG/WebP up to `PROFILE_AVATAR_MAX_MB` checked on pick. The form
+  fits 360/390 px phones (grid items had min-content width).
 
 ### Dashboard (full i18n EN + BS)
 - `/dashboard` — photographer event list + usage cards + trial banner
@@ -372,26 +417,37 @@ thumbnails) is **done**. What is genuinely left:
 5. **Confirm `APP_SECRET`** in Vercel is a strong random value (the app refuses
    to boot in production without it, but not without a *good* one).
 
+6. **Supabase Auth → "Leaked password protection"**: off; one click, free.
+7. **`RETENTION_PURGE=on`** before 2027-01-28, when the first expired gallery
+   (a couple test event) becomes due. Today's dry run deletes nothing.
+8. **Test accounts** `ficosarajevo22@…` / `ficosarajevo23@…` still to delete
+   (admin panel → delete user does R2 + rows + auth in order), plus a test row
+   `zz-selftest` in `guest_upload_rate_limits`. DELETE through the Supabase MCP
+   times out waiting for confirmation in the owner's UI.
+
 ### Needs eyes on a real device (cannot be checked from CI)
-6. Fabric QR card editor, the Three.js hero loop in the footer CTA, video
+9. Fabric QR card editor, the Three.js hero loop in the footer CTA, video
    poster extraction on a real upload, and the gallery viewer on iOS Safari.
+   Also: a video message from a real iPhone and Android (headless Chromium in
+   the sandbox cannot decode H.264, so duration/poster were tested with WebM),
+   HEIC → JPEG on iPhone, and a report from a phone.
 
 ### Code work still open
-7. **Real testimonials.** The fabricated ones were removed from every page;
+10. **Real testimonials.** The fabricated ones were removed from every page;
    `marketing-testimonials.tsx` + its data stay in tree so the section can be
    restored once real quotes exist.
-8. **Sentry (or similar).** `src/instrumentation.ts` already implements
+11. **Sentry (or similar).** `src/instrumentation.ts` already implements
    `onRequestError` and logs structured context — forwarding it needs an
    account + DSN.
-9. **Video duration.** Poster frames are extracted client-side; `duration` is
+12. **Video duration.** Poster frames are extracted client-side; `duration` is
    not plumbed through and is not displayed anywhere yet.
-10. **Streaming ZIP.** `/api/media/download-batch` assembles the archive in
+13. **Streaming ZIP.** `/api/media/download-batch` assembles the archive in
     memory (every original buffered, plus the finished ZIP), so it is capped at
     300 MB per request and tells the user to download in batches above that.
     A real wedding gallery exceeds that. The fix is streaming from R2 into a
     streamed ZIP response, or moving the job off the request path.
-11. Email notifications (post-upload, expiry).
-12. Physical print product shop (BiH market).
+14. Email notifications (post-upload, expiry).
+15. Physical print product shop (BiH market).
 
 ## 6. KEY PATTERNS — please follow
 
@@ -420,11 +476,27 @@ wrappers trust the URL and never redirect.
   service credentials first checks the key with `isEventObjectKey` /
   `isUserAvatarKey` (`src/lib/object-keys.ts`). Row columns are not trusted to
   stay inside their namespace; a new sink must do the same.
+- **Browsers write almost nothing directly.** `anon`/`authenticated` have no
+  INSERT/UPDATE on `events`, `event_settings` or `media_files` (except
+  `media_files.section_id`), and no UPDATE of `users.avatar_url`. Those writes
+  go through the service role after the ownership and plan checks in
+  `events.ts` / `actions.ts`, always scoped `.eq("owner_user_id", …)`. A new
+  writable column means deciding this again, not widening a grant.
+- Plan limits and billing state are read with the service role, never through
+  the caller's RLS view (the guest-upload quota once read 0 that way).
+- Billing webhooks: a product must fit the account type (`planFitsAccount`),
+  and only newer events apply (`billingEventDecision`).
+- Rate limits count atomically (`increment_rate_limit` RPC); the gallery PIN
+  fails closed when the counter cannot be read.
+- Admin pages each call `requireAdminPage()`; the layout is not the guard.
 - Never expose service-role keys client-side.
 - Always validate ownership before any write — `user_id` on events/media.
 - Don't trust client-supplied `eventId`, `mediaId`, `slug` without
   `getOwnerEventBySlug` style verification.
-- Flag any new unauthenticated API endpoint loudly.
+- Flag any new unauthenticated API endpoint loudly. Current ones beyond the
+  guest pages: guest upload session, upload confirm (signed grant), the
+  gallery media/download routes (gallery access), the live view API, and
+  ⚠ `POST /api/media/[id]/report` (gallery access + 10/15 min per address).
 
 ### Supabase free-tier ceiling
 500 MB DB + 2 GB bandwidth. Media bytes live in R2 and never count against
@@ -534,6 +606,12 @@ src/
 │   ├── auth.ts, account.ts, marketing.ts
 │   ├── seo.ts                       # publicMetadata / privateMetadata
 │   ├── object-keys.ts               # R2 key must sit in its row's namespace
+│   ├── admin-guard.ts               # requireAdminPage() for every admin page
+│   ├── media-reports.ts             # "report inappropriate" (service role)
+│   ├── video-messages.ts            # message purpose from the signed key
+│   ├── upload-client.ts             # browser PUT + retry + video poster
+│   ├── upload-dedupe.ts             # skip files this phone already sent
+│   ├── png.ts                       # PNG IHDR size check (QR card PDF)
 │   ├── upload-queue.ts              # upload pool + retry/offline wait
 │   ├── live-slides.ts               # venue live view data + access
 │   ├── pricing.ts                   # the only place a price is written down
@@ -556,6 +634,7 @@ src/
     ├── ui/{button, input, panel}.tsx
     ├── upload-dropzone.tsx
     ├── live-slideshow.tsx           # full-screen venue live view
+    ├── video-message.tsx            # guest records a message for the hosts
     ├── media-grid.tsx
     ├── collapsible-section.tsx      # Gallery manager collapser
     ├── qr-poster-picker.tsx         # Plain QR + "Prilagodi" buttons
@@ -580,6 +659,42 @@ src/
 ## 9. RECENT SESSION LOG
 
 Newest first — useful for picking back up.
+
+- **Round 3: profile, Guestpix ideas, audit round 2** (`48e84f2`…`07da1f3`).
+  Owner's notes: the avatar changed only after saving and the profile page
+  was wider than a phone — both fixed (§3 Profile). From the Guestpix
+  analysis (`guestpix-analiza.md`): "just sent" thumbnails, duplicate skip,
+  reports and video messages (§3). Guestpix's R2 keys carry the guest's name
+  and the original filename; ours are random UUIDs, which stays the rule.
+  Security audit run-1, everything still open is closed:
+  - 3.3 One Event on a photographer account → `planFitsAccount` in both
+    webhooks and at checkout.
+  - 3.4 owners writing plan-limit columns → event/settings writes moved to the
+    service role, then migration `revoke_client_event_writes.sql`.
+  - 3.5 guest quota read 0 → usage via service role.
+  - 3.6 size/type not bound → confirm HEADs R2 (route test).
+  - 3.7 PIN rate limit race → atomic RPC, fail closed.
+  - 3.8 schema.sql trigger → hardened baseline; README: run migrations after.
+  - 3.9 replayed confirm → unique `storage_key` on top of idempotent confirm.
+  - 3.10 trial batch → `trialBatchExceeds`.
+  - Leads: admin pages guard themselves, QR PDF refuses PNGs declaring more
+    than A4 @ 300 DPI, `safeNextPath` refuses control characters/other
+    origins, Polar events ordered (`subscription_event_at`), stuck
+    processing capped at 3 attempts, download-batch (done in `b060c22`).
+  Migrations applied to production with the owner's confirmation:
+  `round3_additive.sql` (2026-10-22, before its code: purpose,
+  processing_attempts, allow_video_messages, subscription_event_at,
+  media_reports, unique storage_key, `increment_rate_limit`),
+  `revoke_client_event_writes.sql` and `revoke_signup_trigger_execute.sql`
+  (2026-10-24, after deploy `e51fb0b` was READY). Checked after: browser roles
+  keep SELECT/DELETE on events/event_settings; the signup function is
+  executable only by postgres/service_role; a rolled-back test showed a
+  trigger fires without EXECUTE and signup still creates the profile (role
+  from metadata ignored). Supabase advisors 0028/0029 are gone; what remains
+  is GraphQL visibility (by design, RLS applies), `media_reports` RLS with no
+  policy (intended) and leaked-password protection (owner, §5).
+  The one production error seen was a 212-byte corrupt `tiny_test.jpg` on the
+  admin's event: recorded, marked failed, upload not lost — as designed.
 
 - **Security audit fixes + upload resilience + HEIC + live view.** The
   Cloudflare security-audit skill (quick profile, run-1, reports outside the
