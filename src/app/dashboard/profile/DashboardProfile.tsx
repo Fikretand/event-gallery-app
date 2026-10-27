@@ -45,23 +45,23 @@ export async function DashboardProfile({
         <div>
           <Link
             href={`${prefix}/dashboard`}
-            className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white/80 px-4 py-2 text-sm font-semibold text-[var(--color-ink)] transition hover:bg-white"
+            className="inline-flex items-center justify-center rounded-full border border-rule bg-card px-4 py-2 text-sm font-semibold text-[var(--color-ink)] transition-colors hover:bg-white"
           >
             {p.backToDashboard}
           </Link>
         </div>
 
         {searchParams?.saved === "1" && (
-          <div className="rounded-2xl bg-[#eef9f0] px-4 py-3 text-sm text-[#1f6b35]">
+          <div className="rounded-2xl bg-[var(--color-moss-soft)] px-4 py-3 text-sm text-[var(--color-moss)]">
             {p.savedNotice}
           </div>
         )}
 
-        <Panel className="bg-white/90">
+        <Panel className="bg-card">
           <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">
             {isCouple ? p.accountDetails : p.publicProfileSettings}
           </h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-black/62">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-2">
             {isCouple ? p.accountDetailsBody : p.publicProfileBody}
           </p>
           <div className="mt-5">
@@ -74,9 +74,9 @@ export async function DashboardProfile({
           </div>
         </Panel>
 
-        <Panel className="bg-white/90">
+        <Panel className="bg-card">
           <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">{p.changePassword.title}</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-black/62">{p.changePassword.body}</p>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-2">{p.changePassword.body}</p>
           <div className="mt-5">
             <ChangePasswordForm
               action={changePasswordAction}

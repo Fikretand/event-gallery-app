@@ -191,7 +191,7 @@ export function LiveSlideshow({ slug, title, initialSlides, initialIncludePendin
 
   return (
     <div
-      className={`fixed inset-0 z-[100] overflow-hidden bg-[#0b0d12] text-white ${controlsVisible ? "" : "cursor-none"}`}
+      className={`fixed inset-0 z-[100] overflow-hidden bg-[var(--color-night)] text-white ${controlsVisible ? "" : "cursor-none"}`}
       onMouseMove={showControls}
       onTouchStart={showControls}
     >
@@ -221,7 +221,7 @@ export function LiveSlideshow({ slug, title, initialSlides, initialIncludePendin
             />
           )}
           {isNew ? (
-            <span className="absolute left-[3vw] top-[3vh] rounded-full bg-[var(--color-accent)] px-[1.4vw] py-[0.6vh] text-[clamp(14px,1.4vw,28px)] font-semibold uppercase tracking-[0.18em]">
+            <span className="absolute left-[3vw] top-[3vh] rounded-full bg-[var(--color-accent)] px-[1.4vw] py-[0.6vh] text-[clamp(14px,1.4vw,28px)] font-semibold">
               {s.newBadge}
             </span>
           ) : null}
@@ -247,7 +247,7 @@ export function LiveSlideshow({ slug, title, initialSlides, initialIncludePendin
           />
           <div className="max-w-[22ch]">
             <p className="font-display text-[clamp(15px,1.5vw,30px)] font-semibold leading-tight">{s.scanTitle}</p>
-            <p className="mt-1 text-[clamp(12px,1vw,20px)] leading-snug text-black/65">{s.scanBody}</p>
+            <p className="mt-1 text-[clamp(12px,1vw,20px)] leading-snug text-ink-2">{s.scanBody}</p>
           </div>
         </div>
       </div>

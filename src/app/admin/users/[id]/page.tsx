@@ -59,7 +59,7 @@ export default async function UserDetailPage({
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-black/45">
+      <div className="flex items-center gap-2 text-sm text-muted">
         <Link href="/admin/users" className="hover:text-[var(--color-ink)]">Users</Link>
         <span>/</span>
         <span className="text-[var(--color-ink)]">{user.full_name ?? user.email}</span>
@@ -70,7 +70,7 @@ export default async function UserDetailPage({
 
         {/* ── Left panel: Profile ── */}
         <div className="space-y-4">
-          <div className="overflow-hidden rounded-2xl border border-black/8 bg-white/92 shadow-[0_18px_50px_rgba(18,24,38,0.05)] backdrop-blur">
+          <div className="overflow-hidden rounded-2xl border border-rule bg-card shadow-[0_18px_50px_color-mix(in_oklch,_var(--color-ink)_5%,_transparent)]">
             {/* Avatar area */}
             <div className="flex flex-col items-center gap-3 bg-[var(--color-paper)]/50 px-6 py-8">
               <div className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-[var(--color-ink)] text-xl font-bold text-white shadow-lg">
@@ -78,7 +78,7 @@ export default async function UserDetailPage({
               </div>
               <div className="text-center">
                 <p className="font-semibold text-[var(--color-ink)]">{user.full_name ?? "No name"}</p>
-                <p className="mt-0.5 text-sm text-black/50">{user.email}</p>
+                <p className="mt-0.5 text-sm text-muted">{user.email}</p>
               </div>
               <div className="flex flex-wrap justify-center gap-2">
                 <span className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${
@@ -109,7 +109,7 @@ export default async function UserDetailPage({
               )}
               {user.instagram_url && <ProfileRow label="Instagram" value={user.instagram_url.replace(/^https?:\/\//, "")} />}
               <ProfileRow label="User ID">
-                <span className="font-mono text-[10px] text-black/35">{user.id.slice(0, 8)}…</span>
+                <span className="font-mono text-xs text-muted">{user.id.slice(0, 8)}…</span>
               </ProfileRow>
             </div>
           </div>
@@ -119,7 +119,7 @@ export default async function UserDetailPage({
         <div className="space-y-4">
 
           {/* Plan & Trial */}
-          <div className="rounded-2xl border border-black/8 bg-white/92 shadow-[0_18px_50px_rgba(18,24,38,0.05)] backdrop-blur">
+          <div className="rounded-2xl border border-rule bg-card shadow-[0_18px_50px_color-mix(in_oklch,_var(--color-ink)_5%,_transparent)]">
             <SectionHeader title="Account" />
             <div className="grid grid-cols-2 gap-px bg-black/5 sm:grid-cols-4">
               <InfoBlock label="Plan" value={billing.plan} accent={billing.plan === "Pro"} />
@@ -146,12 +146,12 @@ export default async function UserDetailPage({
           </div>
 
           {/* Storage & Usage */}
-          <div className="rounded-2xl border border-black/8 bg-white/92 shadow-[0_18px_50px_rgba(18,24,38,0.05)] backdrop-blur">
+          <div className="rounded-2xl border border-rule bg-card shadow-[0_18px_50px_color-mix(in_oklch,_var(--color-ink)_5%,_transparent)]">
             <SectionHeader title="Storage & Usage" />
             <div className="px-5 pb-5 pt-4">
               <div className="flex items-end justify-between text-sm">
                 <span className="font-medium text-[var(--color-ink)]">{formatBytes(usage.liveUsedStorageBytes)}</span>
-                <span className="text-black/40">of {formatBytes(usage.liveStorageLimitBytes)}</span>
+                <span className="text-muted">of {formatBytes(usage.liveStorageLimitBytes)}</span>
               </div>
               <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-black/8">
                 <div
@@ -182,7 +182,7 @@ export default async function UserDetailPage({
 
           {/* Events list */}
           {events.length > 0 && (
-            <div className="overflow-hidden rounded-2xl border border-black/8 bg-white/92 shadow-[0_18px_50px_rgba(18,24,38,0.05)] backdrop-blur">
+            <div className="overflow-hidden rounded-2xl border border-rule bg-card shadow-[0_18px_50px_color-mix(in_oklch,_var(--color-ink)_5%,_transparent)]">
               <SectionHeader title={`Events (${events.length})`} />
               <div className="divide-y divide-black/5">
                 {events.slice(0, 6).map((ev) => (
@@ -191,22 +191,22 @@ export default async function UserDetailPage({
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-[var(--color-ink)]">{ev.title}</p>
                       {ev.event_date && (
-                        <p className="text-xs text-black/40">
+                        <p className="text-xs text-muted">
                           {new Date(ev.event_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                         </p>
                       )}
                     </div>
                     <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${
                       ev.status === "active" ? "bg-emerald-100 text-emerald-700"
-                      : ev.status === "archived" ? "bg-black/8 text-black/45"
-                      : "bg-black/6 text-black/45"
+                      : ev.status === "archived" ? "bg-black/8 text-muted"
+                      : "bg-black/6 text-muted"
                     }`}>
                       {ev.status}
                     </span>
                   </div>
                 ))}
                 {events.length > 6 && (
-                  <p className="px-5 py-2.5 text-xs text-black/35">+{events.length - 6} more events</p>
+                  <p className="px-5 py-2.5 text-xs text-muted">+{events.length - 6} more events</p>
                 )}
               </div>
             </div>
@@ -224,8 +224,8 @@ export default async function UserDetailPage({
 
 function SectionHeader({ title }: { title: string }) {
   return (
-    <div className="border-b border-black/8 px-5 py-3.5">
-      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-black/40">{title}</p>
+    <div className="border-b border-rule px-5 py-3.5">
+      <p className="text-xs font-semibold text-muted">{title}</p>
     </div>
   );
 }
@@ -241,7 +241,7 @@ function ProfileRow({
 }) {
   return (
     <div className="flex items-start justify-between gap-4 py-3">
-      <span className="text-xs font-medium text-black/40">{label}</span>
+      <span className="text-xs font-medium text-muted">{label}</span>
       {children ?? <span className="text-right text-xs text-[var(--color-ink)]">{value}</span>}
     </div>
   );
@@ -260,8 +260,8 @@ function InfoBlock({
 }) {
   return (
     <div className="bg-white px-5 py-4">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-black/35">{label}</p>
-      <p className={`mt-1 text-sm font-semibold ${danger ? "text-red-600" : accent ? "text-[var(--color-ink)]" : "text-black/70"}`}>
+      <p className="text-xs font-semibold text-muted">{label}</p>
+      <p className={`mt-1 text-sm font-semibold ${danger ? "text-red-600" : accent ? "text-[var(--color-ink)]" : "text-ink"}`}>
         {value}
       </p>
     </div>
@@ -272,7 +272,7 @@ function MiniStat({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-xl bg-[var(--color-paper)]/60 px-3 py-3 text-center">
       <p className="text-lg font-semibold tabular-nums text-[var(--color-ink)]">{value}</p>
-      <p className="mt-0.5 text-[10px] text-black/40">{label}</p>
+      <p className="mt-0.5 text-xs text-muted">{label}</p>
     </div>
   );
 }

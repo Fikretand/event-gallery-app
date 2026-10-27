@@ -1,46 +1,13 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+
 import { MarketingButtonLink } from "@/components/marketing-button-link";
 import { PricingShowcase } from "@/components/pricing-showcase";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteNav } from "@/components/site-nav";
-import { Panel } from "@/components/ui/panel";
+import { CheckIcon } from "@/components/ui/check-icon";
 import { getDictionary, type Locale } from "@/lib/i18n/index";
 import { publicMetadata } from "@/lib/seo";
-
-const WORKFLOW_ICONS = ["spark", "qr", "shield", "frame"] as const;
-
-function WorkflowIcon({ type }: { type: typeof WORKFLOW_ICONS[number] }) {
-  switch (type) {
-    case "spark":
-      return (
-        <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7">
-          <path d="M13 2L4.5 13.5h7L9.5 22 20.5 10h-7L13 2Z" />
-        </svg>
-      );
-    case "qr":
-      return (
-        <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7">
-          <rect x="3" y="3" width="7" height="7" rx="1" />
-          <rect x="14" y="3" width="7" height="7" rx="1" />
-          <rect x="3" y="14" width="7" height="7" rx="1" />
-          <path d="M14 14h2v2h-2zM18 14h2v6h-2M14 18h4" />
-        </svg>
-      );
-    case "shield":
-      return (
-        <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7">
-          <path d="M12 2.5l7 3v4.5c0 4.5-3.2 8-7 9.5C8.2 18 5 14.5 5 10V5.5L12 2.5Z" />
-          <path d="M9 12.2l2 2 4-4.5" />
-        </svg>
-      );
-    case "frame":
-      return (
-        <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7">
-          <rect x="3" y="3" width="18" height="18" rx="2" />
-          <path d="M3 9h18M9 21V9" />
-        </svg>
-      );
-  }
-}
 
 export async function generateMetadata({
   params,
@@ -69,93 +36,91 @@ export default async function ForPhotographersPage({
   const lp = (path: string) => `/${locale}${path}`;
 
   return (
-    <main className="pb-16">
+    <main>
       <SiteNav />
 
-      {/* Hero */}
-      <section className="shell py-10 sm:py-14">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[var(--color-moss)]">
-            {d.eyebrow}
-          </p>
-          <h1 className="font-display mt-4 text-4xl font-semibold leading-[1.04] tracking-tight text-[var(--color-ink)] sm:text-6xl">
+      {/* ─── Hero (Stage): the offer on six columns, a client's wedding on
+           the other six ─── */}
+      <section className="shell grid gap-y-[var(--space-2xl)] py-[var(--space-2xl)] lg:min-h-[min(calc(100svh-var(--nav-height)),820px)] lg:grid-cols-12 lg:items-center lg:gap-x-[var(--gap-columns)]">
+        <div className="settle lg:col-span-6">
+          <h1 className="max-w-[18ch] font-display text-[clamp(2.5rem,3.6vw+1rem,4.25rem)] font-semibold leading-[1.05] text-ink">
             {d.title}
           </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-black/65 sm:text-lg sm:leading-8">
-            {d.body}
-          </p>
-          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <MarketingButtonLink
-              href={lp("/signup?intent=photographer")}
-              className="w-full px-8 shadow-[0_12px_32px_rgba(226,121,82,0.28)] sm:w-auto"
-            >
+          <p className="lead mt-[var(--space-lg)] max-w-[52ch]">{d.body}</p>
+          <div className="mt-[var(--space-xl)] flex flex-col gap-3 sm:flex-row sm:items-center">
+            <MarketingButtonLink href={lp("/signup?intent=photographer")} className="w-full sm:w-auto">
               {d.ctaPrimary}
             </MarketingButtonLink>
-            <MarketingButtonLink href={lp("/pricing")} tone="ghost" className="w-full bg-white/70 px-8 sm:w-auto">
+            <Link href="#pricing" className="btn btn-quiet w-full sm:w-auto">
               {d.ctaSecondary}
-            </MarketingButtonLink>
+            </Link>
           </div>
+        </div>
+        <div className="lg:col-span-6">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/explainer/assets/gallery-ceremony-1.webp"
+            alt=""
+            width={800}
+            height={533}
+            fetchPriority="high"
+            className="aspect-[4/3] h-auto w-full rounded-[var(--radius-image)] bg-paper-3 object-cover"
+          />
         </div>
       </section>
 
-      {/* Benefits */}
-      <section className="shell pb-12 sm:pb-16">
-        <div className="grid gap-4 sm:grid-cols-3">
+      {/* ─── Three reasons, across ─── */}
+      <section className="shell section-s">
+        <h2 className="section-head max-w-[20ch] text-ink">{d.benefitsEyebrow}</h2>
+        <ul className="mt-[var(--space-2xl)] grid gap-y-[var(--space-xl)] border-t border-rule pt-[var(--space-xl)] sm:grid-cols-3 sm:gap-x-[var(--gap-columns)]">
           {dm.photographerBenefits.map((item) => (
-            <Panel
-              key={item.title}
-              className="mesh-card border-[#dde7e1] bg-[linear-gradient(160deg,rgba(245,251,248,0.98),rgba(224,238,232,0.72))]"
-            >
-              <p className="text-sm font-semibold text-[var(--color-ink)]">{item.title}</p>
-              <p className="mt-2 text-sm leading-6 text-black/65">{item.body}</p>
-            </Panel>
+            <li key={item.title}>
+              <h3 className="title text-ink">{item.title}</h3>
+              <p className="mt-[var(--space-sm)] max-w-[40ch] leading-relaxed text-ink-2">{item.body}</p>
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
 
-      {/* Workflow */}
-      <section className="shell py-12 sm:py-16">
-        <div className="rounded-[36px] border border-[#22334c]/65 bg-[radial-gradient(ellipse_at_top_left,rgba(226,121,82,0.12),transparent_38%),linear-gradient(160deg,#1e2d45,#172033)] px-6 py-10 sm:px-10 sm:py-14">
-          <p className="text-center text-xs font-semibold uppercase tracking-[0.26em] text-[#a8c4b8]">
-            {d.workflowEyebrow}
-          </p>
-          <h2 className="font-display mt-4 text-center text-3xl font-semibold text-white sm:text-4xl">
-            {d.workflowTitle}
-          </h2>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* ─── The working day, as four numbered steps on the ink band ─── */}
+      <section className="bg-ink py-[var(--section-gap-s)] text-paper">
+        <div className="shell">
+          <h2 className="section-head max-w-[22ch] text-paper">{d.workflowTitle}</h2>
+          <p className="mt-[var(--space-lg)] max-w-[60ch] text-[1.0625rem] leading-relaxed text-paper-3">{d.workflowBody}</p>
+          <ol className="mt-[var(--space-2xl)] grid gap-y-[var(--space-xl)] sm:grid-cols-2 sm:gap-x-[var(--gap-columns)] lg:grid-cols-4">
             {d.workflow.map((step, i) => (
-              <div key={step.title} className="rounded-[24px] border border-white/10 bg-white/7 p-6">
-                <div className="inline-flex h-11 w-11 items-center justify-center rounded-[18px] bg-white/10 text-white/80">
-                  <WorkflowIcon type={WORKFLOW_ICONS[i]} />
-                </div>
-                <p className="mt-4 text-sm font-semibold text-white/90">{step.title}</p>
-                <p className="mt-2 text-sm leading-6 text-white/52">{step.body}</p>
-              </div>
+              <li key={step.title} className="border-t border-ink-2 pt-[var(--space-lg)]">
+                <h3 className="flex items-baseline gap-3 text-lg font-semibold leading-snug text-paper">
+                  <span className="num font-display text-[length:var(--text-2xl)] font-semibold text-paper-3">{i + 1}</span>
+                  {step.title}
+                </h3>
+                <p className="mt-[var(--space-xs)] leading-relaxed text-paper-3">{step.body}</p>
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
       </section>
 
-      {/* Switch reasons */}
-      <section className="shell pb-12 sm:pb-16">
-        <Panel className="mesh-card border-[#d9cfc1] bg-[linear-gradient(160deg,#fffdfb,rgba(242,234,223,0.85))]">
-          <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)] sm:text-3xl">
-            {d.switchTitle}
-          </h2>
-          <ul className="mt-6 space-y-3">
+      {/* ─── Why photographers switch: the heading beside the reasons ─── */}
+      <section className="shell section">
+        <div className="grid gap-y-[var(--space-xl)] lg:grid-cols-12 lg:gap-x-[var(--gap-columns)]">
+          <h2 className="section-head max-w-[18ch] text-ink lg:col-span-5">{d.switchTitle}</h2>
+          <ul className="border-t border-rule lg:col-span-7">
             {dm.photographerSwitchReasons.map((reason) => (
-              <li key={reason} className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--color-moss)]/12 text-[10px] text-[var(--color-moss)]">✓</span>
-                <span className="text-sm leading-6 text-black/72">{reason}</span>
+              <li key={reason} className="flex items-start gap-3 border-b border-rule py-[var(--space-md)] text-ink">
+                <CheckIcon />
+                <span className="leading-relaxed">{reason}</span>
               </li>
             ))}
           </ul>
-        </Panel>
+        </div>
       </section>
 
-      <section className="shell py-6">
+      <section id="pricing" className="shell section-s">
         <PricingShowcase />
       </section>
+
+      <SiteFooter locale={locale as Locale} />
     </main>
   );
 }

@@ -202,16 +202,16 @@ export function VideoMessage({ slug, pinRequired, strings: s, upload }: Props) {
   return (
     <section
       aria-labelledby="video-message-title"
-      className="mt-5 rounded-[28px] border border-black/8 bg-white/92 p-5 shadow-[0_8px_40px_rgba(18,24,38,0.06)]"
+      className="mt-5 rounded-[28px] border border-rule bg-card p-5 shadow-[0_8px_40px_color-mix(in_oklch,_var(--color-ink)_6%,_transparent)]"
     >
       {recordInput}
       <h2 id="video-message-title" className="font-display text-xl font-semibold text-[var(--color-ink)]">
         🎥 {s.title}
       </h2>
-      <p className="mt-1 text-sm leading-6 text-black/60">{s.body}</p>
+      <p className="mt-1 text-sm leading-6 text-ink-2">{s.body}</p>
 
       {phase.kind === "sent" ? (
-        <div className="mt-4 rounded-2xl bg-[#eef8f2] px-4 py-3 text-sm text-[var(--color-moss)]">
+        <div className="mt-4 rounded-2xl bg-[var(--color-moss-soft)] px-4 py-3 text-sm text-[var(--color-moss)]">
           <p className="font-semibold">{s.sentTitle}</p>
           <p className="mt-0.5">{s.sentBody}</p>
           <button
@@ -220,7 +220,7 @@ export function VideoMessage({ slug, pinRequired, strings: s, upload }: Props) {
               setPhase({ kind: "idle" });
               inputRef.current?.click();
             }}
-            className="mt-3 rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-semibold text-[var(--color-ink)]"
+            className="mt-3 rounded-full border border-rule bg-white px-4 py-2 text-sm font-semibold text-[var(--color-ink)]"
           >
             {s.another}
           </button>
@@ -229,7 +229,7 @@ export function VideoMessage({ slug, pinRequired, strings: s, upload }: Props) {
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-[18px] border border-[var(--color-accent)]/30 bg-[var(--color-accent-soft)]/40 px-5 py-4 text-base font-semibold text-[var(--color-accent)] transition hover:bg-[var(--color-accent-soft)]/70"
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-[18px] border border-[var(--color-accent)]/30 bg-[var(--color-accent-soft)]/40 px-5 py-4 text-base font-semibold text-[var(--color-accent)] transition-colors hover:bg-[var(--color-accent-soft)]/70"
         >
           ● {s.recordBtn}
         </button>
@@ -238,7 +238,7 @@ export function VideoMessage({ slug, pinRequired, strings: s, upload }: Props) {
           <video src={phase.url} controls playsInline className="aspect-video w-full rounded-2xl bg-black object-contain" />
           <label className="flex flex-col gap-1.5">
             <span className="text-sm font-semibold text-[var(--color-ink)]">
-              {s.nameLabel} <span className="font-medium text-[#c0392b]">{upload.required}</span>
+              {s.nameLabel} <span className="font-medium text-[var(--color-error)]">{upload.required}</span>
             </span>
             <input
               value={name}
@@ -249,13 +249,13 @@ export function VideoMessage({ slug, pinRequired, strings: s, upload }: Props) {
               placeholder={s.namePlaceholder}
               autoComplete="name"
               autoCapitalize="words"
-              className="rounded-2xl border border-black/10 bg-[var(--color-paper)] px-4 py-3 text-sm focus:border-[var(--color-accent)] focus:outline-none"
+              className="rounded-2xl border border-rule bg-[var(--color-paper)] px-4 py-3 text-sm focus:border-[var(--color-accent)] focus:outline-none"
             />
           </label>
           {pinRequired ? (
             <label className="flex flex-col gap-1.5">
               <span className="text-sm font-semibold text-[var(--color-ink)]">
-                🔑 {upload.pinLabel} <span className="font-medium text-[#c0392b]">{upload.required}</span>
+                🔑 {upload.pinLabel} <span className="font-medium text-[var(--color-error)]">{upload.required}</span>
               </span>
               <input
                 value={pin}
@@ -266,7 +266,7 @@ export function VideoMessage({ slug, pinRequired, strings: s, upload }: Props) {
                 autoCapitalize="none"
                 autoCorrect="off"
                 spellCheck={false}
-                className="rounded-2xl border border-black/10 bg-[var(--color-paper)] px-4 py-3 text-sm focus:border-[var(--color-accent)] focus:outline-none"
+                className="rounded-2xl border border-rule bg-[var(--color-paper)] px-4 py-3 text-sm focus:border-[var(--color-accent)] focus:outline-none"
               />
             </label>
           ) : null}
@@ -274,7 +274,7 @@ export function VideoMessage({ slug, pinRequired, strings: s, upload }: Props) {
             type="button"
             onClick={send}
             disabled={phase.kind === "sending"}
-            className="flex w-full items-center justify-center rounded-[18px] bg-[var(--color-accent)] px-5 py-4 text-base font-semibold text-white shadow-[0_8px_28px_rgba(226,121,82,0.3)] transition hover:brightness-105 disabled:opacity-70"
+            className="flex w-full items-center justify-center rounded-[18px] bg-[var(--color-accent)] px-5 py-4 text-base font-semibold text-white shadow-[0_8px_28px_color-mix(in_oklch,_var(--color-accent)_30%,_transparent)] transition-colors hover:brightness-105 disabled:opacity-70"
           >
             {phase.kind === "sending" ? fill(s.sending, { progress: phase.progress }) : s.sendBtn}
           </button>
@@ -282,7 +282,7 @@ export function VideoMessage({ slug, pinRequired, strings: s, upload }: Props) {
             <button
               type="button"
               onClick={() => inputRef.current?.click()}
-              className="w-full rounded-[18px] border border-black/10 bg-white px-5 py-3 text-sm font-semibold text-[var(--color-ink)]"
+              className="w-full rounded-[18px] border border-rule bg-white px-5 py-3 text-sm font-semibold text-[var(--color-ink)]"
             >
               {s.retakeBtn}
             </button>
@@ -291,7 +291,7 @@ export function VideoMessage({ slug, pinRequired, strings: s, upload }: Props) {
       )}
 
       {error ? (
-        <p role="alert" className="mt-3 rounded-2xl bg-[#fff0eb] px-4 py-3 text-sm font-medium text-[#8a1c1c]">
+        <p role="alert" className="mt-3 rounded-2xl bg-[var(--color-error-soft)] px-4 py-3 text-sm font-medium text-[var(--color-error)]">
           {error}
         </p>
       ) : null}

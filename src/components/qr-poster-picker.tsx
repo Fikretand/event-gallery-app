@@ -71,7 +71,7 @@ export function QrPosterPicker({
           type="button"
           onClick={downloadPlain}
           disabled={busy}
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--color-ink)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-ink)]/85 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--color-ink)] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-ink)]/85 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <svg
             width="16"
@@ -92,7 +92,7 @@ export function QrPosterPicker({
         {editorHref && (
           <a
             href={editorHref}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-105"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:brightness-105"
           >
             {s.customize}
           </a>
@@ -100,7 +100,7 @@ export function QrPosterPicker({
       </div>
 
       {editorHref && (
-        <p className="text-xs leading-5 text-black/55">{s.customizeHint}</p>
+        <p className="text-xs leading-5 text-ink-2">{s.customizeHint}</p>
       )}
     </div>
   );

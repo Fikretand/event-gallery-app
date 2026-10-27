@@ -8,6 +8,7 @@ import { customTitle } from "@/lib/custom-copy";
 import { eventLinks, getPublicEventBySlug, isEventExpired } from "@/lib/events";
 import { getDictionary, type Locale } from "@/lib/i18n/index";
 import { listLiveSlides, resolveLiveAccess } from "@/lib/live-slides";
+import { QR_COLORS } from "@/lib/brand-colors";
 
 /**
  * Full-screen live view for a TV or projector at the venue: the gallery's
@@ -39,9 +40,9 @@ export default async function LiveGalleryPage({
     return (
       <main className="py-10">
         <section className="shell">
-          <Panel className="mx-auto max-w-lg bg-white/94">
+          <Panel className="mx-auto max-w-lg bg-card">
             <h1 className="font-display text-3xl font-semibold text-[var(--color-ink)]">{closed ? title : s.lockedTitle}</h1>
-            <p className="mt-3 text-sm leading-6 text-black/62">{closed ?? s.lockedBody}</p>
+            <p className="mt-3 text-sm leading-6 text-ink-2">{closed ?? s.lockedBody}</p>
             {closed ? null : (
               <Link
                 href={`/${lang}/gallery/${event.slug}`}
@@ -64,7 +65,7 @@ export default async function LiveGalleryPage({
       type: "svg",
       margin: 0,
       errorCorrectionLevel: "M",
-      color: { dark: "#172033", light: "#ffffff" },
+      color: QR_COLORS,
     }),
   ]);
 

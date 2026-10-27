@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import { MarketingButtonLink } from "@/components/marketing-button-link";
+import { CheckIcon } from "@/components/ui/check-icon";
 import { getDictionary, t } from "@/lib/i18n/index";
 import type { Locale } from "@/lib/i18n/index";
 import { photographerPlans as basePlans, couplePlan as baseCouple } from "@/lib/marketing";
@@ -22,19 +23,11 @@ function PriceTag({ value, label }: { value: string; label: string }) {
     <div>
       <p className="flex items-baseline gap-1.5 whitespace-nowrap text-ink">
         {prefix ? <span className="text-xl font-semibold">{prefix}</span> : null}
-        <span className="num font-display text-[length:var(--text-display-s)] font-semibold leading-none tracking-[-0.02em]">{amount}</span>
+        <span className="num font-display text-[length:var(--text-display-s)] font-semibold leading-none">{amount}</span>
         {suffix ? <span className="text-xl font-semibold">{suffix}</span> : null}
       </p>
       <p className="meta mt-2">{label}</p>
     </div>
-  );
-}
-
-function Check() {
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden="true" className="mt-1 h-4 w-4 shrink-0 text-moss" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 8.5 6.5 12 13 4.5" />
-    </svg>
   );
 }
 
@@ -62,7 +55,7 @@ type PlanColumn = {
  * action, what is included) line up across columns through a subgrid, so
  * every button sits on the same line whatever the summaries' lengths.
  */
-function Column({ plan }: { plan: PlanColumn }) {
+function Column({ plan, featureColumns = 1 }: { plan: PlanColumn; featureColumns?: 1 | 2 }) {
   return (
     <article className="grid gap-y-6 border-t border-rule pt-8 lg:row-span-4 lg:grid-rows-subgrid lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0 lg:first:border-l-0 lg:first:pl-0">
       <div>
@@ -83,10 +76,10 @@ function Column({ plan }: { plan: PlanColumn }) {
       </div>
       <div>
         <p className="text-sm font-semibold text-ink">{plan.includesLabel}</p>
-        <ul className="mt-3 space-y-2.5">
+        <ul className={cn("mt-3 space-y-2.5", featureColumns === 2 && "sm:grid sm:grid-cols-2 sm:gap-x-6 sm:space-y-0 sm:gap-y-2.5")}>
           {plan.features.map((feature) => (
             <li key={feature} className="flex items-start gap-3 text-[0.9375rem] leading-6 text-ink-2">
-              <Check />
+              <CheckIcon />
               <span>{feature}</span>
             </li>
           ))}
@@ -116,13 +109,13 @@ function oneEventColumn(locale: Locale): PlanColumn {
 }
 
 /** The One Event plan on its own, for the couples page. */
-export function OneTimePlanCard({ compact = false }: { compact?: boolean }) {
+export function OneTimePlanCard({ compact = false, featureColumns = 1 }: { compact?: boolean; featureColumns?: 1 | 2 }) {
   const locale = extractLocale(usePathname());
   const column = oneEventColumn(locale);
   return (
     <div className={cn("card p-8", compact ? "max-w-xl" : "")}>
       <div className="grid gap-y-6 [&>article]:border-0 [&>article]:p-0">
-        <Column plan={{ ...column, primary: true }} />
+        <Column plan={{ ...column, primary: true }} featureColumns={featureColumns} />
       </div>
     </div>
   );

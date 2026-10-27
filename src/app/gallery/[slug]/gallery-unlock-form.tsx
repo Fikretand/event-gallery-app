@@ -49,13 +49,13 @@ export function GalleryUnlockForm({
           autoCapitalize="none"
           autoCorrect="off"
           spellCheck={false}
-          className="rounded-2xl border border-black/10 bg-white px-4 py-3 tracking-[0.08em]"
+          className="rounded-2xl border border-rule bg-white px-4 py-3"
           placeholder={s.pinPlaceholder}
           required
         />
       </label>
       {state?.error ? (
-        <div className="rounded-2xl bg-[#fff0eb] px-4 py-3 text-sm text-[#8a1c1c]">
+        <div className="rounded-2xl bg-[var(--color-error-soft)] px-4 py-3 text-sm text-[var(--color-error)]">
           {state.error === "GALLERY_PIN_RATE_LIMITED"
             ? s.tooManyAttempts
             : state.error === "GALLERY_PIN_WRONG"

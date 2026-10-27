@@ -120,22 +120,22 @@ export function EventCoverPicker({
         }}
       />
 
-      <div className="relative overflow-hidden rounded-[28px] border border-black/10 bg-[var(--color-paper)] shadow-inner">
+      <div className="relative overflow-hidden rounded-[28px] border border-rule bg-[var(--color-paper)]">
         {coverUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={coverUrl} alt={title} className="aspect-[4/5] w-full object-cover" />
         ) : (
-          <div className="flex aspect-[4/5] w-full flex-col items-center justify-center gap-3 bg-[radial-gradient(circle_at_top,_rgba(235,132,88,0.18),_transparent_55%),linear-gradient(135deg,_rgba(23,32,51,0.08),_rgba(255,248,240,0.92))] p-5 text-center">
-            <span className="flex h-14 w-14 items-center justify-center rounded-[18px] bg-white/80 text-2xl shadow-sm" aria-hidden>
+          <div className="flex aspect-[4/5] w-full flex-col items-center justify-center gap-3 bg-[radial-gradient(circle_at_top,_color-mix(in_oklch,_var(--color-accent)_18%,_transparent),_transparent_55%),linear-gradient(135deg,_color-mix(in_oklch,_var(--color-ink)_8%,_transparent),_color-mix(in_oklch,_var(--color-paper)_92%,_transparent))] p-5 text-center">
+            <span className="flex h-14 w-14 items-center justify-center rounded-[18px] bg-card text-2xl shadow-sm" aria-hidden>
               🖼️
             </span>
             <p className="font-display text-lg font-semibold text-[var(--color-ink)]">{s.emptyTitle}</p>
-            <p className="text-xs leading-5 text-black/55">{s.emptyBody}</p>
+            <p className="text-xs leading-5 text-ink-2">{s.emptyBody}</p>
           </div>
         )}
 
         {isWorking ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-white/75 backdrop-blur-sm">
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-card">
             <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--color-accent-soft)] border-t-[var(--color-accent)]" />
             <p className="text-sm font-semibold text-[var(--color-ink)]">{s.working}</p>
           </div>
@@ -147,7 +147,7 @@ export function EventCoverPicker({
           type="button"
           onClick={() => setMenuOpen(true)}
           disabled={isWorking}
-          className={cn(buttonBase, "border border-black/10 bg-white text-[var(--color-ink)] hover:bg-[var(--color-paper)]")}
+          className={cn(buttonBase, "border border-rule bg-white text-[var(--color-ink)] hover:bg-[var(--color-paper)]")}
         >
           {s.changeBtn}
         </button>
@@ -159,7 +159,7 @@ export function EventCoverPicker({
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={isWorking}
-            className={cn(buttonBase, "bg-[var(--color-accent)] text-white shadow-[0_6px_18px_rgba(226,121,82,0.3)] hover:brightness-105")}
+            className={cn(buttonBase, "bg-[var(--color-accent)] text-white shadow-[0_6px_18px_color-mix(in_oklch,_var(--color-accent)_30%,_transparent)] hover:brightness-105")}
           >
             {s.uploadBtn}
           </button>
@@ -169,18 +169,18 @@ export function EventCoverPicker({
               onClick={() => setGridOpen((open) => !open)}
               disabled={isWorking}
               aria-expanded={gridOpen}
-              className={cn(buttonBase, "border border-black/10 bg-white text-[var(--color-ink)] hover:bg-[var(--color-paper)]")}
+              className={cn(buttonBase, "border border-rule bg-white text-[var(--color-ink)] hover:bg-[var(--color-paper)]")}
             >
               {fill(s.chooseBtn, { count: candidates.length })}
             </button>
           ) : null}
-          <p className="px-2 text-center text-xs leading-5 text-black/45">{s.uploadNote}</p>
+          <p className="px-2 text-center text-xs leading-5 text-muted">{s.uploadNote}</p>
         </div>
       ) : null}
 
       {gridOpen && candidates.length > 0 ? (
-        <div className="rounded-[22px] border border-black/8 bg-white/95 p-3">
-          <p className="px-1 pb-2 text-xs font-semibold uppercase tracking-[0.18em] text-black/45">{s.pickTitle}</p>
+        <div className="rounded-[22px] border border-rule bg-card p-3">
+          <p className="px-1 pb-2 text-xs font-semibold text-muted">{s.pickTitle}</p>
           <div className="grid max-h-72 grid-cols-3 gap-2 overflow-y-auto">
             {candidates.map((candidate) => (
               <button
@@ -188,7 +188,7 @@ export function EventCoverPicker({
                 type="button"
                 disabled={isWorking}
                 onClick={() => run(() => setCover(slug, candidate.id))}
-                className="overflow-hidden rounded-xl border border-black/10 transition hover:ring-2 hover:ring-[var(--color-accent)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
+                className="overflow-hidden rounded-xl border border-rule transition-colors hover:ring-2 hover:ring-[var(--color-accent)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={candidate.thumbnailUrl} alt="" loading="lazy" className="aspect-square w-full object-cover" />
@@ -205,7 +205,7 @@ export function EventCoverPicker({
               type="button"
               disabled={isWorking}
               onClick={() => run(() => setCover(slug, null))}
-              className={cn(buttonBase, "border border-black/10 bg-white text-[#8a1c1c] hover:border-[#e9b4a4] hover:bg-[#fff0eb]")}
+              className={cn(buttonBase, "border border-rule bg-white text-[var(--color-error)] hover:border-[var(--color-error-soft)] hover:bg-[var(--color-error-soft)]")}
             >
               {s.removeBtn}
             </button>
@@ -217,7 +217,7 @@ export function EventCoverPicker({
               setGridOpen(false);
             }}
             disabled={isWorking}
-            className={cn(buttonBase, "border border-black/10 bg-white text-black/60 hover:bg-[var(--color-paper)]")}
+            className={cn(buttonBase, "border border-rule bg-white text-ink-2 hover:bg-[var(--color-paper)]")}
           >
             {s.closeBtn}
           </button>
@@ -225,7 +225,7 @@ export function EventCoverPicker({
       ) : null}
 
       {failed ? (
-        <p role="alert" className="rounded-2xl bg-[#fff0eb] px-4 py-2.5 text-center text-sm text-[#8a1c1c]">
+        <p role="alert" className="rounded-2xl bg-[var(--color-error-soft)] px-4 py-2.5 text-center text-sm text-[var(--color-error)]">
           {s.failed}
         </p>
       ) : null}

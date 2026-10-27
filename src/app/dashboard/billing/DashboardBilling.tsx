@@ -83,7 +83,7 @@ export async function DashboardBilling({
         action={
           <Link
             href={isCouple ? `${prefix}/dashboard/couple` : `${prefix}/dashboard`}
-            className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white/75 px-4 py-2 text-sm font-semibold text-[var(--color-ink)] hover:bg-white"
+            className="inline-flex items-center justify-center rounded-full border border-rule bg-card px-4 py-2 text-sm font-semibold text-[var(--color-ink)] hover:bg-white"
           >
             {b.backToDashboard}
           </Link>
@@ -92,14 +92,14 @@ export async function DashboardBilling({
 
       <section className="shell grid gap-5">
         {searchParams?.success === "1" && (
-          <div className="rounded-2xl bg-[#eef9f0] px-4 py-3 text-sm text-[#1f6b35]">{b.paymentReceived}</div>
+          <div className="rounded-2xl bg-[var(--color-moss-soft)] px-4 py-3 text-sm text-[var(--color-moss)]">{b.paymentReceived}</div>
         )}
 
         {/* Current status */}
-        <Panel className="bg-white/90">
+        <Panel className="bg-card">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/45">{b.currentPlan}</p>
+              <p className="text-xs font-semibold text-muted">{b.currentPlan}</p>
               <p className="mt-2 text-2xl font-semibold text-[var(--color-ink)]">
                 {isAdmin ? b.planLabelAdmin : planLabel}
               </p>
@@ -119,7 +119,7 @@ export async function DashboardBilling({
 
           {trial?.status === "active" && !isActiveSub && !isAdmin && (
             <div className="mt-4 rounded-xl bg-[var(--color-paper)]/60 px-4 py-3">
-              <p className="text-xs font-medium text-black/55">
+              <p className="text-xs font-medium text-ink-2">
                 {t(b.trialPhotosUsed, { used: String(trial.photosUsed), limit: String(trial.photosLimit) })}
               </p>
               <div className="mt-1.5 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-black/10">
@@ -144,17 +144,17 @@ export async function DashboardBilling({
           />
         )}
         {!isAdmin && isCouple && (
-          <Panel className="bg-white/90">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/45">{b.upgradeYourPlan}</p>
-            <div className="mt-4 rounded-[20px] border border-[#e8d2c4] bg-[linear-gradient(160deg,rgba(255,253,250,0.98),rgba(248,230,218,0.60))] p-5">
+          <Panel className="bg-card">
+            <p className="text-xs font-semibold text-muted">{b.upgradeYourPlan}</p>
+            <div className="mt-4 rounded-[20px] border border-[var(--color-rule)] bg-[linear-gradient(160deg,color-mix(in_oklch,_var(--color-card)_98%,_transparent),color-mix(in_oklch,_var(--color-accent-soft)_60%,_transparent))] p-5">
               <p className="text-lg font-semibold text-[var(--color-ink)]">{b.oneEvent}</p>
               <p className="mt-1 flex items-baseline gap-1">
                 <span className="text-3xl font-semibold text-[var(--color-ink)]">{oneEventPrice}</span>
-                <span className="text-sm text-black/45">{b.oneTime}</span>
+                <span className="text-sm text-muted">{b.oneTime}</span>
               </p>
               <ul className="mt-3 space-y-1.5">
                 {b.oneEventFeatures.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm text-black/65">
+                  <li key={f} className="flex items-start gap-2 text-sm text-ink-2">
                     <span className="mt-0.5 text-[var(--color-moss)]">✓</span>
                     {f}
                   </li>

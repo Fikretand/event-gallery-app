@@ -86,7 +86,7 @@ export function GalleryCopyEditor({
   }
 
   const inputClass =
-    "w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm text-[var(--color-ink)] outline-none transition placeholder:text-black/35 focus:border-[var(--color-ink)] focus:ring-4 focus:ring-[var(--color-accent)]/15";
+    "w-full rounded-2xl border border-rule bg-white px-4 py-3 text-sm text-[var(--color-ink)] outline-none transition-colors placeholder:text-muted focus:border-[var(--color-ink)] focus:ring-4 focus:ring-[var(--color-accent)]/15";
 
   return (
     <form onSubmit={submit} className="space-y-5">
@@ -105,7 +105,7 @@ export function GalleryCopyEditor({
                 "inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition",
                 isActive
                   ? "bg-[var(--color-ink)] text-white"
-                  : "border border-black/10 bg-white text-[var(--color-ink)] hover:bg-[var(--color-paper)]",
+                  : "border border-rule bg-white text-[var(--color-ink)] hover:bg-[var(--color-paper)]",
               )}
             >
               {s.groups[group]}
@@ -113,7 +113,7 @@ export function GalleryCopyEditor({
                 <span
                   className={cn(
                     "rounded-full px-2 py-0.5 text-[11px]",
-                    isActive ? "bg-white/18" : "bg-[#fff0e8] text-[var(--color-accent)]",
+                    isActive ? "bg-white/18" : "bg-[var(--color-accent-soft)] text-[var(--color-accent)]",
                   )}
                 >
                   {count}
@@ -154,7 +154,7 @@ export function GalleryCopyEditor({
                     value={value}
                     placeholder={field.standard}
                     onChange={(event) => update(field.key, event.target.value)}
-                    className={cn(inputClass, "resize-y leading-6", value && "border-[var(--color-accent)]/40 bg-[#fffaf6]")}
+                    className={cn(inputClass, "resize-y leading-6", value && "border-[var(--color-accent)]/40 bg-[var(--color-paper)]")}
                   />
                 ) : (
                   <input
@@ -163,7 +163,7 @@ export function GalleryCopyEditor({
                     value={value}
                     placeholder={field.standard}
                     onChange={(event) => update(field.key, event.target.value)}
-                    className={cn(inputClass, value && "border-[var(--color-accent)]/40 bg-[#fffaf6]")}
+                    className={cn(inputClass, value && "border-[var(--color-accent)]/40 bg-[var(--color-paper)]")}
                   />
                 )}
               </div>
@@ -176,16 +176,16 @@ export function GalleryCopyEditor({
           role="status"
           className={cn(
             "rounded-2xl px-4 py-3 text-sm font-medium",
-            status === "saved" ? "bg-[#eef8f2] text-[var(--color-moss)]" : "bg-[#fff0eb] text-[#8a1c1c]",
+            status === "saved" ? "bg-[var(--color-moss-soft)] text-[var(--color-moss)]" : "bg-[var(--color-error-soft)] text-[var(--color-error)]",
           )}
         >
           {status === "saved" ? s.saved : s.failed}
         </p>
       ) : null}
 
-      <div className="sticky bottom-3 z-10 flex items-center justify-between gap-3 rounded-[22px] border border-black/10 bg-white/95 p-2.5 pl-4 shadow-[0_12px_40px_rgba(18,24,38,0.12)] backdrop-blur">
+      <div className="sticky bottom-3 z-10 flex items-center justify-between gap-3 rounded-[22px] border border-rule bg-card p-2.5 pl-4 shadow-[0_12px_40px_color-mix(in_oklch,_var(--color-ink)_12%,_transparent)]">
         <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-          <span className="text-black/55">{fill(s.customCount, { count: customTotal })}</span>
+          <span className="text-ink-2">{fill(s.customCount, { count: customTotal })}</span>
           <a href={galleryUrl} target="_blank" rel="noopener noreferrer" className="hidden font-semibold text-[var(--color-ink)] hover:underline sm:inline">
             {s.previewGallery}
           </a>
@@ -196,7 +196,7 @@ export function GalleryCopyEditor({
         <button
           type="submit"
           disabled={isSaving}
-          className="shrink-0 rounded-full bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_6px_18px_rgba(226,121,82,0.3)] transition hover:brightness-105 disabled:opacity-60"
+          className="shrink-0 rounded-full bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_6px_18px_color-mix(in_oklch,_var(--color-accent)_30%,_transparent)] transition-colors hover:brightness-105 disabled:opacity-60"
         >
           {isSaving ? s.saving : s.save}
         </button>

@@ -21,38 +21,35 @@ export default async function SignupVerifyPage({
   const isCouple = intent === "couple";
 
   return (
-    <main className="pb-16">
+    <main className="min-h-dvh">
       <SiteNav />
-      <section className="shell py-12">
-        <div className="mx-auto max-w-2xl rounded-[32px] border border-black/8 bg-white/92 p-8 shadow-[0_16px_60px_rgba(18,24,38,0.08)]">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">
-            {d.verifyEyebrow}
-          </p>
-          <h1 className="mt-4 font-display text-4xl font-semibold leading-tight text-[var(--color-ink)] sm:text-5xl">
+      <section className="shell py-[var(--space-3xl)]">
+        <div className="max-w-2xl">
+          <h1 className="display-s text-ink">
             {isCouple ? d.verifyCoupleTitle : d.verifyPhotographerTitle}
           </h1>
-          <p className="mt-4 max-w-xl text-base leading-7 text-black/68">
+          <p className="lead mt-[var(--space-lg)] max-w-xl">
             {t(d.verifyBody, { email })
               .split(email)
               .reduce<React.ReactNode[]>((acc, part, i, arr) => {
                 acc.push(part);
                 if (i < arr.length - 1)
                   acc.push(
-                    <span key={i} className="font-semibold text-[var(--color-ink)]">
+                    <span key={i} className="font-semibold text-ink">
                       {email}
                     </span>,
                   );
                 return acc;
               }, [])}
           </p>
-          <div className="mt-6 rounded-[24px] border border-black/8 bg-[var(--color-paper)]/60 px-5 py-4 text-sm leading-6 text-black/70">
+          <div className="notice notice-info mt-[var(--space-lg)] text-[0.9375rem]">
             {isCouple ? d.verifyNoteCouple : d.verifyNote}
           </div>
-          <p className="mt-6 text-sm text-black/58">
+          <p className="mt-[var(--space-lg)] text-ink-2">
             {d.wrongEmail}{" "}
             <Link
               href={`/${locale}/signup?intent=${intent}`}
-              className="font-semibold text-[var(--color-accent)]"
+              className="link"
             >
               {d.goBackSignup}
             </Link>

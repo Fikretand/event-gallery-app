@@ -75,19 +75,19 @@ export function PhotographerProfileForm({
   return (
     <form action={formAction} className="space-y-5">
       <div className="grid gap-5 md:grid-cols-[0.8fr_1.2fr] [&>*]:min-w-0">
-        <div className="rounded-[24px] border border-black/10 bg-[var(--color-paper)]/55 p-5">
+        <div className="rounded-[24px] border border-rule bg-[var(--color-paper)]/55 p-5">
           <p className="text-sm font-semibold text-[var(--color-ink)]">{s.profileImage}</p>
           <button
             type="button"
             onClick={() => fileInput.current?.click()}
             aria-label={s.changeImage}
-            className="relative mx-auto mt-4 block aspect-square w-full max-w-[220px] overflow-hidden rounded-full border border-black/10 bg-white outline-none focus-visible:ring-4 focus-visible:ring-[var(--color-accent)]/30"
+            className="relative mx-auto mt-4 block aspect-square w-full max-w-[220px] overflow-hidden rounded-full border border-rule bg-white outline-none focus-visible:ring-4 focus-visible:ring-[var(--color-accent)]/30"
           >
             {shownUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={shownUrl} alt="" className="h-full w-full object-cover" />
             ) : (
-              <span className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(235,132,88,0.16),_transparent_55%),linear-gradient(135deg,_rgba(23,32,51,0.08),_rgba(255,248,240,0.92))] p-6 text-center text-sm leading-6 text-black/45">
+              <span className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_color-mix(in_oklch,_var(--color-accent)_16%,_transparent),_transparent_55%),linear-gradient(135deg,_color-mix(in_oklch,_var(--color-ink)_8%,_transparent),_color-mix(in_oklch,_var(--color-paper)_92%,_transparent))] p-6 text-center text-sm leading-6 text-muted">
                 {s.imagePlaceholder}
               </span>
             )}
@@ -105,7 +105,7 @@ export function PhotographerProfileForm({
             <button
               type="button"
               onClick={() => fileInput.current?.click()}
-              className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-semibold text-[var(--color-ink)] transition hover:bg-[var(--color-paper)]"
+              className="inline-flex items-center justify-center rounded-full border border-rule bg-white px-4 py-2 text-sm font-semibold text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)]"
             >
               {s.changeImage}
             </button>
@@ -113,22 +113,22 @@ export function PhotographerProfileForm({
               <button
                 type="button"
                 onClick={revertImage}
-                className="inline-flex items-center justify-center rounded-full px-3 py-2 text-sm font-semibold text-black/60 underline-offset-4 hover:underline"
+                className="inline-flex items-center justify-center rounded-full px-3 py-2 text-sm font-semibold text-ink-2 underline-offset-4 hover:underline"
               >
                 {s.revertImage}
               </button>
             ) : null}
           </div>
           {imageError ? (
-            <p role="alert" className="mt-3 rounded-2xl bg-[#fff0eb] px-3 py-2 text-center text-xs font-medium text-[#8a1c1c]">
+            <p role="alert" className="mt-3 rounded-2xl bg-[var(--color-error-soft)] px-3 py-2 text-center text-xs font-medium text-[var(--color-error)]">
               {imageError}
             </p>
           ) : pending ? (
-            <p className="mt-3 rounded-2xl bg-[#fff6f1] px-3 py-2 text-center text-xs font-semibold text-[var(--color-ink)]">
+            <p className="mt-3 rounded-2xl bg-[var(--color-paper)] px-3 py-2 text-center text-xs font-semibold text-[var(--color-ink)]">
               {s.imagePending}
             </p>
           ) : (
-            <p className="mt-3 text-center text-xs text-black/55">{t(s.imageHint, { mb: PROFILE_AVATAR_MAX_MB })}</p>
+            <p className="mt-3 text-center text-xs text-ink-2">{t(s.imageHint, { mb: PROFILE_AVATAR_MAX_MB })}</p>
           )}
         </div>
 
@@ -148,27 +148,27 @@ export function PhotographerProfileForm({
               name="bio"
               defaultValue={profile.bio ?? ""}
               rows={4}
-              className="rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-black/35 focus:border-[var(--color-ink)] focus:ring-4 focus:ring-[var(--color-accent)]/20"
+              className="rounded-2xl border border-rule bg-white px-4 py-3 text-sm outline-none transition-colors placeholder:text-muted focus:border-[var(--color-ink)] focus:ring-4 focus:ring-[var(--color-accent)]/20"
               placeholder={s.bioPlaceholder}
             />
           </label>
         </div>
       </div>
 
-      <div className="rounded-[24px] border border-black/10 bg-white p-5">
+      <div className="rounded-[24px] border border-rule bg-white p-5">
         <p className="text-sm font-semibold text-[var(--color-ink)]">{s.spotlightTitle}</p>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-black/62">{s.spotlightBody}</p>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-2">{s.spotlightBody}</p>
 
         <div className="mt-4 space-y-3">
-          <label className="flex items-center gap-3 rounded-2xl border border-black/10 bg-[var(--color-paper)]/55 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
+          <label className="flex items-center gap-3 rounded-2xl border border-rule bg-[var(--color-paper)]/55 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
             <input type="checkbox" name="publicProfileConsent" defaultChecked={profile.public_profile_consent} className="size-4" />
             {s.consentSpotlight}
           </label>
-          <label className="flex items-center gap-3 rounded-2xl border border-black/10 bg-[var(--color-paper)]/55 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
+          <label className="flex items-center gap-3 rounded-2xl border border-rule bg-[var(--color-paper)]/55 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
             <input type="checkbox" name="showOnHomepage" defaultChecked={profile.show_on_homepage} className="size-4" />
             {s.showOnHomepage}
           </label>
-          <label className="flex items-center gap-3 rounded-2xl border border-black/10 bg-[var(--color-paper)]/55 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
+          <label className="flex items-center gap-3 rounded-2xl border border-rule bg-[var(--color-paper)]/55 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
             <input
               type="checkbox"
               name="publicEmailOnHomepage"
@@ -180,10 +180,10 @@ export function PhotographerProfileForm({
         </div>
       </div>
 
-      <div className="rounded-[24px] border border-black/10 bg-[var(--color-paper)]/55 p-5">
+      <div className="rounded-[24px] border border-rule bg-[var(--color-paper)]/55 p-5">
         <p className="text-sm font-semibold text-[var(--color-ink)]">{s.languageTitle}</p>
-        <p className="mt-1 text-xs leading-5 text-black/55">{s.languageHint}</p>
-        <div className="mt-3 inline-flex items-center rounded-full border border-black/10 bg-white p-0.5 text-sm font-semibold">
+        <p className="mt-1 text-xs leading-5 text-ink-2">{s.languageHint}</p>
+        <div className="mt-3 inline-flex items-center rounded-full border border-rule bg-white p-0.5 text-sm font-semibold">
           {(["en", "bs"] as const).map((loc) => (
             <label key={loc} className="cursor-pointer">
               <input
@@ -201,8 +201,8 @@ export function PhotographerProfileForm({
         </div>
       </div>
 
-      {state?.error ? <div className="rounded-2xl bg-[#fff0eb] px-4 py-3 text-sm text-[#8a1c1c]">{state.error}</div> : null}
-      {state?.success ? <div className="rounded-2xl bg-[#eef9f0] px-4 py-3 text-sm text-[#1f6b35]">{state.success}</div> : null}
+      {state?.error ? <div className="rounded-2xl bg-[var(--color-error-soft)] px-4 py-3 text-sm text-[var(--color-error)]">{state.error}</div> : null}
+      {state?.success ? <div className="rounded-2xl bg-[var(--color-moss-soft)] px-4 py-3 text-sm text-[var(--color-moss)]">{state.success}</div> : null}
 
       <div className="flex justify-end">
         <Button type="submit" disabled={isPending}>

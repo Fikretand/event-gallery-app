@@ -95,7 +95,7 @@ export async function DashboardHome({
           />
         )}
         {searchParams?.deleted === "1" ? (
-          <div className="rounded-2xl bg-[#eef9f0] px-4 py-3 text-sm text-[#1f6b35]">{h.eventDeleted}</div>
+          <div className="rounded-2xl bg-[var(--color-moss-soft)] px-4 py-3 text-sm text-[var(--color-moss)]">{h.eventDeleted}</div>
         ) : null}
 
         {trial && <TrialBanner trial={trial} strings={d} prefix={prefix} locale={locale} />}
@@ -116,19 +116,19 @@ export async function DashboardHome({
             label={h.storageUsed}
             used={usage.liveUsedStorageBytes}
             limit={usage.liveStorageLimitBytes}
-            accentClass="bg-[linear-gradient(135deg,rgba(225,246,232,0.98),rgba(242,250,244,0.94))]"
-            progressClass="bg-[linear-gradient(90deg,#1f6b42,#4da36e)]"
+            accentClass="bg-[linear-gradient(135deg,color-mix(in_oklch,_var(--color-moss-soft)_98%,_transparent),color-mix(in_oklch,_var(--color-moss-soft)_94%,_transparent))]"
+            progressClass="bg-[linear-gradient(90deg,var(--color-moss),var(--color-moss))]"
             meta={t(h.remaining, { amount: formatBytes(usage.liveAvailableStorageBytes) })}
           />
           <CountCard
             label={h.events}
             value={`${usage.activeEvents} / ${usage.activeEventLimit}`}
-            accentClass="bg-[linear-gradient(135deg,rgba(237,243,255,0.98),rgba(247,249,255,0.95))]"
+            accentClass="bg-[linear-gradient(135deg,color-mix(in_oklch,_var(--color-paper-2)_98%,_transparent),color-mix(in_oklch,_var(--color-paper)_95%,_transparent))]"
             note={t(h.slotsLeft, { n: String(usage.remainingEventSlots) })}
           >
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-black/8">
               <div
-                className="h-full rounded-full bg-[linear-gradient(90deg,#345b9e,#5b84cb)]"
+                className="h-full rounded-full bg-[linear-gradient(90deg,var(--color-ink-2),var(--color-ink-2))]"
                 style={{ width: `${Math.min((usage.activeEvents / usage.activeEventLimit) * 100, 100)}%` }}
               />
             </div>
@@ -136,13 +136,13 @@ export async function DashboardHome({
           <CountCard
             label={h.plan}
             value={planLabel}
-            accentClass="bg-[linear-gradient(135deg,rgba(255,248,240,0.98),rgba(248,242,232,0.95))]"
+            accentClass="bg-[linear-gradient(135deg,color-mix(in_oklch,_var(--color-paper)_98%,_transparent),color-mix(in_oklch,_var(--color-paper)_95%,_transparent))]"
             note={planLabel === "Pro" ? h.planProDesc : h.planSoloDesc}
           >
             {planLabel === "Solo" ? (
               <Link
                 href={`${prefix}/dashboard/billing`}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-accent)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--color-accent)] transition hover:bg-[var(--color-accent)]/18"
+                className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-accent)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--color-accent)] transition-colors hover:bg-[var(--color-accent)]/18"
               >
                 {h.managePlan}
               </Link>
@@ -151,9 +151,9 @@ export async function DashboardHome({
         </div>
 
         {events.length === 0 ? (
-          <Panel className="bg-white/90">
+          <Panel className="bg-card">
             <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">{h.noEvents}</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-black/62">{h.noEventsBody}</p>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-2">{h.noEventsBody}</p>
           </Panel>
         ) : (
           <DashboardEventList
@@ -200,16 +200,16 @@ function UsageCard({
 
   return (
     <Panel className={cn("overflow-hidden", accentClass)}>
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/45">{label}</p>
+      <p className="text-xs font-semibold text-muted">{label}</p>
       <p className="mt-4 text-4xl font-semibold tracking-tight text-[var(--color-ink)]">
         {formatBytes(used)}
-        <span className="ml-2 text-lg font-medium text-black/45">/ {formatBytes(limit)}</span>
+        <span className="ml-2 text-lg font-medium text-muted">/ {formatBytes(limit)}</span>
       </p>
       <div className="mt-5 h-2.5 overflow-hidden rounded-full bg-black/8">
         <div className={cn("h-full rounded-full", progressClass)} style={{ width: `${ratio}%` }} />
       </div>
       <div className="mt-4 flex items-center justify-between text-sm">
-        <span className="text-black/58">{meta}</span>
+        <span className="text-ink-2">{meta}</span>
         <span className="font-semibold text-[var(--color-ink)]">{Math.round(ratio)}%</span>
       </div>
     </Panel>
@@ -231,9 +231,9 @@ function CountCard({
 }) {
   return (
     <Panel className={cn("overflow-hidden", accentClass)}>
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/45">{label}</p>
+      <p className="text-xs font-semibold text-muted">{label}</p>
       <p className="mt-4 text-3xl font-semibold tracking-tight text-[var(--color-ink)]">{value}</p>
-      <p className="mt-3 text-sm leading-6 text-black/60">{note}</p>
+      <p className="mt-3 text-sm leading-6 text-ink-2">{note}</p>
       {children}
     </Panel>
   );
@@ -262,22 +262,22 @@ function TrialBanner({
       className={cn(
         "relative overflow-hidden rounded-[24px] border px-5 py-4",
         isExpired
-          ? "border-[#f5c6c6] bg-[linear-gradient(135deg,rgba(255,240,240,0.98),rgba(255,228,228,0.92))]"
+          ? "border-[var(--color-error-soft)] bg-[linear-gradient(135deg,color-mix(in_oklch,_var(--color-error-soft)_98%,_transparent),color-mix(in_oklch,_var(--color-error-soft)_92%,_transparent))]"
           : nearLimit
-            ? "border-[#f5d6b8] bg-[linear-gradient(135deg,rgba(255,248,238,0.98),rgba(255,237,215,0.92))]"
-            : "border-[#c8e0d4] bg-[linear-gradient(135deg,rgba(240,250,245,0.98),rgba(224,242,232,0.90))]",
+            ? "border-[var(--color-accent-soft)] bg-[linear-gradient(135deg,color-mix(in_oklch,_var(--color-paper)_98%,_transparent),color-mix(in_oklch,_var(--color-accent-soft)_92%,_transparent))]"
+            : "border-[var(--color-rule)] bg-[linear-gradient(135deg,color-mix(in_oklch,_var(--color-moss-soft)_98%,_transparent),color-mix(in_oklch,_var(--color-moss-soft)_90%,_transparent))]",
       )}
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
           <span className="mt-0.5 text-lg leading-none">{isExpired ? "⏰" : "🎉"}</span>
           <div>
-            <p className={cn("text-sm font-semibold", isExpired ? "text-[#8b1a1a]" : "text-[var(--color-ink)]")}>
+            <p className={cn("text-sm font-semibold", isExpired ? "text-[var(--color-error)]" : "text-[var(--color-ink)]")}>
               {isExpired
                 ? h.trialExpired
                 : t(h.trialActive, { days: String(trial.daysLeft), unit: daysWord(trial.daysLeft, locale) })}
             </p>
-            <p className={cn("mt-0.5 text-xs", isExpired ? "text-[#b03030]/80" : "text-black/58")}>
+            <p className={cn("mt-0.5 text-xs", isExpired ? "text-[var(--color-error)]/80" : "text-ink-2")}>
               {isExpired
                 ? h.trialExpiredBody
                 : t(h.trialActiveBody, { used: String(trial.photosUsed), limit: String(trial.photosLimit) })}
@@ -286,7 +286,7 @@ function TrialBanner({
               <div className="mt-2 h-1.5 w-48 max-w-full overflow-hidden rounded-full bg-black/10">
                 <div
                   className={cn(
-                    "h-full rounded-full transition-all",
+                    "h-full rounded-full transition-colors",
                     nearLimit ? "bg-[var(--color-accent)]" : "bg-[var(--color-moss)]",
                   )}
                   style={{ width: `${photoRatio}%` }}
@@ -300,7 +300,7 @@ function TrialBanner({
           className={cn(
             "shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition",
             isExpired
-              ? "bg-[#8b1a1a] text-white hover:bg-[#6e1515]"
+              ? "bg-[var(--color-error)] text-white hover:bg-[var(--color-error)]"
               : "bg-[var(--color-ink)] text-white hover:bg-[var(--color-ink)]/85",
           )}
         >

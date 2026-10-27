@@ -118,25 +118,18 @@ export function AuthForm({
   const forgotHref = `/${locale}/forgot-password`;
 
   return (
-    <Panel className="mx-auto w-full max-w-md bg-white/92">
+    <Panel className="w-full max-w-md">
       {/* `action` stays for the moment before hydration: without it, a submit that
           lands before JavaScript loads would fall back to a GET and put the
           password in the URL. Once hydrated, onSubmit prevents that path and
           React skips the action (and with it, the reset). */}
-      <form action={formAction} onSubmit={handleSubmit} className="space-y-4">
+      <form action={formAction} onSubmit={handleSubmit} className="space-y-5">
         {mode === "signup" ? <input type="hidden" name="intent" value={resolvedIntent} /> : null}
         {mode === "signup" ? <input type="hidden" name="plan" value={plan} /> : null}
         {mode === "signup" ? <input type="hidden" name="locale" value={locale} /> : null}
-        <div className="space-y-2">
-          {/* The signup page already says who the account is for right above;
-              saying it again over the form was the same label twice. */}
-          {mode === "login" ? (
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">
-              {s.formWelcomeBack}
-            </p>
-          ) : null}
+        <div>
           {/* h2: the page around the form owns the one h1. */}
-          <h2 className="text-3xl font-semibold text-[var(--color-ink)]">
+          <h2 className="title text-ink">
             {mode === "login"
               ? s.formLoginTitle
               : isCoupleSignup
@@ -155,7 +148,7 @@ export function AuthForm({
             required
           />
         ) : null}
-        <Input label={s.formEmail} name="email" type="email" placeholder={s.formEmailPlaceholder} required />
+        <Input label={s.formEmail} name="email" type="email" autoComplete="email" inputMode="email" placeholder={s.formEmailPlaceholder} required />
         <Input
           label={s.formPassword}
           name="password"
@@ -173,19 +166,19 @@ export function AuthForm({
 
         {mode === "login" ? (
           <div className="flex justify-end">
-            <Link href={forgotHref} className="inline-block py-1 text-sm font-semibold text-[var(--color-accent)]">
+            <Link href={forgotHref} className="link inline-flex min-h-11 items-center text-sm">
               {s.formForgotPassword}
             </Link>
           </div>
         ) : null}
 
         {state?.error ? (
-          <div className="rounded-2xl bg-[#fff0eb] px-4 py-3 text-sm text-[#8a1c1c]">
+          <div role="alert" className="notice notice-error">
             {state.error === WEAK_PASSWORD ? s.formPasswordRule : state.error}
           </div>
         ) : null}
 
-        <Button type="submit" fullWidth disabled={isPending || !canSubmit}>
+        <Button type="submit" size="md" fullWidth disabled={isPending || !canSubmit} aria-busy={isPending}>
           {isPending
             ? s.formWorking
             : mode === "login"

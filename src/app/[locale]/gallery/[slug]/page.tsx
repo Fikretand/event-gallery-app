@@ -41,11 +41,11 @@ export default async function GalleryPage({
     return (
       <main className="py-10">
         <section className="shell">
-          <Panel className="bg-white/94">
+          <Panel className="bg-card">
             <h1 className="font-display text-3xl font-semibold text-[var(--color-ink)]">
               {title}
             </h1>
-            <p className="mt-3 text-sm leading-6 text-[#8a1c1c]">{d.archived}</p>
+            <p className="mt-3 text-sm leading-6 text-[var(--color-error)]">{d.archived}</p>
           </Panel>
         </section>
       </main>
@@ -56,11 +56,11 @@ export default async function GalleryPage({
     return (
       <main className="py-10">
         <section className="shell">
-          <Panel className="bg-white/94">
+          <Panel className="bg-card">
             <h1 className="font-display text-3xl font-semibold text-[var(--color-ink)]">
               {title}
             </h1>
-            <p className="mt-3 text-sm leading-6 text-[#8a1c1c]">{d.expired}</p>
+            <p className="mt-3 text-sm leading-6 text-[var(--color-error)]">{d.expired}</p>
           </Panel>
         </section>
       </main>
@@ -74,10 +74,10 @@ export default async function GalleryPage({
         <section className="shell">
           {/* Without a cover photo the form stands alone: an empty frame took
               half a phone screen and pushed the PIN field out of sight. */}
-          <Panel className={cover ? "mx-auto max-w-4xl bg-white/94" : "mx-auto max-w-lg bg-white/94"}>
+          <Panel className={cover ? "mx-auto max-w-4xl bg-card" : "mx-auto max-w-lg bg-card"}>
             <div className={cover ? "grid gap-6 lg:grid-cols-[0.95fr_1.05fr]" : "grid"}>
               {cover ? (
-                <div className="overflow-hidden rounded-[28px] border border-black/10 bg-[var(--color-paper)] shadow-inner">
+                <div className="overflow-hidden rounded-[28px] border border-rule bg-[var(--color-paper)]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={cover.previewUrl ?? cover.thumbnailUrl ?? undefined}
@@ -88,14 +88,14 @@ export default async function GalleryPage({
               ) : null}
 
               <div className="flex flex-col justify-center">
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">
+                <p className="text-sm font-semibold text-[var(--color-moss)]">
                   {d.privateGallery}
                 </p>
                 <h1 className="mt-3 font-display text-3xl font-semibold text-[var(--color-ink)]">
                   {title}
                 </h1>
-                <p className="mt-3 text-sm leading-6 text-black/62">{d.enterPin}</p>
-                <div className="mt-4 flex flex-wrap gap-2 text-xs uppercase tracking-[0.18em] text-black/60">
+                <p className="mt-3 text-sm leading-6 text-ink-2">{d.enterPin}</p>
+                <div className="mt-4 flex flex-wrap gap-2 text-xs text-ink-2">
                   {event.client_name ? (
                     <span className="rounded-full bg-[var(--color-paper)] px-3 py-2">
                       {event.client_name}
@@ -131,19 +131,19 @@ export default async function GalleryPage({
   return (
     <main className="py-6 sm:py-10">
       <section className="shell space-y-4 sm:space-y-6">
-        <Panel className="bg-white/94 p-5 sm:p-6">
+        <Panel className="bg-card p-5 sm:p-6">
           <div className={cover ? "grid gap-5 sm:gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center" : "grid"}>
             <div className="order-2 space-y-4 lg:order-1">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)] sm:text-sm">
+              <p className="text-xs font-semibold text-[var(--color-moss)] sm:text-sm">
                 {d.clientGallery}
               </p>
               <h1 className="font-display text-3xl font-semibold leading-tight text-[var(--color-ink)] sm:text-4xl">
                 {title}
               </h1>
-              <p className="max-w-3xl text-sm leading-6 text-black/62 sm:text-base sm:leading-7">
+              <p className="max-w-3xl text-sm leading-6 text-ink-2 sm:text-base sm:leading-7">
                 {d.browseCurated}
               </p>
-              <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.16em] text-black/60">
+              <div className="flex flex-wrap gap-2 text-xs text-ink-2">
                 {event.client_name ? (
                   <span className="rounded-full bg-[var(--color-paper)] px-3 py-2">
                     {event.client_name}
@@ -162,7 +162,7 @@ export default async function GalleryPage({
 
             {/* No cover, no frame: the placeholder only repeated the text beside it. */}
             {cover ? (
-              <div className="order-1 overflow-hidden rounded-[24px] border border-black/10 bg-[var(--color-paper)] shadow-inner sm:rounded-[28px] lg:order-2">
+              <div className="order-1 overflow-hidden rounded-[24px] border border-rule bg-[var(--color-paper)] sm:rounded-[28px] lg:order-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={cover.previewUrl ?? cover.thumbnailUrl ?? undefined}
@@ -174,7 +174,7 @@ export default async function GalleryPage({
           </div>
         </Panel>
 
-        <Panel className="bg-white/94 p-3 sm:p-6">
+        <Panel className="bg-card p-3 sm:p-6">
           <MediaGrid media={media} sections={sections} strings={dict.galleryViewer} />
         </Panel>
       </section>

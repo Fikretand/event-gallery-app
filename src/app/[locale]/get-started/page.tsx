@@ -2,13 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { MarketingButtonLink } from "@/components/marketing-button-link";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteNav } from "@/components/site-nav";
+import { CheckIcon } from "@/components/ui/check-icon";
 import { getDictionary, type Locale } from "@/lib/i18n/index";
 import { publicMetadata } from "@/lib/seo";
 
 function CameraIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.6">
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.6">
       <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
       <circle cx="12" cy="13" r="4" />
     </svg>
@@ -17,18 +19,10 @@ function CameraIcon() {
 
 function CalendarHeartIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.6">
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.6">
       <rect x="3" y="4" width="18" height="18" rx="2.5" />
       <path d="M8 2v4M16 2v4M3 10h18" />
       <path d="M12 14.5c0 0-3-2-3-3.8a1.8 1.8 0 0 1 3-.8 1.8 1.8 0 0 1 3 .8c0 1.8-3 3.8-3 3.8z" fill="currentColor" stroke="none" opacity="0.7" />
-    </svg>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg viewBox="0 0 16 16" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M3 8.5l3.5 3.5 6.5-7" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -70,125 +64,83 @@ export default async function GetStartedPage({
   const lp = (path: string) => `/${locale}${path}`;
   const lang = locale === "bs" ? "bs" : "en";
 
+  const choices = [
+    {
+      key: "photographer",
+      label: d.photographerLabel,
+      title: d.photographerTitle,
+      body: d.photographerBody,
+      features: PHOTOGRAPHER_FEATURES[lang],
+      plan: d.photographerPlan,
+      href: lp("/signup?intent=photographer"),
+      cta: d.photographerCta,
+      icon: <CameraIcon />,
+      primary: true,
+    },
+    {
+      key: "event",
+      label: d.eventLabel,
+      title: d.eventTitle,
+      body: d.eventBody,
+      features: EVENT_FEATURES[lang],
+      plan: d.eventPlan,
+      href: lp("/signup?intent=couple"),
+      cta: d.eventCta,
+      icon: <CalendarHeartIcon />,
+      primary: false,
+    },
+  ];
+
   return (
-    <main className="min-h-screen">
+    <main>
       <SiteNav />
 
-      <section className="shell py-14 sm:py-20">
-        {/* Header */}
-        <div className="mx-auto mb-12 max-w-2xl text-center sm:mb-16">
-          <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[var(--color-moss)]">
-            {d.eyebrow}
-          </p>
-          <h1 className="font-display mt-4 text-4xl font-semibold leading-[1.06] tracking-tight text-[var(--color-ink)] sm:text-5xl">
+      <section className="shell pb-[var(--space-2xl)] pt-[var(--space-3xl)]">
+        <div className="grid gap-y-[var(--space-md)] lg:grid-cols-12 lg:items-end lg:gap-x-[var(--gap-columns)]">
+          <h1 className="max-w-[16ch] font-display text-[clamp(2.5rem,4vw+1rem,4.5rem)] font-semibold leading-[1.04] text-ink lg:col-span-7">
             {d.title}
           </h1>
-          <p className="mt-4 text-base leading-7 text-black/55 sm:text-lg">
-            {d.body}
-          </p>
+          <p className="lead lg:col-span-5">{d.body}</p>
         </div>
 
-        {/* Two cards */}
-        <div className="mx-auto grid max-w-4xl gap-5 md:grid-cols-2">
+      </section>
 
-          {/* Photographer card */}
-          <div className="group relative flex flex-col rounded-[32px] border border-[#cdddd4] bg-[linear-gradient(160deg,rgba(245,251,248,0.99),rgba(220,238,228,0.70))] p-8 shadow-[0_20px_60px_rgba(18,24,38,0.07)] transition-all duration-300 hover:shadow-[0_28px_80px_rgba(18,24,38,0.11)] hover:-translate-y-0.5">
-            {/* Label chip */}
-            <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[var(--color-moss)]/10 px-3.5 py-1.5 text-xs font-semibold text-[var(--color-moss)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-moss)]" />
-              {d.photographerLabel}
-            </span>
-
-            {/* Icon */}
-            <div className="mt-6 inline-flex h-14 w-14 items-center justify-center rounded-[22px] bg-white/80 text-[var(--color-moss)] shadow-[0_8px_24px_rgba(56,88,77,0.14)]">
-              <CameraIcon />
-            </div>
-
-            <h2 className="font-display mt-5 text-2xl font-semibold leading-snug tracking-tight text-[var(--color-ink)]">
-              {d.photographerTitle}
-            </h2>
-            <p className="mt-3 text-sm leading-6 text-black/62">
-              {d.photographerBody}
-            </p>
-
-            {/* Features */}
-            <ul className="mt-6 space-y-2.5">
-              {PHOTOGRAPHER_FEATURES[lang].map((f) => (
-                <li key={f} className="flex items-center gap-2.5 text-sm text-black/72">
-                  <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--color-moss)]/12 text-[var(--color-moss)]">
+      {/* Two answers to the question, side by side, parted by a hairline. */}
+      <section className="shell pb-[var(--space-3xl)]">
+        <div className="grid border-t border-rule md:grid-cols-2 md:divide-x md:divide-rule">
+          {choices.map((choice) => (
+            <article key={choice.key} className="flex flex-col border-b border-rule py-[var(--space-xl)] md:border-b-0 md:px-[var(--space-xl)] md:first:pl-0 md:last:pr-0">
+              <div className="flex items-center gap-3 text-moss">
+                {choice.icon}
+                <h2 className="title text-ink">{choice.label}</h2>
+              </div>
+              <p className="mt-[var(--space-md)] text-lg font-semibold leading-snug text-ink">{choice.title}</p>
+              <p className="mt-[var(--space-sm)] max-w-[52ch] leading-relaxed text-ink-2">{choice.body}</p>
+              <ul className="mt-[var(--space-lg)] space-y-2.5">
+                {choice.features.map((f) => (
+                  <li key={f} className="flex items-start gap-3 text-ink">
                     <CheckIcon />
-                  </span>
-                  {f}
-                </li>
-              ))}
-            </ul>
-
-            {/* Price */}
-            <p className="mt-6 text-xs font-semibold text-[var(--color-moss)]">{d.photographerPlan}</p>
-
-            {/* CTA */}
-            <MarketingButtonLink
-              href={lp("/signup?intent=photographer")}
-              tone="ink"
-              className="mt-6 w-full rounded-[18px] py-4"
-            >
-              {d.photographerCta}
-            </MarketingButtonLink>
-          </div>
-
-          {/* Event host card */}
-          <div className="group relative flex flex-col rounded-[32px] border border-[#e4d0c0] bg-[linear-gradient(160deg,rgba(255,253,250,0.99),rgba(248,228,215,0.72))] p-8 shadow-[0_20px_60px_rgba(18,24,38,0.07)] transition-all duration-300 hover:shadow-[0_28px_80px_rgba(18,24,38,0.11)] hover:-translate-y-0.5">
-            {/* Label chip */}
-            <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[var(--color-accent)]/10 px-3.5 py-1.5 text-xs font-semibold text-[var(--color-accent)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" />
-              {d.eventLabel}
-            </span>
-
-            {/* Icon */}
-            <div className="mt-6 inline-flex h-14 w-14 items-center justify-center rounded-[22px] bg-white/80 text-[var(--color-accent)] shadow-[0_8px_24px_rgba(226,121,82,0.16)]">
-              <CalendarHeartIcon />
-            </div>
-
-            <h2 className="font-display mt-5 text-2xl font-semibold leading-snug tracking-tight text-[var(--color-ink)]">
-              {d.eventTitle}
-            </h2>
-            <p className="mt-3 text-sm leading-6 text-black/62">
-              {d.eventBody}
-            </p>
-
-            {/* Features */}
-            <ul className="mt-6 space-y-2.5">
-              {EVENT_FEATURES[lang].map((f) => (
-                <li key={f} className="flex items-center gap-2.5 text-sm text-black/72">
-                  <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent)]/12 text-[var(--color-accent)]">
-                    <CheckIcon />
-                  </span>
-                  {f}
-                </li>
-              ))}
-            </ul>
-
-            {/* Price */}
-            <p className="mt-6 text-xs font-semibold text-[var(--color-accent)]">{d.eventPlan}</p>
-
-            {/* CTA */}
-            <MarketingButtonLink
-              href={lp("/signup?intent=couple")}
-              className="mt-6 w-full rounded-[18px] py-4 shadow-[0_12px_32px_rgba(226,121,82,0.28)]"
-            >
-              {d.eventCta}
-            </MarketingButtonLink>
-          </div>
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-[var(--space-lg)] font-semibold text-moss">{choice.plan}</p>
+              <MarketingButtonLink href={choice.href} tone={choice.primary ? "accent" : "ghost"} className="mt-[var(--space-lg)] w-full sm:w-auto sm:self-start">
+                {choice.cta}
+              </MarketingButtonLink>
+            </article>
+          ))}
         </div>
 
-        {/* Log in link */}
-        <p className="mt-10 text-center text-sm text-black/48">
+        <p className="mt-[var(--space-xl)] text-ink-2">
           {d.alreadyHaveAccount}{" "}
-          <Link href={lp("/login")} className="font-semibold text-[var(--color-ink)] underline-offset-4 hover:underline">
+          <Link href={lp("/login")} className="link">
             {d.logIn}
           </Link>
         </p>
       </section>
+
+      <SiteFooter locale={locale as Locale} />
     </main>
   );
 }

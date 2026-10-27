@@ -57,7 +57,7 @@ function switchLocalePath(pathname: string, currentLocale: Locale): string {
 }
 
 const linkClass =
-  "inline-flex min-h-11 items-center rounded-[var(--radius-inner)] px-3 text-[0.9375rem] text-ink-2 transition-colors duration-[var(--dur-micro)] hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus)] aria-[current=page]:text-ink aria-[current=page]:underline aria-[current=page]:decoration-[var(--color-accent)] aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-[0.4em]";
+  "inline-flex min-h-11 items-center whitespace-nowrap rounded-[var(--radius-inner)] px-2 sm:px-3 text-[0.9375rem] text-ink-2 transition-colors duration-[var(--dur-micro)] hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus)] aria-[current=page]:text-ink aria-[current=page]:underline aria-[current=page]:decoration-[var(--color-accent)] aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-[0.4em]";
 
 /**
  * Edge-aligned bar: the wordmark and three real destinations on the left,

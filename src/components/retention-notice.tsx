@@ -34,16 +34,16 @@ export function RetentionNotice({
       role={notice.urgent ? "alert" : "status"}
       className={cn(
         "flex flex-col gap-3 rounded-[24px] border px-5 py-4 sm:flex-row sm:items-center sm:justify-between",
-        notice.urgent ? "border-[#f5c6c6] bg-[#fff0f0]" : "border-[#f3d9b8] bg-[#fff8ee]",
+        notice.urgent ? "border-[var(--color-error-soft)] bg-[var(--color-error-soft)]" : "border-[var(--color-accent-soft)] bg-[var(--color-paper)]",
       )}
     >
       <div>
-        <p className={cn("text-sm font-semibold", notice.urgent ? "text-[#8b1a1a]" : "text-[var(--color-ink)]")}>
+        <p className={cn("text-sm font-semibold", notice.urgent ? "text-[var(--color-error)]" : "text-[var(--color-ink)]")}>
           {notice.urgent
             ? t(strings.urgentTitle, { days: notice.daysLeft, unit: daysWord(notice.daysLeft, locale) })
             : t(strings.title, { date })}
         </p>
-        <p className="mt-1 text-sm leading-6 text-black/65">
+        <p className="mt-1 text-sm leading-6 text-ink-2">
           {kind === "couple" ? strings.coupleBody : strings.trialBody}
           {notice.urgent ? ` (${date})` : null}
         </p>
@@ -53,7 +53,7 @@ export function RetentionNotice({
           href={href}
           className={cn(
             "shrink-0 rounded-full px-4 py-2 text-sm font-semibold text-white",
-            notice.urgent ? "bg-[#8b1a1a] hover:bg-[#6e1515]" : "bg-[var(--color-ink)] hover:bg-[var(--color-ink)]/85",
+            notice.urgent ? "bg-[var(--color-error)] hover:bg-[var(--color-error)]" : "bg-[var(--color-ink)] hover:bg-[var(--color-ink)]/85",
           )}
         >
           {cta}

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { ContentCta, ContentShell, EventTypeLinks } from "@/components/content-page";
-import { Panel } from "@/components/ui/panel";
+import { ContentCta, ContentShell, DocSections, EventTypeLinks } from "@/components/content-page";
+import { CheckIcon } from "@/components/ui/check-icon";
 import { getDictionary, locales, type Locale } from "@/lib/i18n/index";
 import { publicMetadata } from "@/lib/seo";
 
@@ -57,6 +57,7 @@ export default async function EventTypePage({
 
   return (
     <ContentShell
+      locale={locale as Locale}
       title={type.heroTitle}
       body={type.heroBody}
       trail={[
@@ -65,29 +66,21 @@ export default async function EventTypePage({
         { label: type.name },
       ]}
     >
-      <section className="shell grid gap-5 py-4 md:grid-cols-3">
-        {type.sections.map((section) => (
-          <div key={section.title} className="rounded-[24px] border border-black/8 bg-white/80 p-6">
-            <h2 className="text-base font-semibold text-[var(--color-ink)]">{section.title}</h2>
-            <p className="mt-2.5 text-sm leading-6 text-black/65">{section.body}</p>
-          </div>
-        ))}
-      </section>
+      <DocSections sections={type.sections.map((section) => ({ title: section.title, body: <p>{section.body}</p> }))} />
 
-      <section className="shell py-6">
-        <Panel className="bg-white/85">
-          <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-black/45">
-            {type.checklistTitle}
-          </h2>
-          <ul className="mt-4 grid gap-2.5 sm:grid-cols-2">
+      {/* The checklist on a well: what to have ready for this kind of event. */}
+      <section className="shell pt-[var(--space-xl)]">
+        <div className="well grid gap-y-[var(--space-md)] p-[var(--space-xl)] lg:grid-cols-12 lg:gap-x-[var(--gap-columns)]">
+          <h2 className="title text-ink lg:col-span-4">{type.checklistTitle}</h2>
+          <ul className="grid gap-x-[var(--gap-columns)] gap-y-2.5 sm:grid-cols-2 lg:col-span-8">
             {type.checklist.map((item) => (
-              <li key={item} className="flex items-start gap-2.5 text-sm leading-6 text-black/70">
-                <span className="mt-0.5 text-[var(--color-moss)]">✓</span>
-                {item}
+              <li key={item} className="flex items-start gap-3 leading-relaxed text-ink">
+                <CheckIcon />
+                <span>{item}</span>
               </li>
             ))}
           </ul>
-        </Panel>
+        </div>
       </section>
 
       <EventTypeLinks locale={locale as Locale} exceptSlug={tip} />

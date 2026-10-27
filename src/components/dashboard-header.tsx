@@ -33,10 +33,10 @@ export function DashboardHeader({
   return (
     <header className="shell flex flex-col gap-5 py-6 lg:flex-row lg:items-center lg:justify-between">
       <div className="space-y-2">
-        <Link href="/" className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-moss)]">
+        <Link href="/" className="text-xs font-semibold text-[var(--color-moss)]">
           Confetti
         </Link>
-        {eyebrow ? <p className="text-sm font-medium text-black/55">{eyebrow}</p> : null}
+        {eyebrow ? <p className="text-sm font-medium text-ink-2">{eyebrow}</p> : null}
         <h1 className="font-display text-3xl font-semibold text-[var(--color-ink)] sm:text-4xl">{title}</h1>
       </div>
       <div className="flex flex-wrap items-center gap-3">
@@ -50,13 +50,13 @@ export function DashboardHeader({
         )}
         <Link
           href={profileHref}
-          className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white/75 px-4 py-2 text-sm font-semibold text-[var(--color-ink)] hover:bg-white"
+          className="inline-flex items-center justify-center rounded-full border border-rule bg-card px-4 py-2 text-sm font-semibold text-[var(--color-ink)] hover:bg-white"
         >
           {s.profile}
         </Link>
         {action}
         <form action={signOutAction}>
-          <button className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white/75 px-4 py-2 text-sm font-semibold text-[var(--color-ink)] hover:bg-white">
+          <button className="inline-flex items-center justify-center rounded-full border border-rule bg-card px-4 py-2 text-sm font-semibold text-[var(--color-ink)] hover:bg-white">
             {s.signOut}
           </button>
         </form>

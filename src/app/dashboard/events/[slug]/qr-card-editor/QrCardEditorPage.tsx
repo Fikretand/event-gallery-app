@@ -7,6 +7,7 @@ import { hasSupabase } from "@/lib/env";
 import { eventLinks, getOwnerEventBySlug } from "@/lib/events";
 import { getDictionary, localePrefix, type Locale } from "@/lib/i18n/index";
 import { formatDate } from "@/lib/utils";
+import { BRAND_HEX } from "@/lib/brand-colors";
 
 /** Shared by the English and locale-prefixed editor routes. */
 export async function QrCardEditorPage({
@@ -27,7 +28,7 @@ export async function QrCardEditorPage({
   const qrDataUrl = await QRCode.toDataURL(eventLinks(slug).uploadUrl, {
     width: 1200,
     margin: 1,
-    color: { dark: "#172033", light: "#fffaf2" },
+    color: { dark: BRAND_HEX.ink, light: BRAND_HEX.paper },
   });
 
   return (

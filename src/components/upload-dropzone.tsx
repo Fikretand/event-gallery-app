@@ -65,18 +65,18 @@ type Grant = {
 
 // Confetti burst particles (defined outside component — stable reference)
 const CONFETTI_PIECES = [
-  { color: "#e27952", x: 8,  y: 25, delay: 0,    w: 8,  h: 6  },
-  { color: "#f6d3c3", x: 20, y: 15, delay: 0.06, w: 6,  h: 10 },
-  { color: "#38584d", x: 35, y: 30, delay: 0.12, w: 8,  h: 8  },
-  { color: "#f9c74f", x: 50, y: 10, delay: 0.04, w: 10, h: 6  },
-  { color: "#90e0ef", x: 65, y: 20, delay: 0.18, w: 6,  h: 8  },
-  { color: "#e27952", x: 78, y: 28, delay: 0.08, w: 8,  h: 6  },
-  { color: "#a8dadc", x: 90, y: 12, delay: 0.14, w: 6,  h: 10 },
-  { color: "#f72585", x: 15, y: 40, delay: 0.02, w: 10, h: 6  },
-  { color: "#38584d", x: 45, y: 35, delay: 0.16, w: 6,  h: 8  },
-  { color: "#f9c74f", x: 60, y: 18, delay: 0.1,  w: 8,  h: 6  },
-  { color: "#f6d3c3", x: 82, y: 38, delay: 0.2,  w: 6,  h: 10 },
-  { color: "#e27952", x: 30, y: 8,  delay: 0.07, w: 8,  h: 8  },
+  { color: "var(--color-accent)", x: 8,  y: 25, delay: 0,    w: 8,  h: 6  },
+  { color: "var(--color-accent-soft)", x: 20, y: 15, delay: 0.06, w: 6,  h: 10 },
+  { color: "var(--color-moss)", x: 35, y: 30, delay: 0.12, w: 8,  h: 8  },
+  { color: "var(--color-confetti-1)", x: 50, y: 10, delay: 0.04, w: 10, h: 6  },
+  { color: "var(--color-confetti-2)", x: 65, y: 20, delay: 0.18, w: 6,  h: 8  },
+  { color: "var(--color-accent)", x: 78, y: 28, delay: 0.08, w: 8,  h: 6  },
+  { color: "var(--color-confetti-3)", x: 90, y: 12, delay: 0.14, w: 6,  h: 10 },
+  { color: "var(--color-confetti-4)", x: 15, y: 40, delay: 0.02, w: 10, h: 6  },
+  { color: "var(--color-moss)", x: 45, y: 35, delay: 0.16, w: 6,  h: 8  },
+  { color: "var(--color-confetti-1)", x: 60, y: 18, delay: 0.1,  w: 8,  h: 6  },
+  { color: "var(--color-accent-soft)", x: 82, y: 38, delay: 0.2,  w: 6,  h: 10 },
+  { color: "var(--color-accent)", x: 30, y: 8,  delay: 0.07, w: 8,  h: 8  },
 ];
 
 
@@ -462,12 +462,12 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
     <label className="flex flex-col gap-1.5 sm:col-span-2">
       <span className="text-sm font-semibold text-[var(--color-ink)]">
         🔑 {s.pinLabel}{" "}
-        <span className="font-medium text-[#c0392b]">{s.required}</span>
+        <span className="font-medium text-[var(--color-error)]">{s.required}</span>
       </span>
       <input
         value={pin}
         onChange={(e) => setPin(e.target.value)}
-        className="rounded-2xl border border-black/10 bg-[var(--color-paper)] px-4 py-3 text-sm placeholder:text-black/28 focus:border-[var(--color-accent)] focus:outline-none"
+        className="rounded-2xl border border-rule bg-[var(--color-paper)] px-4 py-3 text-sm placeholder:text-muted focus:border-[var(--color-accent)] focus:outline-none"
         placeholder={s.pinPlaceholder}
         // Shared event PIN, read off a card: shown, not masked, and never
         // offered to the phone's password manager.
@@ -481,12 +481,12 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
   );
 
   const skippedNotice = skipped.length > 0 && (
-    <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-black/8 bg-[var(--color-paper)]/70 px-4 py-3 text-sm text-[var(--color-ink)]">
+    <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-rule bg-[var(--color-paper)]/70 px-4 py-3 text-sm text-[var(--color-ink)]">
       <span>{fill(s.duplicatesSkipped, { count: skipped.length })}</span>
       <button
         type="button"
         onClick={() => mergeFiles(skipped, { allowRepeats: true })}
-        className="shrink-0 rounded-full border border-black/10 bg-white px-3 py-1.5 text-sm font-semibold text-[var(--color-ink)] transition hover:bg-[var(--color-paper)]"
+        className="shrink-0 rounded-full border border-rule bg-white px-3 py-1.5 text-sm font-semibold text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)]"
       >
         {s.sendAnyway}
       </button>
@@ -498,7 +498,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
   const sentStrip = sentPreviews.length > 0 && (
     <div className="mt-5 text-left">
       <p className="text-sm font-semibold text-[var(--color-ink)]">{s.sentTitle}</p>
-      {target === "guest" ? <p className="mt-0.5 text-xs leading-5 text-black/55">{s.sentPendingNote}</p> : null}
+      {target === "guest" ? <p className="mt-0.5 text-xs leading-5 text-ink-2">{s.sentPendingNote}</p> : null}
       <ul className="mt-3 grid grid-cols-4 gap-1.5 sm:grid-cols-6">
         {sentPreviews.map((preview) => (
           <li key={preview.id} className="relative aspect-square overflow-hidden rounded-xl bg-black/5">
@@ -509,7 +509,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
               <img src={preview.url} alt="" className="h-full w-full object-cover" />
             )}
             {preview.isVideo ? (
-              <span className="absolute bottom-1 right-1 rounded-full bg-black/60 px-1.5 text-[10px] text-white" aria-hidden>▶</span>
+              <span className="absolute bottom-1 right-1 rounded-full bg-black/60 px-1.5 text-xs text-white" aria-hidden>▶</span>
             ) : null}
           </li>
         ))}
@@ -533,12 +533,12 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
               <div className="flex flex-col items-center gap-1.5">
                 <div
                   className={cn(
-                    "flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-all duration-300",
+                    "flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-colors duration-300",
                     isDone
                       ? "bg-[var(--color-moss)] text-white"
                       : isActive
-                        ? "bg-[var(--color-accent)] text-white shadow-[0_4px_16px_rgba(226,121,82,0.38)]"
-                        : "bg-black/8 text-black/30",
+                        ? "bg-[var(--color-accent)] text-white shadow-[0_4px_16px_color-mix(in_oklch,_var(--color-accent)_38%,_transparent)]"
+                        : "bg-black/8 text-muted",
                   )}
                 >
                   {isDone ? "✓" : i + 1}
@@ -546,7 +546,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
                 <span
                   className={cn(
                     "text-xs font-medium transition-colors",
-                    isActive ? "text-[var(--color-accent)]" : isDone ? "text-[var(--color-moss)]" : "text-black/32",
+                    isActive ? "text-[var(--color-accent)]" : isDone ? "text-[var(--color-moss)]" : "text-muted",
                   )}
                 >
                   {label}
@@ -568,15 +568,15 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
 
       {/* ── Phase: Choose ──────────────────────────────────────────────────── */}
       {phase === "choose" && (
-        <div className="rounded-[32px] border border-black/8 bg-white/92 p-6 shadow-[0_8px_48px_rgba(18,24,38,0.07)] md:p-8">
+        <div className="rounded-[32px] border border-rule bg-card p-6 shadow-[0_8px_48px_color-mix(in_oklch,_var(--color-ink)_7%,_transparent)] md:p-8">
           <div className="text-center">
-            <div className="upload-icon-float mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-[22px] bg-[var(--color-accent-soft)] text-4xl shadow-[0_8px_32px_rgba(226,121,82,0.18)] md:mb-5 md:h-24 md:w-24 md:rounded-[28px] md:text-5xl">
+            <div className="upload-icon-float mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-[22px] bg-[var(--color-accent-soft)] text-4xl shadow-[0_8px_32px_color-mix(in_oklch,_var(--color-accent)_18%,_transparent)] md:mb-5 md:h-24 md:w-24 md:rounded-[28px] md:text-5xl">
               📷
             </div>
             <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)] md:text-3xl">
               {s.chooseTitle}
             </h2>
-            <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-black/52">
+            <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-muted">
               {s.chooseSubtitle}
             </p>
           </div>
@@ -585,7 +585,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="mt-6 flex w-full items-center justify-center gap-3 rounded-[20px] bg-[var(--color-accent)] px-6 py-5 text-lg font-semibold text-white shadow-[0_8px_28px_rgba(226,121,82,0.38)] transition-all hover:brightness-105 active:scale-[0.98] md:py-4 md:text-base"
+            className="mt-6 flex w-full items-center justify-center gap-3 rounded-[20px] bg-[var(--color-accent)] px-6 py-5 text-lg font-semibold text-white shadow-[0_8px_28px_color-mix(in_oklch,_var(--color-accent)_38%,_transparent)] transition-colors hover:brightness-105 active:scale-[0.98] md:py-4 md:text-base"
           >
             <span className="text-xl">📷</span>
             {s.selectPhotosBtn}
@@ -595,7 +595,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
           {/* Subtle info row. The guest page lists the same facts as chips
               right under this card, so only the owner's upload shows it. */}
           {target !== "guest" && (
-            <p className="mt-4 text-center text-xs text-black/55">
+            <p className="mt-4 text-center text-xs text-ink-2">
               JPG, PNG{allowVideo ? ", MP4, MOV" : ""}
               {" · "}{s.noAccountNeeded}
             </p>
@@ -608,7 +608,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
         <div className="space-y-3">
           {/* Partial success banner */}
           {success && (
-            <div className="rounded-2xl border border-[var(--color-moss)]/15 bg-[#eef8f2] px-5 py-3 text-sm font-medium text-[var(--color-moss)]">
+            <div className="rounded-2xl border border-[var(--color-moss)]/15 bg-[var(--color-moss-soft)] px-5 py-3 text-sm font-medium text-[var(--color-moss)]">
               {success}
               {sentStrip}
             </div>
@@ -616,18 +616,18 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
           {skippedNotice}
 
           {/* File list card */}
-          <div className="rounded-[32px] border border-black/8 bg-white/92 p-5 shadow-[0_8px_40px_rgba(18,24,38,0.06)] md:p-6">
+          <div className="rounded-[32px] border border-rule bg-card p-5 shadow-[0_8px_40px_color-mix(in_oklch,_var(--color-ink)_6%,_transparent)] md:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-semibold text-[var(--color-ink)]">{s.reviewTitle}</p>
-                <p className="text-sm text-black/45">
+                <p className="text-sm text-muted">
                   {fill(s.selectedCount, { count: items.length })} · {fill(s.totalSize, { size: formatBytes(totalSize) })}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={clearList}
-                className="rounded-full px-3 py-1.5 text-sm font-medium text-black/40 transition hover:bg-black/5 hover:text-black/65"
+                className="rounded-full px-3 py-1.5 text-sm font-medium text-muted transition-colors hover:bg-black/5 hover:text-ink-2"
               >
                 {s.clearAll}
               </button>
@@ -639,7 +639,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
                   key={item.id}
                   className={cn(
                     "flex items-center gap-3 rounded-2xl px-3 py-3 transition",
-                    item.status === "error" ? "bg-[#fff0eb]" : "bg-[var(--color-paper)]/55",
+                    item.status === "error" ? "bg-[var(--color-error-soft)]" : "bg-[var(--color-paper)]/55",
                   )}
                 >
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-lg shadow-sm">
@@ -647,16 +647,16 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-[var(--color-ink)]">{item.file.name}</p>
-                    <p className="text-xs text-black/42">{formatBytes(item.file.size)}</p>
+                    <p className="text-xs text-muted">{formatBytes(item.file.size)}</p>
                     {item.message && (
-                      <p className="mt-0.5 text-xs font-medium text-[#c0392b]">{item.message}</p>
+                      <p className="mt-0.5 text-xs font-medium text-[var(--color-error)]">{item.message}</p>
                     )}
                   </div>
                   <button
                     type="button"
                     onClick={() => removeSelectedFile(item.id)}
                     aria-label={s.removeFile}
-                    className="shrink-0 rounded-full p-1.5 text-black/28 transition hover:bg-black/8 hover:text-[#c0392b]"
+                    className="shrink-0 rounded-full p-1.5 text-muted transition-colors hover:bg-black/8 hover:text-[var(--color-error)]"
                   >
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                       <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
@@ -670,16 +670,16 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
           {/* Asked here, after the photos are picked, not before: at the event the
               guest came for one button, and a form in front of it loses people. */}
           {target === "guest" ? (
-            <div className="grid gap-3 rounded-[24px] border border-black/8 bg-white/92 p-4">
+            <div className="grid gap-3 rounded-[24px] border border-rule bg-card p-4">
               <label className="flex flex-col gap-1.5">
                 <span className="text-sm font-medium text-[var(--color-ink)]">
                   {s.nameLabel}{" "}
-                  <span className="font-normal text-black/55">{s.optional}</span>
+                  <span className="font-normal text-ink-2">{s.optional}</span>
                 </span>
                 <input
                   value={guestName}
                   onChange={(e) => setGuestName(e.target.value)}
-                  className="rounded-2xl border border-black/10 bg-[var(--color-paper)] px-4 py-3 text-sm placeholder:text-black/40 focus:border-[var(--color-accent)] focus:outline-none"
+                  className="rounded-2xl border border-rule bg-[var(--color-paper)] px-4 py-3 text-sm placeholder:text-muted focus:border-[var(--color-accent)] focus:outline-none"
                   placeholder={s.namePlaceholder}
                   autoComplete="name"
                   autoCapitalize="words"
@@ -694,7 +694,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
             type="button"
             onClick={startUpload}
             disabled={isPending || activeItems.length === 0}
-            className="flex w-full items-center justify-center gap-3 rounded-[20px] bg-[var(--color-accent)] px-6 py-5 text-lg font-semibold text-white shadow-[0_8px_28px_rgba(226,121,82,0.38)] transition-all hover:brightness-105 active:scale-[0.98] disabled:opacity-60 md:py-4 md:text-base"
+            className="flex w-full items-center justify-center gap-3 rounded-[20px] bg-[var(--color-accent)] px-6 py-5 text-lg font-semibold text-white shadow-[0_8px_28px_color-mix(in_oklch,_var(--color-accent)_38%,_transparent)] transition-colors hover:brightness-105 active:scale-[0.98] disabled:opacity-60 md:py-4 md:text-base"
           >
             <span className="text-xl">✉️</span>
             {s.sendBtn}
@@ -705,7 +705,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
             <button
               type="button"
               onClick={() => inputRef.current?.click()}
-              className="flex flex-1 items-center justify-center gap-2 rounded-[18px] border border-black/10 bg-white/90 px-4 py-3.5 text-sm font-semibold text-[var(--color-ink)] transition hover:border-[var(--color-accent)]/30 hover:bg-white"
+              className="flex flex-1 items-center justify-center gap-2 rounded-[18px] border border-rule bg-card px-4 py-3.5 text-sm font-semibold text-[var(--color-ink)] transition-colors hover:border-[var(--color-accent)]/30 hover:bg-white"
             >
               + {s.addMoreBtn}
             </button>
@@ -715,7 +715,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
                 type="button"
                 onClick={retryFailed}
                 disabled={isPending}
-                className="flex flex-1 items-center justify-center gap-2 rounded-[18px] border border-[#f3c8c0] bg-[#fff6f3] px-4 py-3.5 text-sm font-semibold text-[#8a2020] transition hover:bg-[#fff0eb]"
+                className="flex flex-1 items-center justify-center gap-2 rounded-[18px] border border-[var(--color-error-soft)] bg-[var(--color-paper)] px-4 py-3.5 text-sm font-semibold text-[var(--color-error)] transition-colors hover:bg-[var(--color-error-soft)]"
               >
                 {fill(s.retryFailed, { count: failedCount })}
               </button>
@@ -726,14 +726,14 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
 
       {/* ── Phase: Uploading ───────────────────────────────────────────────── */}
       {phase === "uploading" && (
-        <div className="rounded-[32px] border border-black/8 bg-white/92 p-6 shadow-[0_8px_48px_rgba(18,24,38,0.07)] md:p-7">
+        <div className="rounded-[32px] border border-rule bg-card p-6 shadow-[0_8px_48px_color-mix(in_oklch,_var(--color-ink)_7%,_transparent)] md:p-7">
           {/* Header */}
           <div className="mb-6 text-center">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center">
               <div className="h-14 w-14 animate-spin rounded-full border-4 border-[var(--color-accent-soft)] border-t-[var(--color-accent)]" />
             </div>
             <p className="font-semibold text-[var(--color-ink)]">{s.uploadingTitle}</p>
-            <p className="mt-1 text-xs text-black/42">{s.keepPageOpen}</p>
+            <p className="mt-1 text-xs text-muted">{s.keepPageOpen}</p>
           </div>
 
           {/* Per-file progress */}
@@ -746,12 +746,12 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
                     className={cn(
                       "shrink-0 text-xs font-semibold",
                       item.status === "error"
-                        ? "text-[#c0392b]"
+                        ? "text-[var(--color-error)]"
                         : item.status === "done"
                           ? "text-[var(--color-moss)]"
                           : item.status === "waiting" || item.status === "retrying"
                             ? "text-[var(--color-accent)]"
-                            : "text-black/60",
+                            : "text-ink-2",
                     )}
                   >
                     {statusLabel(item.status)}
@@ -762,9 +762,9 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
                   <div className="mt-2 h-2 overflow-hidden rounded-full bg-black/8">
                     <div
                       className={cn(
-                        "shimmer-fill h-full rounded-full transition-all duration-300",
+                        "shimmer-fill h-full rounded-full transition-colors duration-300",
                         item.status === "error"
-                          ? "bg-[#cc5b49]"
+                          ? "bg-[var(--color-error)]"
                           : item.status === "done"
                             ? "bg-[var(--color-moss)]"
                             : "bg-[var(--color-accent)]",
@@ -777,7 +777,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
             ))}
           </div>
 
-          <p className="mt-5 text-center text-xs text-black/35">
+          <p className="mt-5 text-center text-xs text-muted">
             {fill(s.progress, { done: completedCount, total: items.length })}
           </p>
         </div>
@@ -785,7 +785,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
 
       {/* ── Phase: Success ─────────────────────────────────────────────────── */}
       {phase === "success" && (
-        <div className="relative overflow-hidden rounded-[32px] border border-[var(--color-moss)]/15 bg-white/95 p-8 text-center shadow-[0_8px_48px_rgba(18,24,38,0.07)]">
+        <div className="relative overflow-hidden rounded-[32px] border border-[var(--color-moss)]/15 bg-card p-8 text-center shadow-[0_8px_48px_color-mix(in_oklch,_var(--color-ink)_7%,_transparent)]">
           {/* Confetti burst */}
           <div className="pointer-events-none absolute inset-0" aria-hidden>
             {CONFETTI_PIECES.map((p, i) => (
@@ -817,11 +817,11 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
           <h2 className="fade-up-in font-display text-2xl font-semibold text-[var(--color-ink)]">
             {s.successTitle}
           </h2>
-          <p className="fade-up-in-delay mx-auto mt-2 max-w-sm text-sm leading-6 text-black/62">
+          <p className="fade-up-in-delay mx-auto mt-2 max-w-sm text-sm leading-6 text-ink-2">
             {success}
           </p>
           {s.successNext ? (
-            <p className="fade-up-in-delay mx-auto mt-2 max-w-sm text-sm leading-6 text-black/48">{s.successNext}</p>
+            <p className="fade-up-in-delay mx-auto mt-2 max-w-sm text-sm leading-6 text-muted">{s.successNext}</p>
           ) : null}
           {sentStrip ? <div className="fade-up-in-delay relative">{sentStrip}</div> : null}
 
@@ -829,14 +829,14 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
             <button
               type="button"
               onClick={() => { setSuccess(null); setError(null); setItems([]); inputRef.current?.click(); }}
-              className="inline-flex items-center gap-2 rounded-[16px] bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-white shadow-[0_6px_20px_rgba(226,121,82,0.32)] transition hover:brightness-105"
+              className="inline-flex items-center gap-2 rounded-[16px] bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-white shadow-[0_6px_20px_color-mix(in_oklch,_var(--color-accent)_32%,_transparent)] transition-colors hover:brightness-105"
             >
               + {s.uploadAnotherBtn}
             </button>
             {nextLink ? (
               <Link
                 href={nextLink.href}
-                className="inline-flex items-center gap-2 rounded-[16px] border border-black/10 bg-white px-6 py-3 text-sm font-semibold text-[var(--color-ink)] transition hover:border-[var(--color-accent)]/30 hover:bg-[var(--color-accent-soft)]/20"
+                className="inline-flex items-center gap-2 rounded-[16px] border border-rule bg-white px-6 py-3 text-sm font-semibold text-[var(--color-ink)] transition-colors hover:border-[var(--color-accent)]/30 hover:bg-[var(--color-accent-soft)]/20"
               >
                 {nextLink.label}
               </Link>
@@ -847,8 +847,8 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
 
       {/* ── Error banner ───────────────────────────────────────────────────── */}
       {error && phase !== "uploading" && phase !== "success" && (
-        <div className="mt-4 rounded-2xl bg-[#fff0eb] px-5 py-4">
-          <p className="text-sm font-semibold text-[#8a1c1c]">⚠️ {error}</p>
+        <div className="mt-4 rounded-2xl bg-[var(--color-error-soft)] px-5 py-4">
+          <p className="text-sm font-semibold text-[var(--color-error)]">⚠️ {error}</p>
           {failedCount > 0 && (
             <button
               type="button"

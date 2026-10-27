@@ -48,7 +48,7 @@ export function ChangePasswordForm({
     return (
       <div
         role="status"
-        className="rounded-[24px] border border-[var(--color-moss)]/15 bg-[#eef8f2] px-5 py-4 text-sm font-medium text-[var(--color-moss)]"
+        className="rounded-[24px] border border-[var(--color-moss)]/15 bg-[var(--color-moss-soft)] px-5 py-4 text-sm font-medium text-[var(--color-moss)]"
       >
         {s.success}
       </div>
@@ -89,7 +89,7 @@ export function ChangePasswordForm({
       <Input label={s.confirm} name="confirmPassword" type="password" autoComplete="new-password" required />
 
       {errorText ? (
-        <div className="rounded-2xl bg-[#fff0eb] px-4 py-3 text-sm text-[#8a1c1c]">{errorText}</div>
+        <div role="alert" className="notice notice-error">{errorText}</div>
       ) : null}
 
       <div>

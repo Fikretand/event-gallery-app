@@ -27,7 +27,7 @@ export function PasswordRequirements({
       id={id}
       className={cn(
         "-mt-1 grid gap-1.5 rounded-2xl border px-4 py-3 transition-colors sm:grid-cols-2",
-        allMet ? "border-[var(--color-moss)]/30 bg-[#eef8f2]" : "border-black/8 bg-black/[0.02]",
+        allMet ? "border-[var(--color-moss)]/30 bg-[var(--color-moss-soft)]" : "border-rule bg-black/[0.02]",
       )}
     >
       {PASSWORD_RULES.map((rule) => {
@@ -38,7 +38,7 @@ export function PasswordRequirements({
             data-met={met}
             className={cn(
               "flex items-center gap-2 text-xs transition-colors",
-              met ? "font-medium text-[var(--color-moss)]" : "text-black/50",
+              met ? "font-medium text-[var(--color-moss)]" : "text-muted",
             )}
           >
             <span
@@ -47,7 +47,7 @@ export function PasswordRequirements({
                 "grid size-4 shrink-0 place-items-center rounded-full border text-[10px] leading-none transition-colors",
                 met
                   ? "border-[var(--color-moss)] bg-[var(--color-moss)] text-white"
-                  : "border-black/25 bg-white",
+                  : "border-rule-2 bg-white",
               )}
             >
               {met ? "✓" : ""}

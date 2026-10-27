@@ -72,13 +72,13 @@ export function BillingPlans({
     <div className="space-y-4">
       {/* Billing cycle toggle */}
       <div className="flex items-center justify-center">
-        <div className="inline-flex rounded-full border border-black/10 bg-white/70 p-1 text-sm">
+        <div className="inline-flex rounded-full border border-rule bg-card p-1 text-sm">
           {(["yearly", "monthly"] as const).map((c) => (
             <button
               key={c}
               onClick={() => setCycle(c)}
               className={`rounded-full px-4 py-1.5 font-semibold transition ${
-                cycle === c ? "bg-[var(--color-ink)] text-white" : "text-black/55 hover:text-[var(--color-ink)]"
+                cycle === c ? "bg-[var(--color-ink)] text-white" : "text-ink-2 hover:text-[var(--color-ink)]"
               }`}
             >
               {c === "yearly" ? s.yearly : s.monthly}
@@ -106,12 +106,12 @@ export function BillingPlans({
               key={plan}
               className={`relative overflow-hidden rounded-[24px] border p-6 ${
                 meta.accent
-                  ? "border-amber-200/70 bg-[linear-gradient(160deg,rgba(255,248,235,0.95),rgba(255,238,205,0.6))]"
-                  : "border-black/8 bg-white/90"
+                  ? "border-amber-200/70 bg-[linear-gradient(160deg,color-mix(in_oklch,_var(--color-paper)_95%,_transparent),color-mix(in_oklch,_var(--color-warning-soft)_60%,_transparent))]"
+                  : "border-rule bg-card"
               }`}
             >
               {meta.accent && (
-                <span className="absolute right-5 top-5 rounded-full bg-amber-200/70 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
+                <span className="absolute right-5 top-5 rounded-full bg-amber-200/70 px-2.5 py-0.5 text-xs font-bold text-amber-800">
                   {s.mostPopular}
                 </span>
               )}
@@ -120,15 +120,15 @@ export function BillingPlans({
                 <span className="text-3xl font-semibold text-[var(--color-ink)]">
                   {currency === "BAM" ? `${price} KM` : `\u20AC${price}`}
                 </span>
-                <span className="text-sm text-black/45">{s.perMonth}</span>
+                <span className="text-sm text-muted">{s.perMonth}</span>
               </p>
-              <p className="mt-0.5 text-xs text-black/45">
+              <p className="mt-0.5 text-xs text-muted">
                 {cycle === "yearly" ? s.billedYearly : s.billedMonthly}
               </p>
 
               <ul className="mt-4 space-y-2">
                 {planFeatures.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm text-black/65">
+                  <li key={f} className="flex items-start gap-2 text-sm text-ink-2">
                     <span className="mt-0.5 text-[var(--color-moss)]">✓</span>
                     {f}
                   </li>
@@ -140,7 +140,7 @@ export function BillingPlans({
                 disabled={isCurrent || isBusy}
                 className={`mt-6 w-full rounded-2xl px-5 py-3 text-sm font-semibold transition disabled:cursor-not-allowed ${
                   isCurrent
-                    ? "bg-black/8 text-black/40"
+                    ? "bg-black/8 text-muted"
                     : meta.accent
                       ? "bg-[var(--color-accent)] text-white hover:brightness-105 disabled:opacity-60"
                       : "bg-[var(--color-ink)] text-white hover:bg-[var(--color-ink)]/90 disabled:opacity-60"
@@ -160,7 +160,7 @@ export function BillingPlans({
       </div>
 
       {!paymentsEnabled && (
-        <p className="text-center text-xs text-black/45">{s.paymentsUnavailable}</p>
+        <p className="text-center text-xs text-muted">{s.paymentsUnavailable}</p>
       )}
     </div>
   );

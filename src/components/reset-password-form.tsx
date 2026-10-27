@@ -59,12 +59,11 @@ export function ResetPasswordForm({
   const succeeded = state?.success === PASSWORD_UPDATED;
 
   return (
-    <Panel className="mx-auto w-full max-w-md bg-white/92">
+    <Panel className="w-full max-w-md">
       {/* `action` stays for a submit that lands before hydration; see auth-form. */}
       <form action={formAction} onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">{f.eyebrow}</p>
-          <h2 className="text-3xl font-semibold text-[var(--color-ink)]">{f.title}</h2>
+          <h2 className="title text-ink">{f.title}</h2>
         </div>
 
         <Input
@@ -89,10 +88,10 @@ export function ResetPasswordForm({
         />
 
         {errorText ? (
-          <div className="rounded-2xl bg-[#fff0eb] px-4 py-3 text-sm text-[#8a1c1c]">{errorText}</div>
+          <div role="alert" className="notice notice-error">{errorText}</div>
         ) : null}
         {succeeded ? (
-          <div className="rounded-[24px] border border-[var(--color-moss)]/15 bg-[#eef8f2] px-5 py-4 text-sm font-medium text-[var(--color-moss)]">
+          <div role="status" className="notice notice-success">
             {f.success}{" "}
             <Link href={loginHref} className="font-semibold underline underline-offset-4">
               {f.goToLogin}
@@ -100,7 +99,7 @@ export function ResetPasswordForm({
           </div>
         ) : null}
 
-        <Button type="submit" fullWidth disabled={isPending || !passwordMeetsPolicy(password)}>
+        <Button type="submit" size="md" fullWidth disabled={isPending || !passwordMeetsPolicy(password)}>
           {isPending ? strings.formWorking : f.submit}
         </Button>
       </form>

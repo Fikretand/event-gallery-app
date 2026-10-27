@@ -95,27 +95,27 @@ export function QrCardOverview({
   }
 
   const secondary =
-    "inline-flex items-center justify-center rounded-full border border-black/10 bg-white px-5 py-2.5 text-sm font-semibold text-[var(--color-ink)] transition hover:bg-[var(--color-paper)] disabled:opacity-60";
+    "inline-flex items-center justify-center rounded-full border border-rule bg-white px-5 py-2.5 text-sm font-semibold text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)] disabled:opacity-60";
 
   return (
     <>
-      <Panel className="bg-white/90">
+      <Panel className="bg-card">
         <div className="grid gap-6 md:grid-cols-[minmax(0,260px)_minmax(0,1fr)] md:items-start">
           <div className="mx-auto w-full max-w-[260px]">
-            <div className="aspect-[1240/1754] overflow-hidden rounded-[18px] border border-black/10 bg-[var(--color-paper)] shadow-[0_18px_50px_rgba(18,24,38,0.14)]">
+            <div className="aspect-[1240/1754] overflow-hidden rounded-[18px] border border-rule bg-[var(--color-paper)] shadow-[0_18px_50px_color-mix(in_oklch,_var(--color-ink)_14%,_transparent)]">
               {preview ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={preview} alt={s.yourCard} className="h-full w-full object-cover" />
               ) : (
-                <div className="flex h-full items-center justify-center p-6 text-center text-sm text-black/45">{s.loading}</div>
+                <div className="flex h-full items-center justify-center p-6 text-center text-sm text-muted">{s.loading}</div>
               )}
             </div>
           </div>
 
           <div className="min-w-0">
             <h2 className="font-display text-3xl font-semibold text-[var(--color-ink)]">{s.title}</h2>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-black/62">{s.body}</p>
-            <p className="mt-4 rounded-[18px] bg-[var(--color-paper)]/65 px-4 py-3 text-sm leading-6 text-black/60">
+            <p className="mt-2 max-w-xl text-sm leading-6 text-ink-2">{s.body}</p>
+            <p className="mt-4 rounded-[18px] bg-[var(--color-paper)]/65 px-4 py-3 text-sm leading-6 text-ink-2">
               <span className="font-semibold text-[var(--color-ink)]">{s.yourCard}: </span>
               {hasDraft ? s.draftNote : s.defaultNote}
             </p>
@@ -123,7 +123,7 @@ export function QrCardOverview({
             <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
               <Link
                 href={editorHref}
-                className="inline-flex items-center justify-center rounded-full bg-[var(--color-accent)] px-6 py-2.5 text-sm font-semibold text-white shadow-[0_6px_18px_rgba(226,121,82,0.3)] transition hover:brightness-105"
+                className="inline-flex items-center justify-center rounded-full bg-[var(--color-accent)] px-6 py-2.5 text-sm font-semibold text-white shadow-[0_6px_18px_color-mix(in_oklch,_var(--color-accent)_30%,_transparent)] transition-colors hover:brightness-105"
               >
                 ✎ {s.edit}
               </Link>
@@ -134,15 +134,15 @@ export function QrCardOverview({
                 {busy === "png" ? s.preparing : s.downloadPng}
               </button>
             </div>
-            {failed ? <p className="mt-3 text-sm text-[#8a1c1c]">{s.failed}</p> : null}
-            <p className="mt-4 text-sm leading-6 text-black/55">{qrHint}</p>
+            {failed ? <p className="mt-3 text-sm text-[var(--color-error)]">{s.failed}</p> : null}
+            <p className="mt-4 text-sm leading-6 text-ink-2">{qrHint}</p>
           </div>
         </div>
       </Panel>
 
-      <Panel className="bg-white/90">
+      <Panel className="bg-card">
         <h3 className="font-display text-2xl font-semibold text-[var(--color-ink)]">{s.templatesTitle}</h3>
-        <p className="mt-1.5 text-sm leading-6 text-black/60">{s.templatesBody}</p>
+        <p className="mt-1.5 text-sm leading-6 text-ink-2">{s.templatesBody}</p>
         <div className="mt-5 grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
           {CARD_PRESETS.map((preset) => (
             <button
@@ -151,26 +151,26 @@ export function QrCardOverview({
               onClick={() => openTemplate(preset.id)}
               className="group text-left"
             >
-              <span className="block aspect-[1240/1754] overflow-hidden rounded-xl border border-black/10 bg-[var(--color-paper)] shadow-sm transition group-hover:-translate-y-0.5 group-hover:shadow-md">
+              <span className="block aspect-[1240/1754] overflow-hidden rounded-xl border border-rule bg-[var(--color-paper)] shadow-sm transition-colors group-hover:-translate-y-0.5 group-hover:shadow-md">
                 {thumbs[preset.id] ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={thumbs[preset.id]} alt="" className="h-full w-full object-cover" />
                 ) : null}
               </span>
-              <span className="mt-1.5 block truncate text-xs font-medium text-black/65">{preset.name}</span>
+              <span className="mt-1.5 block truncate text-xs font-medium text-ink-2">{preset.name}</span>
             </button>
           ))}
         </div>
       </Panel>
 
-      <Panel className="bg-white/90">
+      <Panel className="bg-card">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={plainQrDataUrl} alt="" className="h-28 w-28 shrink-0 rounded-xl border border-black/10 bg-white p-1.5" />
+          <img src={plainQrDataUrl} alt="" className="h-28 w-28 shrink-0 rounded-xl border border-rule bg-white p-1.5" />
           <div className="min-w-0">
             <h3 className="font-semibold text-[var(--color-ink)]">{s.plainQr}</h3>
-            <p className="mt-1 text-sm leading-6 text-black/60">{s.plainQrBody}</p>
-            <p className="mt-1 truncate font-mono text-xs text-black/45">{uploadUrl}</p>
+            <p className="mt-1 text-sm leading-6 text-ink-2">{s.plainQrBody}</p>
+            <p className="mt-1 truncate font-mono text-xs text-muted">{uploadUrl}</p>
             <button
               type="button"
               onClick={() => triggerDownload(plainQrDataUrl, `confetti-${slug}-qr.png`)}

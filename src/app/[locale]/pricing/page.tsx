@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteNav } from "@/components/site-nav";
-import { Panel } from "@/components/ui/panel";
 import { PricingShowcase } from "@/components/pricing-showcase";
 import { getDictionary, type Locale } from "@/lib/i18n/index";
 import { publicMetadata } from "@/lib/seo";
@@ -30,36 +30,34 @@ export default async function PricingPage({
   const d = dict.pricing;
 
   return (
-    <main className="pb-16">
+    <main>
       <SiteNav />
-      <section className="shell py-10 sm:py-12">
-        <div className="mx-auto max-w-4xl space-y-6 text-center">
-          <p className="text-sm text-black/48">{d.eyebrow}</p>
-          <h1 className="font-display text-4xl font-semibold leading-[1.04] tracking-tight text-[var(--color-ink)] sm:text-6xl">
-            {d.title}
-          </h1>
-          <p className="mx-auto max-w-3xl text-base leading-7 text-black/68 sm:text-lg sm:leading-8">
-            {d.body}
-          </p>
-        </div>
+
+      {/* ─── Banner: the heading and its line, the table right under ─── */}
+      <section className="shell grid gap-y-[var(--space-lg)] pb-[var(--space-2xl)] pt-[var(--space-3xl)] lg:grid-cols-12 lg:items-end lg:gap-x-[var(--gap-columns)]">
+        <h1 className="max-w-[16ch] font-display text-[clamp(2.5rem,4vw+1rem,4.5rem)] font-semibold leading-[1.04] text-ink lg:col-span-7">
+          {d.title}
+        </h1>
+        <p className="lead max-w-[48ch] lg:col-span-5">{d.body}</p>
       </section>
 
-      <section className="shell py-6">
+      <section className="shell pb-[var(--section-gap-s)]">
         <PricingShowcase />
       </section>
 
-      <section className="shell py-10">
-        <Panel className="mesh-card bg-white/82">
-          <div className="grid gap-5 md:grid-cols-3">
-            {d.features.map((item) => (
-              <div key={item.title} className="rounded-[24px] border border-black/8 bg-white/75 p-5">
-                <p className="text-base font-semibold text-[var(--color-ink)]">{item.title}</p>
-                <p className="mt-2 text-sm leading-6 text-black/65">{item.body}</p>
-              </div>
-            ))}
-          </div>
-        </Panel>
+      {/* ─── What every plan shares, as three across on a well ─── */}
+      <section className="band">
+        <ul className="shell grid gap-y-[var(--space-xl)] sm:grid-cols-3 sm:gap-x-[var(--gap-columns)]">
+          {d.features.map((item) => (
+            <li key={item.title}>
+              <h2 className="title text-ink">{item.title}</h2>
+              <p className="mt-[var(--space-sm)] max-w-[40ch] leading-relaxed text-ink-2">{item.body}</p>
+            </li>
+          ))}
+        </ul>
       </section>
+
+      <SiteFooter locale={locale as Locale} />
     </main>
   );
 }

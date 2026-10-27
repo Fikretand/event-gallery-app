@@ -64,6 +64,12 @@
   --color-device-black: oklch(15.1% 0.004 286);
   --color-device-signal: oklch(88.5% 0.181 95);
   --color-device-mint: oklch(81.9% 0.087 162);
+  /* The confetti that falls once after a guest's upload, and the editor's
+     snap guide. Celebration only, never UI. */
+  --color-confetti-1: oklch(85.3% 0.145 86);
+  --color-confetti-2: oklch(86% 0.081 211);
+  --color-confetti-3: oklch(85.4% 0.052 199);
+  --color-confetti-4: oklch(64.3% 0.244 1);
   /* Tailwind's white and black are the card and the ink here, so a stray
      bg-white or text-black/60 still lands on the brand's tinted values. */
   --color-white: oklch(99.3% 0.005 78);

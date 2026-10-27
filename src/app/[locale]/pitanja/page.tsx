@@ -26,42 +26,36 @@ export default async function FaqPage({ params }: { params: Promise<{ locale: st
 
   return (
     <ContentShell
+      locale={locale as Locale}
       title={f.title}
       body={f.body}
       trail={[{ label: c.breadcrumbHome, href: `/${locale}` }, { label: f.seoTitle }]}
     >
-      <section className="shell space-y-10 py-4">
+      <div className="shell">
         {f.groups.map((group) => (
-          <div key={group.heading}>
-            <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-black/45">
-              {group.heading}
-            </h2>
-            <div className="mt-4 space-y-3">
+          <section
+            key={group.heading}
+            className="grid gap-y-[var(--space-sm)] border-t border-rule py-[var(--space-xl)] lg:grid-cols-12 lg:gap-x-[var(--gap-columns)]"
+          >
+            <h2 className="title text-ink lg:col-span-4">{group.heading}</h2>
+            <div className="lg:col-span-8">
               {group.items.map((item) => (
                 // A native <details> keeps this readable without JavaScript,
                 // which matters both for crawlers and for slow connections.
-                <details
-                  key={item.question}
-                  className="group rounded-[20px] border border-black/8 bg-white/80 px-5 py-4"
-                >
-                  <summary className="cursor-pointer list-none text-sm font-semibold text-[var(--color-ink)] marker:content-none">
-                    <span className="flex items-start justify-between gap-4">
-                      {item.question}
-                      <span
-                        aria-hidden
-                        className="mt-0.5 shrink-0 text-black/30 transition group-open:rotate-45"
-                      >
-                        +
-                      </span>
-                    </span>
+                <details key={item.question} className="group border-b border-rule last:border-b-0">
+                  <summary className="flex min-h-11 cursor-pointer list-none items-start justify-between gap-6 py-[var(--space-md)] font-semibold text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus)] [&::-webkit-details-marker]:hidden">
+                    <span>{item.question}</span>
+                    <svg viewBox="0 0 20 20" aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-ink-2 transition-transform duration-[var(--dur-short)] group-open:rotate-45" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+                      <path d="M10 4v12M4 10h12" />
+                    </svg>
                   </summary>
-                  <p className="mt-3 text-sm leading-6 text-black/65">{item.answer}</p>
+                  <p className="max-w-[65ch] pb-[var(--space-md)] pr-10 leading-[1.7] text-ink-2">{item.answer}</p>
                 </details>
               ))}
             </div>
-          </div>
+          </section>
         ))}
-      </section>
+      </div>
 
       <EventTypeLinks locale={locale as Locale} />
       <ContentCta locale={locale as Locale} />

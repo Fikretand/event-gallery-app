@@ -16,6 +16,7 @@ import { ONE_EVENT_BAM, PLAN_PRICING_BAM, formatBam } from "@/lib/pricing";
 import { COUPLE_PURGE_GRACE_DAYS } from "@/lib/retention";
 import { publicMetadata } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/utils";
+import { QR_COLORS } from "@/lib/brand-colors";
 
 // ─── Static icons ─────────────────────────────────────────────────────────────
 
@@ -143,7 +144,7 @@ export default async function HomePage({
     type: "svg",
     margin: 0,
     errorCorrectionLevel: "M",
-    color: { dark: "#172033", light: "#ffffff" },
+    color: QR_COLORS,
   });
 
   const routes = [

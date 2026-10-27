@@ -72,7 +72,7 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
   return (
     <>
       {expired ? (
-        <div className="rounded-[24px] bg-[#fff0eb] px-5 py-4 text-sm leading-6 text-[#8a1c1c]">
+        <div className="rounded-[24px] bg-[var(--color-error-soft)] px-5 py-4 text-sm leading-6 text-[var(--color-error)]">
           {isCouple ? e.eventExpiredCouple : e.eventExpired}
         </div>
       ) : null}
@@ -88,7 +88,7 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
         />
       ) : null}
 
-      <Panel className="bg-white/90">
+      <Panel className="bg-card">
         <div className="grid gap-6 md:grid-cols-[minmax(0,220px)_minmax(0,1fr)]">
           <div className="mx-auto w-full max-w-[200px] md:max-w-none">
             <EventCoverPicker
@@ -101,7 +101,7 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
           </div>
 
           <div className="min-w-0 space-y-5">
-            <div className="flex flex-wrap gap-2 text-sm text-black/60">
+            <div className="flex flex-wrap gap-2 text-sm text-ink-2">
               <span className={cn("rounded-full px-3.5 py-1.5 font-semibold", statusBadgeClass(lifecycleStatus))}>
                 {d.eventList.statuses[lifecycleStatus as keyof typeof d.eventList.statuses] ?? lifecycleStatus}
               </span>
@@ -121,7 +121,7 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
             <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {stats.map((stat) => (
                 <div key={stat.label} className="rounded-[20px] bg-[var(--color-paper)]/65 px-4 py-3">
-                  <dt className="text-[11px] font-semibold uppercase tracking-[0.16em] text-black/45">{stat.label}</dt>
+                  <dt className="text-xs font-semibold text-muted">{stat.label}</dt>
                   <dd className="mt-1.5 text-2xl font-semibold text-[var(--color-ink)]">{stat.value}</dd>
                 </div>
               ))}
@@ -130,7 +130,7 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
             {pendingGuestFiles > 0 ? (
               <Link
                 href={galleryHref}
-                className="flex flex-col gap-1 rounded-[20px] border border-[var(--color-accent)]/25 bg-[#fff6f1] px-4 py-3 text-sm font-semibold text-[var(--color-ink)] transition hover:bg-[#ffefe6] sm:flex-row sm:items-center sm:justify-between sm:gap-3"
+                className="flex flex-col gap-1 rounded-[20px] border border-[var(--color-accent)]/25 bg-[var(--color-paper)] px-4 py-3 text-sm font-semibold text-[var(--color-ink)] transition-colors hover:bg-[var(--color-accent-soft)] sm:flex-row sm:items-center sm:justify-between sm:gap-3"
               >
                 <span>{t(l.pendingReview, { count: pendingGuestFiles })}</span>
                 <span className="shrink-0 text-[var(--color-accent)]">{l.manageGallery}</span>
@@ -140,7 +140,7 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
             {reportedFiles > 0 ? (
               <Link
                 href={galleryHref}
-                className="flex flex-col gap-1 rounded-[20px] border border-[#8a1c1c]/20 bg-[#fff0eb] px-4 py-3 text-sm font-semibold text-[#8a1c1c] transition hover:bg-[#ffe6dd] sm:flex-row sm:items-center sm:justify-between sm:gap-3"
+                className="flex flex-col gap-1 rounded-[20px] border border-[var(--color-error)]/20 bg-[var(--color-error-soft)] px-4 py-3 text-sm font-semibold text-[var(--color-error)] transition-colors hover:bg-[var(--color-error-soft)] sm:flex-row sm:items-center sm:justify-between sm:gap-3"
               >
                 <span>⚑ {t(l.reportedFiles, { count: reportedFiles })}</span>
                 <span className="shrink-0">{l.manageGallery}</span>
@@ -151,10 +151,10 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
       </Panel>
 
       <div className="grid gap-6 xl:grid-cols-2">
-        <Panel className="min-w-0 bg-white/92">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">1</p>
+        <Panel className="min-w-0 bg-card">
+          <p className="text-xs font-semibold text-[var(--color-accent)]">1</p>
           <h2 className="mt-1 font-display text-2xl font-semibold text-[var(--color-ink)]">{l.guestsTitle}</h2>
-          <p className="mt-2 text-sm leading-6 text-black/62">{l.guestsBody}</p>
+          <p className="mt-2 text-sm leading-6 text-ink-2">{l.guestsBody}</p>
 
           <div className="mt-5 grid gap-5 sm:grid-cols-[160px_minmax(0,1fr)] sm:items-start">
             <div className="mx-auto w-full max-w-[200px] rounded-[22px] bg-[var(--color-paper)] p-3 sm:max-w-none">
@@ -167,7 +167,7 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
               />
             </div>
             <div className="min-w-0 space-y-3">
-              <p className="text-sm leading-6 text-black/58">{e.qrSharingHint}</p>
+              <p className="text-sm leading-6 text-ink-2">{e.qrSharingHint}</p>
               <a
                 href={links.uploadUrl}
                 target="_blank"
@@ -190,7 +190,7 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
             />
           </div>
 
-          <div className="mt-5 border-t border-black/8 pt-5">
+          <div className="mt-5 border-t border-rule pt-5">
             <QrPosterPicker
               slug={event.slug}
               qrCodeDataUrl={qrCode}
@@ -199,24 +199,24 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
             />
           </div>
 
-          <div className="mt-5 border-t border-black/8 pt-5">
+          <div className="mt-5 border-t border-rule pt-5">
             <h3 className="font-semibold text-[var(--color-ink)]">{live.dashboardTitle}</h3>
-            <p className="mt-1 text-sm leading-6 text-black/62">{live.dashboardBody}</p>
+            <p className="mt-1 text-sm leading-6 text-ink-2">{live.dashboardBody}</p>
             <a
               href={`/${locale}/gallery/${event.slug}/live`}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 inline-flex items-center justify-center rounded-full bg-[var(--color-ink)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-black"
+              className="mt-3 inline-flex items-center justify-center rounded-full bg-[var(--color-ink)] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-black"
             >
               {live.dashboardCta}
             </a>
           </div>
         </Panel>
 
-        <Panel className="min-w-0 bg-white/92">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">2</p>
+        <Panel className="min-w-0 bg-card">
+          <p className="text-xs font-semibold text-[var(--color-moss)]">2</p>
           <h2 className="mt-1 font-display text-2xl font-semibold text-[var(--color-ink)]">{l.afterTitle}</h2>
-          <p className="mt-2 text-sm leading-6 text-black/62">{isCouple ? l.afterBodyCouple : l.afterBody}</p>
+          <p className="mt-2 text-sm leading-6 text-ink-2">{isCouple ? l.afterBodyCouple : l.afterBody}</p>
 
           <div className="mt-5">
             <EventLinkCard
@@ -230,7 +230,7 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
           <div className="mt-4 flex flex-col gap-2 sm:flex-row">
             <Link
               href={galleryHref}
-              className="inline-flex items-center justify-center rounded-full bg-[var(--color-ink)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-black"
+              className="inline-flex items-center justify-center rounded-full bg-[var(--color-ink)] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-black"
             >
               {l.manageGallery}
             </Link>
@@ -238,13 +238,13 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
               href={links.galleryUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white px-5 py-2.5 text-sm font-semibold text-[var(--color-ink)] transition hover:bg-[var(--color-paper)]"
+              className="inline-flex items-center justify-center rounded-full border border-rule bg-white px-5 py-2.5 text-sm font-semibold text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)]"
             >
               {l.previewBtn}
             </a>
           </div>
 
-          <p className="mt-5 rounded-[20px] border border-dashed border-black/10 bg-[var(--color-paper)]/45 px-4 py-3 text-xs leading-5 text-black/55">
+          <p className="mt-5 rounded-[20px] border border-dashed border-rule bg-[var(--color-paper)]/45 px-4 py-3 text-xs leading-5 text-ink-2">
             {e.permanentLinksNote}
           </p>
         </Panel>

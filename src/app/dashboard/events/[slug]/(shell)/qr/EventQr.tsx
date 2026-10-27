@@ -5,6 +5,7 @@ import { getOwnerEventContext } from "@/lib/event-context";
 import { eventLinks, generateUploadQrDataUrl } from "@/lib/events";
 import { getDictionary, localePrefix, type Locale } from "@/lib/i18n/index";
 import { formatDate } from "@/lib/utils";
+import { BRAND_HEX } from "@/lib/brand-colors";
 
 /**
  * The event's QR card: see it first, then download it or open the editor.
@@ -21,7 +22,7 @@ export async function EventQr({ locale, slug }: { locale: Locale; slug: string }
   const [plainQr, cardQr] = await Promise.all([
     generateUploadQrDataUrl(event.slug),
     // The same code the editor places on the card: large, on the card's paper tone.
-    QRCode.toDataURL(links.uploadUrl, { width: 1200, margin: 1, color: { dark: "#172033", light: "#fffaf2" } }),
+    QRCode.toDataURL(links.uploadUrl, { width: 1200, margin: 1, color: { dark: BRAND_HEX.ink, light: BRAND_HEX.paper } }),
   ]);
 
   return (

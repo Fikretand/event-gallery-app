@@ -87,14 +87,14 @@ export function GallerySectionsManager({
                 "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition",
                 isOpen
                   ? "border-[var(--color-ink)] bg-[var(--color-ink)] text-white"
-                  : "border-black/10 bg-white text-[var(--color-ink)] hover:border-black/25",
+                  : "border-rule bg-white text-[var(--color-ink)] hover:border-rule-2",
               )}
             >
               {section.name}
               <span
                 className={cn(
                   "rounded-full px-2 py-0.5 text-[11px]",
-                  isOpen ? "bg-white/18 text-white" : "bg-[var(--color-paper)] text-black/55",
+                  isOpen ? "bg-white/18 text-white" : "bg-[var(--color-paper)] text-ink-2",
                 )}
               >
                 {counts[section.id] ?? 0}
@@ -112,21 +112,21 @@ export function GallerySectionsManager({
           className={cn(
             "rounded-full border border-dashed px-4 py-2 text-sm font-semibold transition",
             editing === "new"
-              ? "border-[var(--color-accent)] bg-[#fff6f1] text-[var(--color-accent)]"
-              : "border-black/20 text-black/60 hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]",
+              ? "border-[var(--color-accent)] bg-[var(--color-paper)] text-[var(--color-accent)]"
+              : "border-rule-2 text-ink-2 hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]",
           )}
         >
           {s.newSection}
         </button>
       </div>
 
-      {sections.length === 0 && editing === null ? <p className="text-sm leading-6 text-black/55">{s.empty}</p> : null}
+      {sections.length === 0 && editing === null ? <p className="text-sm leading-6 text-ink-2">{s.empty}</p> : null}
 
       {editing !== null ? (
         <form
           key={editing}
           onSubmit={submit}
-          className="flex flex-col gap-2 rounded-[20px] border border-black/10 bg-[var(--color-paper)]/55 p-3 sm:flex-row sm:items-center"
+          className="flex flex-col gap-2 rounded-[20px] border border-rule bg-[var(--color-paper)]/55 p-3 sm:flex-row sm:items-center"
         >
           <input
             name="name"
@@ -134,13 +134,13 @@ export function GallerySectionsManager({
             autoFocus
             defaultValue={current?.name ?? ""}
             placeholder={s.addPlaceholder}
-            className="min-w-0 flex-1 rounded-full border border-black/10 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[var(--color-ink)] focus:ring-4 focus:ring-[var(--color-accent)]/15"
+            className="min-w-0 flex-1 rounded-full border border-rule bg-white px-4 py-2.5 text-sm outline-none transition-colors focus:border-[var(--color-ink)] focus:ring-4 focus:ring-[var(--color-accent)]/15"
           />
           <div className="flex flex-wrap gap-2">
             <button
               type="submit"
               disabled={isPending}
-              className="flex-1 rounded-full bg-[var(--color-ink)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-black disabled:opacity-60 sm:flex-none"
+              className="flex-1 rounded-full bg-[var(--color-ink)] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-black disabled:opacity-60 sm:flex-none"
             >
               {isPending ? s.adding : current ? s.saveName : s.addButton}
             </button>
@@ -149,7 +149,7 @@ export function GallerySectionsManager({
                 type="button"
                 onClick={remove}
                 disabled={isPending}
-                className="flex-1 rounded-full border border-[#e5b7b7] bg-[#fff0eb] px-4 py-2.5 text-sm font-semibold text-[#8a1c1c] disabled:opacity-60 sm:flex-none"
+                className="flex-1 rounded-full border border-[var(--color-error-soft)] bg-[var(--color-error-soft)] px-4 py-2.5 text-sm font-semibold text-[var(--color-error)] disabled:opacity-60 sm:flex-none"
               >
                 {s.deleteButton}
               </button>
@@ -157,7 +157,7 @@ export function GallerySectionsManager({
             <button
               type="button"
               onClick={() => open(editing)}
-              className="flex-1 rounded-full border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold text-black/60 sm:flex-none"
+              className="flex-1 rounded-full border border-rule bg-white px-4 py-2.5 text-sm font-semibold text-ink-2 sm:flex-none"
             >
               {s.cancel}
             </button>
@@ -165,7 +165,7 @@ export function GallerySectionsManager({
         </form>
       ) : null}
 
-      {error ? <p className="rounded-2xl bg-[#fff0eb] px-4 py-2.5 text-sm text-[#8a1c1c]">{error}</p> : null}
+      {error ? <p className="rounded-2xl bg-[var(--color-error-soft)] px-4 py-2.5 text-sm text-[var(--color-error)]">{error}</p> : null}
     </div>
   );
 }

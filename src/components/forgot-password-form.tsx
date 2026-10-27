@@ -23,11 +23,10 @@ export function ForgotPasswordForm({
   const errorText = state?.error === RESET_RATE_LIMITED ? f.rateLimited : state?.error;
 
   return (
-    <Panel className="mx-auto w-full max-w-md bg-white/92">
+    <Panel className="w-full max-w-md">
       <form action={formAction} className="space-y-4">
         <div className="space-y-2">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">{f.eyebrow}</p>
-          <h2 className="text-3xl font-semibold text-[var(--color-ink)]">{f.title}</h2>
+          <h2 className="title text-ink">{f.title}</h2>
         </div>
 
         <Input
@@ -40,15 +39,15 @@ export function ForgotPasswordForm({
         />
 
         {errorText ? (
-          <div className="rounded-2xl bg-[#fff0eb] px-4 py-3 text-sm text-[#8a1c1c]">{errorText}</div>
+          <div role="alert" className="notice notice-error">{errorText}</div>
         ) : null}
         {state?.success === RESET_LINK_SENT ? (
-          <div className="rounded-[24px] border border-[var(--color-moss)]/15 bg-[#eef8f2] px-5 py-4 text-sm font-medium text-[var(--color-moss)]">
+          <div role="status" className="notice notice-success">
             {f.sent}
           </div>
         ) : null}
 
-        <Button type="submit" fullWidth disabled={isPending}>
+        <Button type="submit" size="md" fullWidth disabled={isPending}>
           {isPending ? f.sending : f.submit}
         </Button>
       </form>

@@ -43,7 +43,7 @@ export function CollapsibleSection({
 
   return (
     <>
-      <p className="mb-3 text-xs font-medium uppercase tracking-[0.18em] text-black/45">
+      <p className="mb-3 text-xs font-medium text-muted">
         {strings.recentLabel
           .replace("{{shown}}", String(shown))
           .replace("{{total}}", String(totalCount))}
@@ -69,7 +69,7 @@ export function CollapsibleSection({
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="mt-4 inline-flex items-center justify-center gap-2 rounded-full border border-black/10 bg-white/85 px-5 py-2.5 text-sm font-semibold text-[var(--color-ink)] transition hover:bg-white"
+        className="mt-4 inline-flex items-center justify-center gap-2 rounded-full border border-rule bg-card px-5 py-2.5 text-sm font-semibold text-[var(--color-ink)] transition-colors hover:bg-white"
       >
         {expanded
           ? strings.showFewer

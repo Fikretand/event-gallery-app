@@ -84,7 +84,7 @@ function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () 
               className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
                 active
                   ? "bg-[var(--color-ink)] text-white"
-                  : "text-black/55 hover:bg-black/[0.05] hover:text-[var(--color-ink)]"
+                  : "text-ink-2 hover:bg-black/[0.05] hover:text-[var(--color-ink)]"
               }`}
             >
               {item.icon}
@@ -93,11 +93,11 @@ function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () 
           );
         })}
       </nav>
-      <div className="border-t border-black/8 p-2.5">
+      <div className="border-t border-rule p-2.5">
         <Link
           href={lp("/dashboard")}
           onClick={onNavigate}
-          className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-black/45 transition hover:bg-black/[0.05] hover:text-[var(--color-ink)]"
+          className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-muted transition-colors hover:bg-black/[0.05] hover:text-[var(--color-ink)]"
         >
           <IconArrowLeft />
           Back to dashboard
@@ -111,7 +111,7 @@ function Brand() {
   return (
     <div className="flex items-center gap-2.5">
       <span className="font-semibold tracking-tight text-[var(--color-ink)]">Confetti</span>
-      <span className="rounded-full bg-[var(--color-accent)]/12 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--color-accent)]">
+      <span className="rounded-full bg-[var(--color-accent)]/12 px-2 py-0.5 text-xs font-bold text-[var(--color-accent)]">
         Admin
       </span>
     </div>
@@ -125,19 +125,19 @@ export function AdminSidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex w-56 shrink-0 flex-col border-r border-black/8 bg-white">
-        <div className="border-b border-black/8 px-5 py-4">
+      <aside className="hidden lg:flex w-56 shrink-0 flex-col border-r border-rule bg-white">
+        <div className="border-b border-rule px-5 py-4">
           <Brand />
         </div>
         <NavLinks pathname={pathname} />
       </aside>
 
       {/* Mobile top bar */}
-      <div className="fixed inset-x-0 top-0 z-40 flex items-center justify-between border-b border-black/8 bg-white px-4 py-3 lg:hidden">
+      <div className="fixed inset-x-0 top-0 z-40 flex items-center justify-between border-b border-rule bg-white px-4 py-3 lg:hidden">
         <Brand />
         <button
           onClick={() => setOpen(true)}
-          className="rounded-lg p-1.5 text-black/50 hover:bg-black/5 hover:text-[var(--color-ink)]"
+          className="rounded-lg p-1.5 text-muted hover:bg-black/5 hover:text-[var(--color-ink)]"
           aria-label="Open menu"
         >
           <IconMenu />
@@ -148,15 +148,15 @@ export function AdminSidebar() {
       {open && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div
-            className="absolute inset-0 bg-black/20 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/20"
             onClick={() => setOpen(false)}
           />
-          <aside className="absolute inset-y-0 left-0 flex w-64 flex-col border-r border-black/8 bg-white shadow-xl">
-            <div className="flex items-center justify-between border-b border-black/8 px-5 py-4">
+          <aside className="absolute inset-y-0 left-0 flex w-64 flex-col border-r border-rule bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-rule px-5 py-4">
               <Brand />
               <button
                 onClick={() => setOpen(false)}
-                className="rounded-lg p-1.5 text-black/40 hover:bg-black/5"
+                className="rounded-lg p-1.5 text-muted hover:bg-black/5"
                 aria-label="Close menu"
               >
                 <IconClose />

@@ -45,19 +45,19 @@ export async function NewEvent({
       />
       {/* Illustrated banner — warms up an otherwise very plain form page. */}
       <section className="shell mb-6">
-        <div className="hero-glow relative overflow-hidden rounded-[28px] border border-[var(--color-accent)]/15 px-6 py-7 shadow-[0_24px_70px_rgba(18,24,38,0.06)] sm:px-9 sm:py-9">
+        <div className="hero-glow relative overflow-hidden rounded-[28px] border border-[var(--color-accent)]/15 px-6 py-7 shadow-[0_24px_70px_color-mix(in_oklch,_var(--color-ink)_6%,_transparent)] sm:px-9 sm:py-9">
           <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-[var(--color-accent)]/10 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-12 left-1/3 h-48 w-48 rounded-full bg-[var(--color-moss)]/10 blur-3xl" />
           <div className="relative grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
             <div>
-              <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-moss)]/25 bg-white/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-moss)]">
+              <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-moss)]/25 bg-card px-4 py-2 text-xs font-semibold text-[var(--color-moss)]">
                 <span className="live-dot inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" />
                 {d.create.bannerEyebrow}
               </span>
               <h2 className="font-display mt-5 text-3xl font-semibold leading-tight text-[var(--color-ink)] sm:text-4xl">
                 {d.create.bannerTitle}
               </h2>
-              <p className="mt-3 max-w-md text-sm leading-6 text-black/60 sm:text-base sm:leading-7">
+              <p className="mt-3 max-w-md text-sm leading-6 text-ink-2 sm:text-base sm:leading-7">
                 {d.create.bannerBody}
               </p>
             </div>
@@ -130,14 +130,14 @@ function StepChip({
   const color = tone === "accent" ? "text-[var(--color-accent)]" : "text-[var(--color-moss)]";
   return (
     <div
-      className={`flex w-24 flex-col items-center gap-2 rounded-[22px] border border-black/8 bg-white/85 px-3 py-4 text-center shadow-[0_14px_36px_rgba(18,24,38,0.10)] backdrop-blur sm:w-28 ${className ?? ""}`}
+      className={`flex w-24 flex-col items-center gap-2 rounded-[22px] border border-black/8 bg-white/85 px-3 py-4 text-center shadow-[0_14px_36px_color-mix(in_oklch,_var(--color-ink)_10%,_transparent)] backdrop-blur sm:w-28 ${className ?? ""}`}
     >
       <span className={`inline-flex h-11 w-11 items-center justify-center rounded-[16px] bg-[var(--color-paper)] ${color}`}>
         <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
           {icon}
         </svg>
       </span>
-      <span className="text-[11px] font-semibold leading-tight text-[var(--color-ink)]">{label}</span>
+      <span className="text-xs font-semibold leading-tight text-[var(--color-ink)]">{label}</span>
     </div>
   );
 }

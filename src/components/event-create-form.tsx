@@ -70,19 +70,19 @@ export function EventCreateForm({
   const s = strings;
 
   return (
-    <Panel className="bg-white/90">
+    <Panel className="bg-card">
       <form action={formAction} className="grid gap-5 md:grid-cols-2">
         <div className="md:col-span-2">
           <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">
             {isCouple ? s.headingCouple : s.headingPhotographer}
           </h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-black/62">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-2">
             {isCouple ? s.introCouple : s.introPhotographer}
           </p>
           {isCouple ? (
-            <div className="mt-4 rounded-[22px] border border-[var(--color-accent)]/18 bg-[linear-gradient(180deg,rgba(246,211,195,0.34),rgba(255,255,255,0.9))] px-4 py-3 text-sm leading-6 text-black/68">
+            <div className="mt-4 rounded-[22px] border border-[var(--color-accent)]/18 bg-[linear-gradient(180deg,color-mix(in_oklch,_var(--color-accent-soft)_34%,_transparent),color-mix(in_oklch,_var(--color-card)_90%,_transparent))] px-4 py-3 text-sm leading-6 text-ink-2">
               {s.couplePlanNote}
-              <p className="mt-2 text-xs leading-5 text-black/55">{s.couplePlanNoteSub}</p>
+              <p className="mt-2 text-xs leading-5 text-ink-2">{s.couplePlanNoteSub}</p>
             </div>
           ) : null}
         </div>
@@ -106,7 +106,7 @@ export function EventCreateForm({
           hint={isCouple ? s.eventDateHintCouple : undefined}
         />
         {isCouple ? (
-          <div className="rounded-2xl border border-black/10 bg-[var(--color-paper)]/55 px-4 py-3 text-sm leading-6 text-black/65">
+          <div className="rounded-2xl border border-rule bg-[var(--color-paper)]/55 px-4 py-3 text-sm leading-6 text-ink-2">
             <p className="font-medium text-[var(--color-ink)]">{s.privateAccessTitle}</p>
             <p className="mt-1">{s.privateAccessBody}</p>
           </div>
@@ -136,24 +136,24 @@ export function EventCreateForm({
           defaultValue="250"
         />
 
-        <label className="flex items-center gap-3 rounded-2xl border border-black/10 bg-[var(--color-paper)]/60 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
+        <label className="flex items-center gap-3 rounded-2xl border border-rule bg-[var(--color-paper)]/60 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
           <input type="checkbox" name="allowGuestUpload" defaultChecked className="size-4" />
           {s.allowGuestUpload}
         </label>
-        <label className="flex items-center gap-3 rounded-2xl border border-black/10 bg-[var(--color-paper)]/60 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
+        <label className="flex items-center gap-3 rounded-2xl border border-rule bg-[var(--color-paper)]/60 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
           <input type="checkbox" name="allowGuestVideo" defaultChecked className="size-4" />
           {s.allowGuestVideo}
         </label>
-        <label className="flex items-center gap-3 rounded-2xl border border-black/10 bg-[var(--color-paper)]/60 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
+        <label className="flex items-center gap-3 rounded-2xl border border-rule bg-[var(--color-paper)]/60 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
           <input type="checkbox" name="requirePinForUpload" className="size-4" />
           {s.requirePinUpload}
         </label>
-        <label className="flex items-center gap-3 rounded-2xl border border-black/10 bg-[var(--color-paper)]/60 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
+        <label className="flex items-center gap-3 rounded-2xl border border-rule bg-[var(--color-paper)]/60 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
           <input type="checkbox" name="requirePinForGallery" defaultChecked className="size-4" />
           {isCouple ? s.requirePinGalleryCouple : s.requirePinGalleryPhotographer}
         </label>
 
-        {state?.error ? <div className="md:col-span-2 rounded-2xl bg-[#fff0eb] px-4 py-3 text-sm text-[#8a1c1c]">{state.error}</div> : null}
+        {state?.error ? <div className="md:col-span-2 rounded-2xl bg-[var(--color-error-soft)] px-4 py-3 text-sm text-[var(--color-error)]">{state.error}</div> : null}
 
         <div className="md:col-span-2 flex justify-end">
           <Button type="submit" disabled={isPending}>

@@ -58,9 +58,9 @@ export function PaymentSuccessBanner({
 
   if (activated) {
     return (
-      <div className="rounded-2xl border border-[#bfe3c8] bg-[#eef9f0] px-4 py-3.5">
-        <p className="text-sm font-semibold text-[#1f6b35]">{strings.activatedTitle}</p>
-        <p className="mt-0.5 text-sm text-[#1f6b35]/80">
+      <div className="rounded-2xl border border-[var(--color-moss-soft)] bg-[var(--color-moss-soft)] px-4 py-3.5">
+        <p className="text-sm font-semibold text-[var(--color-moss)]">{strings.activatedTitle}</p>
+        <p className="mt-0.5 text-sm text-[var(--color-moss)]/80">
           {fill(strings.activatedBody, { plan: planLabel })}
         </p>
       </div>
@@ -76,7 +76,7 @@ export function PaymentSuccessBanner({
         />
         {strings.pendingTitle}
       </p>
-      <p className="mt-0.5 text-sm text-black/55">{strings.pendingBody}</p>
+      <p className="mt-0.5 text-sm text-ink-2">{strings.pendingBody}</p>
     </div>
   );
 }

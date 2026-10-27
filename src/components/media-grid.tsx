@@ -512,7 +512,7 @@ export function MediaGrid({
     <div className="space-y-5">
       {/* Filter bar — always visible so you can switch tabs even when the active filter returns 0 results */}
       <div className="sticky top-3 z-20 -mx-1 sm:top-4">
-        <div className="rounded-[26px] border border-black/10 bg-white/88 px-3 py-3 shadow-[0_18px_36px_rgba(18,24,38,0.08)] backdrop-blur md:px-4">
+        <div className="rounded-[26px] border border-rule bg-card px-3 py-3 shadow-[0_18px_36px_color-mix(in_oklch,_var(--color-ink)_8%,_transparent)] md:px-4">
           <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
             <div className="-mx-1 overflow-x-auto px-1 pb-1">
               <div className="flex min-w-max gap-2">
@@ -523,8 +523,8 @@ export function MediaGrid({
                     className={cn(
                       "rounded-full px-4 py-2 text-sm font-semibold transition whitespace-nowrap",
                       filter === value
-                        ? "bg-[var(--color-ink)] text-white shadow-[0_8px_20px_rgba(18,24,38,0.12)]"
-                        : "border border-black/10 bg-white text-[var(--color-ink)] hover:bg-[var(--color-paper)]",
+                        ? "bg-[var(--color-ink)] text-white shadow-[0_8px_20px_color-mix(in_oklch,_var(--color-ink)_12%,_transparent)]"
+                        : "border border-rule bg-white text-[var(--color-ink)] hover:bg-[var(--color-paper)]",
                     )}
                   >
                     {filterLabel(value)}
@@ -536,7 +536,7 @@ export function MediaGrid({
             {visibleItems.length > 0 ? (
               <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center xl:justify-end">
                 {filter === "deleted" ? (
-                  <div className="rounded-full border border-dashed border-black/10 bg-[var(--color-paper)]/55 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-black/55">
+                  <div className="rounded-full border border-dashed border-rule bg-[var(--color-paper)]/55 px-4 py-2 text-xs font-semibold text-ink-2">
                     {os.deletedAutoPurge}
                   </div>
                 ) : null}
@@ -567,16 +567,16 @@ export function MediaGrid({
         </div>
       </div>
 
-      {error ? <div className="rounded-2xl bg-[#fff0eb] px-4 py-3 text-sm text-[#8a1c1c]">{error}</div> : null}
+      {error ? <div className="rounded-2xl bg-[var(--color-error-soft)] px-4 py-3 text-sm text-[var(--color-error)]">{error}</div> : null}
 
       {!ownerMode && messages.length > 0 ? (
-        <section aria-labelledby="video-messages-title" className="rounded-[26px] border border-black/10 bg-white/90 p-4 sm:p-5">
+        <section aria-labelledby="video-messages-title" className="rounded-[26px] border border-rule bg-card p-4 sm:p-5">
           <h2 id="video-messages-title" className="font-display text-xl font-semibold text-[var(--color-ink)]">
             {vs.messagesTitle}
           </h2>
           <ul className="mt-3 grid gap-3 sm:grid-cols-2">
             {messages.map((item) => (
-              <li key={item.id} className="overflow-hidden rounded-[20px] border border-black/8 bg-[var(--color-night)]">
+              <li key={item.id} className="overflow-hidden rounded-[20px] border border-rule bg-[var(--color-night)]">
                 <video
                   src={item.previewUrl ?? undefined}
                   poster={item.thumbnailUrl ?? undefined}
@@ -597,9 +597,9 @@ export function MediaGrid({
       ) : null}
 
       {visibleItems.length === 0 ? (
-        <div className="rounded-[26px] border border-dashed border-black/10 bg-white/80 px-6 py-12 text-center">
+        <div className="rounded-[26px] border border-dashed border-rule bg-card px-6 py-12 text-center">
           <p className="text-lg font-semibold text-[var(--color-ink)]">{emptyTitle}</p>
-          <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-black/58">{emptyCopy}</p>
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-ink-2">{emptyCopy}</p>
         </div>
       ) : shouldGroupBySection ? (
         <div className="space-y-8">
@@ -638,11 +638,11 @@ export function MediaGrid({
         // containing block for this fixed element, sizing it to the panel
         // instead of the screen — which forced the image to overflow + scroll.
         <div
-          className="lightbox-backdrop-in fixed inset-0 z-[100] flex h-[100dvh] w-screen items-center justify-center bg-[var(--backdrop)] p-3 backdrop-blur-sm sm:p-4"
+          className="lightbox-backdrop-in fixed inset-0 z-[100] flex h-[100dvh] w-screen items-center justify-center bg-[var(--backdrop)] p-3 sm:p-4"
           onClick={() => setActiveId(null)}
         >
           <div
-            className="lightbox-panel-in mx-auto flex h-full w-full max-w-6xl flex-col overflow-hidden rounded-[28px] bg-[var(--color-night)] text-white shadow-[0_40px_120px_rgba(0,0,0,0.45)]"
+            className="lightbox-panel-in mx-auto flex h-full w-full max-w-6xl flex-col overflow-hidden rounded-[28px] bg-[var(--color-night)] text-white shadow-[0_40px_120px_color-mix(in_oklch,_var(--color-device-black)_45%,_transparent)]"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center justify-between gap-3 border-b border-white/10 px-3 py-3 sm:px-5 sm:py-4">
@@ -655,7 +655,7 @@ export function MediaGrid({
                     <span className="text-white/45"> / {visibleItems.length}</span>
                   </p>
                 )}
-                <p className="truncate text-xs uppercase tracking-[0.18em] text-white/55">
+                <p className="truncate text-xs text-white/55">
                   {activeItem.deleted_at ? "deleted" : sourceLabel(activeItem.source_type)}
                   {!activeItem.deleted_at && activeItem.source_type === "guest" && (activeItem.guest_name ?? activeItem.guest_email)
                     ? ` · ${t(vs.byGuest, { name: activeItem.guest_name ?? activeItem.guest_email ?? "" })}`
@@ -674,7 +674,7 @@ export function MediaGrid({
                     }}
                     aria-expanded={reportFor === activeItem.id}
                     aria-label={vs.report}
-                    className="inline-flex h-9 min-w-9 items-center justify-center gap-1.5 rounded-full border border-white/15 bg-white/8 px-2.5 text-xs font-semibold text-white/80 transition hover:border-white/25 hover:bg-white/15"
+                    className="inline-flex h-9 min-w-9 items-center justify-center gap-1.5 rounded-full border border-white/15 bg-white/8 px-2.5 text-xs font-semibold text-white/80 transition-colors hover:border-white/25 hover:bg-white/15"
                   >
                     <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                       <path d="M3.5 14V2.5m0 0h7.5l-1.5 3 1.5 3H3.5" />
@@ -695,7 +695,7 @@ export function MediaGrid({
                 <button
                   onClick={() => handleDownload([activeItem.id])}
                   aria-label={vs.download}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/8 transition hover:border-white/25 hover:bg-[var(--color-moss)] sm:hidden"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/8 transition-colors hover:border-white/25 hover:bg-[var(--color-moss)] sm:hidden"
                 >
                   <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M10 3v10m0 0 4-4m-4 4-4-4M4 16h12" />
@@ -704,7 +704,7 @@ export function MediaGrid({
                 <button
                   onClick={() => setActiveId(null)}
                   aria-label={vs.close}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/8 transition hover:border-white/25 hover:bg-[var(--color-accent)]"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/8 transition-colors hover:border-white/25 hover:bg-[var(--color-accent)]"
                 >
                   <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
                     <path d="m3.5 3.5 9 9M12.5 3.5l-9 9" />
@@ -740,7 +740,7 @@ export function MediaGrid({
                     type="button"
                     onClick={() => sendReport(activeItem.id)}
                     disabled={reportState === "sending"}
-                    className="rounded-full bg-[var(--color-accent)] px-4 py-2 text-xs font-semibold text-white transition hover:brightness-105 disabled:opacity-60"
+                    className="rounded-full bg-[var(--color-accent)] px-4 py-2 text-xs font-semibold text-white transition-colors hover:brightness-105 disabled:opacity-60"
                   >
                     {vs.reportSend}
                   </button>
@@ -751,7 +751,7 @@ export function MediaGrid({
                   >
                     {vs.reportCancel}
                   </button>
-                  {reportState === "failed" ? <span role="alert" className="text-xs text-[#ffb4a2]">{vs.reportFailed}</span> : null}
+                  {reportState === "failed" ? <span role="alert" className="text-xs text-[var(--color-accent-soft)]">{vs.reportFailed}</span> : null}
                 </div>
               </div>
             ) : null}
@@ -783,7 +783,7 @@ export function MediaGrid({
                 <button
                   onClick={showPrevious}
                   aria-label={vs.previous}
-                  className="absolute left-2 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-[var(--color-ink)]/55 text-white backdrop-blur transition hover:border-white/25 hover:bg-[var(--color-moss)] sm:left-4"
+                  className="absolute left-2 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-[var(--color-ink)]/55 text-white transition-colors hover:border-white/25 hover:bg-[var(--color-moss)] sm:left-4"
                 >
                   <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M10 3 5 8l5 5" />
@@ -808,7 +808,7 @@ export function MediaGrid({
                 <button
                   onClick={showNext}
                   aria-label={vs.next}
-                  className="absolute right-2 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-[var(--color-ink)]/55 text-white backdrop-blur transition hover:border-white/25 hover:bg-[var(--color-moss)] sm:right-4"
+                  className="absolute right-2 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-[var(--color-ink)]/55 text-white transition-colors hover:border-white/25 hover:bg-[var(--color-moss)] sm:right-4"
                 >
                   <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <path d="m6 3 5 5-5 5" />
@@ -816,7 +816,7 @@ export function MediaGrid({
                 </button>
               ) : null}
 
-              <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full border border-white/12 bg-[var(--color-ink)]/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/80 backdrop-blur sm:hidden">
+              <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full border border-white/12 bg-[var(--color-ink)]/60 px-4 py-2 text-xs font-semibold text-white/80 sm:hidden">
                 {vs.swipeHint}
               </div>
             </div>
@@ -843,7 +843,7 @@ export function MediaGrid({
       return (
         <article
           key={item.id}
-          className="lift-card group relative overflow-hidden rounded-[22px] border border-black/10 bg-white shadow-[0_10px_30px_rgba(18,24,38,0.05)]"
+          className="lift-card group relative overflow-hidden rounded-[22px] border border-rule bg-white shadow-[0_10px_30px_color-mix(in_oklch,_var(--color-ink)_5%,_transparent)]"
         >
           <button
             className="relative block aspect-[4/5] w-full overflow-hidden"
@@ -869,17 +869,17 @@ export function MediaGrid({
             {/* Legibility wash for overlays */}
             <span className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/45 via-black/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             {isVideo ? (
-              <span className="pointer-events-none absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur">
+              <span className="pointer-events-none absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-white">
                 <svg viewBox="0 0 24 24" className="ml-0.5 h-5 w-5" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
               </span>
             ) : null}
             {isCover ? (
-              <span className="absolute right-2 top-2 rounded-full bg-[var(--color-accent)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white shadow-sm">
+              <span className="absolute right-2 top-2 rounded-full bg-[var(--color-accent)] px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
                 {vs.cover}
               </span>
             ) : null}
             {guestName ? (
-              <span className="pointer-events-none absolute inset-x-2 bottom-2 truncate rounded-full bg-black/45 px-3 py-1 text-[11px] font-medium text-white/90 opacity-0 backdrop-blur transition-opacity duration-300 group-hover:opacity-100">
+              <span className="pointer-events-none absolute inset-x-2 bottom-2 truncate rounded-full bg-black/45 px-3 py-1 text-xs font-medium text-white/90 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                 {t(vs.byGuest, { name: guestName })}
               </span>
             ) : null}
@@ -916,7 +916,7 @@ export function MediaGrid({
             onClick={() => handleDownload([item.id])}
             aria-label={vs.download}
             title={vs.download}
-            className="absolute bottom-2 right-2 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full border border-black/5 bg-white/85 text-[var(--color-ink)] shadow-sm backdrop-blur transition hover:bg-white"
+            className="absolute bottom-2 right-2 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full border border-rule bg-card text-[var(--color-ink)] shadow-sm transition-colors hover:bg-white"
           >
             <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
               <path d="M10 3v10m0 0 4-4m-4 4-4-4M4 16h12" />
@@ -929,7 +929,7 @@ export function MediaGrid({
     return (
       <article
         key={item.id}
-        className="lift-card group overflow-hidden rounded-[26px] border border-black/10 bg-white shadow-[0_10px_30px_rgba(18,24,38,0.05)]"
+        className="lift-card group overflow-hidden rounded-[26px] border border-rule bg-white shadow-[0_10px_30px_color-mix(in_oklch,_var(--color-ink)_5%,_transparent)]"
       >
         <button className="relative block w-full overflow-hidden text-left" onClick={() => setActiveId(item.id)}>
           {isVideo && !item.thumbnail_key ? (
@@ -951,17 +951,17 @@ export function MediaGrid({
             />
           )}
           {item.hidden_at && !isDeleted ? (
-            <span className="absolute left-4 top-4 rounded-full bg-black/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-white">
+            <span className="absolute left-4 top-4 rounded-full bg-black/70 px-3 py-1 text-xs font-semibold text-white">
               {os.hidden}
             </span>
           ) : null}
           {isDeleted ? (
-            <span className="absolute left-4 top-4 rounded-full bg-[#8a1c1c] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-white">
+            <span className="absolute left-4 top-4 rounded-full bg-[var(--color-error)] px-3 py-1 text-xs font-semibold text-white">
               {os.deleted}
             </span>
           ) : null}
           {isCover ? (
-            <span className="absolute right-4 top-4 rounded-full bg-[var(--color-accent)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-white">
+            <span className="absolute right-4 top-4 rounded-full bg-[var(--color-accent)] px-3 py-1 text-xs font-semibold text-white">
               {vs.cover}
             </span>
           ) : null}
@@ -971,7 +971,7 @@ export function MediaGrid({
             </span>
           ) : null}
           {reportCount > 0 && !isDeleted ? (
-            <span className="absolute bottom-4 left-4 rounded-full bg-[#8a1c1c] px-3 py-1 text-xs font-semibold text-white shadow-sm">
+            <span className="absolute bottom-4 left-4 rounded-full bg-[var(--color-error)] px-3 py-1 text-xs font-semibold text-white shadow-sm">
               ⚑ {t(os.reported, { count: reportCount })}
             </span>
           ) : null}
@@ -980,7 +980,7 @@ export function MediaGrid({
         <div className="space-y-3 p-4">
           <div>
             <p className="truncate text-sm font-semibold text-[var(--color-ink)]">{item.original_filename}</p>
-            <p className="text-xs uppercase tracking-[0.18em] text-black/45">
+            <p className="text-xs text-muted">
               {isDeleted ? os.deleted : sourceLabel(item.source_type)} · {formatBytes(item.size_bytes)}
             </p>
             {!isDeleted && item.source_type === "guest" && guestName ? (
@@ -988,14 +988,14 @@ export function MediaGrid({
                 {t(vs.byGuest, { name: guestName })}
               </p>
             ) : null}
-            {isDeleted && purgeMessage ? <p className="mt-2 text-xs text-[#8a1c1c]">{purgeMessage}</p> : null}
+            {isDeleted && purgeMessage ? <p className="mt-2 text-xs text-[var(--color-error)]">{purgeMessage}</p> : null}
           </div>
 
           {ownerMode && sections.length > 0 && !isDeleted ? (
-            <label className="flex flex-col gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-black/45">
+            <label className="flex flex-col gap-2 text-xs font-semibold text-muted">
               <span>{os.sectionLabel}</span>
               <select
-                className="rounded-2xl border border-black/10 bg-white px-3 py-2 text-sm font-medium normal-case tracking-normal text-[var(--color-ink)]"
+                className="rounded-2xl border border-rule bg-white px-3 py-2 text-sm font-medium normal-case tracking-normal text-[var(--color-ink)]"
                 value={item.section_id ?? ""}
                 onChange={(event) => updateMediaSection(item.id, event.target.value)}
                 disabled={busyId === item.id}
@@ -1011,7 +1011,7 @@ export function MediaGrid({
           ) : null}
 
           <div className="flex flex-wrap items-center gap-2">
-            <label className="inline-flex items-center gap-2 rounded-full border border-black/10 px-3 py-2 text-xs font-semibold">
+            <label className="inline-flex items-center gap-2 rounded-full border border-rule px-3 py-2 text-xs font-semibold">
               <input
                 type="checkbox"
                 checked={checked}
@@ -1094,7 +1094,7 @@ function SectionGroup({
     <div className="space-y-4">
       <div>
         {eyebrow ? (
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-moss)]">{eyebrow}</p>
+          <p className="mb-2 text-xs font-semibold text-[var(--color-moss)]">{eyebrow}</p>
         ) : null}
         <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">{title}</h2>
       </div>

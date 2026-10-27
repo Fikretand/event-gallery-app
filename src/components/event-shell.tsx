@@ -41,7 +41,7 @@ export async function EventShell({
         action={
           <Link
             href={`${prefix}/dashboard`}
-            className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white/80 px-4 py-2 text-sm font-semibold text-[var(--color-ink)] transition hover:bg-white"
+            className="inline-flex items-center justify-center rounded-full border border-rule bg-card px-4 py-2 text-sm font-semibold text-[var(--color-ink)] transition-colors hover:bg-white"
           >
             {d.event.backToEvents}
           </Link>
@@ -73,10 +73,10 @@ export async function EventShell({
 export function EventPageSkeleton() {
   return (
     <div aria-busy="true" className="space-y-6">
-      <div className="h-64 animate-pulse rounded-[28px] border border-black/5 bg-white/70" />
+      <div className="h-64 animate-pulse rounded-[28px] border border-rule bg-card" />
       <div className="grid gap-6 xl:grid-cols-2">
-        <div className="h-80 animate-pulse rounded-[28px] border border-black/5 bg-white/60" />
-        <div className="h-80 animate-pulse rounded-[28px] border border-black/5 bg-white/60" />
+        <div className="h-80 animate-pulse rounded-[28px] border border-rule bg-card" />
+        <div className="h-80 animate-pulse rounded-[28px] border border-rule bg-card" />
       </div>
     </div>
   );

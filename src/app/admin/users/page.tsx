@@ -22,10 +22,10 @@ export default async function AdminUsersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-moss)]">Management</p>
+        <p className="text-xs font-semibold text-[var(--color-moss)]">Management</p>
         <h1 className="mt-1 text-2xl font-semibold text-[var(--color-ink)]">
           Users
-          <span className="ml-2.5 text-base font-normal text-black/35">{users.length}</span>
+          <span className="ml-2.5 text-base font-normal text-muted">{users.length}</span>
         </h1>
       </div>
       <AdminUsersTable users={users} />

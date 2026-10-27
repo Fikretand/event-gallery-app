@@ -48,9 +48,9 @@ export function UserDetailActions({ user }: { user: UserRecord }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-black/8 bg-white/92 shadow-[0_18px_50px_rgba(18,24,38,0.05)] backdrop-blur">
-      <div className="border-b border-black/8 px-5 py-3.5">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-black/40">Actions</p>
+    <div className="overflow-hidden rounded-2xl border border-rule bg-card shadow-[0_18px_50px_color-mix(in_oklch,_var(--color-ink)_5%,_transparent)]">
+      <div className="border-b border-rule px-5 py-3.5">
+        <p className="text-xs font-semibold text-muted">Actions</p>
       </div>
 
       <div className="space-y-5 px-5 py-5">
@@ -61,18 +61,18 @@ export function UserDetailActions({ user }: { user: UserRecord }) {
         {/* Plan — photographer tiers only; a couple account has no tier */}
         {user.account_type === "couple" ? (
           <div>
-            <p className="mb-2 text-xs font-semibold text-black/55">Plan</p>
-            <div className="rounded-xl border border-black/10 bg-[var(--color-paper)]/60 px-4 py-2.5 text-sm font-semibold text-[var(--color-ink)]">
+            <p className="mb-2 text-xs font-semibold text-ink-2">Plan</p>
+            <div className="rounded-xl border border-rule bg-[var(--color-paper)]/60 px-4 py-2.5 text-sm font-semibold text-[var(--color-ink)]">
               One Event
             </div>
-            <p className="mt-1.5 text-[11px] text-black/40">
+            <p className="mt-1.5 text-xs text-muted">
               Couple accounts buy a single event. Solo and Pro are photographer tiers and
               do not apply here.
             </p>
           </div>
         ) : (
         <div>
-          <p className="mb-2 text-xs font-semibold text-black/55">Change plan</p>
+          <p className="mb-2 text-xs font-semibold text-ink-2">Change plan</p>
           <div className="flex gap-2">
             {(["solo", "pro"] as const).map((p) => (
               <button
@@ -84,7 +84,7 @@ export function UserDetailActions({ user }: { user: UserRecord }) {
                     ? p === "pro"
                       ? "border-amber-300 bg-amber-50 text-amber-700"
                       : "border-[var(--color-ink)]/20 bg-[var(--color-paper)] text-[var(--color-ink)]"
-                    : "border-black/10 bg-white text-black/45 hover:border-black/20 hover:text-[var(--color-ink)]"
+                    : "border-rule bg-white text-muted hover:border-rule-2 hover:text-[var(--color-ink)]"
                 }`}
               >
                 {p === user.plan_tier && "✓ "}{p.charAt(0).toUpperCase() + p.slice(1)}
@@ -96,14 +96,14 @@ export function UserDetailActions({ user }: { user: UserRecord }) {
 
         {/* Admin role */}
         <div>
-          <p className="mb-2 text-xs font-semibold text-black/55">Admin access</p>
+          <p className="mb-2 text-xs font-semibold text-ink-2">Admin access</p>
           <button
             onClick={handleRoleToggle}
             disabled={pending}
             className={`w-full rounded-xl border py-2.5 text-sm font-semibold transition ${
               user.role === "admin"
                 ? "border-[var(--color-accent)]/30 bg-[var(--color-accent)]/8 text-[var(--color-accent)] hover:bg-[var(--color-accent)]/14"
-                : "border-black/10 bg-white text-black/55 hover:border-black/20 hover:text-[var(--color-ink)]"
+                : "border-rule bg-white text-ink-2 hover:border-rule-2 hover:text-[var(--color-ink)]"
             }`}
           >
             {user.role === "admin" ? "⚡ Admin — click to revoke" : "Grant admin access"}
@@ -112,31 +112,31 @@ export function UserDetailActions({ user }: { user: UserRecord }) {
 
         {/* Subscription (manual activation — bank transfer path) */}
         <div>
-          <p className="mb-2 text-xs font-semibold text-black/55">Subscription</p>
+          <p className="mb-2 text-xs font-semibold text-ink-2">Subscription</p>
           <button
             onClick={handleSubscriptionToggle}
             disabled={pending}
             className={`w-full rounded-xl border py-2.5 text-sm font-semibold transition ${
               isPaid
                 ? "border-[var(--color-moss)]/30 bg-[var(--color-moss)]/8 text-[var(--color-moss)] hover:bg-[var(--color-moss)]/14"
-                : "border-black/10 bg-white text-black/55 hover:border-black/20 hover:text-[var(--color-ink)]"
+                : "border-rule bg-white text-ink-2 hover:border-rule-2 hover:text-[var(--color-ink)]"
             }`}
           >
             {isPaid ? "✓ Active (paid) — click to revert to trial" : "Mark as paid (active subscriber)"}
           </button>
-          <p className="mt-1.5 text-[11px] text-black/40">
+          <p className="mt-1.5 text-xs text-muted">
             Use after a manual/bank-transfer payment. Removes trial limits for this account.
           </p>
         </div>
 
         {/* Delete */}
-        <div className="border-t border-black/8 pt-5">
-          <p className="mb-2 text-xs font-semibold text-black/55">Danger zone</p>
+        <div className="border-t border-rule pt-5">
+          <p className="mb-2 text-xs font-semibold text-ink-2">Danger zone</p>
           {deleteStep === "idle" ? (
             <button
               onClick={handleDelete}
               disabled={pending}
-              className="w-full rounded-xl border border-red-200 bg-red-50 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-100"
+              className="w-full rounded-xl border border-red-200 bg-red-50 py-2.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100"
             >
               Delete user account
             </button>
@@ -149,14 +149,14 @@ export function UserDetailActions({ user }: { user: UserRecord }) {
                 <button
                   onClick={handleDelete}
                   disabled={pending}
-                  className="flex-1 rounded-xl bg-red-600 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+                  className="flex-1 rounded-xl bg-red-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
                 >
                   {pending ? "Deleting…" : "Yes, delete permanently"}
                 </button>
                 <button
                   onClick={() => setDeleteStep("idle")}
                   disabled={pending}
-                  className="flex-1 rounded-xl border border-black/10 bg-white py-2.5 text-sm font-semibold text-black/55 transition hover:bg-black/5"
+                  className="flex-1 rounded-xl border border-rule bg-white py-2.5 text-sm font-semibold text-ink-2 transition-colors hover:bg-black/5"
                 >
                   Cancel
                 </button>
@@ -166,7 +166,7 @@ export function UserDetailActions({ user }: { user: UserRecord }) {
         </div>
 
         {pending && (
-          <p className="text-center text-xs text-black/35">Saving…</p>
+          <p className="text-center text-xs text-muted">Saving…</p>
         )}
       </div>
     </div>

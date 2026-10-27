@@ -89,7 +89,7 @@ export function EventNav({
   return (
     <nav
       aria-label={l.menuLabel}
-      className="sticky top-0 z-30 -mx-4 bg-[var(--color-paper)]/88 px-4 py-2 backdrop-blur lg:top-6 lg:mx-0 lg:rounded-[24px] lg:border lg:border-black/8 lg:bg-white/80 lg:p-2 lg:shadow-[0_12px_40px_rgba(18,24,38,0.06)]"
+      className="sticky top-0 z-30 -mx-4 bg-[var(--color-paper)]/88 px-4 py-2 lg:top-6 lg:mx-0 lg:rounded-[24px] lg:border lg:border-rule lg:bg-card lg:p-2 lg:shadow-[0_12px_40px_color-mix(in_oklch,_var(--color-ink)_6%,_transparent)]"
     >
       <ul className="flex gap-2 overflow-x-auto [scrollbar-width:none] lg:flex-col lg:gap-1 lg:overflow-visible [&::-webkit-scrollbar]:hidden">
         {primary.map((entry) => {
@@ -103,7 +103,7 @@ export function EventNav({
                   item,
                   isActive
                     ? "bg-[var(--color-ink)] text-white"
-                    : "border border-black/10 bg-white/85 text-[var(--color-ink)] hover:bg-white lg:border-transparent lg:bg-transparent lg:hover:bg-[var(--color-paper)]",
+                    : "border border-rule bg-card text-[var(--color-ink)] hover:bg-white lg:border-transparent lg:bg-transparent lg:hover:bg-[var(--color-paper)]",
                 )}
               >
                 <Icon name={entry.key} />
@@ -112,7 +112,7 @@ export function EventNav({
                   <span
                     className={cn(
                       "ml-auto rounded-full px-2 py-0.5 text-[11px] font-semibold",
-                      isActive ? "bg-white/18 text-white" : "bg-[var(--color-paper)] text-black/55",
+                      isActive ? "bg-white/18 text-white" : "bg-[var(--color-paper)] text-ink-2",
                     )}
                   >
                     {entry.badge}
@@ -123,7 +123,7 @@ export function EventNav({
           );
         })}
 
-        <li aria-hidden className="hidden lg:my-1 lg:block lg:border-t lg:border-black/8" />
+        <li aria-hidden className="hidden lg:my-1 lg:block lg:border-t lg:border-rule" />
 
         <li>
           <a
@@ -132,7 +132,7 @@ export function EventNav({
             rel="noopener noreferrer"
             className={cn(
               item,
-              "border border-black/10 bg-white/85 text-black/65 hover:bg-white hover:text-[var(--color-ink)] lg:border-transparent lg:bg-transparent lg:font-medium lg:hover:bg-[var(--color-paper)]",
+              "border border-rule bg-card text-ink-2 hover:bg-white hover:text-[var(--color-ink)] lg:border-transparent lg:bg-transparent lg:font-medium lg:hover:bg-[var(--color-paper)]",
             )}
           >
             <Icon name="preview" />

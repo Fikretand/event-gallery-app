@@ -120,7 +120,7 @@ export function CoupleCheckoutButton({
         >
           {label}
         </button>
-        <p className="mt-2 text-center text-xs text-black/45">{strings.checkoutComingSoon}</p>
+        <p className="mt-2 text-center text-xs text-muted">{strings.checkoutComingSoon}</p>
       </div>
     );
   }
@@ -132,13 +132,13 @@ export function CoupleCheckoutButton({
         <button
           onClick={isPolar ? openPolarCheckout : openPayhipCheckout}
           disabled={busy}
-          className="w-full rounded-2xl bg-[var(--color-accent)] px-5 py-3 text-sm font-semibold text-white transition hover:brightness-105 disabled:cursor-wait disabled:opacity-70"
+          className="w-full rounded-2xl bg-[var(--color-accent)] px-5 py-3 text-sm font-semibold text-white transition-colors hover:brightness-105 disabled:cursor-wait disabled:opacity-70"
         >
           {busy ? strings.checkoutOpening : label}
         </button>
-        <p className="mt-2 text-center text-xs text-black/45">{strings.checkoutSecure}</p>
+        <p className="mt-2 text-center text-xs text-muted">{strings.checkoutSecure}</p>
         {!isPolar && userEmail && (
-          <p className="mt-1 text-center text-xs text-black/45">
+          <p className="mt-1 text-center text-xs text-muted">
             {fill(strings.checkoutEmailHint, { email: userEmail })}
           </p>
         )}

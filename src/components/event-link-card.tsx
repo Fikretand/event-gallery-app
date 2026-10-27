@@ -44,11 +44,11 @@ export function EventLinkCard({
     <div
       className={cn(
         "flex flex-col rounded-[24px] border p-4",
-        accent ? "border-[var(--color-accent)]/25 bg-[#fff6f1]" : "border-black/10 bg-white",
+        accent ? "border-[var(--color-accent)]/25 bg-[var(--color-paper)]" : "border-rule bg-white",
       )}
     >
-      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-ink)]">{title}</p>
-      {body ? <p className="mt-2 text-sm leading-6 text-black/60">{body}</p> : null}
+      <p className="text-xs font-semibold text-[var(--color-ink)]">{title}</p>
+      {body ? <p className="mt-2 text-sm leading-6 text-ink-2">{body}</p> : null}
       <div className="mt-3 flex items-center gap-2">
         <p className="min-w-0 flex-1 truncate rounded-xl bg-[var(--color-paper)]/70 px-3 py-2 font-mono text-xs text-[var(--color-ink)]" title={url}>
           {url}
@@ -57,7 +57,7 @@ export function EventLinkCard({
           type="button"
           onClick={copy}
           aria-live="polite"
-          className="shrink-0 rounded-full border border-black/10 bg-white px-3 py-2 text-xs font-semibold text-[var(--color-ink)] transition hover:bg-[var(--color-paper)]"
+          className="shrink-0 rounded-full border border-rule bg-white px-3 py-2 text-xs font-semibold text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)]"
         >
           {copied ? copiedLabel : copyLabel}
         </button>
