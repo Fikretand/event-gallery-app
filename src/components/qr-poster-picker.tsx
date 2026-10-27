@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { DownloadIcon } from "@/components/ui/icons";
 
 function triggerDownload(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
@@ -71,28 +72,15 @@ export function QrPosterPicker({
           type="button"
           onClick={downloadPlain}
           disabled={busy}
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--color-ink)] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-ink)]/85 disabled:cursor-not-allowed disabled:opacity-60"
+          className="btn btn-sm btn-secondary"
         >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="7 10 12 15 17 10" />
-            <line x1="12" y1="15" x2="12" y2="3" />
-          </svg>
+          <DownloadIcon className="h-4 w-4" />
           {busy ? s.plainPreparing : s.plainDownload}
         </button>
         {editorHref && (
           <a
             href={editorHref}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:brightness-105"
+            className="btn btn-sm btn-primary"
           >
             {s.customize}
           </a>
@@ -100,7 +88,7 @@ export function QrPosterPicker({
       </div>
 
       {editorHref && (
-        <p className="text-xs leading-5 text-ink-2">{s.customizeHint}</p>
+        <p className="meta">{s.customizeHint}</p>
       )}
     </div>
   );

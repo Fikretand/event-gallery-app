@@ -5,7 +5,7 @@ import { EventCoverPicker } from "@/components/event-cover-picker";
 import { EventLinkCard } from "@/components/event-link-card";
 import { QrPosterPicker } from "@/components/qr-poster-picker";
 import { RetentionNotice } from "@/components/retention-notice";
-import { Panel } from "@/components/ui/panel";
+import { AlertIcon, ExternalIcon } from "@/components/ui/icons";
 import { getEventAnalyticsCached, getOwnerEventContext } from "@/lib/event-context";
 import {
   eventLinks,
@@ -69,12 +69,18 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
     { label: e.downloads, value: String(analytics.downloadCount) },
   ];
 
+  const chips = [
+    t(e.eventDate, { date: formatDate(event.event_date?.slice(0, 10), locale, d.eventList.notSet) }),
+    t(e.expires, { date: formatDate(event.expires_at, locale, d.eventList.notSet) }),
+    ...(coupleUploadEndsAt ? [t(e.guestUploadsUntil, { date: formatDate(coupleUploadEndsAt, locale) })] : []),
+  ];
+
   return (
     <>
       {expired ? (
-        <div className="rounded-[24px] bg-[var(--color-error-soft)] px-5 py-4 text-sm leading-6 text-[var(--color-error)]">
+        <p role="status" className="notice notice-error">
           {isCouple ? e.eventExpiredCouple : e.eventExpired}
-        </div>
+        </p>
       ) : null}
       {isCouple ? (
         <RetentionNotice
@@ -88,167 +94,134 @@ export async function EventDetail({ locale, slug }: { locale: Locale; slug: stri
         />
       ) : null}
 
-      <Panel className="bg-card">
-        <div className="grid gap-6 md:grid-cols-[minmax(0,220px)_minmax(0,1fr)]">
-          <div className="mx-auto w-full max-w-[200px] md:max-w-none">
-            <EventCoverPicker
-              slug={event.slug}
-              title={event.title}
-              coverUrl={cover?.thumbnailUrl ?? cover?.previewUrl ?? null}
-              candidates={coverCandidates}
-              strings={e.cover}
-            />
-          </div>
-
-          <div className="min-w-0 space-y-5">
-            <div className="flex flex-wrap gap-2 text-sm text-ink-2">
-              <span className={cn("rounded-full px-3.5 py-1.5 font-semibold", statusBadgeClass(lifecycleStatus))}>
-                {d.eventList.statuses[lifecycleStatus as keyof typeof d.eventList.statuses] ?? lifecycleStatus}
-              </span>
-              <span className="rounded-full bg-[var(--color-paper)] px-3.5 py-1.5">
-                {t(e.eventDate, { date: formatDate(event.event_date?.slice(0, 10), locale, d.eventList.notSet) })}
-              </span>
-              <span className="rounded-full bg-[var(--color-paper)] px-3.5 py-1.5">
-                {t(e.expires, { date: formatDate(event.expires_at, locale, d.eventList.notSet) })}
-              </span>
-              {coupleUploadEndsAt ? (
-                <span className="rounded-full bg-[var(--color-paper)] px-3.5 py-1.5">
-                  {t(e.guestUploadsUntil, { date: formatDate(coupleUploadEndsAt, locale) })}
-                </span>
-              ) : null}
-            </div>
-
-            <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {stats.map((stat) => (
-                <div key={stat.label} className="rounded-[20px] bg-[var(--color-paper)]/65 px-4 py-3">
-                  <dt className="text-xs font-semibold text-muted">{stat.label}</dt>
-                  <dd className="mt-1.5 text-2xl font-semibold text-[var(--color-ink)]">{stat.value}</dd>
-                </div>
-              ))}
-            </dl>
-
-            {pendingGuestFiles > 0 ? (
-              <Link
-                href={galleryHref}
-                className="flex flex-col gap-1 rounded-[20px] border border-[var(--color-accent)]/25 bg-[var(--color-paper)] px-4 py-3 text-sm font-semibold text-[var(--color-ink)] transition-colors hover:bg-[var(--color-accent-soft)] sm:flex-row sm:items-center sm:justify-between sm:gap-3"
-              >
-                <span>{t(l.pendingReview, { count: pendingGuestFiles })}</span>
-                <span className="shrink-0 text-[var(--color-accent)]">{l.manageGallery}</span>
-              </Link>
-            ) : null}
-
-            {reportedFiles > 0 ? (
-              <Link
-                href={galleryHref}
-                className="flex flex-col gap-1 rounded-[20px] border border-[var(--color-error)]/20 bg-[var(--color-error-soft)] px-4 py-3 text-sm font-semibold text-[var(--color-error)] transition-colors hover:bg-[var(--color-error-soft)] sm:flex-row sm:items-center sm:justify-between sm:gap-3"
-              >
-                <span>⚑ {t(l.reportedFiles, { count: reportedFiles })}</span>
-                <span className="shrink-0">{l.manageGallery}</span>
-              </Link>
-            ) : null}
-          </div>
+      {/* ── The event at a glance: the cover beside its facts and figures ── */}
+      <section className="grid gap-[var(--space-lg)] md:grid-cols-[minmax(0,200px)_minmax(0,1fr)]">
+        <div className="mx-auto w-full max-w-[200px] md:max-w-none">
+          <EventCoverPicker
+            slug={event.slug}
+            title={event.title}
+            coverUrl={cover?.thumbnailUrl ?? cover?.previewUrl ?? null}
+            candidates={coverCandidates}
+            strings={e.cover}
+          />
         </div>
-      </Panel>
 
-      <div className="grid gap-6 xl:grid-cols-2">
-        <Panel className="min-w-0 bg-card">
-          <p className="text-xs font-semibold text-[var(--color-accent)]">1</p>
-          <h2 className="mt-1 font-display text-2xl font-semibold text-[var(--color-ink)]">{l.guestsTitle}</h2>
-          <p className="mt-2 text-sm leading-6 text-ink-2">{l.guestsBody}</p>
+        <div className="min-w-0 space-y-[var(--space-lg)]">
+          <ul className="flex flex-wrap gap-2">
+            <li className={cn("chip font-semibold", statusBadgeClass(lifecycleStatus))}>
+              {d.eventList.statuses[lifecycleStatus as keyof typeof d.eventList.statuses] ?? lifecycleStatus}
+            </li>
+            {chips.map((chip) => (
+              <li key={chip} className="chip">
+                {chip}
+              </li>
+            ))}
+          </ul>
 
-          <div className="mt-5 grid gap-5 sm:grid-cols-[160px_minmax(0,1fr)] sm:items-start">
-            <div className="mx-auto w-full max-w-[200px] rounded-[22px] bg-[var(--color-paper)] p-3 sm:max-w-none">
-              <Image
-                src={qrCode}
-                alt={e.guestQrCode}
-                width={400}
-                height={400}
-                className="h-auto w-full rounded-[14px]"
-              />
-            </div>
+          <dl className="grid grid-cols-2 border-y border-rule sm:grid-cols-4 sm:divide-x sm:divide-rule">
+            {stats.map((stat) => (
+              <div key={stat.label} className="py-[var(--space-md)] sm:px-[var(--space-md)] sm:first:pl-0">
+                <dt className="text-sm text-ink-2">{stat.label}</dt>
+                <dd className="num mt-1 font-display text-[1.75rem] font-semibold leading-none text-ink">{stat.value}</dd>
+              </div>
+            ))}
+          </dl>
+
+          {pendingGuestFiles > 0 || reportedFiles > 0 ? (
+            <ul className="space-y-2">
+              {pendingGuestFiles > 0 ? (
+                <li className="notice notice-warning flex flex-wrap items-center justify-between gap-2">
+                  <span className="font-semibold">{t(l.pendingReview, { count: pendingGuestFiles })}</span>
+                  <Link href={galleryHref} className="link text-current">
+                    {l.manageGallery}
+                  </Link>
+                </li>
+              ) : null}
+              {reportedFiles > 0 ? (
+                <li className="notice notice-error flex flex-wrap items-center justify-between gap-2">
+                  <span className="flex items-center gap-2 font-semibold">
+                    <AlertIcon className="h-4 w-4" />
+                    {t(l.reportedFiles, { count: reportedFiles })}
+                  </span>
+                  <Link href={galleryHref} className="link text-current">
+                    {l.manageGallery}
+                  </Link>
+                </li>
+              ) : null}
+            </ul>
+          ) : null}
+        </div>
+      </section>
+
+      {/* ── The two links, in the order they are used: on the day, after ── */}
+      <ol className="grid gap-[var(--space-xl)] border-t border-rule pt-[var(--space-xl)] xl:grid-cols-2 xl:divide-x xl:divide-rule">
+        <li className="min-w-0 xl:pr-[var(--space-xl)]">
+          <h2 className="app-section-title flex items-baseline gap-3 text-ink">
+            <span className="num text-accent">1</span>
+            {l.guestsTitle}
+          </h2>
+          <p className="mt-2 max-w-[60ch] text-ink-2">{l.guestsBody}</p>
+
+          <div className="mt-[var(--space-lg)] grid gap-[var(--space-lg)] sm:grid-cols-[148px_minmax(0,1fr)] sm:items-start">
+            <Image
+              src={qrCode}
+              alt={e.guestQrCode}
+              width={400}
+              height={400}
+              className="mx-auto h-auto w-full max-w-[180px] rounded-[var(--radius-inner)] bg-card p-2 ring-1 ring-rule sm:max-w-none"
+            />
             <div className="min-w-0 space-y-3">
-              <p className="text-sm leading-6 text-ink-2">{e.qrSharingHint}</p>
-              <a
-                href={links.uploadUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex text-sm font-semibold text-[var(--color-accent)] underline-offset-4 hover:underline"
-              >
+              <p className="text-ink-2">{e.qrSharingHint}</p>
+              <a href={links.uploadUrl} target="_blank" rel="noopener noreferrer" className="link inline-flex min-h-10 items-center gap-1.5 text-sm">
                 {l.openGuestPage}
+                <ExternalIcon className="h-4 w-4" />
               </a>
             </div>
           </div>
 
           {/* Full width: squeezed beside the QR code the address shrank to "https://www…". */}
-          <div className="mt-5">
-            <EventLinkCard
-              accent
-              title={l.guestLinkLabel}
-              url={links.uploadUrl}
-              copyLabel={e.copyLink}
-              copiedLabel={e.linkCopied}
-            />
+          <div className="mt-[var(--space-lg)]">
+            <EventLinkCard accent title={l.guestLinkLabel} url={links.uploadUrl} copyLabel={e.copyLink} copiedLabel={e.linkCopied} />
           </div>
 
-          <div className="mt-5 border-t border-rule pt-5">
-            <QrPosterPicker
-              slug={event.slug}
-              qrCodeDataUrl={qrCode}
-              strings={d.qrPicker}
-              editorHref={`${prefix}/dashboard/events/${event.slug}/qr`}
-            />
+          <div className="mt-[var(--space-lg)]">
+            <QrPosterPicker slug={event.slug} qrCodeDataUrl={qrCode} strings={d.qrPicker} editorHref={`${prefix}/dashboard/events/${event.slug}/qr`} />
           </div>
 
-          <div className="mt-5 border-t border-rule pt-5">
-            <h3 className="font-semibold text-[var(--color-ink)]">{live.dashboardTitle}</h3>
-            <p className="mt-1 text-sm leading-6 text-ink-2">{live.dashboardBody}</p>
-            <a
-              href={`/${locale}/gallery/${event.slug}/live`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-3 inline-flex items-center justify-center rounded-full bg-[var(--color-ink)] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-black"
-            >
+          <div className="mt-[var(--space-lg)] border-t border-rule pt-[var(--space-lg)]">
+            <h3 className="font-semibold text-ink">{live.dashboardTitle}</h3>
+            <p className="mt-1 max-w-[60ch] text-ink-2">{live.dashboardBody}</p>
+            <a href={`/${locale}/gallery/${event.slug}/live`} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-secondary mt-3">
               {live.dashboardCta}
+              <ExternalIcon className="h-4 w-4" />
             </a>
           </div>
-        </Panel>
+        </li>
 
-        <Panel className="min-w-0 bg-card">
-          <p className="text-xs font-semibold text-[var(--color-moss)]">2</p>
-          <h2 className="mt-1 font-display text-2xl font-semibold text-[var(--color-ink)]">{l.afterTitle}</h2>
-          <p className="mt-2 text-sm leading-6 text-ink-2">{isCouple ? l.afterBodyCouple : l.afterBody}</p>
+        <li className="min-w-0 xl:pl-[var(--space-xl)]">
+          <h2 className="app-section-title flex items-baseline gap-3 text-ink">
+            <span className="num text-moss">2</span>
+            {l.afterTitle}
+          </h2>
+          <p className="mt-2 max-w-[60ch] text-ink-2">{isCouple ? l.afterBodyCouple : l.afterBody}</p>
 
-          <div className="mt-5">
-            <EventLinkCard
-              title={l.galleryLinkLabel}
-              url={links.galleryUrl}
-              copyLabel={e.copyLink}
-              copiedLabel={e.linkCopied}
-            />
+          <div className="mt-[var(--space-lg)]">
+            <EventLinkCard title={l.galleryLinkLabel} url={links.galleryUrl} copyLabel={e.copyLink} copiedLabel={e.linkCopied} />
           </div>
 
-          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-            <Link
-              href={galleryHref}
-              className="inline-flex items-center justify-center rounded-full bg-[var(--color-ink)] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-black"
-            >
+          <div className="mt-[var(--space-md)] flex flex-col gap-2 sm:flex-row">
+            <Link href={galleryHref} className="btn btn-sm btn-secondary">
               {l.manageGallery}
             </Link>
-            <a
-              href={links.galleryUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center rounded-full border border-rule bg-white px-5 py-2.5 text-sm font-semibold text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)]"
-            >
+            <a href={links.galleryUrl} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-quiet">
               {l.previewBtn}
+              <ExternalIcon className="h-4 w-4" />
             </a>
           </div>
 
-          <p className="mt-5 rounded-[20px] border border-dashed border-rule bg-[var(--color-paper)]/45 px-4 py-3 text-xs leading-5 text-ink-2">
-            {e.permanentLinksNote}
-          </p>
-        </Panel>
-      </div>
+          <p className="meta mt-[var(--space-lg)] max-w-[60ch]">{e.permanentLinksNote}</p>
+        </li>
+      </ol>
     </>
   );
 }

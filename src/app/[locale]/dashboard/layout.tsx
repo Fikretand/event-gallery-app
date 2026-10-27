@@ -11,5 +11,6 @@ import { privateMetadata } from "@/lib/seo";
 export const metadata: Metadata = privateMetadata();
 
 export default function LocaleDashboardLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  // `.app`: heads on a working screen are labels, not display lines.
+  return <div className="app">{children}</div>;
 }

@@ -3,7 +3,7 @@ import { Disclosure } from "@/components/disclosure";
 import { GalleryCopyEditor } from "@/components/gallery-copy-editor";
 import { GallerySectionsManager } from "@/components/gallery-sections-manager";
 import { MediaGrid } from "@/components/media-grid";
-import { Panel } from "@/components/ui/panel";
+import { ChevronDownIcon, ExternalIcon, PlusIcon } from "@/components/ui/icons";
 import { UploadDropzone } from "@/components/upload-dropzone";
 import { getOwnerEventContext } from "@/lib/event-context";
 import { eventLinks, listEventMedia, listGallerySections } from "@/lib/events";
@@ -48,11 +48,11 @@ export async function EventGallery({ locale, slug }: { locale: Locale; slug: str
 
   return (
     <>
-      <Panel className="bg-card">
+      <section>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h2 className="font-display text-3xl font-semibold text-[var(--color-ink)]">{l.galleryTitle}</h2>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-ink-2">
+            <h2 className="app-section-title text-ink">{l.galleryTitle}</h2>
+            <p className="mt-1 max-w-xl text-ink-2">
               {isCouple ? l.galleryBodyCouple : l.galleryBody}
             </p>
           </div>
@@ -60,28 +60,26 @@ export async function EventGallery({ locale, slug }: { locale: Locale; slug: str
             href={links.galleryUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex shrink-0 items-center justify-center rounded-full border border-rule bg-white px-5 py-2.5 text-sm font-semibold text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)]"
+            className="btn btn-sm btn-quiet shrink-0"
           >
             {l.previewBtn}
+            <ExternalIcon className="h-4 w-4" />
           </a>
         </div>
 
         {/* Open by default only while the gallery is empty: after that, adding
             files is the occasional job and the files are the daily one. */}
         <Disclosure
-          className="group mt-6 rounded-[24px] border border-rule bg-[var(--color-paper)]/40"
+          className="group well mt-[var(--space-lg)]"
           defaultOpen={liveMedia.length === 0}
           summary={
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 [&::-webkit-details-marker]:hidden">
+            <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 rounded-[var(--radius-card)] px-5 py-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus)] [&::-webkit-details-marker]:hidden">
               <span>
-                <span className="block font-semibold text-[var(--color-ink)]">{l.addFilesTitle}</span>
+                <span className="block font-semibold text-ink">{l.addFilesTitle}</span>
                 <span className="mt-0.5 block text-sm text-ink-2">{l.addFilesBody}</span>
               </span>
-              <span
-                aria-hidden
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent)] text-lg font-semibold text-white transition-colors group-open:rotate-45"
-              >
-                +
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-card text-ink ring-1 ring-rule-2 transition-transform duration-[var(--dur-short)] group-open:rotate-45">
+                <PlusIcon className="h-4 w-4" />
               </span>
             </summary>
           }
@@ -111,25 +109,21 @@ export async function EventGallery({ locale, slug }: { locale: Locale; slug: str
             />
           </div>
         </Disclosure>
-      </Panel>
+      </section>
 
-      <Panel className="bg-card">
+      <section className="border-t border-rule pt-[var(--space-lg)]">
         <Disclosure
           className="group"
           defaultOpen={false}
           summary={
-            <summary className="flex cursor-pointer list-none items-start justify-between gap-4 [&::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer list-none items-start justify-between gap-4 rounded-[var(--radius-inner)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus)] [&::-webkit-details-marker]:hidden">
               <span>
-                <span className="block font-display text-2xl font-semibold text-[var(--color-ink)]">{e.copyEditor.title}</span>
-                <span className="mt-2 block max-w-2xl text-sm leading-6 text-ink-2">{e.copyEditor.body}</span>
-                <span className="mt-1 block text-xs text-muted">{e.copyEditor.languageNote}</span>
+                <span className="app-section-title block text-ink">{e.copyEditor.title}</span>
+                <span className="mt-1 block max-w-2xl text-ink-2">{e.copyEditor.body}</span>
+                <span className="meta mt-1 block">{e.copyEditor.languageNote}</span>
               </span>
-              <span
-                aria-hidden
-                className="mt-1 shrink-0 rounded-full border border-rule bg-card px-3 py-1.5 text-xs font-semibold text-[var(--color-ink)] transition-colors group-open:bg-[var(--color-paper)]"
-              >
-                <span className="group-open:hidden">↓</span>
-                <span className="hidden group-open:inline">↑</span>
+              <span className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ring-1 ring-rule-2 transition-transform duration-[var(--dur-short)] group-open:rotate-180">
+                <ChevronDownIcon className="h-4 w-4" />
               </span>
             </summary>
           }
@@ -145,18 +139,18 @@ export async function EventGallery({ locale, slug }: { locale: Locale; slug: str
             />
           </div>
         </Disclosure>
-      </Panel>
+      </section>
 
-      <Panel id="gallery-manager" className="scroll-mt-20 bg-card">
-        <h3 className="text-xs font-semibold text-[var(--color-moss)]">{l.sectionsLabel}</h3>
-        <p className="mt-1.5 max-w-2xl text-sm leading-6 text-ink-2">{l.sectionsHint}</p>
+      <section id="gallery-manager" className="scroll-mt-20 border-t border-rule pt-[var(--space-lg)]">
+        <h3 className="app-section-title text-ink">{l.sectionsLabel}</h3>
+        <p className="mt-1 max-w-2xl text-ink-2">{l.sectionsHint}</p>
         <div className="mt-4">
           <GallerySectionsManager slug={event.slug} sections={sections} counts={sectionCounts} strings={d.sections} />
         </div>
 
-        <div className="mt-6 border-t border-rule pt-6">
-          <h3 className="text-xs font-semibold text-[var(--color-moss)]">{l.filesLabel}</h3>
-          <p className="mt-1.5 max-w-2xl text-sm leading-6 text-ink-2">
+        <div className="mt-[var(--space-xl)] border-t border-rule pt-[var(--space-lg)]">
+          <h3 className="app-section-title text-ink">{l.filesLabel}</h3>
+          <p className="mt-1 max-w-2xl text-ink-2">
             {isCouple ? e.managerBodyCouple : e.managerBody}
           </p>
           <div className="mt-4">
@@ -172,7 +166,7 @@ export async function EventGallery({ locale, slug }: { locale: Locale; slug: str
             />
           </div>
         </div>
-      </Panel>
+      </section>
     </>
   );
 }

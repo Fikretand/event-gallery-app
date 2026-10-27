@@ -28,7 +28,7 @@ export function EventLifecyclePanel({
 
   return (
     <div>
-      <Button variant="danger" disabled={isPending} onClick={handlePermanentDelete}>
+      <Button variant="danger-quiet" disabled={isPending} onClick={handlePermanentDelete}>
         {isPending ? strings.deleting : strings.deletePermanently}
       </Button>
     </div>

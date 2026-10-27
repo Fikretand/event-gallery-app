@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 
 import { t, type Dict } from "@/lib/i18n/index";
+import { CheckIcon } from "@/components/ui/check-icon";
 
 type PlanId = "solo" | "pro";
 type Cycle = "monthly" | "yearly";
@@ -69,31 +70,32 @@ export function BillingPlans({
   const plans: PlanId[] = ["solo", "pro"];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-[var(--space-lg)]">
       {/* Billing cycle toggle */}
-      <div className="flex items-center justify-center">
-        <div className="inline-flex rounded-full border border-rule bg-card p-1 text-sm">
-          {(["yearly", "monthly"] as const).map((c) => (
-            <button
-              key={c}
-              onClick={() => setCycle(c)}
-              className={`rounded-full px-4 py-1.5 font-semibold transition ${
-                cycle === c ? "bg-[var(--color-ink)] text-white" : "text-ink-2 hover:text-[var(--color-ink)]"
-              }`}
-            >
-              {c === "yearly" ? s.yearly : s.monthly}
-            </button>
-          ))}
-        </div>
+      <div role="group" aria-label={`${s.yearly} / ${s.monthly}`} className="inline-flex rounded-full bg-paper-2 p-1 text-sm">
+        {(["yearly", "monthly"] as const).map((c) => (
+          <button
+            key={c}
+            type="button"
+            aria-pressed={cycle === c}
+            onClick={() => setCycle(c)}
+            className={`inline-flex min-h-10 items-center whitespace-nowrap rounded-full px-4 font-semibold transition-colors duration-[var(--dur-micro)] ${
+              cycle === c ? "bg-card text-ink shadow-[var(--shadow-card)]" : "text-ink-2 hover:text-ink"
+            }`}
+          >
+            {c === "yearly" ? s.yearly : s.monthly}
+          </button>
+        ))}
       </div>
 
       {notice && (
-        <div className="rounded-2xl border border-[var(--color-accent)]/20 bg-[var(--color-accent)]/8 px-4 py-3 text-sm text-[var(--color-ink)]">
+        <div role="status" className="notice notice-info">
           {notice}
         </div>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2">
+      {/* The two plans as columns of one table, parted by a hairline. */}
+      <div className="grid border-t border-rule md:grid-cols-2 md:divide-x md:divide-rule">
         {plans.map((plan) => {
           const meta = PLAN_META[plan];
           const planFeatures = features[plan];
@@ -102,49 +104,34 @@ export function BillingPlans({
           const isBusy = pending && busyPlan === plan;
 
           return (
-            <div
-              key={plan}
-              className={`relative overflow-hidden rounded-[24px] border p-6 ${
-                meta.accent
-                  ? "border-amber-200/70 bg-[linear-gradient(160deg,color-mix(in_oklch,_var(--color-paper)_95%,_transparent),color-mix(in_oklch,_var(--color-warning-soft)_60%,_transparent))]"
-                  : "border-rule bg-card"
-              }`}
-            >
-              {meta.accent && (
-                <span className="absolute right-5 top-5 rounded-full bg-amber-200/70 px-2.5 py-0.5 text-xs font-bold text-amber-800">
-                  {s.mostPopular}
-                </span>
-              )}
-              <p className="text-lg font-semibold text-[var(--color-ink)]">{meta.name}</p>
-              <p className="mt-2 flex items-baseline gap-1">
-                <span className="text-3xl font-semibold text-[var(--color-ink)]">
+            <div key={plan} className="flex flex-col border-b border-rule py-[var(--space-lg)] md:border-b-0 md:px-[var(--space-lg)] md:first:pl-0">
+              <p className="flex items-center gap-3">
+                <span className="app-section-title text-ink">{meta.name}</span>
+                {meta.accent ? <span className="chip chip-accent">{s.mostPopular}</span> : null}
+              </p>
+              <p className="mt-3 flex items-baseline gap-1.5">
+                <span className="num font-display text-[2.25rem] font-semibold leading-none text-ink">
                   {currency === "BAM" ? `${price} KM` : `\u20AC${price}`}
                 </span>
                 <span className="text-sm text-muted">{s.perMonth}</span>
               </p>
-              <p className="mt-0.5 text-xs text-muted">
-                {cycle === "yearly" ? s.billedYearly : s.billedMonthly}
-              </p>
+              <p className="meta mt-1">{cycle === "yearly" ? s.billedYearly : s.billedMonthly}</p>
 
-              <ul className="mt-4 space-y-2">
+              <ul className="mt-[var(--space-md)] flex-1 space-y-2">
                 {planFeatures.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm text-ink-2">
-                    <span className="mt-0.5 text-[var(--color-moss)]">✓</span>
+                  <li key={f} className="flex items-start gap-2.5 text-ink-2">
+                    <CheckIcon />
                     {f}
                   </li>
                 ))}
               </ul>
 
               <button
+                type="button"
                 onClick={() => choose(plan)}
                 disabled={isCurrent || isBusy}
-                className={`mt-6 w-full rounded-2xl px-5 py-3 text-sm font-semibold transition disabled:cursor-not-allowed ${
-                  isCurrent
-                    ? "bg-black/8 text-muted"
-                    : meta.accent
-                      ? "bg-[var(--color-accent)] text-white hover:brightness-105 disabled:opacity-60"
-                      : "bg-[var(--color-ink)] text-white hover:bg-[var(--color-ink)]/90 disabled:opacity-60"
-                }`}
+                aria-busy={isBusy}
+                className={`btn mt-[var(--space-lg)] w-full ${isCurrent ? "btn-secondary" : meta.accent ? "btn-primary" : "btn-secondary"}`}
               >
                 {isCurrent
                   ? s.currentPlan
@@ -159,9 +146,7 @@ export function BillingPlans({
         })}
       </div>
 
-      {!paymentsEnabled && (
-        <p className="text-center text-xs text-muted">{s.paymentsUnavailable}</p>
-      )}
+      {!paymentsEnabled && <p className="meta">{s.paymentsUnavailable}</p>}
     </div>
   );
 }

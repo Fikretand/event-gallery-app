@@ -50,7 +50,7 @@ export function AdminUsersTable({ users }: { users: UserRecord[] }) {
   ];
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-rule bg-card shadow-[0_18px_50px_color-mix(in_oklch,_var(--color-ink)_5%,_transparent)]">
+    <div className="overflow-hidden rounded-[var(--radius-inner)] border border-rule bg-card">
       {/* Toolbar */}
       <div className="flex flex-col gap-3 border-b border-rule px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-1.5">
@@ -58,10 +58,10 @@ export function AdminUsersTable({ users }: { users: UserRecord[] }) {
             <button
               key={f.key}
               onClick={() => setFilter(f.key)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+              className={`rounded-[var(--radius-inner)] px-3 py-1.5 text-xs font-semibold transition ${
                 filter === f.key
-                  ? "bg-[var(--color-ink)] text-white"
-                  : "text-muted hover:bg-black/6 hover:text-[var(--color-ink)]"
+                  ? "bg-ink text-paper"
+                  : "text-muted hover:bg-paper-3 hover:text-ink"
               }`}
             >
               {f.label}
@@ -69,7 +69,7 @@ export function AdminUsersTable({ users }: { users: UserRecord[] }) {
           ))}
         </div>
         <div className="relative">
-          <svg className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted"
+          <svg aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted"
             viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6">
             <circle cx="6.5" cy="6.5" r="4.5" />
             <path d="M10 10l3.5 3.5" strokeLinecap="round" />
@@ -78,7 +78,7 @@ export function AdminUsersTable({ users }: { users: UserRecord[] }) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search…"
-            className="w-full rounded-xl border border-rule bg-[var(--color-paper)]/60 py-2 pl-8 pr-3 text-sm placeholder-black/28 outline-none focus:border-[var(--color-ink)]/25 sm:w-52"
+            className="w-full rounded-[var(--radius-inner)] border border-rule bg-paper-2/60 py-2 pl-8 pr-3 text-sm placeholder-black/28 outline-none focus:border-ink/25 sm:w-52"
           />
         </div>
       </div>
@@ -87,7 +87,7 @@ export function AdminUsersTable({ users }: { users: UserRecord[] }) {
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-black/[0.02]">
+            <tr className="bg-paper-2">
               {["User", "Type", "Plan", "Billing", "Role", "Joined", ""].map((h) => (
                 <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-muted">
                   {h}
@@ -95,7 +95,7 @@ export function AdminUsersTable({ users }: { users: UserRecord[] }) {
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-black/[0.04]">
+          <tbody className="divide-y divide-rule">
             {filtered.map((user) => {
               const initials = (user.full_name ?? user.email)
                 .split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
@@ -106,11 +106,11 @@ export function AdminUsersTable({ users }: { users: UserRecord[] }) {
                   {/* User */}
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-paper)] text-xs font-bold text-[var(--color-ink)]">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-paper-2 text-xs font-bold text-ink">
                         {initials}
                       </div>
                       <div className="min-w-0">
-                        <p className="truncate font-medium text-[var(--color-ink)]">
+                        <p className="truncate font-medium text-ink">
                           {user.full_name ?? <span className="text-muted">No name</span>}
                         </p>
                         <p className="truncate text-xs text-muted">{user.email}</p>
@@ -122,8 +122,8 @@ export function AdminUsersTable({ users }: { users: UserRecord[] }) {
                   <td className="px-5 py-3.5">
                     <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${
                       user.account_type === "photographer"
-                        ? "bg-blue-50 text-blue-700"
-                        : "bg-purple-50 text-purple-700"
+                        ? "bg-paper-2 text-ink-2"
+                        : "bg-accent-soft text-ink"
                     }`}>
                       {user.account_type}
                     </span>
@@ -133,8 +133,8 @@ export function AdminUsersTable({ users }: { users: UserRecord[] }) {
                   <td className="px-5 py-3.5">
                     <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                       billing.plan === "Pro"
-                        ? "bg-amber-100 text-amber-700"
-                        : "bg-black/6 text-muted"
+                        ? "bg-warning-soft text-warning"
+                        : "bg-paper-3 text-muted"
                     }`}>
                       {billing.plan}
                     </span>
@@ -155,11 +155,11 @@ export function AdminUsersTable({ users }: { users: UserRecord[] }) {
                   {/* Role */}
                   <td className="px-5 py-3.5">
                     {user.role === "admin" ? (
-                      <span className="rounded-full bg-[var(--color-accent)]/12 px-2.5 py-0.5 text-xs font-semibold text-[var(--color-accent)]">
+                      <span className="rounded-full bg-accent/12 px-2.5 py-0.5 text-xs font-semibold text-accent">
                         Admin
                       </span>
                     ) : (
-                      <span className="text-xs text-muted">—</span>
+                      <span className="text-xs text-muted">n/a</span>
                     )}
                   </td>
 
@@ -174,9 +174,9 @@ export function AdminUsersTable({ users }: { users: UserRecord[] }) {
                   <td className="px-5 py-3.5">
                     <Link
                       href={`/admin/users/${user.id}`}
-                      className="rounded-lg border border-rule bg-white px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:border-rule-2 hover:text-[var(--color-ink)]"
+                      className="rounded-[var(--radius-inner)] border border-rule bg-card px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:border-rule-2 hover:text-ink"
                     >
-                      View →
+                      View
                     </Link>
                   </td>
                 </tr>

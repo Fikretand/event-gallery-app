@@ -1,5 +1,7 @@
 import { ImageResponse } from "next/og";
 
+import { BRAND_HEX } from "@/lib/brand-colors";
+
 /**
  * The card that shows when a Confetti link is pasted into WhatsApp, Viber,
  * Messenger or Facebook — which is how most of this product will be shared.
@@ -14,10 +16,11 @@ export const alt = "Confetti — private event galleries with QR guest uploads";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const PAPER = "#f2eadf";
-const INK = "#172033";
-const ACCENT = "#e27952";
-const MOSS = "#38584d";
+// Satori draws this without CSS, so it reads the brand as hex.
+const PAPER = BRAND_HEX.paper2;
+const INK = BRAND_HEX.ink;
+const ACCENT = BRAND_HEX.accent;
+const MOSS = BRAND_HEX.moss;
 
 export default async function OpengraphImage() {
   return new ImageResponse(
@@ -30,7 +33,7 @@ export default async function OpengraphImage() {
           flexDirection: "column",
           justifyContent: "space-between",
           padding: "72px 80px",
-          background: `linear-gradient(140deg, ${PAPER} 0%, #f8e6da 55%, #f3d9c8 100%)`,
+          background: `linear-gradient(140deg, ${PAPER} 0%, ${BRAND_HEX.blush} 55%, ${BRAND_HEX.blushDeep} 100%)`,
           color: INK,
         }}
       >

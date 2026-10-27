@@ -75,19 +75,19 @@ export function PhotographerProfileForm({
   return (
     <form action={formAction} className="space-y-5">
       <div className="grid gap-5 md:grid-cols-[0.8fr_1.2fr] [&>*]:min-w-0">
-        <div className="rounded-[24px] border border-rule bg-[var(--color-paper)]/55 p-5">
-          <p className="text-sm font-semibold text-[var(--color-ink)]">{s.profileImage}</p>
+        <div className="well p-5">
+          <p className="field-label">{s.profileImage}</p>
           <button
             type="button"
             onClick={() => fileInput.current?.click()}
             aria-label={s.changeImage}
-            className="relative mx-auto mt-4 block aspect-square w-full max-w-[220px] overflow-hidden rounded-full border border-rule bg-white outline-none focus-visible:ring-4 focus-visible:ring-[var(--color-accent)]/30"
+            className="relative mx-auto mt-4 block aspect-square w-full max-w-[220px] overflow-hidden rounded-full border border-rule bg-card outline-none focus-visible:ring-4 focus-visible:ring-accent/30"
           >
             {shownUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={shownUrl} alt="" className="h-full w-full object-cover" />
             ) : (
-              <span className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_color-mix(in_oklch,_var(--color-accent)_16%,_transparent),_transparent_55%),linear-gradient(135deg,_color-mix(in_oklch,_var(--color-ink)_8%,_transparent),_color-mix(in_oklch,_var(--color-paper)_92%,_transparent))] p-6 text-center text-sm leading-6 text-muted">
+              <span className="flex h-full w-full items-center justify-center bg-paper-3 p-6 text-center text-sm text-ink-2">
                 {s.imagePlaceholder}
               </span>
             )}
@@ -105,7 +105,7 @@ export function PhotographerProfileForm({
             <button
               type="button"
               onClick={() => fileInput.current?.click()}
-              className="inline-flex items-center justify-center rounded-full border border-rule bg-white px-4 py-2 text-sm font-semibold text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)]"
+              className="btn btn-sm btn-secondary"
             >
               {s.changeImage}
             </button>
@@ -120,15 +120,15 @@ export function PhotographerProfileForm({
             ) : null}
           </div>
           {imageError ? (
-            <p role="alert" className="mt-3 rounded-2xl bg-[var(--color-error-soft)] px-3 py-2 text-center text-xs font-medium text-[var(--color-error)]">
+            <p role="alert" className="notice notice-error mt-3 text-center">
               {imageError}
             </p>
           ) : pending ? (
-            <p className="mt-3 rounded-2xl bg-[var(--color-paper)] px-3 py-2 text-center text-xs font-semibold text-[var(--color-ink)]">
+            <p className="notice notice-info mt-3 text-center font-semibold">
               {s.imagePending}
             </p>
           ) : (
-            <p className="mt-3 text-center text-xs text-ink-2">{t(s.imageHint, { mb: PROFILE_AVATAR_MAX_MB })}</p>
+            <p className="meta mt-3 text-center">{t(s.imageHint, { mb: PROFILE_AVATAR_MAX_MB })}</p>
           )}
         </div>
 
@@ -142,33 +142,33 @@ export function PhotographerProfileForm({
           <div className="md:col-span-2">
             <Input label={s.facebookLabel} name="facebookUrl" defaultValue={profile.facebook_url ?? ""} placeholder="https://facebook.com/yourstudio" />
           </div>
-          <label className="md:col-span-2 flex flex-col gap-2 text-sm font-medium text-[var(--color-ink)]">
+          <label className="md:col-span-2 flex flex-col gap-2 field-label">
             <span>{s.bioLabel}</span>
             <textarea
               name="bio"
               defaultValue={profile.bio ?? ""}
               rows={4}
-              className="rounded-2xl border border-rule bg-white px-4 py-3 text-sm outline-none transition-colors placeholder:text-muted focus:border-[var(--color-ink)] focus:ring-4 focus:ring-[var(--color-accent)]/20"
+              className="field"
               placeholder={s.bioPlaceholder}
             />
           </label>
         </div>
       </div>
 
-      <div className="rounded-[24px] border border-rule bg-white p-5">
-        <p className="text-sm font-semibold text-[var(--color-ink)]">{s.spotlightTitle}</p>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-2">{s.spotlightBody}</p>
+      <fieldset className="border-t border-rule pt-5">
+        <legend className="float-left w-full font-semibold text-ink">{s.spotlightTitle}</legend>
+        <p className="clear-left max-w-2xl pt-1 text-sm leading-6 text-ink-2">{s.spotlightBody}</p>
 
         <div className="mt-4 space-y-3">
-          <label className="flex items-center gap-3 rounded-2xl border border-rule bg-[var(--color-paper)]/55 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
+          <label className="check-row">
             <input type="checkbox" name="publicProfileConsent" defaultChecked={profile.public_profile_consent} className="size-4" />
             {s.consentSpotlight}
           </label>
-          <label className="flex items-center gap-3 rounded-2xl border border-rule bg-[var(--color-paper)]/55 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
+          <label className="check-row">
             <input type="checkbox" name="showOnHomepage" defaultChecked={profile.show_on_homepage} className="size-4" />
             {s.showOnHomepage}
           </label>
-          <label className="flex items-center gap-3 rounded-2xl border border-rule bg-[var(--color-paper)]/55 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
+          <label className="check-row">
             <input
               type="checkbox"
               name="publicEmailOnHomepage"
@@ -178,12 +178,12 @@ export function PhotographerProfileForm({
             {s.publicEmail}
           </label>
         </div>
-      </div>
+      </fieldset>
 
-      <div className="rounded-[24px] border border-rule bg-[var(--color-paper)]/55 p-5">
-        <p className="text-sm font-semibold text-[var(--color-ink)]">{s.languageTitle}</p>
-        <p className="mt-1 text-xs leading-5 text-ink-2">{s.languageHint}</p>
-        <div className="mt-3 inline-flex items-center rounded-full border border-rule bg-white p-0.5 text-sm font-semibold">
+      <div className="border-t border-rule pt-5">
+        <p className="font-semibold text-ink">{s.languageTitle}</p>
+        <p className="mt-1 text-sm leading-5 text-ink-2">{s.languageHint}</p>
+        <div className="mt-3 inline-flex items-center rounded-full bg-paper-2 p-1 text-sm font-semibold">
           {(["en", "bs"] as const).map((loc) => (
             <label key={loc} className="cursor-pointer">
               <input
@@ -193,7 +193,7 @@ export function PhotographerProfileForm({
                 defaultChecked={(profile.preferred_locale ?? "en") === loc}
                 className="peer sr-only"
               />
-              <span className="block rounded-full px-4 py-1.5 text-[var(--color-ink)]/70 peer-checked:bg-[var(--color-ink)] peer-checked:text-white">
+              <span className="flex min-h-10 items-center rounded-full px-4 text-ink-2 peer-checked:bg-card peer-checked:text-ink peer-checked:shadow-[var(--shadow-card)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--color-focus)]">
                 {loc === "en" ? "English" : "Bosanski"}
               </span>
             </label>
@@ -201,11 +201,11 @@ export function PhotographerProfileForm({
         </div>
       </div>
 
-      {state?.error ? <div className="rounded-2xl bg-[var(--color-error-soft)] px-4 py-3 text-sm text-[var(--color-error)]">{state.error}</div> : null}
-      {state?.success ? <div className="rounded-2xl bg-[var(--color-moss-soft)] px-4 py-3 text-sm text-[var(--color-moss)]">{state.success}</div> : null}
+      {state?.error ? <div role="alert" className="notice notice-error">{state.error}</div> : null}
+      {state?.success ? <div role="status" className="notice notice-success">{state.success}</div> : null}
 
       <div className="flex justify-end">
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" size="md" disabled={isPending} aria-busy={isPending}>
           {isPending ? s.saving : s.save}
         </Button>
       </div>

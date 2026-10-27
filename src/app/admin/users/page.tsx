@@ -20,14 +20,11 @@ export default async function AdminUsersPage() {
   const users = await getAllUsers();
 
   return (
-    <div className="space-y-6">
-      <div>
-        <p className="text-xs font-semibold text-[var(--color-moss)]">Management</p>
-        <h1 className="mt-1 text-2xl font-semibold text-[var(--color-ink)]">
-          Users
-          <span className="ml-2.5 text-base font-normal text-muted">{users.length}</span>
-        </h1>
-      </div>
+    <div className="space-y-[var(--space-lg)]">
+      <h1 className="app-title flex items-baseline gap-3 text-ink">
+        Users
+        <span className="num font-body text-base font-normal text-muted">{users.length}</span>
+      </h1>
       <AdminUsersTable users={users} />
     </div>
   );

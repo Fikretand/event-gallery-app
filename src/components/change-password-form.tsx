@@ -48,7 +48,7 @@ export function ChangePasswordForm({
     return (
       <div
         role="status"
-        className="rounded-[24px] border border-[var(--color-moss)]/15 bg-[var(--color-moss-soft)] px-5 py-4 text-sm font-medium text-[var(--color-moss)]"
+        className="notice notice-success"
       >
         {s.success}
       </div>

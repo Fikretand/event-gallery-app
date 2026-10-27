@@ -4,7 +4,6 @@ import { useActionState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Panel } from "@/components/ui/panel";
 import type { AccountType, EventRecord } from "@/lib/types";
 import { t, type Dict } from "@/lib/i18n/index";
 
@@ -33,20 +32,19 @@ export function EventSettingsForm({
   const s = strings;
 
   return (
-    <Panel className="bg-card">
-      <form action={formAction} className="grid gap-5 md:grid-cols-2">
+    <form action={formAction} className="grid gap-x-[var(--space-lg)] gap-y-5 md:grid-cols-2">
         <div className="md:col-span-2">
-          <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">{s.heading}</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-2">
+          <h2 className="app-section-title text-ink">{s.heading}</h2>
+          <p className="mt-1 max-w-2xl text-ink-2">
             {isCouple ? s.introCouple : s.introPhotographer}
           </p>
-          <div className="mt-4 rounded-2xl border border-rule bg-[var(--color-paper)]/55 px-4 py-3 text-sm leading-6 text-ink-2">
+          <div className="notice notice-info mt-4">
             {s.linksNote}
           </div>
           {isCouple && planWindow ? (
-            <div className="mt-4 rounded-2xl border border-[var(--color-accent)]/18 bg-[linear-gradient(180deg,color-mix(in_oklch,_var(--color-accent-soft)_34%,_transparent),color-mix(in_oklch,_var(--color-card)_90%,_transparent))] px-4 py-3 text-sm leading-6 text-ink-2">
+            <div className="notice notice-info mt-4">
               {t(s.planWindowNote, { uploadEnds: planWindow.uploadEndsLabel, accessEnds: planWindow.accessEndsLabel })}
-              <p className="mt-2 text-xs leading-5 text-ink-2">{s.planWindowNoteSub}</p>
+              <p className="mt-1">{s.planWindowNoteSub}</p>
             </div>
           ) : null}
         </div>
@@ -66,8 +64,8 @@ export function EventSettingsForm({
           hint={isCouple ? s.eventDateHintCouple : undefined}
         />
         {isCouple ? (
-          <div className="rounded-2xl border border-rule bg-[var(--color-paper)]/55 px-4 py-3 text-sm leading-6 text-ink-2">
-            <p className="font-medium text-[var(--color-ink)]">{s.privateAccessTitle}</p>
+          <div className="notice notice-info">
+            <p className="font-medium text-ink">{s.privateAccessTitle}</p>
             <p className="mt-1">
               {t(s.privateAccessBody, { end: planWindow?.accessEndsLabel ?? s.privateAccessFallback })}
             </p>
@@ -92,28 +90,29 @@ export function EventSettingsForm({
           defaultValue={String(event.event_settings?.max_guest_upload_mb ?? 250)}
         />
 
-        <div className="rounded-2xl border border-rule bg-[var(--color-paper)]/55 px-4 py-3 text-sm text-ink-2">
+        <div className="flex min-h-12 items-center text-sm text-ink-2">
           {s.galleryPinStatus}{" "}
-          <span className="font-semibold text-[var(--color-ink)]">
+          <span className="font-semibold text-ink">
             {event.gallery_pin_hash ? s.statusSet : s.statusNotSet}
           </span>
         </div>
-        <div className="rounded-2xl border border-rule bg-[var(--color-paper)]/55 px-4 py-3 text-sm text-ink-2">
+        <div className="flex min-h-12 items-center text-sm text-ink-2">
           {s.uploadPinStatus}{" "}
-          <span className="font-semibold text-[var(--color-ink)]">
+          <span className="font-semibold text-ink">
             {event.upload_pin_hash ? s.statusSet : s.statusNotSet}
           </span>
         </div>
 
-        <label className="flex items-center gap-3 rounded-2xl border border-rule bg-[var(--color-paper)]/60 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
+        <div className="hairline md:col-span-2" aria-hidden="true" />
+        <label className="check-row">
           <input type="checkbox" name="allowGuestUpload" defaultChecked={event.event_settings?.allow_guest_upload ?? true} className="size-4" />
           {s.allowGuestUpload}
         </label>
-        <label className="flex items-center gap-3 rounded-2xl border border-rule bg-[var(--color-paper)]/60 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
+        <label className="check-row">
           <input type="checkbox" name="allowGuestVideo" defaultChecked={event.event_settings?.allow_guest_video ?? true} className="size-4" />
           {s.allowGuestVideo}
         </label>
-        <label className="flex items-center gap-3 rounded-2xl border border-rule bg-[var(--color-paper)]/60 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
+        <label className="check-row">
           <input
             type="checkbox"
             name="allowVideoMessages"
@@ -122,28 +121,27 @@ export function EventSettingsForm({
           />
           {s.allowVideoMessages}
         </label>
-        <label className="flex items-center gap-3 rounded-2xl border border-rule bg-[var(--color-paper)]/60 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
+        <label className="check-row">
           <input type="checkbox" name="requirePinForUpload" defaultChecked={event.event_settings?.require_pin_for_upload ?? false} className="size-4" />
           {s.requirePinUpload}
         </label>
-        <label className="flex items-center gap-3 rounded-2xl border border-rule bg-[var(--color-paper)]/60 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
+        <label className="check-row">
           <input type="checkbox" name="requirePinForGallery" defaultChecked={event.event_settings?.require_pin_for_gallery ?? true} className="size-4" />
           {isCouple ? s.requirePinGalleryCouple : s.requirePinGalleryPhotographer}
         </label>
 
-        {state?.error ? <div className="md:col-span-2 rounded-2xl bg-[var(--color-error-soft)] px-4 py-3 text-sm text-[var(--color-error)]">{state.error}</div> : null}
+        {state?.error ? <div role="alert" className="notice notice-error md:col-span-2">{state.error}</div> : null}
         {!state?.error && (state || saved) ? (
-          <div className="md:col-span-2 rounded-2xl bg-[var(--color-moss-soft)] px-4 py-3 text-sm text-[var(--color-moss)]">
+          <div role="status" className="notice notice-success md:col-span-2">
             {isCouple ? s.savedCouple : s.savedPhotographer}
           </div>
         ) : null}
 
-        <div className="md:col-span-2 flex justify-end">
-          <Button type="submit" disabled={isPending}>
+        <div className="md:col-span-2 flex justify-end border-t border-rule pt-[var(--space-lg)]">
+          <Button type="submit" size="md" disabled={isPending} aria-busy={isPending}>
             {isPending ? s.saving : s.save}
           </Button>
         </div>
       </form>
-    </Panel>
   );
 }

@@ -3,7 +3,6 @@ import Link from "next/link";
 import { ChangePasswordForm } from "@/components/change-password-form";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { PhotographerProfileForm } from "@/components/photographer-profile-form";
-import { Panel } from "@/components/ui/panel";
 import { changePasswordAction, updatePhotographerProfileAction } from "@/lib/actions";
 import { getAccountTypeForUser, getRequiredUser, getUserProfile } from "@/lib/auth";
 import { getPublicProfileAvatarUrl } from "@/lib/events";
@@ -39,29 +38,21 @@ export async function DashboardProfile({
         eyebrow={isCouple ? p.eyebrowCouple : p.eyebrowPhotographer}
         strings={d.header}
         profileHref={`${prefix}/dashboard/profile`}
+        back={{ href: `${prefix}/dashboard`, label: p.backToDashboard }}
       />
 
-      <section className="shell grid gap-5">
-        <div>
-          <Link
-            href={`${prefix}/dashboard`}
-            className="inline-flex items-center justify-center rounded-full border border-rule bg-card px-4 py-2 text-sm font-semibold text-[var(--color-ink)] transition-colors hover:bg-white"
-          >
-            {p.backToDashboard}
-          </Link>
-        </div>
-
+      <div className="shell grid gap-[var(--space-xl)]">
         {searchParams?.saved === "1" && (
-          <div className="rounded-2xl bg-[var(--color-moss-soft)] px-4 py-3 text-sm text-[var(--color-moss)]">
+          <div role="status" className="notice notice-success">
             {p.savedNotice}
           </div>
         )}
 
-        <Panel className="bg-card">
-          <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">
+        <section>
+          <h2 className="app-section-title text-ink">
             {isCouple ? p.accountDetails : p.publicProfileSettings}
           </h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-2">
+          <p className="mt-1 max-w-2xl text-ink-2">
             {isCouple ? p.accountDetailsBody : p.publicProfileBody}
           </p>
           <div className="mt-5">
@@ -72,11 +63,11 @@ export async function DashboardProfile({
               strings={d.profileForm}
             />
           </div>
-        </Panel>
+        </section>
 
-        <Panel className="bg-card">
-          <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">{p.changePassword.title}</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-2">{p.changePassword.body}</p>
+        <section className="border-t border-rule pt-[var(--space-xl)]">
+          <h2 className="app-section-title text-ink">{p.changePassword.title}</h2>
+          <p className="mt-1 max-w-2xl text-ink-2">{p.changePassword.body}</p>
           <div className="mt-5">
             <ChangePasswordForm
               action={changePasswordAction}
@@ -88,8 +79,8 @@ export async function DashboardProfile({
               }}
             />
           </div>
-        </Panel>
-      </section>
+        </section>
+      </div>
     </main>
   );
 }

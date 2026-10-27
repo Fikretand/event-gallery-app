@@ -5,7 +5,7 @@ import { DashboardHeader } from "@/components/dashboard-header";
 import { PaymentSuccessBanner } from "@/components/payment-success-banner";
 import { RetentionNotice } from "@/components/retention-notice";
 import { SetupNotice } from "@/components/setup-notice";
-import { Panel } from "@/components/ui/panel";
+import { AlertIcon, ExternalIcon } from "@/components/ui/icons";
 import { getAccountTypeForUser, getRequiredUser, getUserProfile } from "@/lib/auth";
 import { hasActiveSubscription } from "@/lib/billing";
 import { hasSupabase } from "@/lib/env";
@@ -77,21 +77,23 @@ export async function CoupleDashboard({
       status === "active" ? d.statusActive : status === "expired" ? d.statusExpired : d.statusDraft;
 
     return (
-      <main className="pb-16">
+      <main className="pb-[var(--space-3xl)]">
         <DashboardHeader
           title={d.title}
           eyebrow={d.eyebrow}
+          strings={dict.dashboard.header}
+          profileHref={`${localePrefix(locale)}/dashboard/profile`}
           action={
             <Link
               href={`/dashboard/events/${event.slug}`}
-              className="rounded-full bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-white"
+              className="btn btn-sm btn-primary"
             >
               {d.manageEventBtn}
             </Link>
           }
         />
 
-        <section className="shell grid gap-5">
+        <section className="shell grid gap-[var(--space-xl)]">
           {paymentBanner}
           {trial && <TrialBanner trial={trial} d={d} locale={locale} />}
           {profile ? (
@@ -105,95 +107,53 @@ export async function CoupleDashboard({
             />
           ) : null}
 
-          {/* Event card */}
-          <Panel className="bg-card">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <p className="text-xs font-semibold text-[var(--color-moss)]">
-                  {d.eventLabel}
-                </p>
-                <h2 className="mt-2 font-display text-2xl font-semibold text-[var(--color-ink)] sm:text-3xl">
-                  {event.title}
-                </h2>
-                {event.event_date && (
-                  <p className="mt-1 text-sm text-ink-2">{formatDate(event.event_date)}</p>
-                )}
-              </div>
-              <span
-                className={`mt-1 rounded-full px-3 py-1 text-xs font-semibold ${
-                  status === "active"
-                    ? "bg-[var(--color-moss)]/10 text-[var(--color-moss)]"
-                    : status === "expired"
-                      ? "bg-red-100 text-red-600"
-                      : "bg-black/7 text-muted"
-                }`}
-              >
-                {statusLabel}
-              </span>
+          {/* The event, then the three places it lives: guests, gallery, link */}
+          <section className="flex flex-wrap items-end justify-between gap-4 border-b border-rule pb-[var(--space-lg)]">
+            <div>
+              <h2 className="app-title text-ink">{event.title}</h2>
+              {event.event_date && <p className="meta mt-1">{formatDate(event.event_date, locale)}</p>}
             </div>
-          </Panel>
+            <span className={cn("chip font-semibold", status === "active" ? "chip-moss" : status === "expired" ? "chip-error" : "")}>
+              {statusLabel}
+            </span>
+          </section>
 
-          {/* Quick links */}
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Panel className="bg-[linear-gradient(135deg,color-mix(in_oklch,_var(--color-moss-soft)_98%,_transparent),color-mix(in_oklch,_var(--color-moss-soft)_90%,_transparent))]">
-              <p className="text-xs font-semibold text-muted">
-                {d.guestUploadsTitle}
-              </p>
-              <p className="mt-3 text-sm leading-6 text-ink-2">{d.guestUploadsBody}</p>
-              <Link
-                href={`/dashboard/events/${event.slug}`}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-moss)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--color-moss)] transition-colors hover:bg-[var(--color-moss)]/18"
-              >
+          <ul className="grid gap-y-[var(--space-lg)] sm:grid-cols-3 sm:divide-x sm:divide-rule">
+            <li className="sm:pr-[var(--space-lg)]">
+              <h3 className="font-semibold text-ink">{d.guestUploadsTitle}</h3>
+              <p className="mt-1 text-ink-2">{d.guestUploadsBody}</p>
+              <Link href={`/dashboard/events/${event.slug}`} className="link mt-2 inline-flex min-h-10 items-center text-sm">
                 {d.guestUploadsLink}
               </Link>
-            </Panel>
-
-            <Panel className="bg-[linear-gradient(135deg,color-mix(in_oklch,_var(--color-paper-2)_98%,_transparent),color-mix(in_oklch,_var(--color-paper-2)_90%,_transparent))]">
-              <p className="text-xs font-semibold text-muted">
-                {d.galleryTitle}
-              </p>
-              <p className="mt-3 text-sm leading-6 text-ink-2">{d.galleryBody}</p>
-              <a
-                href={galleryUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-ink-2)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--color-ink-2)] transition-colors hover:bg-[var(--color-ink-2)]/18"
-              >
+            </li>
+            <li className="sm:px-[var(--space-lg)]">
+              <h3 className="font-semibold text-ink">{d.galleryTitle}</h3>
+              <p className="mt-1 text-ink-2">{d.galleryBody}</p>
+              <a href={galleryUrl} target="_blank" rel="noopener noreferrer" className="link mt-2 inline-flex min-h-10 items-center gap-1.5 text-sm">
                 {d.galleryLink}
+                <ExternalIcon className="h-4 w-4" />
               </a>
-            </Panel>
-
-            <Panel className="bg-[linear-gradient(135deg,color-mix(in_oklch,_var(--color-paper)_98%,_transparent),color-mix(in_oklch,_var(--color-accent-soft)_90%,_transparent))]">
-              <p className="text-xs font-semibold text-muted">
-                {d.uploadLinkTitle}
-              </p>
-              <p className="mt-3 text-sm leading-6 text-ink-2">{d.uploadLinkBody}</p>
-              <a
-                href={guestUploadUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-accent)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--color-accent)] transition-colors hover:bg-[var(--color-accent)]/18"
-              >
+            </li>
+            <li className="sm:pl-[var(--space-lg)]">
+              <h3 className="font-semibold text-ink">{d.uploadLinkTitle}</h3>
+              <p className="mt-1 text-ink-2">{d.uploadLinkBody}</p>
+              <a href={guestUploadUrl} target="_blank" rel="noopener noreferrer" className="link mt-2 inline-flex min-h-10 items-center gap-1.5 text-sm">
                 {d.uploadLinkCta}
+                <ExternalIcon className="h-4 w-4" />
               </a>
-            </Panel>
-          </div>
+            </li>
+          </ul>
 
-          {/* Full management panel */}
-          <Panel className="bg-card">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <p className="text-sm font-semibold text-[var(--color-ink)]">{d.fullManageTitle}</p>
-                <p className="mt-1 text-sm text-ink-2">{d.fullManageBody}</p>
-              </div>
-              <Link
-                href={`/dashboard/events/${event.slug}`}
-                className="shrink-0 rounded-full bg-[var(--color-ink)] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-ink)]/85"
-              >
-                {d.fullManageBtn}
-              </Link>
+          {/* Full management */}
+          <section className="well flex flex-wrap items-center justify-between gap-4 p-[var(--space-lg)]">
+            <div>
+              <h3 className="font-semibold text-ink">{d.fullManageTitle}</h3>
+              <p className="mt-1 text-ink-2">{d.fullManageBody}</p>
             </div>
-          </Panel>
+            <Link href={`/dashboard/events/${event.slug}`} className="btn btn-sm btn-secondary shrink-0">
+              {d.fullManageBtn}
+            </Link>
+          </section>
         </section>
       </main>
     );
@@ -201,52 +161,33 @@ export async function CoupleDashboard({
 
   // No event yet — welcome / empty state
   return (
-    <main className="pb-16">
-      <DashboardHeader title={d.welcomeTitle} eyebrow={d.welcomeEyebrow} />
+    <main className="pb-[var(--space-3xl)]">
+      <DashboardHeader title={d.welcomeTitle} eyebrow={d.welcomeEyebrow} strings={dict.dashboard.header} profileHref={`${localePrefix(locale)}/dashboard/profile`} />
 
-      <section className="shell grid gap-5">
+      <section className="shell grid gap-[var(--space-xl)]">
         {paymentBanner}
         {trial && <TrialBanner trial={trial} d={d} locale={locale} />}
 
-        <Panel className="bg-[linear-gradient(160deg,color-mix(in_oklch,_var(--color-card)_98%,_transparent),color-mix(in_oklch,_var(--color-accent-soft)_60%,_transparent))] border-[var(--color-rule)]">
-          <div className="mx-auto max-w-lg py-6 text-center">
-            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-[24px] bg-[var(--color-accent)]/10 text-3xl">
-              🎉
-            </div>
-            <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)] sm:text-3xl">
-              {d.emptyTitle}
-            </h2>
-            <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-ink-2">{d.emptyBody}</p>
-            <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <Link
-                href="/dashboard/events/new?intent=couple"
-                className="rounded-full bg-[var(--color-accent)] px-8 py-3 text-sm font-semibold text-white shadow-[0_12px_32px_color-mix(in_oklch,_var(--color-accent)_28%,_transparent)] transition-colors hover:bg-[var(--color-accent)]/88"
-              >
-                {d.createEventBtn}
-              </Link>
-            </div>
-          </div>
-        </Panel>
+        <section className="well p-[var(--space-xl)]">
+          <h2 className="app-title text-ink">{d.emptyTitle}</h2>
+          <p className="mt-2 max-w-lg text-ink-2">{d.emptyBody}</p>
+          <Link href="/dashboard/events/new?intent=couple" className="btn btn-primary mt-[var(--space-lg)]">
+            {d.createEventBtn}
+          </Link>
+        </section>
 
         {/* Steps */}
-        <div className="grid gap-4 sm:grid-cols-3">
-          {d.steps.map((step, i) => {
-            const colors = [
-              "bg-[linear-gradient(135deg,color-mix(in_oklch,_var(--color-moss-soft)_98%,_transparent),color-mix(in_oklch,_var(--color-moss-soft)_90%,_transparent))]",
-              "bg-[linear-gradient(135deg,color-mix(in_oklch,_var(--color-paper-2)_98%,_transparent),color-mix(in_oklch,_var(--color-paper-2)_90%,_transparent))]",
-              "bg-[linear-gradient(135deg,color-mix(in_oklch,_var(--color-paper)_98%,_transparent),color-mix(in_oklch,_var(--color-accent-soft)_90%,_transparent))]",
-            ];
-            return (
-              <Panel key={step.title} className={colors[i]}>
-                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-card text-xs font-bold text-[var(--color-ink)]">
-                  {i + 1}
-                </span>
-                <p className="mt-4 text-sm font-semibold text-[var(--color-ink)]">{step.title}</p>
-                <p className="mt-2 text-sm leading-6 text-ink-2">{step.body}</p>
-              </Panel>
-            );
-          })}
-        </div>
+        <ol className="grid gap-y-[var(--space-lg)] sm:grid-cols-3 sm:divide-x sm:divide-rule">
+          {d.steps.map((step, i) => (
+            <li key={step.title} className="sm:px-[var(--space-lg)] sm:first:pl-0">
+              <h3 className="flex items-baseline gap-3 font-semibold text-ink">
+                <span className="num font-display text-xl text-accent">{i + 1}</span>
+                {step.title}
+              </h3>
+              <p className="mt-1 text-ink-2">{step.body}</p>
+            </li>
+          ))}
+        </ol>
       </section>
     </main>
   );
@@ -262,55 +203,33 @@ function TrialBanner({ trial, d, locale }: { trial: TrialState; d: CoupleDashboa
   const nearLimit = trial.photosUsed >= trial.photosLimit - 5;
 
   return (
-    <div
-      className={cn(
-        "relative overflow-hidden rounded-[24px] border px-5 py-4",
-        isExpired
-          ? "border-[var(--color-error-soft)] bg-[linear-gradient(135deg,color-mix(in_oklch,_var(--color-error-soft)_98%,_transparent),color-mix(in_oklch,_var(--color-error-soft)_92%,_transparent))]"
-          : nearLimit
-            ? "border-[var(--color-accent-soft)] bg-[linear-gradient(135deg,color-mix(in_oklch,_var(--color-paper)_98%,_transparent),color-mix(in_oklch,_var(--color-accent-soft)_92%,_transparent))]"
-            : "border-[var(--color-rule)] bg-[linear-gradient(135deg,color-mix(in_oklch,_var(--color-moss-soft)_98%,_transparent),color-mix(in_oklch,_var(--color-moss-soft)_90%,_transparent))]",
-      )}
-    >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-start gap-3">
-          <span className="mt-0.5 text-lg leading-none">{isExpired ? "⏰" : "🎉"}</span>
-          <div>
-            <p className={cn("text-sm font-semibold", isExpired ? "text-[var(--color-error)]" : "text-[var(--color-ink)]")}>
-              {isExpired
-                ? d.trialExpired
-                : t(d.trialActive, { days: String(trial.daysLeft), unit: daysWord(trial.daysLeft, locale) })}
-            </p>
-            <p className={cn("mt-0.5 text-xs", isExpired ? "text-[var(--color-error)]/80" : "text-ink-2")}>
-              {isExpired
-                ? d.trialExpiredBody
-                : t(d.trialPhotosUsed, { used: String(trial.photosUsed), limit: String(trial.photosLimit) })}
-            </p>
-            {!isExpired && (
-              <div className="mt-2 h-1.5 w-48 max-w-full overflow-hidden rounded-full bg-black/10">
-                <div
-                  className={cn(
-                    "h-full rounded-full transition-colors",
-                    nearLimit ? "bg-[var(--color-accent)]" : "bg-[var(--color-moss)]",
-                  )}
-                  style={{ width: `${photoRatio}%` }}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-        <Link
-          href="/dashboard/billing"
-          className={cn(
-            "shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition",
-            isExpired
-              ? "bg-[var(--color-error)] text-white hover:bg-[var(--color-error)]"
-              : "bg-[var(--color-ink)] text-white hover:bg-[var(--color-ink)]/85",
+    <div role="status" className={cn("notice flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between", isExpired ? "notice-error" : nearLimit ? "notice-warning" : "notice-info")}>
+      <div className="flex items-start gap-3">
+        {isExpired ? <AlertIcon className="mt-0.5" /> : null}
+        <div>
+          <p className="font-semibold">
+            {isExpired
+              ? d.trialExpired
+              : t(d.trialActive, { days: String(trial.daysLeft), unit: daysWord(trial.daysLeft, locale) })}
+          </p>
+          <p className="mt-0.5">
+            {isExpired
+              ? d.trialExpiredBody
+              : t(d.trialPhotosUsed, { used: String(trial.photosUsed), limit: String(trial.photosLimit) })}
+          </p>
+          {!isExpired && (
+            <div className="mt-2 h-1.5 w-48 max-w-full overflow-hidden rounded-full bg-paper-3">
+              <div
+                className={cn("h-full origin-left rounded-full", nearLimit ? "bg-accent" : "bg-moss")}
+                style={{ transform: `scaleX(${photoRatio / 100})` }}
+              />
+            </div>
           )}
-        >
-          {d.trialChoosePlan}
-        </Link>
+        </div>
       </div>
+      <Link href="/dashboard/billing" className="btn btn-sm btn-secondary shrink-0">
+        {d.trialChoosePlan}
+      </Link>
     </div>
   );
 }

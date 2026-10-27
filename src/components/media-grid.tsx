@@ -23,8 +23,8 @@ const DEFAULT_VIEWER_STRINGS: ViewerStrings = {
   filterVideos: "Videos",
   filterPhotographer: "Photographer",
   filterGuest: "Guests",
-  downloadAllZip: "Download all · ZIP ({{count}})",
-  downloadSelectedZip: "Download {{count}} · ZIP",
+  downloadAllZip: "Download all as ZIP ({{count}})",
+  downloadSelectedZip: "Download {{count}} as ZIP",
   downloadSelected: "Download selected",
   select: "Select",
   download: "Download",
@@ -658,9 +658,9 @@ export function MediaGrid({
                 <p className="truncate text-xs text-white/55">
                   {activeItem.deleted_at ? "deleted" : sourceLabel(activeItem.source_type)}
                   {!activeItem.deleted_at && activeItem.source_type === "guest" && (activeItem.guest_name ?? activeItem.guest_email)
-                    ? ` · ${t(vs.byGuest, { name: activeItem.guest_name ?? activeItem.guest_email ?? "" })}`
+                    ? `, ${t(vs.byGuest, { name: activeItem.guest_name ?? activeItem.guest_email ?? "" })}`
                     : ""}
-                  {ownerMode ? ` · ${activeIndex + 1} / ${visibleItems.length}` : ""}
+                  {ownerMode ? `, ${activeIndex + 1} / ${visibleItems.length}` : ""}
                 </p>
               </div>
 
@@ -983,21 +983,21 @@ export function MediaGrid({
 
         <div className="space-y-3 p-4">
           <div>
-            <p className="truncate text-sm font-semibold text-[var(--color-ink)]">{item.original_filename}</p>
-            <p className="text-xs text-muted">
-              {isDeleted ? os.deleted : sourceLabel(item.source_type)} · {formatBytes(item.size_bytes)}
+            <p className="truncate text-sm font-semibold text-ink">{item.original_filename}</p>
+            <p className="text-sm text-muted">
+              {isDeleted ? os.deleted : sourceLabel(item.source_type)}, {formatBytes(item.size_bytes)}
             </p>
             {!isDeleted && item.source_type === "guest" && guestName ? (
-              <p className="mt-1 text-xs font-medium text-[var(--color-moss)]">
+              <p className="mt-1 text-sm font-medium text-moss">
                 {t(vs.byGuest, { name: guestName })}
               </p>
             ) : null}
-            {isDeleted && purgeMessage ? <p className="mt-2 text-xs text-[var(--color-error)]">{purgeMessage}</p> : null}
+            {isDeleted && purgeMessage ? <p className="mt-2 text-sm text-error">{purgeMessage}</p> : null}
           </div>
 
           {ownerMode && sections.length > 0 && !isDeleted ? (
-            <label className="flex flex-col gap-2 text-xs font-semibold text-muted">
-              <span>{os.sectionLabel}</span>
+            <label className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium text-ink-2">{os.sectionLabel}</span>
               <select
                 className="field field-sm text-sm"
                 value={item.section_id ?? ""}
@@ -1015,9 +1015,10 @@ export function MediaGrid({
           ) : null}
 
           <div className="flex flex-wrap items-center gap-2">
-            <label className="inline-flex items-center gap-2 rounded-full border border-rule px-3 py-2 text-xs font-semibold">
+            <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 pr-2 text-sm font-medium text-ink">
               <input
                 type="checkbox"
+                className="h-4 w-4 accent-[var(--color-accent)]"
                 checked={checked}
                 onChange={(event) =>
                   setSelected((current) =>
@@ -1028,7 +1029,7 @@ export function MediaGrid({
               {vs.select}
             </label>
 
-            <Button variant="secondary" onClick={() => handleDownload([item.id])}>
+            <Button variant="ghost" onClick={() => handleDownload([item.id])}>
               {vs.download}
             </Button>
 
@@ -1036,7 +1037,7 @@ export function MediaGrid({
               <>
                 {!isVideo && !isDeleted ? (
                   <Button
-                    variant={isCover ? "ghost" : "secondary"}
+                    variant="ghost"
                     onClick={() => updateCoverImage(isCover ? null : item.id)}
                     disabled={busyId === item.id || busyId === "cover"}
                   >
@@ -1060,7 +1061,7 @@ export function MediaGrid({
                       {item.hidden_at ? os.unhide : os.hide}
                     </Button>
 
-                    <Button variant="danger" onClick={() => deleteMedia(item.id)} disabled={busyId === item.id}>
+                    <Button variant="danger-quiet" onClick={() => deleteMedia(item.id)} disabled={busyId === item.id}>
                       {os.delete}
                     </Button>
                   </>
@@ -1069,7 +1070,7 @@ export function MediaGrid({
                     <Button variant="secondary" onClick={() => restoreMedia(item.id)} disabled={busyId === item.id}>
                       {os.restore}
                     </Button>
-                    <Button variant="danger" onClick={() => permanentlyDeleteMedia(item.id)} disabled={busyId === item.id}>
+                    <Button variant="danger-quiet" onClick={() => permanentlyDeleteMedia(item.id)} disabled={busyId === item.id}>
                       {os.deletePermanently}
                     </Button>
                   </>

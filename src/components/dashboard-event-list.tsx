@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 
-import { Panel } from "@/components/ui/panel";
 import { deleteEventFromListAction } from "@/lib/actions";
 import type { Dict } from "@/lib/i18n/index";
 import { cn, formatDate, statusBadgeClass } from "@/lib/utils";
@@ -79,141 +78,117 @@ export function DashboardEventList({
   }
 
   return (
-    <div className="space-y-4">
-      <Panel className="bg-card">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div className="min-w-0 flex-1">
-            <label className="block text-xs font-semibold text-muted" htmlFor="dashboard-event-search">
-              {s.searchLabel}
-            </label>
-            <input
-              id="dashboard-event-search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder={s.searchPlaceholder}
-              className="mt-2 w-full rounded-2xl border border-rule bg-white px-4 py-3 text-sm text-[var(--color-ink)] outline-none transition-colors placeholder:text-muted focus:border-[var(--color-ink)] focus:ring-4 focus:ring-[var(--color-accent)]/15"
-            />
-          </div>
-
-          <div className="flex items-center gap-3 text-sm text-ink-2">
-            <span className="rounded-full bg-[var(--color-paper)] px-4 py-2 font-medium text-[var(--color-ink)]">
-              {fill(s.count, { shown: filteredEvents.length, total: visibleEvents.length })}
-            </span>
-            {query ? (
-              <button
-                type="button"
-                onClick={() => setQuery("")}
-                className="rounded-full border border-rule bg-white px-4 py-2 font-semibold text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)]"
-              >
-                {s.clearSearch}
-              </button>
-            ) : null}
-          </div>
-        </div>
-      </Panel>
+    <div>
+      {/* Search, with the count beside it */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <label className="flex min-w-0 flex-1 flex-col gap-2 sm:max-w-md" htmlFor="dashboard-event-search">
+          <span className="field-label">{s.searchLabel}</span>
+          <input
+            id="dashboard-event-search"
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={s.searchPlaceholder}
+            className="field field-sm"
+          />
+        </label>
+        <p className="num flex min-h-10 items-center text-sm text-ink-2" aria-live="polite">
+          {fill(s.count, { shown: filteredEvents.length, total: visibleEvents.length })}
+        </p>
+        {query ? (
+          <button type="button" onClick={() => setQuery("")} className="btn btn-sm btn-quiet">
+            {s.clearSearch}
+          </button>
+        ) : null}
+      </div>
 
       {filteredEvents.length === 0 ? (
-        <Panel className="bg-card">
-          <div className="rounded-[24px] border border-dashed border-rule bg-[var(--color-paper)]/55 px-6 py-12 text-center">
-            <p className="text-xl font-semibold text-[var(--color-ink)]">{s.noMatchTitle}</p>
-            <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-ink-2">{s.noMatchBody}</p>
-            <button
-              type="button"
-              onClick={() => setQuery("")}
-              className="mt-5 rounded-full border border-rule bg-white px-4 py-2 text-sm font-semibold text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)]"
-            >
-              {s.clearSearch}
-            </button>
-          </div>
-        </Panel>
+        <div className="well mt-[var(--space-lg)] px-6 py-10">
+          <p className="app-section-title text-ink">{s.noMatchTitle}</p>
+          <p className="mt-2 max-w-xl text-ink-2">{s.noMatchBody}</p>
+          <button type="button" onClick={() => setQuery("")} className="btn btn-sm btn-secondary mt-5">
+            {s.clearSearch}
+          </button>
+        </div>
       ) : (
-        filteredEvents.map((event) => {
-          const isConfirming = confirming === event.slug;
-          return (
-            <Panel
-              key={event.id}
-              className={cn(
-                "mesh-card bg-card transition-colors",
-                isConfirming ? "ring-2 ring-[var(--color-error-soft)]" : "hover:-translate-y-0.5",
-              )}
-            >
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <Link href={`${prefix}/dashboard/events/${event.slug}`} className="flex min-w-0 items-center gap-4">
-                  <div className="h-24 w-24 shrink-0 overflow-hidden rounded-[22px] border border-rule bg-[var(--color-paper)]">
-                    {event.coverUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={event.coverUrl} alt="" className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_color-mix(in_oklch,_var(--color-accent)_18%,_transparent),_transparent_55%),linear-gradient(135deg,_color-mix(in_oklch,_var(--color-ink)_8%,_transparent),_color-mix(in_oklch,_var(--color-paper)_92%,_transparent))] px-2 text-center text-xs font-semibold text-muted">
-                        {s.noCover}
-                      </div>
+        <ul className="mt-[var(--space-lg)] border-t border-rule">
+          {filteredEvents.map((event) => {
+            const isConfirming = confirming === event.slug;
+            return (
+              <li key={event.id} className={cn("border-b border-rule py-4", isConfirming && "bg-error-soft/40")}>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <Link
+                    href={`${prefix}/dashboard/events/${event.slug}`}
+                    className="group flex min-w-0 flex-1 items-center gap-4 rounded-[var(--radius-inner)]"
+                  >
+                    <span className="h-16 w-16 shrink-0 overflow-hidden rounded-[var(--radius-inner)] bg-paper-2">
+                      {event.coverUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={event.coverUrl} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="flex h-full w-full items-center justify-center font-display text-2xl font-semibold text-muted" aria-hidden="true">
+                          {event.title.slice(0, 1)}
+                        </span>
+                      )}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-lg font-semibold text-ink group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">
+                        {event.title}
+                      </span>
+                      <span className="meta mt-0.5 block">{event.clientName || s.privateEvent}</span>
+                      <span className="meta block">
+                        {s.eventDate}: {formatDate(event.eventDate?.slice(0, 10), locale, s.notSet)}
+                        <span className="mx-2 text-rule-2" aria-hidden="true">|</span>
+                        {s.expires}: {formatDate(event.expiresAt, locale, s.notSet)}
+                      </span>
+                    </span>
+                  </Link>
+
+                  <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                    <span className={cn("chip", statusBadgeClass(event.lifecycleStatus))}>{statusLabel(event.lifecycleStatus)}</span>
+                    <span className="code hidden text-sm text-muted xl:inline">{event.slug}</span>
+                    {isConfirming ? null : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFailed(null);
+                          setConfirming(event.slug);
+                        }}
+                        className="btn btn-sm btn-quiet text-ink-2 hover:text-error"
+                      >
+                        {s.delete}
+                      </button>
                     )}
                   </div>
-
-                  <div className="min-w-0">
-                    <p className="text-xs font-semibold text-[var(--color-moss)]">
-                      {event.clientName || s.privateEvent}
-                    </p>
-                    <h2 className="mt-2 truncate font-display text-2xl font-semibold text-[var(--color-ink)]">{event.title}</h2>
-                    <p className="mt-2 text-sm text-ink-2">
-                      {s.eventDate}: {formatDate(event.eventDate?.slice(0, 10), locale, s.notSet)} · {s.expires}:{" "}
-                      {formatDate(event.expiresAt, locale, s.notSet)}
-                    </p>
-                  </div>
-                </Link>
-
-                <div className="flex flex-wrap items-center gap-3 text-sm text-ink-2">
-                  <span className="rounded-full bg-[var(--color-paper)] px-4 py-2">{event.slug}</span>
-                  <span className={cn("rounded-full px-4 py-2", statusBadgeClass(event.lifecycleStatus))}>
-                    {statusLabel(event.lifecycleStatus)}
-                  </span>
-                  {isConfirming ? null : (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFailed(null);
-                        setConfirming(event.slug);
-                      }}
-                      className="rounded-full border border-rule bg-white px-4 py-2 font-semibold text-[var(--color-error)] transition-colors hover:border-[var(--color-error-soft)] hover:bg-[var(--color-error-soft)]"
-                    >
-                      {s.delete}
-                    </button>
-                  )}
                 </div>
-              </div>
 
-              {isConfirming ? (
-                <div
-                  role="alertdialog"
-                  aria-label={s.delete}
-                  className="mt-4 flex flex-col gap-3 rounded-[20px] bg-[var(--color-error-soft)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <p className="text-sm leading-6 text-[var(--color-error)]">
-                    {failed === event.slug ? s.deleteFailed : fill(s.deleteConfirm, { title: event.title })}
-                  </p>
-                  <div className="flex shrink-0 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setConfirming(null)}
-                      disabled={isDeleting}
-                      className="rounded-full border border-rule bg-white px-4 py-2 text-sm font-semibold text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)] disabled:opacity-60"
-                    >
-                      {s.cancel}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => confirmDelete(event.slug)}
-                      disabled={isDeleting}
-                      className="rounded-full bg-[var(--color-error)] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-error)] disabled:opacity-60"
-                    >
-                      {isDeleting ? s.deleting : s.deleteYes}
-                    </button>
+                {isConfirming ? (
+                  <div
+                    role="alertdialog"
+                    aria-label={s.delete}
+                    className="notice notice-error mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <p>{failed === event.slug ? s.deleteFailed : fill(s.deleteConfirm, { title: event.title })}</p>
+                    <div className="flex shrink-0 gap-2">
+                      <button type="button" onClick={() => setConfirming(null)} disabled={isDeleting} className="btn btn-sm btn-secondary">
+                        {s.cancel}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => confirmDelete(event.slug)}
+                        disabled={isDeleting}
+                        aria-busy={isDeleting}
+                        className="btn btn-sm btn-danger"
+                      >
+                        {isDeleting ? s.deleting : s.deleteYes}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ) : null}
-            </Panel>
-          );
-        })
+                ) : null}
+              </li>
+            );
+          })}
+        </ul>
       )}
     </div>
   );

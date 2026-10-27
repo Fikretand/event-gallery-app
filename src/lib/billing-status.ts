@@ -46,7 +46,7 @@ export function describeBilling(
   // Admins bypass every limit regardless of what they have paid for, so
   // saying anything else here would misrepresent what they can actually do.
   if (user.role === "admin") {
-    return { plan, status: "Admin · no limits", provider, tone: "admin" };
+    return { plan, status: "Admin, no limits", provider, tone: "admin" };
   }
 
   switch (status) {

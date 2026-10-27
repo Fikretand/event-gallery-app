@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { Panel } from "@/components/ui/panel";
 import type { Dict } from "@/lib/i18n/index";
 import { CARD_PRESETS } from "@/lib/qr-card-editor/presets";
 import {
@@ -95,14 +94,14 @@ export function QrCardOverview({
   }
 
   const secondary =
-    "inline-flex items-center justify-center rounded-full border border-rule bg-white px-5 py-2.5 text-sm font-semibold text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)] disabled:opacity-60";
+    "btn btn-sm btn-secondary";
 
   return (
     <>
-      <Panel className="bg-card">
+      <section className="border-t border-rule pt-[var(--space-lg)] first:border-t-0 first:pt-0">
         <div className="grid gap-6 md:grid-cols-[minmax(0,260px)_minmax(0,1fr)] md:items-start">
           <div className="mx-auto w-full max-w-[260px]">
-            <div className="aspect-[1240/1754] overflow-hidden rounded-[18px] border border-rule bg-[var(--color-paper)] shadow-[0_18px_50px_color-mix(in_oklch,_var(--color-ink)_14%,_transparent)]">
+            <div className="aspect-[1240/1754] overflow-hidden rounded-[var(--radius-inner)] border border-rule bg-paper-2">
               {preview ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={preview} alt={s.yourCard} className="h-full w-full object-cover" />
@@ -113,19 +112,19 @@ export function QrCardOverview({
           </div>
 
           <div className="min-w-0">
-            <h2 className="font-display text-3xl font-semibold text-[var(--color-ink)]">{s.title}</h2>
+            <h2 className="app-section-title text-ink">{s.title}</h2>
             <p className="mt-2 max-w-xl text-sm leading-6 text-ink-2">{s.body}</p>
-            <p className="mt-4 rounded-[18px] bg-[var(--color-paper)]/65 px-4 py-3 text-sm leading-6 text-ink-2">
-              <span className="font-semibold text-[var(--color-ink)]">{s.yourCard}: </span>
+            <p className="mt-4 rounded-[var(--radius-inner)] bg-paper-2/65 px-4 py-3 text-sm leading-6 text-ink-2">
+              <span className="font-semibold text-ink">{s.yourCard}: </span>
               {hasDraft ? s.draftNote : s.defaultNote}
             </p>
 
             <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
               <Link
                 href={editorHref}
-                className="inline-flex items-center justify-center rounded-full bg-[var(--color-accent)] px-6 py-2.5 text-sm font-semibold text-white shadow-[0_6px_18px_color-mix(in_oklch,_var(--color-accent)_30%,_transparent)] transition-colors hover:brightness-105"
+                className="btn btn-sm btn-primary"
               >
-                ✎ {s.edit}
+                {s.edit}
               </Link>
               <button type="button" onClick={() => void download("pdf")} disabled={busy !== null} className={secondary}>
                 {busy === "pdf" ? s.preparing : s.downloadPdf}
@@ -134,14 +133,14 @@ export function QrCardOverview({
                 {busy === "png" ? s.preparing : s.downloadPng}
               </button>
             </div>
-            {failed ? <p className="mt-3 text-sm text-[var(--color-error)]">{s.failed}</p> : null}
+            {failed ? <p className="mt-3 text-sm text-error">{s.failed}</p> : null}
             <p className="mt-4 text-sm leading-6 text-ink-2">{qrHint}</p>
           </div>
         </div>
-      </Panel>
+      </section>
 
-      <Panel className="bg-card">
-        <h3 className="font-display text-2xl font-semibold text-[var(--color-ink)]">{s.templatesTitle}</h3>
+      <section className="border-t border-rule pt-[var(--space-lg)] first:border-t-0 first:pt-0">
+        <h3 className="app-section-title text-ink">{s.templatesTitle}</h3>
         <p className="mt-1.5 text-sm leading-6 text-ink-2">{s.templatesBody}</p>
         <div className="mt-5 grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
           {CARD_PRESETS.map((preset) => (
@@ -151,24 +150,24 @@ export function QrCardOverview({
               onClick={() => openTemplate(preset.id)}
               className="group text-left"
             >
-              <span className="block aspect-[1240/1754] overflow-hidden rounded-xl border border-rule bg-[var(--color-paper)] shadow-sm transition-colors group-hover:-translate-y-0.5 group-hover:shadow-md">
+              <span className="block aspect-[1240/1754] overflow-hidden rounded-[var(--radius-inner)] border border-rule bg-paper-2 transition-colors duration-[var(--dur-micro)] group-hover:border-ink-2">
                 {thumbs[preset.id] ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={thumbs[preset.id]} alt="" className="h-full w-full object-cover" />
                 ) : null}
               </span>
-              <span className="mt-1.5 block truncate text-xs font-medium text-ink-2">{preset.name}</span>
+              <span className="mt-1.5 block truncate text-sm font-medium text-ink-2">{preset.name}</span>
             </button>
           ))}
         </div>
-      </Panel>
+      </section>
 
-      <Panel className="bg-card">
+      <section className="border-t border-rule pt-[var(--space-lg)] first:border-t-0 first:pt-0">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={plainQrDataUrl} alt="" className="h-28 w-28 shrink-0 rounded-xl border border-rule bg-white p-1.5" />
+          <img src={plainQrDataUrl} alt="" className="h-28 w-28 shrink-0 rounded-[var(--radius-inner)] border border-rule bg-card p-1.5" />
           <div className="min-w-0">
-            <h3 className="font-semibold text-[var(--color-ink)]">{s.plainQr}</h3>
+            <h3 className="font-semibold text-ink">{s.plainQr}</h3>
             <p className="mt-1 text-sm leading-6 text-ink-2">{s.plainQrBody}</p>
             <p className="mt-1 truncate font-mono text-xs text-muted">{uploadUrl}</p>
             <button
@@ -180,7 +179,7 @@ export function QrCardOverview({
             </button>
           </div>
         </div>
-      </Panel>
+      </section>
     </>
   );
 }

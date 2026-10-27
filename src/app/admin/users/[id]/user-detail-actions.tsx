@@ -3,6 +3,7 @@
 import { useTransition, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { CheckIcon } from "@/components/ui/icons";
 import { adminSetPlanAction, adminSetRoleAction, adminDeleteUserAction, adminSetSubscriptionAction } from "@/lib/admin-actions";
 import type { UserRecord } from "@/lib/types";
 
@@ -48,21 +49,21 @@ export function UserDetailActions({ user }: { user: UserRecord }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-rule bg-card shadow-[0_18px_50px_color-mix(in_oklch,_var(--color-ink)_5%,_transparent)]">
+    <div className="overflow-hidden rounded-[var(--radius-inner)] border border-rule bg-card">
       <div className="border-b border-rule px-5 py-3.5">
         <p className="text-xs font-semibold text-muted">Actions</p>
       </div>
 
       <div className="space-y-5 px-5 py-5">
         {error && (
-          <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>
+          <div role="alert" className="notice notice-error">{error}</div>
         )}
 
         {/* Plan — photographer tiers only; a couple account has no tier */}
         {user.account_type === "couple" ? (
           <div>
             <p className="mb-2 text-xs font-semibold text-ink-2">Plan</p>
-            <div className="rounded-xl border border-rule bg-[var(--color-paper)]/60 px-4 py-2.5 text-sm font-semibold text-[var(--color-ink)]">
+            <div className="well px-4 py-2.5 text-sm font-semibold text-ink">
               One Event
             </div>
             <p className="mt-1.5 text-xs text-muted">
@@ -79,15 +80,10 @@ export function UserDetailActions({ user }: { user: UserRecord }) {
                 key={p}
                 onClick={() => handlePlanChange(p)}
                 disabled={pending}
-                className={`flex-1 rounded-xl border py-2.5 text-sm font-semibold capitalize transition ${
-                  user.plan_tier === p
-                    ? p === "pro"
-                      ? "border-amber-300 bg-amber-50 text-amber-700"
-                      : "border-[var(--color-ink)]/20 bg-[var(--color-paper)] text-[var(--color-ink)]"
-                    : "border-rule bg-white text-muted hover:border-rule-2 hover:text-[var(--color-ink)]"
-                }`}
+                aria-pressed={user.plan_tier === p}
+                className={`btn btn-sm flex-1 ${user.plan_tier === p ? "btn-ink" : "btn-secondary"}`}
               >
-                {p === user.plan_tier && "✓ "}{p.charAt(0).toUpperCase() + p.slice(1)}
+                {p === user.plan_tier && <CheckIcon className="mr-1 inline h-4 w-4 align-[-3px]" />}{p.charAt(0).toUpperCase() + p.slice(1)}
               </button>
             ))}
           </div>
@@ -98,15 +94,12 @@ export function UserDetailActions({ user }: { user: UserRecord }) {
         <div>
           <p className="mb-2 text-xs font-semibold text-ink-2">Admin access</p>
           <button
+            type="button"
             onClick={handleRoleToggle}
             disabled={pending}
-            className={`w-full rounded-xl border py-2.5 text-sm font-semibold transition ${
-              user.role === "admin"
-                ? "border-[var(--color-accent)]/30 bg-[var(--color-accent)]/8 text-[var(--color-accent)] hover:bg-[var(--color-accent)]/14"
-                : "border-rule bg-white text-ink-2 hover:border-rule-2 hover:text-[var(--color-ink)]"
-            }`}
+            className={`btn btn-sm w-full ${user.role === "admin" ? "btn-danger-quiet" : "btn-secondary"}`}
           >
-            {user.role === "admin" ? "⚡ Admin — click to revoke" : "Grant admin access"}
+            {user.role === "admin" ? "Admin: click to revoke" : "Grant admin access"}
           </button>
         </div>
 
@@ -114,15 +107,12 @@ export function UserDetailActions({ user }: { user: UserRecord }) {
         <div>
           <p className="mb-2 text-xs font-semibold text-ink-2">Subscription</p>
           <button
+            type="button"
             onClick={handleSubscriptionToggle}
             disabled={pending}
-            className={`w-full rounded-xl border py-2.5 text-sm font-semibold transition ${
-              isPaid
-                ? "border-[var(--color-moss)]/30 bg-[var(--color-moss)]/8 text-[var(--color-moss)] hover:bg-[var(--color-moss)]/14"
-                : "border-rule bg-white text-ink-2 hover:border-rule-2 hover:text-[var(--color-ink)]"
-            }`}
+            className="btn btn-sm btn-secondary w-full"
           >
-            {isPaid ? "✓ Active (paid) — click to revert to trial" : "Mark as paid (active subscriber)"}
+            {isPaid ? "Active (paid): click to revert to trial" : "Mark as paid (active subscriber)"}
           </button>
           <p className="mt-1.5 text-xs text-muted">
             Use after a manual/bank-transfer payment. Removes trial limits for this account.
@@ -136,27 +126,27 @@ export function UserDetailActions({ user }: { user: UserRecord }) {
             <button
               onClick={handleDelete}
               disabled={pending}
-              className="w-full rounded-xl border border-red-200 bg-red-50 py-2.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100"
+              className="btn btn-sm btn-danger-quiet w-full"
             >
               Delete user account
             </button>
           ) : (
             <div className="space-y-2">
-              <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+              <p role="alert" className="notice notice-error">
                 This will permanently delete <strong>{user.email}</strong> and cannot be undone.
               </p>
               <div className="flex gap-2">
                 <button
                   onClick={handleDelete}
                   disabled={pending}
-                  className="flex-1 rounded-xl bg-red-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
+                  className="btn btn-sm btn-danger flex-1"
                 >
                   {pending ? "Deleting…" : "Yes, delete permanently"}
                 </button>
                 <button
                   onClick={() => setDeleteStep("idle")}
                   disabled={pending}
-                  className="flex-1 rounded-xl border border-rule bg-white py-2.5 text-sm font-semibold text-ink-2 transition-colors hover:bg-black/5"
+                  className="btn btn-sm btn-secondary flex-1"
                 >
                   Cancel
                 </button>

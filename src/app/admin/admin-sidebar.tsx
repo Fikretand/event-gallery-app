@@ -6,7 +6,7 @@ import { useState } from "react";
 
 function IconDashboard() {
   return (
-    <svg viewBox="0 0 20 20" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.6">
+    <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.6">
       <rect x="2.5" y="2.5" width="6.5" height="6.5" rx="1.5" />
       <rect x="11" y="2.5" width="6.5" height="6.5" rx="1.5" />
       <rect x="2.5" y="11" width="6.5" height="6.5" rx="1.5" />
@@ -16,7 +16,7 @@ function IconDashboard() {
 }
 function IconUsers() {
   return (
-    <svg viewBox="0 0 20 20" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.6">
+    <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.6">
       <circle cx="7.5" cy="6" r="3" />
       <path d="M1.5 17c0-3.3 2.7-6 6-6s6 2.7 6 6" strokeLinecap="round" />
       <path d="M13.5 4.5c1.7 0 3 1.3 3 3s-1.3 3-3 3" strokeLinecap="round" />
@@ -26,21 +26,21 @@ function IconUsers() {
 }
 function IconMenu() {
   return (
-    <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.6">
+    <svg viewBox="0 0 20 20" aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.6">
       <path d="M3 5h14M3 10h14M3 15h14" strokeLinecap="round" />
     </svg>
   );
 }
 function IconClose() {
   return (
-    <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.6">
+    <svg viewBox="0 0 20 20" aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.6">
       <path d="M5 5l10 10M15 5L5 15" strokeLinecap="round" />
     </svg>
   );
 }
 function IconArrowLeft() {
   return (
-    <svg viewBox="0 0 20 20" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.6">
+    <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.6">
       <path d="M12 4L6 10l6 6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
@@ -81,10 +81,11 @@ function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () 
               key={item.href}
               href={lp(item.href)}
               onClick={onNavigate}
-              className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+              aria-current={active ? "page" : undefined}
+              className={`flex min-h-10 items-center gap-2.5 rounded-[var(--radius-inner)] px-3 text-sm font-medium transition-colors duration-[var(--dur-micro)] ${
                 active
-                  ? "bg-[var(--color-ink)] text-white"
-                  : "text-ink-2 hover:bg-black/[0.05] hover:text-[var(--color-ink)]"
+                  ? "bg-paper-2 font-semibold text-ink shadow-[inset_3px_0_0_var(--color-accent)]"
+                  : "text-ink-2 hover:bg-paper-2 hover:text-ink"
               }`}
             >
               {item.icon}
@@ -97,7 +98,7 @@ function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () 
         <Link
           href={lp("/dashboard")}
           onClick={onNavigate}
-          className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-muted transition-colors hover:bg-black/[0.05] hover:text-[var(--color-ink)]"
+          className="flex items-center gap-2.5 rounded-[var(--radius-inner)] px-3 py-2.5 text-sm text-muted transition-colors hover:bg-paper-2 hover:text-ink"
         >
           <IconArrowLeft />
           Back to dashboard
@@ -110,8 +111,8 @@ function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () 
 function Brand() {
   return (
     <div className="flex items-center gap-2.5">
-      <span className="font-semibold tracking-tight text-[var(--color-ink)]">Confetti</span>
-      <span className="rounded-full bg-[var(--color-accent)]/12 px-2 py-0.5 text-xs font-bold text-[var(--color-accent)]">
+      <span className="font-display text-xl font-semibold text-ink">Confetti</span>
+      <span className="chip chip-accent">
         Admin
       </span>
     </div>
@@ -125,7 +126,7 @@ export function AdminSidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex w-56 shrink-0 flex-col border-r border-rule bg-white">
+      <aside className="hidden lg:flex w-56 shrink-0 flex-col border-r border-rule bg-paper">
         <div className="border-b border-rule px-5 py-4">
           <Brand />
         </div>
@@ -133,11 +134,11 @@ export function AdminSidebar() {
       </aside>
 
       {/* Mobile top bar */}
-      <div className="fixed inset-x-0 top-0 z-40 flex items-center justify-between border-b border-rule bg-white px-4 py-3 lg:hidden">
+      <div className="fixed inset-x-0 top-0 z-40 flex items-center justify-between border-b border-rule bg-card px-4 py-3 lg:hidden">
         <Brand />
         <button
           onClick={() => setOpen(true)}
-          className="rounded-lg p-1.5 text-muted hover:bg-black/5 hover:text-[var(--color-ink)]"
+          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-[var(--radius-inner)] p-1.5 text-muted hover:bg-paper-2 hover:text-ink"
           aria-label="Open menu"
         >
           <IconMenu />
@@ -148,15 +149,15 @@ export function AdminSidebar() {
       {open && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div
-            className="absolute inset-0 bg-black/20"
+            className="absolute inset-0 bg-[var(--backdrop)]"
             onClick={() => setOpen(false)}
           />
-          <aside className="absolute inset-y-0 left-0 flex w-64 flex-col border-r border-rule bg-white shadow-xl">
+          <aside className="absolute inset-y-0 left-0 flex w-64 flex-col border-r border-rule bg-paper">
             <div className="flex items-center justify-between border-b border-rule px-5 py-4">
               <Brand />
               <button
                 onClick={() => setOpen(false)}
-                className="rounded-lg p-1.5 text-muted hover:bg-black/5"
+                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-[var(--radius-inner)] p-1.5 text-muted hover:bg-paper-2"
                 aria-label="Close menu"
               >
                 <IconClose />

@@ -7,7 +7,6 @@ import type { AccountType } from "@/lib/types";
 import type { Dict } from "@/lib/i18n/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Panel } from "@/components/ui/panel";
 
 type FormStrings = Dict["dashboard"]["create"]["form"];
 
@@ -70,19 +69,14 @@ export function EventCreateForm({
   const s = strings;
 
   return (
-    <Panel className="bg-card">
-      <form action={formAction} className="grid gap-5 md:grid-cols-2">
+    // The page header names the form; here it only says what it is for.
+    <form action={formAction} className="grid gap-x-[var(--space-lg)] gap-y-5 md:grid-cols-2" aria-label={isCouple ? s.headingCouple : s.headingPhotographer}>
         <div className="md:col-span-2">
-          <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">
-            {isCouple ? s.headingCouple : s.headingPhotographer}
-          </h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-2">
-            {isCouple ? s.introCouple : s.introPhotographer}
-          </p>
+          <p className="max-w-2xl text-ink-2">{isCouple ? s.introCouple : s.introPhotographer}</p>
           {isCouple ? (
-            <div className="mt-4 rounded-[22px] border border-[var(--color-accent)]/18 bg-[linear-gradient(180deg,color-mix(in_oklch,_var(--color-accent-soft)_34%,_transparent),color-mix(in_oklch,_var(--color-card)_90%,_transparent))] px-4 py-3 text-sm leading-6 text-ink-2">
+            <div className="notice notice-info mt-4">
               {s.couplePlanNote}
-              <p className="mt-2 text-xs leading-5 text-ink-2">{s.couplePlanNoteSub}</p>
+              <p className="mt-1">{s.couplePlanNoteSub}</p>
             </div>
           ) : null}
         </div>
@@ -106,8 +100,8 @@ export function EventCreateForm({
           hint={isCouple ? s.eventDateHintCouple : undefined}
         />
         {isCouple ? (
-          <div className="rounded-2xl border border-rule bg-[var(--color-paper)]/55 px-4 py-3 text-sm leading-6 text-ink-2">
-            <p className="font-medium text-[var(--color-ink)]">{s.privateAccessTitle}</p>
+          <div className="notice notice-info">
+            <p className="font-medium text-ink">{s.privateAccessTitle}</p>
             <p className="mt-1">{s.privateAccessBody}</p>
           </div>
         ) : (
@@ -136,31 +130,31 @@ export function EventCreateForm({
           defaultValue="250"
         />
 
-        <label className="flex items-center gap-3 rounded-2xl border border-rule bg-[var(--color-paper)]/60 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
+        <div className="hairline md:col-span-2" aria-hidden="true" />
+        <label className="check-row">
           <input type="checkbox" name="allowGuestUpload" defaultChecked className="size-4" />
           {s.allowGuestUpload}
         </label>
-        <label className="flex items-center gap-3 rounded-2xl border border-rule bg-[var(--color-paper)]/60 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
+        <label className="check-row">
           <input type="checkbox" name="allowGuestVideo" defaultChecked className="size-4" />
           {s.allowGuestVideo}
         </label>
-        <label className="flex items-center gap-3 rounded-2xl border border-rule bg-[var(--color-paper)]/60 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
+        <label className="check-row">
           <input type="checkbox" name="requirePinForUpload" className="size-4" />
           {s.requirePinUpload}
         </label>
-        <label className="flex items-center gap-3 rounded-2xl border border-rule bg-[var(--color-paper)]/60 px-4 py-3 text-sm font-medium text-[var(--color-ink)]">
+        <label className="check-row">
           <input type="checkbox" name="requirePinForGallery" defaultChecked className="size-4" />
           {isCouple ? s.requirePinGalleryCouple : s.requirePinGalleryPhotographer}
         </label>
 
-        {state?.error ? <div className="md:col-span-2 rounded-2xl bg-[var(--color-error-soft)] px-4 py-3 text-sm text-[var(--color-error)]">{state.error}</div> : null}
+        {state?.error ? <div role="alert" className="notice notice-error md:col-span-2">{state.error}</div> : null}
 
-        <div className="md:col-span-2 flex justify-end">
-          <Button type="submit" disabled={isPending}>
+        <div className="md:col-span-2 flex justify-end border-t border-rule pt-[var(--space-lg)]">
+          <Button type="submit" size="md" disabled={isPending} aria-busy={isPending}>
             {isPending ? s.submitting : isCouple ? s.submitCouple : s.submitPhotographer}
           </Button>
         </div>
-      </form>
-    </Panel>
+    </form>
   );
 }

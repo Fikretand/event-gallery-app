@@ -6,7 +6,6 @@ import { PaymentSuccessBanner } from "@/components/payment-success-banner";
 import { RetentionNotice } from "@/components/retention-notice";
 import { DashboardEventList } from "@/components/dashboard-event-list";
 import { SetupNotice } from "@/components/setup-notice";
-import { Panel } from "@/components/ui/panel";
 import { getAccountTypeForUser, getRequiredUser, getUserProfile } from "@/lib/auth";
 import { hasActiveSubscription } from "@/lib/billing";
 import { hasSupabase } from "@/lib/env";
@@ -22,6 +21,7 @@ import { getDictionary, localePrefix, t, type Locale, daysWord } from "@/lib/i18
 import { retentionSchedule } from "@/lib/retention";
 import type { TrialState } from "@/lib/types";
 import { cn, formatBytes } from "@/lib/utils";
+import { AlertIcon } from "@/components/ui/icons";
 
 type DashStrings = ReturnType<typeof getDictionary>["dashboard"];
 
@@ -69,7 +69,7 @@ export async function DashboardHome({
   const prefix = localePrefix(locale);
 
   return (
-    <main className="pb-16">
+    <main className="pb-[var(--space-3xl)]">
       <DashboardHeader
         title={h.title}
         eyebrow={h.eyebrow}
@@ -79,14 +79,14 @@ export async function DashboardHome({
         action={
           <Link
             href={`${prefix}/dashboard/events/new`}
-            className="rounded-full bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-white"
+            className="btn btn-sm btn-primary"
           >
             {h.newEvent}
           </Link>
         }
       />
 
-      <section className="shell grid gap-4">
+      <section className="shell grid gap-[var(--space-lg)]">
         {searchParams?.paid === "1" && (
           <PaymentSuccessBanner
             activated={profile ? hasActiveSubscription(profile) : false}
@@ -95,7 +95,7 @@ export async function DashboardHome({
           />
         )}
         {searchParams?.deleted === "1" ? (
-          <div className="rounded-2xl bg-[var(--color-moss-soft)] px-4 py-3 text-sm text-[var(--color-moss)]">{h.eventDeleted}</div>
+          <div role="status" className="notice notice-success">{h.eventDeleted}</div>
         ) : null}
 
         {trial && <TrialBanner trial={trial} strings={d} prefix={prefix} locale={locale} />}
@@ -111,50 +111,39 @@ export async function DashboardHome({
           />
         ) : null}
 
-        <div className="grid gap-4 xl:grid-cols-[1.6fr_1fr_1fr]">
-          <UsageCard
+        {/* The account at a glance: three figures under one hairline. */}
+        <dl className="grid border-y border-rule md:grid-cols-3 md:divide-x md:divide-rule">
+          <Figure
             label={h.storageUsed}
-            used={usage.liveUsedStorageBytes}
-            limit={usage.liveStorageLimitBytes}
-            accentClass="bg-[linear-gradient(135deg,color-mix(in_oklch,_var(--color-moss-soft)_98%,_transparent),color-mix(in_oklch,_var(--color-moss-soft)_94%,_transparent))]"
-            progressClass="bg-[linear-gradient(90deg,var(--color-moss),var(--color-moss))]"
-            meta={t(h.remaining, { amount: formatBytes(usage.liveAvailableStorageBytes) })}
+            value={formatBytes(usage.liveUsedStorageBytes)}
+            unit={`/ ${formatBytes(usage.liveStorageLimitBytes)}`}
+            ratio={usage.liveStorageLimitBytes > 0 ? usage.liveUsedStorageBytes / usage.liveStorageLimitBytes : 0}
+            note={t(h.remaining, { amount: formatBytes(usage.liveAvailableStorageBytes) })}
           />
-          <CountCard
+          <Figure
             label={h.events}
-            value={`${usage.activeEvents} / ${usage.activeEventLimit}`}
-            accentClass="bg-[linear-gradient(135deg,color-mix(in_oklch,_var(--color-paper-2)_98%,_transparent),color-mix(in_oklch,_var(--color-paper)_95%,_transparent))]"
+            value={String(usage.activeEvents)}
+            unit={`/ ${usage.activeEventLimit}`}
+            ratio={usage.activeEventLimit > 0 ? usage.activeEvents / usage.activeEventLimit : 0}
             note={t(h.slotsLeft, { n: String(usage.remainingEventSlots) })}
-          >
-            <div className="mt-3 h-2 overflow-hidden rounded-full bg-black/8">
-              <div
-                className="h-full rounded-full bg-[linear-gradient(90deg,var(--color-ink-2),var(--color-ink-2))]"
-                style={{ width: `${Math.min((usage.activeEvents / usage.activeEventLimit) * 100, 100)}%` }}
-              />
-            </div>
-          </CountCard>
-          <CountCard
-            label={h.plan}
-            value={planLabel}
-            accentClass="bg-[linear-gradient(135deg,color-mix(in_oklch,_var(--color-paper)_98%,_transparent),color-mix(in_oklch,_var(--color-paper)_95%,_transparent))]"
-            note={planLabel === "Pro" ? h.planProDesc : h.planSoloDesc}
-          >
+          />
+          <Figure label={h.plan} value={planLabel} note={planLabel === "Pro" ? h.planProDesc : h.planSoloDesc}>
             {planLabel === "Solo" ? (
-              <Link
-                href={`${prefix}/dashboard/billing`}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-accent)]/10 px-3 py-1.5 text-xs font-semibold text-[var(--color-accent)] transition-colors hover:bg-[var(--color-accent)]/18"
-              >
+              <Link href={`${prefix}/dashboard/billing`} className="link mt-2 inline-flex min-h-10 items-center text-sm">
                 {h.managePlan}
               </Link>
             ) : null}
-          </CountCard>
-        </div>
+          </Figure>
+        </dl>
 
         {events.length === 0 ? (
-          <Panel className="bg-card">
-            <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">{h.noEvents}</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-2">{h.noEventsBody}</p>
-          </Panel>
+          <div className="well p-[var(--space-xl)]">
+            <h2 className="app-section-title text-ink">{h.noEvents}</h2>
+            <p className="mt-2 max-w-2xl text-ink-2">{h.noEventsBody}</p>
+            <Link href={`${prefix}/dashboard/events/new`} className="btn btn-sm btn-primary mt-[var(--space-lg)]">
+              {h.newEvent}
+            </Link>
+          </div>
         ) : (
           <DashboardEventList
             strings={d.eventList}
@@ -181,61 +170,46 @@ export async function DashboardHome({
   );
 }
 
-function UsageCard({
-  label,
-  used,
-  limit,
-  meta,
-  accentClass,
-  progressClass,
-}: {
-  label: string;
-  used: number;
-  limit: number;
-  meta: string;
-  accentClass: string;
-  progressClass: string;
-}) {
-  const ratio = limit > 0 ? Math.min((used / limit) * 100, 100) : 0;
-
-  return (
-    <Panel className={cn("overflow-hidden", accentClass)}>
-      <p className="text-xs font-semibold text-muted">{label}</p>
-      <p className="mt-4 text-4xl font-semibold tracking-tight text-[var(--color-ink)]">
-        {formatBytes(used)}
-        <span className="ml-2 text-lg font-medium text-muted">/ {formatBytes(limit)}</span>
-      </p>
-      <div className="mt-5 h-2.5 overflow-hidden rounded-full bg-black/8">
-        <div className={cn("h-full rounded-full", progressClass)} style={{ width: `${ratio}%` }} />
-      </div>
-      <div className="mt-4 flex items-center justify-between text-sm">
-        <span className="text-ink-2">{meta}</span>
-        <span className="font-semibold text-[var(--color-ink)]">{Math.round(ratio)}%</span>
-      </div>
-    </Panel>
-  );
-}
-
-function CountCard({
+/** One figure of the account: its label, the number, a meter where there is a limit. */
+function Figure({
   label,
   value,
+  unit,
+  ratio,
   note,
-  accentClass,
   children,
 }: {
   label: string;
   value: string;
+  unit?: string;
+  ratio?: number;
   note: string;
-  accentClass: string;
   children?: React.ReactNode;
 }) {
   return (
-    <Panel className={cn("overflow-hidden", accentClass)}>
-      <p className="text-xs font-semibold text-muted">{label}</p>
-      <p className="mt-4 text-3xl font-semibold tracking-tight text-[var(--color-ink)]">{value}</p>
-      <p className="mt-3 text-sm leading-6 text-ink-2">{note}</p>
-      {children}
-    </Panel>
+    <div className="flex flex-col border-b border-rule py-[var(--space-lg)] last:border-b-0 md:border-b-0 md:px-[var(--space-lg)] md:first:pl-0">
+      <dt className="text-sm font-medium text-ink-2">{label}</dt>
+      <dd className="mt-2 flex items-baseline gap-1.5">
+        <span className="num font-display text-[2rem] font-semibold leading-none text-ink">{value}</span>
+        {unit ? <span className="num text-sm text-muted">{unit}</span> : null}
+      </dd>
+      {ratio !== undefined ? <Meter ratio={ratio} /> : null}
+      <dd className="meta mt-2">{note}</dd>
+      {children ? <dd>{children}</dd> : null}
+    </div>
+  );
+}
+
+/** A thin bar for "how much of the limit": ink, terracotta past 85%. */
+function Meter({ ratio }: { ratio: number }) {
+  const clamped = Math.max(0, Math.min(ratio, 1));
+  return (
+    <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-paper-3" role="presentation">
+      <div
+        className={cn("h-full origin-left rounded-full", clamped > 0.85 ? "bg-accent" : "bg-ink-2")}
+        style={{ transform: `scaleX(${Math.max(clamped, 0.01)})` }}
+      />
+    </div>
   );
 }
 
@@ -258,55 +232,30 @@ function TrialBanner({
   const nearLimit = trial.photosUsed >= trial.photosLimit - 5;
 
   return (
-    <div
-      className={cn(
-        "relative overflow-hidden rounded-[24px] border px-5 py-4",
-        isExpired
-          ? "border-[var(--color-error-soft)] bg-[linear-gradient(135deg,color-mix(in_oklch,_var(--color-error-soft)_98%,_transparent),color-mix(in_oklch,_var(--color-error-soft)_92%,_transparent))]"
-          : nearLimit
-            ? "border-[var(--color-accent-soft)] bg-[linear-gradient(135deg,color-mix(in_oklch,_var(--color-paper)_98%,_transparent),color-mix(in_oklch,_var(--color-accent-soft)_92%,_transparent))]"
-            : "border-[var(--color-rule)] bg-[linear-gradient(135deg,color-mix(in_oklch,_var(--color-moss-soft)_98%,_transparent),color-mix(in_oklch,_var(--color-moss-soft)_90%,_transparent))]",
-      )}
-    >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-start gap-3">
-          <span className="mt-0.5 text-lg leading-none">{isExpired ? "⏰" : "🎉"}</span>
-          <div>
-            <p className={cn("text-sm font-semibold", isExpired ? "text-[var(--color-error)]" : "text-[var(--color-ink)]")}>
-              {isExpired
-                ? h.trialExpired
-                : t(h.trialActive, { days: String(trial.daysLeft), unit: daysWord(trial.daysLeft, locale) })}
-            </p>
-            <p className={cn("mt-0.5 text-xs", isExpired ? "text-[var(--color-error)]/80" : "text-ink-2")}>
-              {isExpired
-                ? h.trialExpiredBody
-                : t(h.trialActiveBody, { used: String(trial.photosUsed), limit: String(trial.photosLimit) })}
-            </p>
-            {!isExpired && (
-              <div className="mt-2 h-1.5 w-48 max-w-full overflow-hidden rounded-full bg-black/10">
-                <div
-                  className={cn(
-                    "h-full rounded-full transition-colors",
-                    nearLimit ? "bg-[var(--color-accent)]" : "bg-[var(--color-moss)]",
-                  )}
-                  style={{ width: `${photoRatio}%` }}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-        <Link
-          href={`${prefix}/dashboard/billing`}
-          className={cn(
-            "shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition",
-            isExpired
-              ? "bg-[var(--color-error)] text-white hover:bg-[var(--color-error)]"
-              : "bg-[var(--color-ink)] text-white hover:bg-[var(--color-ink)]/85",
+    <div role="status" className={cn("notice flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between", isExpired ? "notice-error" : nearLimit ? "notice-warning" : "notice-info")}>
+      <div className="flex items-start gap-3">
+        {isExpired ? <AlertIcon className="mt-0.5" /> : null}
+        <div>
+          <p className="font-semibold">
+            {isExpired
+              ? h.trialExpired
+              : t(h.trialActive, { days: String(trial.daysLeft), unit: daysWord(trial.daysLeft, locale) })}
+          </p>
+          <p className="mt-0.5">
+            {isExpired
+              ? h.trialExpiredBody
+              : t(h.trialActiveBody, { used: String(trial.photosUsed), limit: String(trial.photosLimit) })}
+          </p>
+          {!isExpired && (
+            <div className="mt-2 w-48 max-w-full">
+              <Meter ratio={photoRatio / 100} />
+            </div>
           )}
-        >
-          {h.choosePlan}
-        </Link>
+        </div>
       </div>
+      <Link href={`${prefix}/dashboard/billing`} className={cn("btn btn-sm shrink-0", "btn-secondary")}>
+        {h.choosePlan}
+      </Link>
     </div>
   );
 }

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
+import { ArrowLeftIcon } from "@/components/ui/icons";
+import { CANVAS_BLACK, CANVAS_INK, CANVAS_PAPER, CANVAS_WHITE, GUIDE_COLOR, HANDLE_ACCENT, SWATCHES } from "@/lib/qr-card-editor/colors";
 import type { Dict } from "@/lib/i18n/index";
 import { CANVAS_HEIGHT, CANVAS_WIDTH, CARD_PRESETS, type CardPreset } from "@/lib/qr-card-editor/presets";
 import { computeSnap, snapAngle, type Box, type Guide } from "@/lib/qr-card-editor/snap";
@@ -21,17 +23,13 @@ import {
   type FO,
 } from "@/lib/qr-card-editor/render";
 
-const PRESET_COLORS = [
-  "#172033", "#3a4258", "#e27952", "#38584d", "#f0c25c",
-  "#fffaf2", "#f2eadf", "#b8431f", "#ffffff", "#000000",
-];
+const PRESET_COLORS = SWATCHES;
 
 const FONT_OPTIONS = ["Playfair Display", "Jost", "Inter", "JetBrains Mono"] as const;
 
 // Snapping distance on screen, in CSS pixels; converted to design pixels at
 // the current zoom so it feels the same at 100% and at 400%.
 const SNAP_SCREEN_PX = 7;
-const GUIDE_COLOR = "#ff3d8b";
 // Zoom is relative to "the whole card fits the screen" (1). The canvas keeps
 // its full print-resolution backing store, so zooming only enlarges its CSS box
 // inside a scrolling stage; export and object coordinates are untouched.
@@ -153,9 +151,9 @@ export function QrCardEditor({
       borderScaleFactor: 1.5 / scale,
       transparentCorners: false,
       cornerStyle: "circle",
-      cornerColor: "#ffffff",
-      cornerStrokeColor: "#e27952",
-      borderColor: "#e27952",
+      cornerColor: CANVAS_WHITE,
+      cornerStrokeColor: HANDLE_ACCENT,
+      borderColor: HANDLE_ACCENT,
     });
     const rotate = (obj as unknown as { controls?: Record<string, { offsetY?: number }> }).controls?.mtr;
     if (rotate) rotate.offsetY = -(coarse ? 36 : 28) / scale;
@@ -379,11 +377,11 @@ export function QrCardEditor({
       const x = cx - w / 2;
       const below = box.bottom + 14 / scale;
       const y = below + h <= CANVAS_HEIGHT ? below : Math.max(4 / scale, box.top - h - 44 / scale);
-      context.fillStyle = angle.straight ? GUIDE_COLOR : "#172033";
+      context.fillStyle = angle.straight ? GUIDE_COLOR : CANVAS_INK;
       context.beginPath();
       context.roundRect(x, y, w, h, h / 2);
       context.fill();
-      context.fillStyle = "#ffffff";
+      context.fillStyle = CANVAS_WHITE;
       context.textAlign = "center";
       context.textBaseline = "middle";
       context.fillText(label, cx, y + h / 2 + 0.5 / scale);
@@ -445,7 +443,7 @@ export function QrCardEditor({
       canvas = new fabric.Canvas(canvasElRef.current, {
         width: CANVAS_WIDTH,
         height: CANVAS_HEIGHT,
-        backgroundColor: "#fffaf2",
+        backgroundColor: CANVAS_PAPER,
         preserveObjectStacking: true,
         // We supersample manually (full-design-resolution backing store scaled
         // down via CSS in fitToStage), so keep the backing store at exactly
@@ -757,7 +755,7 @@ export function QrCardEditor({
       originY: "top",
       fontFamily: "Inter",
       fontSize: 64,
-      fill: "#172033",
+      fill: CANVAS_INK,
       textAlign: "center",
     });
     canvas.add(tb);
@@ -776,7 +774,7 @@ export function QrCardEditor({
     const canvas = fabricRef.current;
     if (!fabric || !canvas) return;
 
-    const common = { fill: "#172033", originX: "left" as const, originY: "top" as const };
+    const common = { fill: CANVAS_INK, originX: "left" as const, originY: "top" as const };
     let shape: import("fabric").FabricObject;
     if (kind === "circle") {
       const radius = 140;
@@ -955,7 +953,7 @@ export function QrCardEditor({
 
   // ── Panel bodies (shared by desktop rails and the phone tool strip) ─────────
   const sectionLabel = (text: string) => (
-    <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">{text}</p>
+    <p className="mb-2 text-sm font-semibold text-white/70">{text}</p>
   );
 
   const templatesBody = (compact: boolean) => (
@@ -966,7 +964,7 @@ export function QrCardEditor({
             key={p.id}
             type="button"
             onClick={() => void switchPreset(p.id)}
-            className={`shrink-0 overflow-hidden rounded-lg border text-left transition ${
+            className={`shrink-0 overflow-hidden rounded-[var(--radius-inner)] border text-left transition ${
               compact ? "w-[92px]" : ""
             } ${
               activePresetId === p.id
@@ -980,7 +978,7 @@ export function QrCardEditor({
                 <img src={thumbs[p.id]} alt="" className="h-full w-full object-cover" />
               ) : null}
             </span>
-            <span className="block truncate px-1.5 py-1 text-[10px] font-medium text-white/75">{p.name}</span>
+            <span className="block truncate px-1.5 py-1 text-xs font-medium text-white/75">{p.name}</span>
           </button>
         ))}
       </div>
@@ -988,7 +986,7 @@ export function QrCardEditor({
         <button
           type="button"
           onClick={() => void resetToTemplate()}
-          className="mt-3 block w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-left text-xs font-medium text-white/70 transition hover:bg-white/10"
+          className="mt-3 block w-full rounded-[var(--radius-inner)] border border-white/10 bg-white/5 px-3 py-2 text-left text-xs font-medium text-white/70 transition hover:bg-white/10"
         >
           ↺ {s.resetTemplate}
         </button>
@@ -1007,9 +1005,9 @@ export function QrCardEditor({
           key={shape.kind}
           type="button"
           onClick={() => addShape(shape.kind)}
-          className="flex flex-col items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2 py-3 text-[11px] font-medium text-white/75 transition hover:bg-white/10 hover:text-white"
+          className="flex flex-col items-center gap-1.5 rounded-[var(--radius-inner)] border border-white/10 bg-white/5 px-2 py-3 text-xs font-medium text-white/75 transition hover:bg-white/10 hover:text-white"
         >
-          <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
+          <svg viewBox="0 0 24 24" aria-hidden="true" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
             {shape.icon}
           </svg>
           {shape.label}
@@ -1029,7 +1027,7 @@ export function QrCardEditor({
         textCommitTimerRef.current = window.setTimeout(() => recordHistory(), 600);
       }}
       onBlur={() => recordHistory()}
-      className="w-full resize-y rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-base text-white focus:border-white/40 focus:outline-none"
+      className="w-full resize-y rounded-[var(--radius-inner)] border border-white/15 bg-white/5 px-3 py-2 text-base text-white focus:border-white/40 focus:outline-none"
     />
   );
 
@@ -1052,11 +1050,11 @@ export function QrCardEditor({
           className="relative flex h-9 cursor-pointer items-center gap-2 rounded-full border border-white/20 px-3 text-xs font-medium text-white/75"
           title={s.customColor}
         >
-          <span className="h-4 w-4 rounded-full border border-white/30" style={{ background: selected?.fill ?? "#000" }} />
+          <span className="h-4 w-4 rounded-full border border-white/30" style={{ background: selected?.fill ?? CANVAS_BLACK }} />
           {s.customColor}
           <input
             type="color"
-            value={selected?.fill && selected.fill.startsWith("#") ? selected.fill : "#000000"}
+            value={selected?.fill && selected.fill.startsWith("#") ? selected.fill : CANVAS_BLACK}
             onChange={(e) => setProp({ fill: e.target.value }, { fill: e.target.value })}
             className="absolute inset-0 cursor-pointer opacity-0"
           />
@@ -1066,7 +1064,7 @@ export function QrCardEditor({
   );
 
   const toggleClass = (on: boolean) =>
-    `flex-1 rounded-lg border px-2 py-2 text-sm transition ${
+    `flex-1 rounded-[var(--radius-inner)] border px-2 py-2 text-sm transition ${
       on ? "border-white/40 bg-white/15 text-white" : "border-white/15 bg-white/5 text-white/70 hover:bg-white/10"
     }`;
 
@@ -1148,10 +1146,10 @@ export function QrCardEditor({
   const layerBody = (
     <div className="flex gap-2">
       <button type="button" onClick={bringForward} className={toggleClass(false)}>
-        ↑ {s.forward}
+        {s.forward}
       </button>
       <button type="button" onClick={sendBackward} className={toggleClass(false)}>
-        ↓ {s.backward}
+        {s.backward}
       </button>
     </div>
   );
@@ -1213,7 +1211,7 @@ export function QrCardEditor({
       <button
         type="button"
         onClick={deleteSelected}
-        className="block w-full rounded-lg border border-red-400/30 bg-red-500/10 px-2 py-2 text-sm font-semibold text-red-300 hover:bg-red-500/20"
+        className="block w-full rounded-[var(--radius-inner)] border border-red-400/30 bg-red-500/10 px-2 py-2 text-sm font-semibold text-red-300 hover:bg-red-500/20"
       >
         {s.delete}
       </button>
@@ -1264,10 +1262,10 @@ export function QrCardEditor({
         ];
 
   const headerButton =
-    "rounded-full border border-white/15 bg-white/5 px-3 py-2 text-sm font-semibold text-white/85 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30";
+    "inline-flex min-h-10 items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 text-sm font-semibold text-white/85 transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30";
 
   return (
-    <div className="flex h-dvh flex-col bg-[#0f1419] text-white">
+    <div className="flex h-dvh flex-col bg-night text-white">
       <input
         ref={imageInputRef}
         type="file"
@@ -1281,13 +1279,14 @@ export function QrCardEditor({
       />
 
       {/* Top bar */}
-      <header className="relative z-40 flex shrink-0 items-center justify-between gap-2 border-b border-white/10 bg-[#161b22] px-3 py-2.5 sm:px-5">
+      <header className="relative z-40 flex shrink-0 items-center justify-between gap-2 border-b border-white/10 bg-night-2 px-3 py-2.5 sm:px-5">
         <div className="flex min-w-0 items-center gap-3">
           <Link href={backHref} className={headerButton} aria-label={s.back}>
-            ←<span className="hidden sm:inline"> {s.back}</span>
+            <ArrowLeftIcon className="h-4 w-4" />
+            <span className="hidden sm:inline">{s.back}</span>
           </Link>
           <div className="hidden min-w-0 truncate text-sm text-white/70 md:block">
-            <span className="text-white/40">{s.title} · </span>
+            <span className="text-white/60">{s.title} / </span>
             <span className="font-semibold text-white">{eventTitle}</span>
           </div>
         </div>
@@ -1307,10 +1306,10 @@ export function QrCardEditor({
               aria-expanded={downloadOpen}
               className="rounded-full bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {busy ? s.preparing : `${s.download} ↓`}
+              {busy ? s.preparing : s.download}
             </button>
             {downloadOpen ? (
-              <div className="absolute right-0 top-full mt-2 w-56 overflow-hidden rounded-xl border border-white/10 bg-[#1c222b] shadow-2xl">
+              <div className="absolute right-0 top-full mt-2 w-56 overflow-hidden rounded-[var(--radius-inner)] border border-white/10 bg-night-2 shadow-[var(--shadow-overlay)]">
                 <button type="button" onClick={() => void exportAs("pdf")} className="block w-full px-4 py-3 text-left text-sm font-semibold hover:bg-white/10">
                   {s.downloadPdf}
                 </button>
@@ -1331,21 +1330,21 @@ export function QrCardEditor({
 
       <div className="relative flex min-h-0 flex-1">
         {/* Left rail (desktop) */}
-        <aside className="hidden w-64 shrink-0 overflow-y-auto border-r border-white/10 bg-[#161b22] p-4 lg:block">
+        <aside className="hidden w-64 shrink-0 overflow-y-auto border-r border-white/10 bg-night-2 p-4 lg:block">
           {sectionLabel(s.templates)}
           {templatesBody(false)}
           <div className="mt-6 space-y-2">
             <button
               type="button"
               onClick={() => void addText()}
-              className="block w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-left text-sm font-medium text-white/85 transition hover:bg-white/10"
+              className="block w-full rounded-[var(--radius-inner)] border border-white/10 bg-white/5 px-3 py-2 text-left text-sm font-medium text-white/85 transition hover:bg-white/10"
             >
               + {s.text}
             </button>
             <button
               type="button"
               onClick={() => imageInputRef.current?.click()}
-              className="block w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-left text-sm font-medium text-white/85 transition hover:bg-white/10"
+              className="block w-full rounded-[var(--radius-inner)] border border-white/10 bg-white/5 px-3 py-2 text-left text-sm font-medium text-white/85 transition hover:bg-white/10"
             >
               + {s.image}
             </button>
@@ -1362,20 +1361,20 @@ export function QrCardEditor({
           <main
             ref={stageRef}
             onClick={() => setDownloadOpen(false)}
-            className="absolute inset-0 flex touch-none overflow-auto overscroll-contain bg-[#0f1419]"
+            className="absolute inset-0 flex touch-none overflow-auto overscroll-contain bg-night"
           >
             {status === "loading" ? (
               <p className="absolute inset-0 z-10 flex items-center justify-center text-sm text-white/60">{s.loading}</p>
             ) : null}
             <div className="m-auto shrink-0 p-[var(--card-pad,10px)]">
-              <div className="shadow-[0_24px_60px_rgba(0,0,0,0.6)]">
-                <canvas ref={canvasElRef} />
+              <div className="shadow-[var(--shadow-overlay)]">
+                <canvas ref={canvasElRef} aria-label={s.title} />
               </div>
             </div>
           </main>
 
           {status === "ready" ? (
-            <div className="absolute bottom-3 right-3 z-20 flex items-center gap-0.5 rounded-full border border-white/15 bg-[#161b22]/90 p-1 shadow-lg backdrop-blur">
+            <div className="absolute bottom-3 right-3 z-20 flex items-center gap-0.5 rounded-full border border-white/15 bg-night-2 p-1">
               <button
                 type="button"
                 onClick={() => zoomTo(zoomRef.current / ZOOM_STEP)}
@@ -1410,7 +1409,7 @@ export function QrCardEditor({
         </div>
 
         {/* Right rail (desktop) */}
-        <aside className="hidden w-72 shrink-0 overflow-y-auto border-l border-white/10 bg-[#161b22] p-4 lg:block">
+        <aside className="hidden w-72 shrink-0 overflow-y-auto border-l border-white/10 bg-night-2 p-4 lg:block">
           {sectionLabel(s.selected)}
           {propsRail}
         </aside>
@@ -1418,9 +1417,9 @@ export function QrCardEditor({
 
       {/* Phone: the open tool, in the flow so the card shrinks instead of being covered */}
       {tool ? (
-        <section className="max-h-[38dvh] shrink-0 overflow-y-auto border-t border-white/10 bg-[#161b22] px-4 pb-3 pt-3 lg:hidden">
+        <section className="max-h-[38dvh] shrink-0 overflow-y-auto border-t border-white/10 bg-night-2 px-4 pb-3 pt-3 lg:hidden">
           <div className="mb-2 flex items-center justify-between">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">{toolPanel[tool].title}</p>
+            <p className="text-sm font-semibold text-white/70">{toolPanel[tool].title}</p>
             <button type="button" onClick={() => setTool(null)} className="rounded-full px-2 py-1 text-xs font-semibold text-white/60">
               ✕
             </button>
@@ -1428,18 +1427,18 @@ export function QrCardEditor({
           {toolPanel[tool].body}
         </section>
       ) : !selected ? (
-        <p className="shrink-0 bg-[#161b22] px-4 pt-2 text-center text-xs text-white/45 lg:hidden">{s.selectHint}</p>
+        <p className="shrink-0 bg-night-2 px-4 pt-2 text-center text-xs text-white/45 lg:hidden">{s.selectHint}</p>
       ) : null}
 
       {/* Phone: tool strip */}
-      <nav className="shrink-0 border-t border-white/10 bg-[#161b22] pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 lg:hidden">
+      <nav className="shrink-0 border-t border-white/10 bg-night-2 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 lg:hidden">
         <div className="flex gap-1 overflow-x-auto px-2 [scrollbar-width:none]">
           {phoneTools.map((item) => (
             <button
               key={item.key}
               type="button"
               onClick={item.onClick}
-              className={`flex min-w-[76px] flex-1 flex-col items-center gap-1 whitespace-nowrap rounded-xl px-2 py-2 text-[11px] font-semibold transition ${
+              className={`flex min-w-[76px] flex-1 flex-col items-center gap-1 whitespace-nowrap rounded-[var(--radius-inner)] px-2 py-2 text-xs font-semibold transition ${
                 item.active
                   ? "bg-[var(--color-accent)]/20 text-white"
                   : item.danger
@@ -1447,7 +1446,7 @@ export function QrCardEditor({
                     : "text-white/75 active:bg-white/10"
               }`}
             >
-              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                 {item.icon}
               </svg>
               {item.label}

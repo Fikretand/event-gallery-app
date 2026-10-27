@@ -1,7 +1,7 @@
 
 import { EventLifecyclePanel } from "@/components/event-lifecycle-panel";
 import { EventSettingsForm } from "@/components/event-settings-form";
-import { Panel } from "@/components/ui/panel";
+import { ChevronDownIcon } from "@/components/ui/icons";
 import { updateEventAction } from "@/lib/actions";
 import { getOwnerEventContext } from "@/lib/event-context";
 import {
@@ -58,59 +58,46 @@ export async function EventSettings({
         strings={d.settings}
       />
 
-      <Panel className="bg-card">
+      <section className="border-t border-rule pt-[var(--space-lg)]">
         <details className="group">
-          <summary className="flex cursor-pointer list-none items-start justify-between gap-4 [&::-webkit-details-marker]:hidden">
+          <summary className="flex cursor-pointer list-none items-start justify-between gap-4 rounded-[var(--radius-inner)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus)] [&::-webkit-details-marker]:hidden">
             <div>
-              <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">{l.historyTitle}</h2>
-              <p className="mt-2 text-sm leading-6 text-ink-2">
-                {isCouple ? e.activityBodyCouple : e.activityBody}
-              </p>
+              <h2 className="app-section-title text-ink">{l.historyTitle}</h2>
+              <p className="mt-1 text-ink-2">{isCouple ? e.activityBodyCouple : e.activityBody}</p>
             </div>
-            <span
-              aria-hidden
-              className="mt-1 shrink-0 rounded-full border border-rule bg-card px-3 py-1.5 text-xs font-semibold text-[var(--color-ink)] transition-colors group-open:bg-[var(--color-paper)]"
-            >
-              <span className="group-open:hidden">↓</span>
-              <span className="hidden group-open:inline">↑</span>
+            <span className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ring-1 ring-rule-2 transition-transform duration-[var(--dur-short)] group-open:rotate-180">
+              <ChevronDownIcon className="h-4 w-4" />
             </span>
           </summary>
 
           {activity.length === 0 ? (
-            <div className="mt-5 rounded-[24px] border border-dashed border-rule bg-card px-6 py-10 text-center text-sm text-ink-2">
-              {e.activityEmpty}
-            </div>
+            <p className="well mt-[var(--space-md)] px-6 py-8 text-ink-2">{e.activityEmpty}</p>
           ) : (
-            <div className="mt-5 space-y-3">
+            <ul className="mt-[var(--space-md)] border-t border-rule">
               {activity.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex flex-col gap-2 rounded-[24px] border border-rule bg-white px-4 py-4 md:flex-row md:items-center md:justify-between"
-                >
+                <li key={item.id} className="flex flex-col gap-1 border-b border-rule py-3 md:flex-row md:items-center md:justify-between md:gap-4">
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-[var(--color-ink)]">
-                      {activityLabel(item.action, e.activityLabels)}
-                    </p>
-                    <p className="mt-1 truncate text-sm text-ink-2">
+                    <p className="text-sm font-semibold text-ink">{activityLabel(item.action, e.activityLabels)}</p>
+                    <p className="truncate text-sm text-ink-2">
                       {typeof item.metadata?.filename === "string" ? item.metadata.filename : e.activityFallback}
                     </p>
                   </div>
-                  <p className="text-xs text-muted">{formatDate(item.created_at, locale)}</p>
-                </div>
+                  <p className="num shrink-0 text-sm text-muted">{formatDate(item.created_at, locale)}</p>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
         </details>
-      </Panel>
+      </section>
 
       {!isCouple ? (
-        <Panel className="border-[var(--color-error-soft)]/60 bg-card">
-          <h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">{e.dangerZone}</h2>
-          <p className="mt-2 text-sm leading-6 text-ink-2">{e.dangerZoneBody}</p>
-          <div className="mt-5">
+        <section className="border-t border-rule pt-[var(--space-lg)]">
+          <h2 className="app-section-title text-error">{e.dangerZone}</h2>
+          <p className="mt-1 max-w-2xl text-ink-2">{e.dangerZoneBody}</p>
+          <div className="mt-[var(--space-md)]">
             <EventLifecyclePanel slug={event.slug} strings={d.lifecycle} />
           </div>
-        </Panel>
+        </section>
       ) : null}
     </>
   );

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 
-import { cn } from "@/lib/utils";
 
 /**
  * One of the event's two public links, with what it is for and a copy button.
@@ -17,14 +16,13 @@ export function EventLinkCard({
   url,
   copyLabel,
   copiedLabel,
-  accent = false,
 }: {
   title: string;
   body?: string;
   url: string;
   copyLabel: string;
   copiedLabel: string;
-  /** The guest/QR link is the one used on the day; give it the warmer treatment. */
+  /** Kept for callers; both links now look the same, the section around each says what it is for. */
   accent?: boolean;
 }) {
   const [copied, setCopied] = useState(false);
@@ -40,25 +38,17 @@ export function EventLinkCard({
     }
   }
 
+  // A field row, not a card: the label, the address in a read-only well and
+  // the copy button.
   return (
-    <div
-      className={cn(
-        "flex flex-col rounded-[24px] border p-4",
-        accent ? "border-[var(--color-accent)]/25 bg-[var(--color-paper)]" : "border-rule bg-white",
-      )}
-    >
-      <p className="text-xs font-semibold text-[var(--color-ink)]">{title}</p>
-      {body ? <p className="mt-2 text-sm leading-6 text-ink-2">{body}</p> : null}
-      <div className="mt-3 flex items-center gap-2">
-        <p className="min-w-0 flex-1 truncate rounded-xl bg-[var(--color-paper)]/70 px-3 py-2 font-mono text-xs text-[var(--color-ink)]" title={url}>
+    <div className="flex flex-col gap-2">
+      <p className="field-label">{title}</p>
+      {body ? <p className="text-sm leading-6 text-ink-2">{body}</p> : null}
+      <div className="flex items-center gap-2">
+        <p className="code min-h-10 min-w-0 flex-1 truncate rounded-[var(--radius-inner)] bg-paper-2 px-3 py-2.5 text-sm text-ink" title={url}>
           {url}
         </p>
-        <button
-          type="button"
-          onClick={copy}
-          aria-live="polite"
-          className="shrink-0 rounded-full border border-rule bg-white px-3 py-2 text-xs font-semibold text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)]"
-        >
+        <button type="button" onClick={copy} aria-live="polite" className="btn btn-sm btn-secondary shrink-0">
           {copied ? copiedLabel : copyLabel}
         </button>
       </div>

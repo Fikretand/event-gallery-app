@@ -26,8 +26,8 @@ export function PasswordRequirements({
     <ul
       id={id}
       className={cn(
-        "-mt-1 grid gap-1.5 rounded-2xl border px-4 py-3 transition-colors sm:grid-cols-2",
-        allMet ? "border-[var(--color-moss)]/30 bg-[var(--color-moss-soft)]" : "border-rule bg-black/[0.02]",
+        "-mt-1 grid gap-1.5 rounded-[var(--radius-inner)] px-4 py-3 transition-colors sm:grid-cols-2",
+        allMet ? "bg-moss-soft" : "bg-paper-2",
       )}
     >
       {PASSWORD_RULES.map((rule) => {
@@ -37,17 +37,17 @@ export function PasswordRequirements({
             key={rule}
             data-met={met}
             className={cn(
-              "flex items-center gap-2 text-xs transition-colors",
-              met ? "font-medium text-[var(--color-moss)]" : "text-muted",
+              "flex items-center gap-2 text-sm transition-colors",
+              met ? "font-medium text-moss" : "text-muted",
             )}
           >
             <span
               aria-hidden
               className={cn(
-                "grid size-4 shrink-0 place-items-center rounded-full border text-[10px] leading-none transition-colors",
+                "grid size-4 shrink-0 place-items-center rounded-full border text-xs leading-none transition-colors",
                 met
-                  ? "border-[var(--color-moss)] bg-[var(--color-moss)] text-white"
-                  : "border-rule-2 bg-white",
+                  ? "border-moss bg-moss text-accent-ink"
+                  : "border-field-edge bg-card",
               )}
             >
               {met ? "✓" : ""}

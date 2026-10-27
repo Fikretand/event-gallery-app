@@ -86,7 +86,7 @@ export function GalleryCopyEditor({
   }
 
   const inputClass =
-    "w-full rounded-2xl border border-rule bg-white px-4 py-3 text-sm text-[var(--color-ink)] outline-none transition-colors placeholder:text-muted focus:border-[var(--color-ink)] focus:ring-4 focus:ring-[var(--color-accent)]/15";
+    "w-full rounded-[var(--radius-inner)] border border-rule bg-card px-4 py-3 text-sm text-ink outline-none transition-colors placeholder:text-muted focus:border-ink focus:ring-4 focus:ring-accent/15";
 
   return (
     <form onSubmit={submit} className="space-y-5">
@@ -104,8 +104,8 @@ export function GalleryCopyEditor({
               className={cn(
                 "inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition",
                 isActive
-                  ? "bg-[var(--color-ink)] text-white"
-                  : "border border-rule bg-white text-[var(--color-ink)] hover:bg-[var(--color-paper)]",
+                  ? "bg-ink text-white"
+                  : "border border-rule bg-card text-ink hover:bg-paper-2",
               )}
             >
               {s.groups[group]}
@@ -113,7 +113,7 @@ export function GalleryCopyEditor({
                 <span
                   className={cn(
                     "rounded-full px-2 py-0.5 text-[11px]",
-                    isActive ? "bg-white/18" : "bg-[var(--color-accent-soft)] text-[var(--color-accent)]",
+                    isActive ? "bg-white/18" : "bg-accent-soft text-accent",
                   )}
                 >
                   {count}
@@ -133,14 +133,14 @@ export function GalleryCopyEditor({
             return (
               <div key={field.key} className={cn("flex flex-col gap-1.5", field.multiline && "md:col-span-2")}>
                 <div className="flex items-end justify-between gap-3">
-                  <label htmlFor={id} className="text-sm font-semibold text-[var(--color-ink)]">
+                  <label htmlFor={id} className="text-sm font-semibold text-ink">
                     {field.label}
                   </label>
                   {value ? (
                     <button
                       type="button"
                       onClick={() => update(field.key, "")}
-                      className="shrink-0 text-xs font-semibold text-[var(--color-accent)] hover:underline"
+                      className="shrink-0 text-xs font-semibold text-accent hover:underline"
                     >
                       ↺ {s.reset}
                     </button>
@@ -154,7 +154,7 @@ export function GalleryCopyEditor({
                     value={value}
                     placeholder={field.standard}
                     onChange={(event) => update(field.key, event.target.value)}
-                    className={cn(inputClass, "resize-y leading-6", value && "border-[var(--color-accent)]/40 bg-[var(--color-paper)]")}
+                    className={cn(inputClass, "resize-y leading-6", value && "border-accent/40 bg-paper-2")}
                   />
                 ) : (
                   <input
@@ -163,7 +163,7 @@ export function GalleryCopyEditor({
                     value={value}
                     placeholder={field.standard}
                     onChange={(event) => update(field.key, event.target.value)}
-                    className={cn(inputClass, value && "border-[var(--color-accent)]/40 bg-[var(--color-paper)]")}
+                    className={cn(inputClass, value && "border-accent/40 bg-paper-2")}
                   />
                 )}
               </div>
@@ -176,27 +176,27 @@ export function GalleryCopyEditor({
           role="status"
           className={cn(
             "rounded-2xl px-4 py-3 text-sm font-medium",
-            status === "saved" ? "bg-[var(--color-moss-soft)] text-[var(--color-moss)]" : "bg-[var(--color-error-soft)] text-[var(--color-error)]",
+            status === "saved" ? "bg-moss-soft text-moss" : "bg-error-soft text-error",
           )}
         >
           {status === "saved" ? s.saved : s.failed}
         </p>
       ) : null}
 
-      <div className="sticky bottom-3 z-10 flex items-center justify-between gap-3 rounded-[22px] border border-rule bg-card p-2.5 pl-4 shadow-[0_12px_40px_color-mix(in_oklch,_var(--color-ink)_12%,_transparent)]">
+      <div className="sticky bottom-3 z-10 flex items-center justify-between gap-3 rounded-[var(--radius-inner)] border border-rule bg-card p-2.5 pl-4">
         <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1 text-sm">
           <span className="text-ink-2">{fill(s.customCount, { count: customTotal })}</span>
-          <a href={galleryUrl} target="_blank" rel="noopener noreferrer" className="hidden font-semibold text-[var(--color-ink)] hover:underline sm:inline">
+          <a href={galleryUrl} target="_blank" rel="noopener noreferrer" className="hidden font-semibold text-ink hover:underline sm:inline">
             {s.previewGallery}
           </a>
-          <a href={uploadUrl} target="_blank" rel="noopener noreferrer" className="hidden font-semibold text-[var(--color-ink)] hover:underline sm:inline">
+          <a href={uploadUrl} target="_blank" rel="noopener noreferrer" className="hidden font-semibold text-ink hover:underline sm:inline">
             {s.previewGuests}
           </a>
         </div>
         <button
           type="submit"
           disabled={isSaving}
-          className="shrink-0 rounded-full bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_6px_18px_color-mix(in_oklch,_var(--color-accent)_30%,_transparent)] transition-colors hover:brightness-105 disabled:opacity-60"
+          className="btn btn-sm btn-primary shrink-0"
         >
           {isSaving ? s.saving : s.save}
         </button>

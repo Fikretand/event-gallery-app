@@ -11,5 +11,7 @@ import { privateMetadata } from "@/lib/seo";
 export const metadata: Metadata = privateMetadata();
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  // `.app`: heads on a working screen are labels for what follows, not
+  // display lines (base.css drops their measure cap here).
+  return <div className="app">{children}</div>;
 }

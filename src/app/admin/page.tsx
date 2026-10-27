@@ -49,117 +49,78 @@ export default async function AdminDashboardPage() {
 
   const { recentUsers, totalUsers, proUsers, trialUsers, totalStorageBytes, recentEvents } = data;
 
+  const stats = [
+    { label: "Total users", value: String(totalUsers) },
+    { label: "Pro plan", value: String(proUsers) },
+    { label: "On trial", value: String(trialUsers) },
+    { label: "Total storage", value: formatBytes(totalStorageBytes) },
+  ];
+
   return (
-    <div className="space-y-6">
-      <div>
-        <p className="text-xs font-semibold text-[var(--color-moss)]">Overview</p>
-        <h1 className="mt-1 text-2xl font-semibold text-[var(--color-ink)]">Dashboard</h1>
-      </div>
+    <div className="space-y-[var(--space-xl)]">
+      <h1 className="app-title text-ink">Dashboard</h1>
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="Total users" value={totalUsers} icon="👥" />
-        <StatCard label="Pro plan" value={proUsers} icon="⭐" accent />
-        <StatCard label="On trial" value={trialUsers} icon="⏳" />
-        <StatCard label="Total storage" value={formatBytes(totalStorageBytes)} icon="💾" isText />
-      </div>
+      {/* The figures, under one hairline */}
+      <dl className="grid grid-cols-2 border-y border-rule lg:grid-cols-4 lg:divide-x lg:divide-rule">
+        {stats.map((stat) => (
+          <div key={stat.label} className="py-[var(--space-md)] lg:px-[var(--space-lg)] lg:first:pl-0">
+            <dt className="text-sm text-ink-2">{stat.label}</dt>
+            <dd className="num mt-1 font-display text-[2rem] font-semibold leading-none text-ink">{stat.value}</dd>
+          </div>
+        ))}
+      </dl>
 
-      <div className="grid gap-5 xl:grid-cols-[1.4fr_1fr]">
+      <div className="grid gap-[var(--space-xl)] xl:grid-cols-[1.4fr_1fr]">
         {/* Recent users */}
-        <div className="overflow-hidden rounded-2xl border border-rule bg-card shadow-[0_18px_50px_color-mix(in_oklch,_var(--color-ink)_5%,_transparent)]">
-          <div className="flex items-center justify-between border-b border-rule px-5 py-4">
-            <h2 className="text-sm font-semibold text-[var(--color-ink)]">Recent signups</h2>
-            <Link href="/admin/users" className="text-xs font-medium text-[var(--color-moss)] hover:underline">
-              View all →
+        <section>
+          <div className="flex items-baseline justify-between">
+            <h2 className="app-section-title text-ink">Recent signups</h2>
+            <Link href="/admin/users" className="link text-sm">
+              View all users
             </Link>
           </div>
-          <div className="divide-y divide-black/[0.05]">
+          <ul className="mt-[var(--space-sm)] border-t border-rule">
             {recentUsers.map((u) => {
               const initials = (u.full_name ?? u.email).split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
               return (
-                <Link
-                  key={u.id}
-                  href={`/admin/users/${u.id}`}
-                  className="flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-black/[0.02]"
-                >
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-paper)] text-xs font-bold text-[var(--color-ink)]">
-                    {initials}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-[var(--color-ink)]">{u.full_name ?? "—"}</p>
-                    <p className="truncate text-xs text-muted">{u.email}</p>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${u.plan_tier === "pro" ? "bg-amber-100 text-amber-700" : "bg-black/6 text-muted"}`}>
-                      {u.plan_tier}
+                <li key={u.id} className="border-b border-rule">
+                  <Link href={`/admin/users/${u.id}`} className="flex items-center gap-3 py-3 transition-colors duration-[var(--dur-micro)] hover:bg-paper-2">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-paper-2 text-xs font-semibold text-ink" aria-hidden="true">
+                      {initials}
                     </span>
-                    <span className="text-xs text-muted">{u.daysOld === 0 ? "Today" : `${u.daysOld}d ago`}</span>
-                  </div>
-                </Link>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium text-ink">{u.full_name ?? u.email}</span>
+                      <span className="block truncate text-sm text-muted">{u.email}</span>
+                    </span>
+                    <span className={`chip ${u.plan_tier === "pro" ? "chip-accent" : ""}`}>{u.plan_tier}</span>
+                    <span className="num w-16 shrink-0 text-right text-sm text-muted">{u.daysOld === 0 ? "Today" : `${u.daysOld}d ago`}</span>
+                  </Link>
+                </li>
               );
             })}
-            {recentUsers.length === 0 && (
-              <p className="px-5 py-8 text-center text-sm text-muted">No users yet.</p>
-            )}
-          </div>
-        </div>
+            {recentUsers.length === 0 && <li className="py-8 text-sm text-muted">No users yet.</li>}
+          </ul>
+        </section>
 
         {/* Recent events */}
-        <div className="overflow-hidden rounded-2xl border border-rule bg-card shadow-[0_18px_50px_color-mix(in_oklch,_var(--color-ink)_5%,_transparent)]">
-          <div className="border-b border-rule px-5 py-4">
-            <h2 className="text-sm font-semibold text-[var(--color-ink)]">Recent events</h2>
-          </div>
-          <div className="divide-y divide-black/[0.05]">
+        <section>
+          <h2 className="app-section-title text-ink">Recent events</h2>
+          <ul className="mt-[var(--space-sm)] border-t border-rule">
             {recentEvents.map((ev) => (
-              <div key={ev.id} className="flex items-center gap-3 px-5 py-3.5">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[var(--color-accent)]/10 text-base">
-                  🎉
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-[var(--color-ink)]">{ev.title}</p>
-                  <p className="text-xs text-muted">
+              <li key={ev.id} className="flex items-center gap-3 border-b border-rule py-3">
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-medium text-ink">{ev.title}</span>
+                  <span className="num block text-sm text-muted">
                     {new Date(ev.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
-                  </p>
-                </div>
-                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${
-                  ev.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-black/6 text-muted"
-                }`}>
-                  {ev.status}
+                  </span>
                 </span>
-              </div>
+                <span className={`chip ${ev.status === "active" ? "chip-moss" : ""}`}>{ev.status}</span>
+              </li>
             ))}
-            {recentEvents.length === 0 && (
-              <p className="px-5 py-8 text-center text-sm text-muted">No events yet.</p>
-            )}
-          </div>
-        </div>
+            {recentEvents.length === 0 && <li className="py-8 text-sm text-muted">No events yet.</li>}
+          </ul>
+        </section>
       </div>
-    </div>
-  );
-}
-
-function StatCard({
-  label,
-  value,
-  icon,
-  accent,
-  isText,
-}: {
-  label: string;
-  value: number | string;
-  icon: string;
-  accent?: boolean;
-  isText?: boolean;
-}) {
-  return (
-    <div className={`rounded-2xl border px-5 py-4 ${accent ? "border-amber-200/60 bg-[linear-gradient(135deg,color-mix(in_oklch,_var(--color-paper)_90%,_transparent),color-mix(in_oklch,_var(--color-warning-soft)_60%,_transparent))]" : "border-black/8 bg-white/92 shadow-[0_18px_50px_color-mix(in_oklch,_var(--color-ink)_5%,_transparent)] backdrop-blur"}`}>
-      <div className="flex items-start justify-between">
-        <p className="text-xs font-semibold text-muted">{label}</p>
-        <span className="text-base leading-none">{icon}</span>
-      </div>
-      <p className={`mt-3 font-semibold tabular-nums text-[var(--color-ink)] ${isText ? "text-xl" : "text-3xl"}`}>
-        {value}
-      </p>
     </div>
   );
 }

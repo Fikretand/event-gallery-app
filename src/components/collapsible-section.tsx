@@ -69,7 +69,7 @@ export function CollapsibleSection({
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="mt-4 inline-flex items-center justify-center gap-2 rounded-full border border-rule bg-card px-5 py-2.5 text-sm font-semibold text-[var(--color-ink)] transition-colors hover:bg-white"
+        className="btn btn-sm btn-secondary mt-4"
       >
         {expanded
           ? strings.showFewer

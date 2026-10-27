@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 type ButtonProps = PropsWithChildren<
   ButtonHTMLAttributes<HTMLButtonElement> & {
-    variant?: "primary" | "secondary" | "ghost" | "danger";
+    variant?: "primary" | "secondary" | "ghost" | "danger" | "danger-quiet";
     fullWidth?: boolean;
     /** App screens use the 40px control; marketing pages the 48px one. */
     size?: "md" | "sm";
@@ -20,6 +20,7 @@ const variants: Record<NonNullable<ButtonProps["variant"]>, string> = {
   secondary: "btn-secondary",
   ghost: "btn-quiet",
   danger: "btn-danger",
+  "danger-quiet": "btn-danger-quiet",
 };
 
 export function Button({

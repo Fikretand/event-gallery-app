@@ -11,7 +11,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   await requireAdminPage();
 
   return (
-    <div className="page-wash flex min-h-screen">
+    <div className="app flex min-h-screen bg-paper">
       <AdminSidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         {/* pt-14 offsets the fixed mobile top bar; lg:pt-0 removes it on desktop */}

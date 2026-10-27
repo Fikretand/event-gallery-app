@@ -28,7 +28,7 @@ export type CoupleCheckoutStrings = {
 };
 
 const FALLBACK: CoupleCheckoutStrings = {
-  buyOneEvent: "Buy One Event · {{price}}",
+  buyOneEvent: "Buy One Event, {{price}}",
   checkoutOpening: "Opening checkout…",
   checkoutSecure: "Secure payment — card or bank, invoice sent by email.",
   checkoutEmailHint: "Use {{email}} at checkout so we can activate your plan automatically.",
@@ -116,11 +116,11 @@ export function CoupleCheckoutButton({
       <div className="mt-5">
         <button
           disabled
-          className="w-full cursor-not-allowed rounded-2xl bg-[var(--color-accent)] px-5 py-3 text-sm font-semibold text-white opacity-60"
+          className="btn btn-primary w-full"
         >
           {label}
         </button>
-        <p className="mt-2 text-center text-xs text-muted">{strings.checkoutComingSoon}</p>
+        <p className="meta mt-2">{strings.checkoutComingSoon}</p>
       </div>
     );
   }
@@ -132,17 +132,17 @@ export function CoupleCheckoutButton({
         <button
           onClick={isPolar ? openPolarCheckout : openPayhipCheckout}
           disabled={busy}
-          className="w-full rounded-2xl bg-[var(--color-accent)] px-5 py-3 text-sm font-semibold text-white transition-colors hover:brightness-105 disabled:cursor-wait disabled:opacity-70"
+          className="btn btn-primary w-full"
         >
           {busy ? strings.checkoutOpening : label}
         </button>
-        <p className="mt-2 text-center text-xs text-muted">{strings.checkoutSecure}</p>
+        <p className="meta mt-2">{strings.checkoutSecure}</p>
         {!isPolar && userEmail && (
-          <p className="mt-1 text-center text-xs text-muted">
+          <p className="meta mt-1">
             {fill(strings.checkoutEmailHint, { email: userEmail })}
           </p>
         )}
-        {error && <p className="mt-2 text-center text-xs font-medium text-red-600">{error}</p>}
+        {error && <p role="alert" className="mt-2 text-sm font-medium text-error">{error}</p>}
       </div>
     </>
   );

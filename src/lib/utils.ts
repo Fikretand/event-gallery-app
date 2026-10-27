@@ -33,30 +33,26 @@ export function absoluteUrl(pathname: string) {
   return `${base}${pathname.startsWith("/") ? pathname : `/${pathname}`}`;
 }
 
+/** The chip colour for an event or media status, from the theme's state tokens. */
 export function statusBadgeClass(status: string) {
   switch (status) {
     case "active":
-      return "bg-[#edf7f0] text-[#1f6b42]";
+      return "chip-moss";
     case "archived":
     case "archived (warm)":
-      return "bg-[#fff1ee] text-[#9e2f23]";
     case "archived (cold)":
-      return "bg-[#ffe5df] text-[#8a1c1c]";
+    case "expired":
+      return "chip-error";
     case "archive failed":
     case "failed":
-      return "bg-[#8a1c1c] text-white";
+      return "bg-error text-accent-ink";
     case "archiving":
-      return "bg-[#fff3df] text-[#9a5b14]";
     case "restoring":
     case "restore_pending":
     case "restore requested":
-      return "bg-[#e8eefb] text-[#244f91]";
-    case "expired":
-      return "bg-[#fff0eb] text-[#8a1c1c]";
-    case "draft":
-      return "bg-[#eef2f8] text-[#35507a]";
+      return "chip-warning";
     default:
-      return "bg-[var(--color-paper)] text-[var(--color-ink)]";
+      return "";
   }
 }
 

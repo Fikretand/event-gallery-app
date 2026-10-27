@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 
 import { DashboardHeader } from "@/components/dashboard-header";
@@ -36,108 +35,38 @@ export async function NewEvent({
   const isCouple = intent === "couple";
 
   return (
-    <main className="pb-16">
+    <main className="pb-[var(--space-3xl)]">
       <DashboardHeader
         title={isCouple ? d.create.titleCouple : d.create.titlePhotographer}
         eyebrow={isCouple ? d.create.eyebrowCouple : d.create.eyebrowPhotographer}
         strings={d.header}
         profileHref={`${prefix}/dashboard/profile`}
       />
-      {/* Illustrated banner — warms up an otherwise very plain form page. */}
-      <section className="shell mb-6">
-        <div className="hero-glow relative overflow-hidden rounded-[28px] border border-[var(--color-accent)]/15 px-6 py-7 shadow-[0_24px_70px_color-mix(in_oklch,_var(--color-ink)_6%,_transparent)] sm:px-9 sm:py-9">
-          <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-[var(--color-accent)]/10 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-12 left-1/3 h-48 w-48 rounded-full bg-[var(--color-moss)]/10 blur-3xl" />
-          <div className="relative grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-            <div>
-              <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-moss)]/25 bg-card px-4 py-2 text-xs font-semibold text-[var(--color-moss)]">
-                <span className="live-dot inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" />
-                {d.create.bannerEyebrow}
-              </span>
-              <h2 className="font-display mt-5 text-3xl font-semibold leading-tight text-[var(--color-ink)] sm:text-4xl">
-                {d.create.bannerTitle}
-              </h2>
-              <p className="mt-3 max-w-md text-sm leading-6 text-ink-2 sm:text-base sm:leading-7">
-                {d.create.bannerBody}
-              </p>
-            </div>
+      {/* The form, with the three things that happen next beside it. */}
+      <div className="shell grid gap-[var(--space-xl)] lg:grid-cols-12">
+        <section className="lg:col-span-8">
+          {hasSupabase ? (
+            <EventCreateForm action={createEventAction} intent={intent} strings={d.create.form} />
+          ) : (
+            <SetupNotice />
+          )}
+        </section>
 
-            {/* Floating step chips */}
-            <div className="flex items-center justify-center gap-3 sm:gap-4 lg:justify-end">
-              <StepChip
-                className="float-card"
-                label={d.create.step1}
-                tone="moss"
-                icon={
-                  <>
-                    <rect x="3" y="4.5" width="18" height="16" rx="2.5" />
-                    <path d="M8 2.5v4M16 2.5v4M3 11h18M12 15v4M10 17h4" />
-                  </>
-                }
-              />
-              <StepChip
-                className="float-card-delay"
-                label={d.create.step2}
-                tone="accent"
-                icon={
-                  <>
-                    <rect x="3" y="3" width="7" height="7" rx="1.4" />
-                    <rect x="14" y="3" width="7" height="7" rx="1.4" />
-                    <rect x="3" y="14" width="7" height="7" rx="1.4" />
-                    <path d="M14 14h3v3h-3zM19 14h2v7h-4M14 19h3" />
-                  </>
-                }
-              />
-              <StepChip
-                className="float-card"
-                label={d.create.step3}
-                tone="moss"
-                icon={
-                  <>
-                    <rect x="3" y="6.5" width="18" height="13" rx="2.5" />
-                    <path d="M8.5 6.5l1.4-2.2h4.2l1.4 2.2" />
-                    <circle cx="12" cy="13" r="3.4" />
-                  </>
-                }
-              />
-            </div>
+        <aside className="lg:col-span-4">
+          <div className="well p-[var(--space-lg)] lg:sticky lg:top-6">
+            <h2 className="app-section-title text-ink">{d.create.bannerTitle}</h2>
+            <p className="mt-2 text-ink-2">{d.create.bannerBody}</p>
+            <ol className="mt-[var(--space-lg)] space-y-3">
+              {[d.create.step1, d.create.step2, d.create.step3].map((step, i) => (
+                <li key={step} className="flex items-baseline gap-3 font-medium text-ink">
+                  <span className="num font-display text-xl font-semibold text-accent">{i + 1}</span>
+                  {step}
+                </li>
+              ))}
+            </ol>
           </div>
-        </div>
-      </section>
-
-      <section className="shell">
-        {hasSupabase ? (
-          <EventCreateForm action={createEventAction} intent={intent} strings={d.create.form} />
-        ) : (
-          <SetupNotice />
-        )}
-      </section>
+        </aside>
+      </div>
     </main>
-  );
-}
-
-function StepChip({
-  label,
-  icon,
-  tone,
-  className,
-}: {
-  label: string;
-  icon: ReactNode;
-  tone: "moss" | "accent";
-  className?: string;
-}) {
-  const color = tone === "accent" ? "text-[var(--color-accent)]" : "text-[var(--color-moss)]";
-  return (
-    <div
-      className={`flex w-24 flex-col items-center gap-2 rounded-[22px] border border-black/8 bg-white/85 px-3 py-4 text-center shadow-[0_14px_36px_color-mix(in_oklch,_var(--color-ink)_10%,_transparent)] backdrop-blur sm:w-28 ${className ?? ""}`}
-    >
-      <span className={`inline-flex h-11 w-11 items-center justify-center rounded-[16px] bg-[var(--color-paper)] ${color}`}>
-        <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-          {icon}
-        </svg>
-      </span>
-      <span className="text-xs font-semibold leading-tight text-[var(--color-ink)]">{label}</span>
-    </div>
   );
 }

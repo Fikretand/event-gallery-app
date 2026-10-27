@@ -84,12 +84,12 @@ export function EventNav({
   ];
 
   const item =
-    "flex items-center gap-2.5 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition lg:rounded-2xl lg:px-3.5 lg:py-2.5";
+    "flex min-h-10 items-center gap-2.5 whitespace-nowrap rounded-[var(--radius-inner)] px-3 text-sm font-medium transition-colors duration-[var(--dur-micro)]";
 
   return (
     <nav
       aria-label={l.menuLabel}
-      className="sticky top-0 z-30 -mx-4 bg-[var(--color-paper)]/88 px-4 py-2 lg:top-6 lg:mx-0 lg:rounded-[24px] lg:border lg:border-rule lg:bg-card lg:p-2 lg:shadow-[0_12px_40px_color-mix(in_oklch,_var(--color-ink)_6%,_transparent)]"
+      className="sticky top-0 z-[var(--z-sticky)] -mx-[var(--gutter)] border-b border-rule bg-paper px-[var(--gutter)] py-2 lg:top-6 lg:mx-0 lg:border-b-0 lg:bg-transparent lg:p-0"
     >
       <ul className="flex gap-2 overflow-x-auto [scrollbar-width:none] lg:flex-col lg:gap-1 lg:overflow-visible [&::-webkit-scrollbar]:hidden">
         {primary.map((entry) => {
@@ -102,8 +102,8 @@ export function EventNav({
                 className={cn(
                   item,
                   isActive
-                    ? "bg-[var(--color-ink)] text-white"
-                    : "border border-rule bg-card text-[var(--color-ink)] hover:bg-white lg:border-transparent lg:bg-transparent lg:hover:bg-[var(--color-paper)]",
+                    ? "bg-paper-2 font-semibold text-ink"
+                    : "text-ink-2 hover:bg-paper-2 hover:text-ink",
                 )}
               >
                 <Icon name={entry.key} />
@@ -111,8 +111,8 @@ export function EventNav({
                 {entry.badge ? (
                   <span
                     className={cn(
-                      "ml-auto rounded-full px-2 py-0.5 text-[11px] font-semibold",
-                      isActive ? "bg-white/18 text-white" : "bg-[var(--color-paper)] text-ink-2",
+                      "num ml-auto rounded-full px-2 py-0.5 text-xs font-semibold",
+                      isActive ? "bg-card text-ink" : "bg-paper-2 text-ink-2",
                     )}
                   >
                     {entry.badge}
@@ -132,7 +132,7 @@ export function EventNav({
             rel="noopener noreferrer"
             className={cn(
               item,
-              "border border-rule bg-card text-ink-2 hover:bg-white hover:text-[var(--color-ink)] lg:border-transparent lg:bg-transparent lg:font-medium lg:hover:bg-[var(--color-paper)]",
+              "text-ink-2 hover:bg-paper-2 hover:text-ink",
             )}
           >
             <Icon name="preview" />

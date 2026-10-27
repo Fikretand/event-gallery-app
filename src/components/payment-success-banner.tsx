@@ -58,9 +58,9 @@ export function PaymentSuccessBanner({
 
   if (activated) {
     return (
-      <div className="rounded-2xl border border-[var(--color-moss-soft)] bg-[var(--color-moss-soft)] px-4 py-3.5">
-        <p className="text-sm font-semibold text-[var(--color-moss)]">{strings.activatedTitle}</p>
-        <p className="mt-0.5 text-sm text-[var(--color-moss)]/80">
+      <div className="rounded-[var(--radius-inner)] border border-moss-soft bg-moss-soft px-4 py-3.5">
+        <p className="text-sm font-semibold text-moss">{strings.activatedTitle}</p>
+        <p className="mt-0.5 text-sm text-moss/80">
           {fill(strings.activatedBody, { plan: planLabel })}
         </p>
       </div>
@@ -68,11 +68,11 @@ export function PaymentSuccessBanner({
   }
 
   return (
-    <div className="rounded-2xl border border-[var(--color-accent)]/25 bg-[var(--color-accent)]/8 px-4 py-3.5">
-      <p className="flex items-center gap-2 text-sm font-semibold text-[var(--color-ink)]">
+    <div className="rounded-[var(--radius-inner)] border border-accent/25 bg-accent/8 px-4 py-3.5">
+      <p className="flex items-center gap-2 text-sm font-semibold text-ink">
         <span
           aria-hidden
-          className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-[var(--color-accent)] border-t-transparent"
+          className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-accent border-t-transparent"
         />
         {strings.pendingTitle}
       </p>

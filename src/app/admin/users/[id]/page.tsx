@@ -60,9 +60,9 @@ export default async function UserDetailPage({
     <div className="space-y-6">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-muted">
-        <Link href="/admin/users" className="hover:text-[var(--color-ink)]">Users</Link>
+        <Link href="/admin/users" className="hover:text-ink">Users</Link>
         <span>/</span>
-        <span className="text-[var(--color-ink)]">{user.full_name ?? user.email}</span>
+        <span className="text-ink">{user.full_name ?? user.email}</span>
       </div>
 
       {/* Main grid */}
@@ -70,24 +70,24 @@ export default async function UserDetailPage({
 
         {/* ── Left panel: Profile ── */}
         <div className="space-y-4">
-          <div className="overflow-hidden rounded-2xl border border-rule bg-card shadow-[0_18px_50px_color-mix(in_oklch,_var(--color-ink)_5%,_transparent)]">
+          <div className="overflow-hidden rounded-[var(--radius-inner)] border border-rule bg-card">
             {/* Avatar area */}
-            <div className="flex flex-col items-center gap-3 bg-[var(--color-paper)]/50 px-6 py-8">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-[var(--color-ink)] text-xl font-bold text-white shadow-lg">
+            <div className="flex flex-col items-center gap-3 bg-paper-2/50 px-6 py-8">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-ink text-xl font-semibold text-paper">
                 {initials}
               </div>
               <div className="text-center">
-                <p className="font-semibold text-[var(--color-ink)]">{user.full_name ?? "No name"}</p>
+                <p className="font-semibold text-ink">{user.full_name ?? "No name"}</p>
                 <p className="mt-0.5 text-sm text-muted">{user.email}</p>
               </div>
               <div className="flex flex-wrap justify-center gap-2">
                 <span className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${
-                  user.account_type === "photographer" ? "bg-blue-100 text-blue-700" : "bg-purple-100 text-purple-700"
+                  user.account_type === "photographer" ? "bg-paper-2 text-ink-2" : "bg-accent-soft text-ink"
                 }`}>
                   {user.account_type}
                 </span>
                 {user.role === "admin" && (
-                  <span className="rounded-full bg-[var(--color-accent)]/12 px-3 py-1 text-xs font-semibold text-[var(--color-accent)]">
+                  <span className="rounded-full bg-accent/12 px-3 py-1 text-xs font-semibold text-accent">
                     Admin
                   </span>
                 )}
@@ -95,14 +95,14 @@ export default async function UserDetailPage({
             </div>
 
             {/* Profile details */}
-            <div className="divide-y divide-black/5 px-5 py-2">
+            <div className="divide-y divide-rule px-5 py-2">
               <ProfileRow label="Joined" value={joinedDate} />
               {user.city && <ProfileRow label="City" value={user.city} />}
               {user.phone && <ProfileRow label="Phone" value={user.phone} />}
               {user.website_url && (
                 <ProfileRow label="Website">
                   <a href={user.website_url} target="_blank" rel="noopener noreferrer"
-                    className="truncate text-[var(--color-moss)] hover:underline">
+                    className="truncate text-moss hover:underline">
                     {user.website_url.replace(/^https?:\/\//, "")}
                   </a>
                 </ProfileRow>
@@ -119,13 +119,13 @@ export default async function UserDetailPage({
         <div className="space-y-4">
 
           {/* Plan & Trial */}
-          <div className="rounded-2xl border border-rule bg-card shadow-[0_18px_50px_color-mix(in_oklch,_var(--color-ink)_5%,_transparent)]">
+          <div className="rounded-[var(--radius-inner)] border border-rule bg-card">
             <SectionHeader title="Account" />
-            <div className="grid grid-cols-2 gap-px bg-black/5 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-px bg-paper-3 sm:grid-cols-4">
               <InfoBlock label="Plan" value={billing.plan} accent={billing.plan === "Pro"} />
               <InfoBlock
                 label="Billing"
-                value={billing.provider ? `${billing.status} · ${billing.provider}` : billing.status}
+                value={billing.provider ? `${billing.status} (${billing.provider})` : billing.status}
                 accent={billing.tone === "paid" || billing.tone === "admin"}
                 danger={billing.tone === "overdue"}
               />
@@ -134,7 +134,7 @@ export default async function UserDetailPage({
                 label="Trial"
                 value={
                   trial.status === "active"
-                    ? `Active · ${trial.daysLeft}d left`
+                    ? `Active, ${trial.daysLeft}d left`
                     : trial.status === "expired"
                     ? "Expired"
                     : "None"
@@ -146,16 +146,16 @@ export default async function UserDetailPage({
           </div>
 
           {/* Storage & Usage */}
-          <div className="rounded-2xl border border-rule bg-card shadow-[0_18px_50px_color-mix(in_oklch,_var(--color-ink)_5%,_transparent)]">
+          <div className="rounded-[var(--radius-inner)] border border-rule bg-card">
             <SectionHeader title="Storage & Usage" />
             <div className="px-5 pb-5 pt-4">
               <div className="flex items-end justify-between text-sm">
-                <span className="font-medium text-[var(--color-ink)]">{formatBytes(usage.liveUsedStorageBytes)}</span>
+                <span className="font-medium text-ink">{formatBytes(usage.liveUsedStorageBytes)}</span>
                 <span className="text-muted">of {formatBytes(usage.liveStorageLimitBytes)}</span>
               </div>
-              <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-black/8">
+              <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-paper-3">
                 <div
-                  className={`h-full rounded-full transition-all ${storageRatio > 85 ? "bg-red-500" : "bg-[var(--color-moss)]"}`}
+                  className={`h-full rounded-full ${storageRatio > 85 ? "bg-error" : "bg-moss"}`}
                   style={{ width: `${storageRatio}%` }}
                 />
               </div>
@@ -165,13 +165,13 @@ export default async function UserDetailPage({
                 <MiniStat label="Photos" value={photosUsed} />
               </div>
               {trial.status === "active" && (
-                <div className="mt-4 rounded-xl bg-emerald-50 px-4 py-3">
-                  <p className="text-xs font-semibold text-emerald-700">
+                <div className="mt-4 rounded-[var(--radius-inner)] bg-moss-soft px-4 py-3">
+                  <p className="text-xs font-semibold text-moss">
                     Trial: {trial.photosUsed} / {trial.photosLimit} photos used
                   </p>
-                  <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-emerald-200">
+                  <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-moss-soft">
                     <div
-                      className="h-full rounded-full bg-emerald-500"
+                      className="h-full rounded-full bg-moss"
                       style={{ width: `${Math.min((trial.photosUsed / trial.photosLimit) * 100, 100)}%` }}
                     />
                   </div>
@@ -182,24 +182,23 @@ export default async function UserDetailPage({
 
           {/* Events list */}
           {events.length > 0 && (
-            <div className="overflow-hidden rounded-2xl border border-rule bg-card shadow-[0_18px_50px_color-mix(in_oklch,_var(--color-ink)_5%,_transparent)]">
+            <div className="overflow-hidden rounded-[var(--radius-inner)] border border-rule bg-card">
               <SectionHeader title={`Events (${events.length})`} />
-              <div className="divide-y divide-black/5">
+              <div className="divide-y divide-rule">
                 {events.slice(0, 6).map((ev) => (
                   <div key={ev.id} className="flex items-center gap-3 px-5 py-3.5">
-                    <div className="h-2 w-2 shrink-0 rounded-full bg-[var(--color-accent)]" />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-[var(--color-ink)]">{ev.title}</p>
+                                        <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-ink">{ev.title}</p>
                       {ev.event_date && (
                         <p className="text-xs text-muted">
                           {new Date(ev.event_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                         </p>
                       )}
                     </div>
-                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${
-                      ev.status === "active" ? "bg-emerald-100 text-emerald-700"
-                      : ev.status === "archived" ? "bg-black/8 text-muted"
-                      : "bg-black/6 text-muted"
+                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold capitalize ${
+                      ev.status === "active" ? "bg-moss-soft text-moss"
+                      : ev.status === "archived" ? "bg-paper-3 text-muted"
+                      : "bg-paper-3 text-muted"
                     }`}>
                       {ev.status}
                     </span>
@@ -242,7 +241,7 @@ function ProfileRow({
   return (
     <div className="flex items-start justify-between gap-4 py-3">
       <span className="text-xs font-medium text-muted">{label}</span>
-      {children ?? <span className="text-right text-xs text-[var(--color-ink)]">{value}</span>}
+      {children ?? <span className="text-right text-xs text-ink">{value}</span>}
     </div>
   );
 }
@@ -259,9 +258,9 @@ function InfoBlock({
   danger?: boolean;
 }) {
   return (
-    <div className="bg-white px-5 py-4">
+    <div className="bg-card px-5 py-4">
       <p className="text-xs font-semibold text-muted">{label}</p>
-      <p className={`mt-1 text-sm font-semibold ${danger ? "text-red-600" : accent ? "text-[var(--color-ink)]" : "text-ink"}`}>
+      <p className={`mt-1 text-sm font-semibold ${danger ? "text-error" : accent ? "text-[var(--color-ink)]" : "text-ink"}`}>
         {value}
       </p>
     </div>
@@ -270,8 +269,8 @@ function InfoBlock({
 
 function MiniStat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-xl bg-[var(--color-paper)]/60 px-3 py-3 text-center">
-      <p className="text-lg font-semibold tabular-nums text-[var(--color-ink)]">{value}</p>
+    <div className="rounded-[var(--radius-inner)] bg-paper-2/60 px-3 py-3 text-center">
+      <p className="text-lg font-semibold tabular-nums text-ink">{value}</p>
       <p className="mt-0.5 text-xs text-muted">{label}</p>
     </div>
   );
