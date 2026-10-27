@@ -1,6 +1,6 @@
 # CLAUDE.md — Confetti Event Gallery App
 
-_Last updated: 2026-10-24._
+_Last updated: 2026-10-27._
 
 ---
 
@@ -26,10 +26,12 @@ payment integration**, **admin panel** (incl. manual plan activation), and a
 shapes, draft autosave, mobile layout) are all shipped.
 
 Also shipped: redesigned public gallery (bilingual, photo-tile grid,
-portalled full-screen viewer), landing photo mosaic, a 3D Three.js hero loop
-and the Confetti explainer (both lazy-loaded), client-extracted video poster
+portalled full-screen viewer), landing photo mosaic, client-extracted video poster
 thumbnails, branded error/404 pages, draft legal pages, and a pre-launch
-security pass (scrypt PINs, expiring signed upload grants).
+security pass (scrypt PINs, expiring signed upload grants). On 2026-10-27
+the whole site, dashboard and admin included, was redesigned with the
+Hallmark skill on the kept brand (§2 Design system). The Three.js footer
+loop and the explainer stay in tree, unrendered.
 
 Copy is now event-generic; the data model always was.
 
@@ -69,7 +71,9 @@ Copy is now event-generic; the data model always was.
 | Testing | Vitest | ^4.1 |
 | Linting | ESLint + `eslint-config-next` | ^9 |
 
-**No UI component library** — Tailwind v4 inline styles throughout.
+**No UI component library.** Tailwind v4 utilities plus a small set of
+recipes in `globals.css` (`@layer components`). The design system is locked in
+**`design.md`** at the repo root. Read it before touching UI.
 
 **Brand fonts** (TTF in `/public/fonts/poster/`):
 - Playfair Display (serif, italic 600 + bold 700, latin + latin-ext)
@@ -79,10 +83,32 @@ Copy is now event-generic; the data model always was.
 These are loaded server-side by Resvg for the poster API, and client-side via
 `FontFace` API in the Fabric editor.
 
-**Design tokens** (`src/app/globals.css`):
-- `--color-paper`: `#f2eadf`, `--color-ink`: `#172033`
-- `--color-accent`: `#e27952`, `--color-moss`: `#38584d`
-- Background: warm parchment gradient
+**Design system** (Hallmark redesign, 2026-10-27; see `design.md`):
+- **`src/app/tokens.css`** holds every colour, font, radius and shadow as an
+  OKLCH `@theme static` token, so each one is also a utility: `bg-paper`,
+  `text-ink-2`, `border-rule`, `bg-accent`, `text-moss`, `bg-night`.
+  Colours: paper / paper-2 / paper-3 / card, ink / ink-2 / muted, rule /
+  rule-2, accent `oklch(54% 0.15 39)` (AA under white) + accent-soft, moss,
+  error / warning / success (+ -soft), night for dark chrome. Device tokens
+  (titanium, confetti-1..4) serve the hero phone only.
+- **`src/app/base.css`** is the scaffold baseline: `overflow-x: clip`,
+  focus rings, reduced motion, heading measure, `.app` reset for working screens.
+- **`globals.css`** starts with the Hallmark stamp, the critique line and the
+  recorded waivers. Keep them as the first lines. After them come the
+  recipes: `.btn` + `-primary/-secondary/-quiet/-ink/-danger/-danger-quiet/-sm`,
+  `.field`, `.field-label`, `.check-row`, `.card`, `.well`, `.chip-*`,
+  `.notice-*`, the type roles (`.display`, `.section-head`, `.title`, `.lead`,
+  `.meta`, `.app-title`, `.app-section-title`) and the section rhythm
+  (`.section`, `.band`).
+- **No literal colours in components.** Where a CSS variable cannot reach
+  (QR generator, Fabric canvas, OG image), the hex lives in
+  `src/lib/brand-colors.ts` or `src/lib/qr-card-editor/colors.ts`.
+- Rules the redesign enforces, in its words: no eyebrows or tracked
+  caps, no middle-dot meta strings, no arrows glued to labels, no emoji icons
+  (use `components/ui/icons.tsx`), no card inside a card, no `transition-all`,
+  every animation has a reduced-motion fallback.
+- Check UI work with `node .claude/skills/hallmark/scripts/sloplint.mjs src`
+  (static) or `--render --url http://localhost:<port>/<route>`.
 
 ---
 
@@ -427,7 +453,7 @@ thumbnails) is **done**. What is genuinely left:
    times out waiting for confirmation in the owner's UI.
 
 ### Needs eyes on a real device (cannot be checked from CI)
-8. Fabric QR card editor, the Three.js hero loop in the footer CTA, video
+8. Fabric QR card editor (now on dark `night` chrome), video
    poster extraction on a real upload, and the gallery viewer on iOS Safari.
    Also: a video message from a real iPhone and Android (headless Chromium in
    the sandbox cannot decode H.264, so duration/poster were tested with WebM),
@@ -553,6 +579,8 @@ Stable + correct; refactor only if a task explicitly requires it.
 ## 8. KEY FILE MAP
 
 ```
+design.md                            # the locked design system (read first)
+.claude/skills/hallmark/             # vendored Hallmark skill (v2.0.0)
 src/
 ├── app/
 │   ├── [locale]/                       # Locale-aware mirrors of every
@@ -569,7 +597,8 @@ src/
 │   │   └── page.tsx                    # locale-aware landing (ISR 10m)
 │   ├── page.tsx                        # English landing
 │   ├── layout.tsx
-│   ├── globals.css                     # Tokens + utility classes
+│   ├── globals.css                     # Hallmark stamp + recipes
+│   ├── tokens.css, base.css            # tokens (OKLCH) + scaffold baseline
 │   ├── robots.ts, sitemap.ts           # generated (+ sitemap.test.ts)
 │   ├── opengraph-image.tsx             # share card via ImageResponse
 │   ├── error.tsx, global-error.tsx, not-found.tsx   # Branded fallbacks
@@ -616,6 +645,7 @@ src/
 │   ├── upload-queue.ts              # upload pool + retry/offline wait
 │   ├── live-slides.ts               # venue live view data + access
 │   ├── pricing.ts                   # the only place a price is written down
+│   ├── brand-colors.ts              # hex for QR/canvas/OG, where CSS vars can't reach
 │   ├── billing.ts                   # Polar + Payhip + LemonSqueezy helpers
 │   ├── billing-status.ts            # plan/status wording, shared w/ client
 │   ├── qr-posters.ts                # 4 SVG poster templates
@@ -632,7 +662,8 @@ src/
 ├── instrumentation.ts               # onRequestError → structured logs
 │
 └── components/
-    ├── ui/{button, input, panel}.tsx
+    ├── ui/{button, input, panel, icons, check-icon}.tsx  # icons replace emoji
+    ├── site-footer.tsx, auth-screen.tsx, error-screen.tsx
     ├── upload-dropzone.tsx
     ├── live-slideshow.tsx           # full-screen venue live view
     ├── video-message.tsx            # guest records a message for the hosts
@@ -647,10 +678,10 @@ src/
     ├── dashboard-header.tsx, dashboard-event-list.tsx
     ├── photographer-profile-form.tsx, setup-notice.tsx
     ├── pricing-showcase.tsx, marketing-button-link.tsx
-    ├── content-page.tsx             # Breadcrumbs/CTA/shell for §6 pages
+    ├── content-page.tsx             # Breadcrumbs/DocSections/CTA/shell for §6 pages
     ├── explainer/                   # Stage/Sprite scenes + lazy wrapper (parked)
     ├── how-it-works/                # landing step switcher + 4 animated scenes
-    ├── hero-animation/              # Three.js QR→camera→wordmark loop (lazy)
+    ├── hero-animation/              # Three.js QR→camera→wordmark loop (parked, unrendered)
     ├── legal-doc-view.tsx           # Renders a LegalDoc
     └── marketing-testimonials.tsx   # ⚠ fabricated data — render removed
 ```
@@ -660,6 +691,46 @@ src/
 ## 9. RECENT SESSION LOG
 
 Newest first — useful for picking back up.
+
+- **Hallmark redesign, whole site** (`18846ad`…, branch
+  `claude/awesome-wright-gug3wk`). The owner asked to install
+  `Nutlope/hallmark` and redesign everything with it, dashboard and admin
+  included, keeping the brand (paper / ink / terracotta, Playfair + Inter +
+  JetBrains Mono). The skill is vendored in `.claude/skills/hallmark`. Done in
+  five commits:
+  1. **System:** `tokens.css`, `base.css`, recipes in `globals.css` and `design.md`.
+  2. **Landing:** a Stage hero beside the phone, steps, mosaic, audiences,
+     pricing, FAQ and a footer mast.
+  3. **Marketing, content, legal and sign-in pages:** Banner openings, the
+     long pages as documents, and a shared `AuthScreen`.
+  4. **Guest pages:** upload, gallery, live view and video message. Only the
+     markup changed; the logic is untouched.
+  5. **Dashboard, event shell, billing, profile, couple dashboard, admin and
+     QR editor chrome.**
+
+  Copy edits are limited to the floor rules. Middle-dot strings became
+  commas, glued arrows and the 🎉 emoji are gone, `admin: "Admin"`, and
+  `galleryViewer.moreMoments` was dropped from the dict and `COPY_FIELDS`.
+
+  Removed on purpose:
+  - the Three.js footer loop;
+  - the hero pill (`#how-it-works`);
+  - the `confetti-hero.svg` illustration on the auth pages;
+  - the pricing eyebrow;
+  - the upload page's "Za goste" badge.
+
+  Bug fixed on the way: the couple dashboard header rendered English labels in
+  `/bs` (it did not pass `strings`).
+
+  Lint result:
+  - `sloplint` on rendered `/bs`, `/bs/pricing` and `/bs/for-couples`:
+    0 FAIL, 0 REFLEX.
+  - Static run over `src`: the only FAILs are the parked `explainer/*` and
+    `marketing-testimonials.tsx`, which are never rendered.
+
+  Waivers, each with its reason, sit in the stamp at the top of
+  `globals.css`. `.hallmark/` (lint records, screenshots) is git-excluded.
+  No fresh-context finish review was run.
 
 - **Round 3: profile, Guestpix ideas, audit round 2** (`48e84f2`…`07da1f3`).
   Owner's notes: the avatar changed only after saving and the profile page

@@ -1177,7 +1177,6 @@ export function HeroDevice({ copy, qrSvg, align = "center" }: { copy: Copy; qrSv
             {/* Floating cards */}
             <div className="hd-badge" style={{ ...abs, zIndex: 3 }}>
             <div
-              className="hd-float"
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -1210,7 +1209,6 @@ export function HeroDevice({ copy, qrSvg, align = "center" }: { copy: Copy; qrSv
 
             <div className="hd-qr" style={{ ...abs, top: "62%", width: "clamp(84px, 32%, 128px)", zIndex: 3 }}>
             <div
-              className="hd-float hd-float-late"
               style={{
                 display: "flex",
                 flexDirection: "column",

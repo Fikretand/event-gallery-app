@@ -10,6 +10,8 @@
 /* Hallmark · waive 79 · the sign-in screens centre one short form in the first screen · on Confetti /login, /signup and the password screens hold a form and its heading, nothing else */
 /* Hallmark · waive 85 · the sign-in screens end on the log-in or sign-up form · logging in starts Confetti, it is not a mailing list */
 /* Hallmark · waive 28b · a guest video without a thumbnail shows its own first frame · Confetti extracts a poster on the phone; when that fails the video element shows the first frame below the fold */
+/* Hallmark · dropped #how-it-works · the hero pill that linked it is gone; the steps sit directly under the hero on the Confetti landing */
+/* Hallmark · reworded "Šta dobijate u planu" to "Jedna jednostavna postavka, jedno privatno mjesto, jedna briga manje." · the Confetti /for-couples highlights now open under the dictionary's highlightsTitle, the list itself unchanged */
 /* Hallmark · dismissed F4 · one filled primary per screen; ink and danger serve other screens (danger only for the app's destructive actions) */
 
 @import "tailwindcss";

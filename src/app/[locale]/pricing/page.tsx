@@ -34,7 +34,7 @@ export default async function PricingPage({
       <SiteNav />
 
       {/* ─── Banner: the heading and its line, the table right under ─── */}
-      <section className="shell grid gap-y-[var(--space-lg)] pb-[var(--space-2xl)] pt-[var(--space-3xl)] lg:grid-cols-12 lg:items-end lg:gap-x-[var(--gap-columns)]">
+      <section className="shell grid gap-y-[var(--space-lg)] py-[var(--space-2xl)] lg:grid-cols-12 lg:items-end lg:gap-x-[var(--gap-columns)]">
         <h1 className="max-w-[16ch] font-display text-[clamp(2.5rem,4vw+1rem,4.5rem)] font-semibold leading-[1.04] text-ink lg:col-span-7">
           {d.title}
         </h1>
