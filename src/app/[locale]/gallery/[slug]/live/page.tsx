@@ -38,15 +38,15 @@ export default async function LiveGalleryPage({
     // which is unlocked on the gallery page itself.
     const closed = event.status === "archived" ? dict.gallery.archived : isEventExpired(event) ? dict.gallery.expired : null;
     return (
-      <main className="py-10">
+      <main className="min-h-dvh py-[var(--space-3xl)]">
         <section className="shell">
-          <Panel className="mx-auto max-w-lg bg-card">
-            <h1 className="font-display text-3xl font-semibold text-[var(--color-ink)]">{closed ? title : s.lockedTitle}</h1>
-            <p className="mt-3 text-sm leading-6 text-ink-2">{closed ?? s.lockedBody}</p>
+          <Panel className="max-w-lg">
+            <h1 className="display-s text-ink">{closed ? title : s.lockedTitle}</h1>
+            <p className="mt-[var(--space-md)] text-ink-2">{closed ?? s.lockedBody}</p>
             {closed ? null : (
               <Link
                 href={`/${lang}/gallery/${event.slug}`}
-                className="mt-5 inline-flex rounded-full bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-white"
+                className="btn btn-primary mt-[var(--space-lg)]"
               >
                 {s.lockedCta}
               </Link>

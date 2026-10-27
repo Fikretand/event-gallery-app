@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 
+import { LockIcon } from "@/components/ui/icons";
 import { UploadDropzone } from "@/components/upload-dropzone";
 import { VideoMessage } from "@/components/video-message";
 import { formatDate } from "@/lib/utils";
@@ -52,40 +53,34 @@ export default async function UploadPage({
         ? `${d.closedWindowEnded}${uploadWindowEndsAt ? ` (${uploadWindowEndsAt})` : ""}.`
         : d.closedDisabled;
 
+  const facts = [
+    `${d.chipTypes}${settings?.allow_guest_video ? ", MP4, MOV" : ""}`,
+    t(d.chipMaxSize, { maxMb: settings?.max_guest_upload_mb ?? 250 }),
+    settings?.require_pin_for_upload ? d.chipPinRequired : d.chipNoAccount,
+    ...(uploadWindowEndsAt ? [t(d.chipOpenUntil, { date: uploadWindowEndsAt })] : []),
+  ];
+
+  // One column the width of a phone, centred on a computer: the guest came
+  // for one button, and everything here leads to it.
   return (
-    <main className="min-h-dvh pb-24">
-      {/* Brand header */}
-      <div className="py-7 text-center">
-        <span className="font-display text-[1.1rem] font-semibold tracking-tight text-[var(--color-ink)]">
-          ✦ Confetti
-        </span>
-      </div>
+    <main className="min-h-dvh pb-[var(--space-3xl)]">
+      <header className="mx-auto max-w-md px-4 pt-[var(--space-lg)]">
+        <span className="font-display text-[1.375rem] font-semibold text-ink">Confetti</span>
+      </header>
 
-      {/* Event info */}
-      <div className="px-5 pb-8 text-center">
-        <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-accent)]/25 bg-[var(--color-accent-soft)]/50 px-4 py-1.5">
-          <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" />
-          <span className="text-xs font-semibold text-[var(--color-accent)]">
-            {d.badge}
-          </span>
-        </span>
-        <h1 className="font-display mt-4 text-3xl font-semibold leading-tight text-[var(--color-ink)] sm:text-4xl">
-          {title}
-        </h1>
-        {event.event_date && (
-          <p className="mt-2 text-sm text-ink-2">{formatDate(event.event_date.slice(0, 10), lang)}</p>
-        )}
-      </div>
-
-      {/* Main upload zone */}
       <div className="mx-auto max-w-md px-4">
+        <div className="pb-[var(--space-lg)] pt-[var(--space-xl)]">
+          <h1 className="font-display text-[clamp(2rem,6vw,2.75rem)] font-semibold leading-[1.08] text-ink">{title}</h1>
+          {event.event_date && <p className="meta mt-[var(--space-xs)]">{formatDate(event.event_date.slice(0, 10), lang)}</p>}
+        </div>
+
         {isClosed ? (
-          <div className="rounded-[28px] bg-card p-8 text-center shadow-[0_8px_40px_color-mix(in_oklch,_var(--color-ink)_6%,_transparent)]">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-error-soft)] text-2xl">
-              🔒
-            </div>
-            <h2 className="font-display text-xl font-semibold text-[var(--color-ink)]">{d.closed}</h2>
-            <p className="mt-2 text-sm leading-6 text-ink-2">{closedReason}</p>
+          <div className="card p-[var(--space-xl)]">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-error-soft text-error">
+              <LockIcon className="h-6 w-6" />
+            </span>
+            <h2 className="title mt-[var(--space-md)] text-ink">{d.closed}</h2>
+            <p className="mt-[var(--space-xs)] text-ink-2">{closedReason}</p>
           </div>
         ) : (
           <>
@@ -104,34 +99,19 @@ export default async function UploadPage({
                 upload={dict.uploadDropzone}
               />
             ) : null}
+
+            <ul className="mt-[var(--space-lg)] flex flex-wrap gap-2">
+              {facts.map((fact) => (
+                <li key={fact} className="chip">
+                  {fact}
+                </li>
+              ))}
+            </ul>
           </>
         )}
+
+        <p className="meta mt-[var(--space-xl)]">{d.privacyNote}</p>
       </div>
-
-      {/* Info chips */}
-      {!isClosed && (
-        <div className="mx-auto mt-8 max-w-md px-4">
-          <div className="flex flex-wrap justify-center gap-2">
-            <span className="rounded-full border border-rule bg-card px-3 py-1.5 text-xs text-ink-2">
-              {d.chipTypes}{settings?.allow_guest_video ? ", MP4, MOV" : ""}
-            </span>
-            <span className="rounded-full border border-rule bg-card px-3 py-1.5 text-xs text-ink-2">
-              {t(d.chipMaxSize, { maxMb: settings?.max_guest_upload_mb ?? 250 })}
-            </span>
-            <span className="rounded-full border border-rule bg-card px-3 py-1.5 text-xs text-ink-2">
-              {settings?.require_pin_for_upload ? d.chipPinRequired : d.chipNoAccount}
-            </span>
-            {uploadWindowEndsAt && (
-              <span className="rounded-full border border-rule bg-card px-3 py-1.5 text-xs text-ink-2">
-                {t(d.chipOpenUntil, { date: uploadWindowEndsAt })}
-              </span>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Privacy note */}
-      <p className="mt-10 px-5 text-center text-xs text-ink-2">{d.privacyNote}</p>
     </main>
   );
 }

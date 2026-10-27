@@ -468,7 +468,6 @@ export const dict: Dict = {
           "gallery.clientGallery": "Small label above the title",
           "gallery.browseCurated": "Introduction",
           "galleryViewer.everythingElse": "Heading for files without a section",
-          "galleryViewer.moreMoments": "Label above that heading",
           "galleryViewer.filterAll": "Filter: all",
           "galleryViewer.filterPhotos": "Filter: photos",
           "galleryViewer.filterVideos": "Filter: videos",

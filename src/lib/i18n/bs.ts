@@ -470,7 +470,6 @@ export const dict: Dict = {
           "gallery.clientGallery": "Mali natpis iznad naslova",
           "gallery.browseCurated": "Uvodni tekst",
           "galleryViewer.everythingElse": "Naslov za fajlove bez sekcije",
-          "galleryViewer.moreMoments": "Natpis iznad tog naslova",
           "galleryViewer.filterAll": "Filter: sve",
           "galleryViewer.filterPhotos": "Filter: fotografije",
           "galleryViewer.filterVideos": "Filter: videi",

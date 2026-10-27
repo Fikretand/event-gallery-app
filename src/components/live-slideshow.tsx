@@ -191,13 +191,13 @@ export function LiveSlideshow({ slug, title, initialSlides, initialIncludePendin
 
   return (
     <div
-      className={`fixed inset-0 z-[100] overflow-hidden bg-[var(--color-night)] text-white ${controlsVisible ? "" : "cursor-none"}`}
+      className={`fixed inset-0 z-[100] overflow-hidden bg-night text-night-ink ${controlsVisible ? "" : "cursor-none"}`}
       onMouseMove={showControls}
       onTouchStart={showControls}
     >
       <style>{`
         @keyframes live-in { from { opacity: 0 } to { opacity: 1 } }
-        .live-in { animation: live-in 900ms ease-out both }
+        .live-in { animation: live-in 900ms var(--ease-out) both }
         @media (prefers-reduced-motion: reduce) { .live-in { animation: none } }
       `}</style>
       <h1 className="sr-only">{title}</h1>
@@ -221,7 +221,7 @@ export function LiveSlideshow({ slug, title, initialSlides, initialIncludePendin
             />
           )}
           {isNew ? (
-            <span className="absolute left-[3vw] top-[3vh] rounded-full bg-[var(--color-accent)] px-[1.4vw] py-[0.6vh] text-[clamp(14px,1.4vw,28px)] font-semibold">
+            <span className="absolute left-[3vw] top-[3vh] rounded-full bg-accent px-[1.4vw] py-[0.6vh] text-[clamp(14px,1.4vw,28px)] font-semibold text-accent-ink">
               {s.newBadge}
             </span>
           ) : null}
@@ -229,17 +229,17 @@ export function LiveSlideshow({ slug, title, initialSlides, initialIncludePendin
       ) : (
         <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
           <p className="font-display text-[clamp(28px,4vw,72px)] font-semibold">{s.emptyTitle}</p>
-          <p className="mt-3 max-w-[40ch] text-[clamp(16px,1.6vw,30px)] text-white/75">{s.emptyBody}</p>
+          <p className="mt-3 max-w-[40ch] text-[clamp(16px,1.6vw,30px)] text-night-ink/80">{s.emptyBody}</p>
         </div>
       )}
 
       {/* ── Bottom: title and count left, the QR card right ── */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-6 bg-gradient-to-t from-black/75 via-black/30 to-transparent px-[3vw] pb-[3vh] pt-[12vh]">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-6 bg-gradient-to-t from-night/85 via-night/35 to-transparent px-[3vw] pb-[3vh] pt-[12vh]">
         <div className="min-w-0">
           <p className="truncate font-display text-[clamp(22px,2.6vw,52px)] font-semibold leading-tight">{title}</p>
-          <p className="mt-1 text-[clamp(14px,1.3vw,26px)] text-white/75">{s.inGallery.replace("{{count}}", String(count))}</p>
+          <p className="mt-1 text-[clamp(14px,1.3vw,26px)] text-night-ink/80">{s.inGallery.replace("{{count}}", String(count))}</p>
         </div>
-        <div className="flex shrink-0 items-center gap-[1.2vw] rounded-[clamp(14px,1.4vw,28px)] bg-white p-[clamp(10px,1vw,20px)] text-[var(--color-ink)]">
+        <div className="flex shrink-0 items-center gap-[1.2vw] rounded-[clamp(14px,1.4vw,28px)] bg-card p-[clamp(10px,1vw,20px)] text-ink">
           <div
             className="aspect-square w-[clamp(96px,9vw,200px)] [&>svg]:h-full [&>svg]:w-full"
             // Server-generated QR markup for our own upload URL.
@@ -259,7 +259,7 @@ export function LiveSlideshow({ slug, title, initialSlides, initialIncludePendin
         <button
           type="button"
           onClick={toggleFullscreen}
-          className="rounded-full bg-black/60 px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/25 hover:bg-black/80"
+          className="btn btn-sm bg-night-2 text-night-ink ring-1 ring-night-ink/25 hover:bg-night"
         >
           {isFullscreen ? s.exitFullscreen : s.fullscreen}
         </button>
@@ -267,7 +267,7 @@ export function LiveSlideshow({ slug, title, initialSlides, initialIncludePendin
 
       {isOwner ? (
         <div
-          className={`absolute left-[2vw] top-[2vh] max-w-[min(440px,80vw)] rounded-2xl bg-black/70 p-4 text-sm ring-1 ring-white/20 transition-opacity duration-300 ${controlsVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+          className={`absolute left-[2vw] top-[2vh] max-w-[min(440px,80vw)] rounded-[var(--radius-card)] bg-night-2 p-4 text-sm ring-1 ring-night-ink/20 transition-opacity duration-300 ${controlsVisible ? "opacity-100" : "pointer-events-none opacity-0"}`}
         >
           <label className="flex cursor-pointer items-start gap-3">
             <input
@@ -278,7 +278,7 @@ export function LiveSlideshow({ slug, title, initialSlides, initialIncludePendin
             />
             <span className="font-semibold leading-snug">{s.includePending}</span>
           </label>
-          <p className="mt-2 pl-8 text-xs leading-5 text-white/70">{s.includePendingWarning}</p>
+          <p className="mt-2 pl-8 text-sm leading-5 text-night-ink/80">{s.includePendingWarning}</p>
         </div>
       ) : null}
     </div>

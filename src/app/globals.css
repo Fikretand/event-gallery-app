@@ -4,11 +4,12 @@
 /* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V3 · weakest: V, the brand is kept by request so the look stays cream, serif and terracotta; the variety is in the compositions, not the material */
 /* Hallmark · waive 65 · cream paper, Playfair and a terracotta accent are the Confetti brand · the owner asked to keep the Confetti brand exactly */
 /* Hallmark · waive 80 · one phone frame, 274x560, around the built Confetti screen · the phone frames the guest-to-gallery story, the product at work */
-/* Hallmark · waive 78 · section heads in the margin at title size on the long-document pages · /pitanja, /dogadjaji, /kako-funkcionise, /privatnost-i-sigurnost, /privacy, /terms and /get-started are read top to bottom as documents */
-/* Hallmark · waive 44c · the reading pages open as a Banner, heading and lead with the content under them · /pricing, /get-started, /pitanja, /dogadjaji and the legal pages open straight into their content */
-/* Hallmark · waive 59 · hairlines part the sections of the long-document pages, not gaps · /pitanja, /dogadjaji and the legal pages are one continuous document */
-/* Hallmark · waive 79 · the sign-in screens centre one short form in the first screen · /login, /signup and the password screens hold a form and its heading, nothing else */
-/* Hallmark · waive 85 · the sign-in screens end on the log-in or sign-up form · logging in starts the product, it is not a mailing list */
+/* Hallmark · waive 78 · section heads in the margin at title size on the long-document pages · on Confetti /pitanja, /dogadjaji, /kako-funkcionise, /privatnost-i-sigurnost, /privacy, /terms and /get-started are read top to bottom as documents */
+/* Hallmark · waive 44c · the reading pages open as a Banner, heading and lead with the content under them · on Confetti /pricing, /get-started, /pitanja, /dogadjaji and the legal pages open straight into their content */
+/* Hallmark · waive 59 · hairlines part the sections of the long-document pages, not gaps · on Confetti /pitanja, /dogadjaji and the legal pages are one continuous document */
+/* Hallmark · waive 79 · the sign-in screens centre one short form in the first screen · on Confetti /login, /signup and the password screens hold a form and its heading, nothing else */
+/* Hallmark · waive 85 · the sign-in screens end on the log-in or sign-up form · logging in starts Confetti, it is not a mailing list */
+/* Hallmark · waive 28b · a guest video without a thumbnail shows its own first frame · Confetti extracts a poster on the phone; when that fails the video element shows the first frame below the fold */
 /* Hallmark · dismissed F4 · one filled primary per screen; ink and danger serve other screens (danger only for the app's destructive actions) */
 
 @import "tailwindcss";

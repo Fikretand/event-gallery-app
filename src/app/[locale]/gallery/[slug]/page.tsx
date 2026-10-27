@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import { GalleryUnlockForm } from "@/app/gallery/[slug]/gallery-unlock-form";
 import { MediaGrid } from "@/components/media-grid";
-import { Panel } from "@/components/ui/panel";
+import { LockIcon } from "@/components/ui/icons";
 import { unlockGalleryAction } from "@/lib/actions";
 import {
   canViewGallery,
@@ -37,31 +37,30 @@ export default async function GalleryPage({
   const coverMap = await getEventCoverMap([event]);
   const cover = event.cover_image_id ? coverMap.get(event.cover_image_id) : null;
 
-  if (event.status === "archived") {
-    return (
-      <main className="py-10">
-        <section className="shell">
-          <Panel className="bg-card">
-            <h1 className="font-display text-3xl font-semibold text-[var(--color-ink)]">
-              {title}
-            </h1>
-            <p className="mt-3 text-sm leading-6 text-[var(--color-error)]">{d.archived}</p>
-          </Panel>
-        </section>
-      </main>
-    );
-  }
+  const header = (
+    <header className="shell pt-[var(--space-lg)]">
+      <span className="font-display text-[1.375rem] font-semibold text-ink">Confetti</span>
+    </header>
+  );
 
-  if (isEventExpired(event)) {
+  const facts = (extra?: React.ReactNode) => (
+    <ul className="mt-[var(--space-md)] flex flex-wrap gap-2">
+      {event.client_name ? <li className="chip">{event.client_name}</li> : null}
+      {event.event_date ? <li className="chip">{formatDate(event.event_date.slice(0, 10), lang)}</li> : null}
+      {extra}
+    </ul>
+  );
+
+  // Closed galleries: the title and why, nothing else to do here.
+  if (event.status === "archived" || isEventExpired(event)) {
     return (
-      <main className="py-10">
-        <section className="shell">
-          <Panel className="bg-card">
-            <h1 className="font-display text-3xl font-semibold text-[var(--color-ink)]">
-              {title}
-            </h1>
-            <p className="mt-3 text-sm leading-6 text-[var(--color-error)]">{d.expired}</p>
-          </Panel>
+      <main className="min-h-dvh">
+        {header}
+        <section className="shell py-[var(--space-3xl)]">
+          <h1 className="display-s max-w-[20ch] text-ink">{title}</h1>
+          <p role="status" className="notice notice-error mt-[var(--space-lg)] max-w-xl text-[0.9375rem]">
+            {event.status === "archived" ? d.archived : d.expired}
+          </p>
         </section>
       </main>
     );
@@ -70,52 +69,41 @@ export default async function GalleryPage({
   const hasAccess = await canViewGallery(event);
   if (!hasAccess) {
     return (
-      <main className="py-10">
-        <section className="shell">
-          {/* Without a cover photo the form stands alone: an empty frame took
-              half a phone screen and pushed the PIN field out of sight. */}
-          <Panel className={cover ? "mx-auto max-w-4xl bg-card" : "mx-auto max-w-lg bg-card"}>
-            <div className={cover ? "grid gap-6 lg:grid-cols-[0.95fr_1.05fr]" : "grid"}>
-              {cover ? (
-                <div className="overflow-hidden rounded-[28px] border border-rule bg-[var(--color-paper)]">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={cover.previewUrl ?? cover.thumbnailUrl ?? undefined}
-                    alt={title}
-                    className="aspect-[4/5] h-full w-full object-cover"
-                  />
-                </div>
-              ) : null}
-
-              <div className="flex flex-col justify-center">
-                <p className="text-sm font-semibold text-[var(--color-moss)]">
-                  {d.privateGallery}
-                </p>
-                <h1 className="mt-3 font-display text-3xl font-semibold text-[var(--color-ink)]">
-                  {title}
-                </h1>
-                <p className="mt-3 text-sm leading-6 text-ink-2">{d.enterPin}</p>
-                <div className="mt-4 flex flex-wrap gap-2 text-xs text-ink-2">
-                  {event.client_name ? (
-                    <span className="rounded-full bg-[var(--color-paper)] px-3 py-2">
-                      {event.client_name}
-                    </span>
-                  ) : null}
-                  {event.event_date ? (
-                    <span className="rounded-full bg-[var(--color-paper)] px-3 py-2">
-                      {formatDate(event.event_date.slice(0, 10), lang)}
-                    </span>
-                  ) : null}
-                </div>
-                <div className="mt-6">
-                  <GalleryUnlockForm
-                    action={unlockGalleryAction.bind(null, slug, locale)}
-                    strings={du}
-                  />
-                </div>
-              </div>
+      <main className="min-h-dvh">
+        {header}
+        {/* Without a cover photo the form stands alone: an empty frame took
+            half a phone screen and pushed the PIN field out of sight. */}
+        <section
+          className={
+            cover
+              ? "shell grid gap-y-[var(--space-xl)] py-[var(--space-2xl)] lg:grid-cols-12 lg:items-center lg:gap-x-[var(--gap-columns)]"
+              : "shell py-[var(--space-2xl)]"
+          }
+        >
+          {cover ? (
+            <div className="lg:col-span-5">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={cover.previewUrl ?? cover.thumbnailUrl ?? undefined}
+                alt=""
+                className="aspect-[4/5] max-h-[70svh] w-full rounded-[var(--radius-image)] bg-paper-3 object-cover"
+              />
             </div>
-          </Panel>
+          ) : null}
+
+          <div className={cover ? "max-w-md lg:col-span-6 lg:col-start-7" : "max-w-md"}>
+            <h1 className="display-s text-ink">{title}</h1>
+            {facts(
+              <li className="chip chip-moss">
+                <LockIcon className="h-3.5 w-3.5" />
+                {d.privateGallery}
+              </li>,
+            )}
+            <p className="mt-[var(--space-lg)] text-ink-2">{d.enterPin}</p>
+            <div className="mt-[var(--space-md)]">
+              <GalleryUnlockForm action={unlockGalleryAction.bind(null, slug, locale)} strings={du} />
+            </div>
+          </div>
         </section>
       </main>
     );
@@ -129,54 +117,36 @@ export default async function GalleryPage({
   ]);
 
   return (
-    <main className="py-6 sm:py-10">
-      <section className="shell space-y-4 sm:space-y-6">
-        <Panel className="bg-card p-5 sm:p-6">
-          <div className={cover ? "grid gap-5 sm:gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center" : "grid"}>
-            <div className="order-2 space-y-4 lg:order-1">
-              <p className="text-xs font-semibold text-[var(--color-moss)] sm:text-sm">
-                {d.clientGallery}
-              </p>
-              <h1 className="font-display text-3xl font-semibold leading-tight text-[var(--color-ink)] sm:text-4xl">
-                {title}
-              </h1>
-              <p className="max-w-3xl text-sm leading-6 text-ink-2 sm:text-base sm:leading-7">
-                {d.browseCurated}
-              </p>
-              <div className="flex flex-wrap gap-2 text-xs text-ink-2">
-                {event.client_name ? (
-                  <span className="rounded-full bg-[var(--color-paper)] px-3 py-2">
-                    {event.client_name}
-                  </span>
-                ) : null}
-                {event.event_date ? (
-                  <span className="rounded-full bg-[var(--color-paper)] px-3 py-2">
-                    {formatDate(event.event_date.slice(0, 10), lang)}
-                  </span>
-                ) : null}
-                <span className="rounded-full bg-[var(--color-moss)]/10 px-3 py-2 text-[var(--color-moss)]">
-                  {t(d.visibleFiles, { count: media.length })}
-                </span>
-              </div>
-            </div>
+    <main className="min-h-dvh pb-[var(--space-3xl)]">
+      {header}
+      <section
+        className={
+          cover
+            ? "shell grid gap-y-[var(--space-lg)] py-[var(--space-xl)] lg:grid-cols-12 lg:items-end lg:gap-x-[var(--gap-columns)]"
+            : "shell py-[var(--space-xl)]"
+        }
+      >
+        <div className="lg:col-span-6">
+          <h1 className="display-s max-w-[18ch] text-ink">{title}</h1>
+          <p className="mt-[var(--space-md)] max-w-[52ch] text-ink-2">{d.browseCurated}</p>
+          {facts(<li className="chip chip-moss">{t(d.visibleFiles, { count: media.length })}</li>)}
+        </div>
 
-            {/* No cover, no frame: the placeholder only repeated the text beside it. */}
-            {cover ? (
-              <div className="order-1 overflow-hidden rounded-[24px] border border-rule bg-[var(--color-paper)] sm:rounded-[28px] lg:order-2">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={cover.previewUrl ?? cover.thumbnailUrl ?? undefined}
-                  alt={title}
-                  className="aspect-[16/10] h-full w-full object-cover"
-                />
-              </div>
-            ) : null}
+        {/* No cover, no frame: the placeholder only repeated the text beside it. */}
+        {cover ? (
+          <div className="lg:col-span-6">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={cover.previewUrl ?? cover.thumbnailUrl ?? undefined}
+              alt=""
+              className="aspect-[16/10] w-full rounded-[var(--radius-image)] bg-paper-3 object-cover"
+            />
           </div>
-        </Panel>
+        ) : null}
+      </section>
 
-        <Panel className="bg-card p-3 sm:p-6">
-          <MediaGrid media={media} sections={sections} strings={dict.galleryViewer} />
-        </Panel>
+      <section className="shell">
+        <MediaGrid media={media} sections={sections} strings={dict.galleryViewer} />
       </section>
     </main>
   );

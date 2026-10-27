@@ -33,7 +33,6 @@ export const COPY_FIELDS: readonly CopyField[] = [
   { key: "gallery.clientGallery", group: "gallery", max: SHORT },
   { key: "gallery.browseCurated", group: "gallery", multiline: true, max: LONG },
   { key: "galleryViewer.everythingElse", group: "gallery", max: SHORT },
-  { key: "galleryViewer.moreMoments", group: "gallery", max: SHORT },
   { key: "galleryViewer.filterAll", group: "gallery", max: SHORT },
   { key: "galleryViewer.filterPhotos", group: "gallery", max: SHORT },
   { key: "galleryViewer.filterVideos", group: "gallery", max: SHORT },

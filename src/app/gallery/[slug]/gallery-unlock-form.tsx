@@ -37,8 +37,8 @@ export function GalleryUnlockForm({
 
   return (
     <form action={formAction} className="space-y-4">
-      <label className="flex flex-col gap-2 text-sm font-medium">
-        <span>{s.pinLabel}</span>
+      <label className="flex flex-col gap-2">
+        <span className="field-label">{s.pinLabel}</span>
         <input
           name="pin"
           // Plain text, not a password: everyone at the event shares this PIN,
@@ -49,13 +49,13 @@ export function GalleryUnlockForm({
           autoCapitalize="none"
           autoCorrect="off"
           spellCheck={false}
-          className="rounded-2xl border border-rule bg-white px-4 py-3"
+          className="field code"
           placeholder={s.pinPlaceholder}
           required
         />
       </label>
       {state?.error ? (
-        <div className="rounded-2xl bg-[var(--color-error-soft)] px-4 py-3 text-sm text-[var(--color-error)]">
+        <div role="alert" className="notice notice-error">
           {state.error === "GALLERY_PIN_RATE_LIMITED"
             ? s.tooManyAttempts
             : state.error === "GALLERY_PIN_WRONG"
@@ -63,7 +63,7 @@ export function GalleryUnlockForm({
               : state.error}
         </div>
       ) : null}
-      <Button type="submit" disabled={isPending}>
+      <Button type="submit" size="md" fullWidth disabled={isPending} aria-busy={isPending}>
         {isPending ? s.unlocking : s.unlock}
       </Button>
     </form>
