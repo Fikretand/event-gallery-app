@@ -1,81 +1,14 @@
+/* Hallmark · shape: Narrative Workflow (marketing), app screen (dashboard, admin) · genre: editorial · theme: brand · redesign: full · job: sign up
+ * paper: oklch(97.8% 0.009 78) · accent: oklch(54% 0.15 39) · display: Playfair Display · body: Inter · hero: Stage · nav: edge-aligned bar, three real destinations and the start action · footer: mast, the wordmark over the links · signature: the guest-to-gallery story on the phone
+ * axes: light/serif/warm · posture: Restrained · contrast: pass · fold: pass · copy: verbatim · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V3 · weakest: V, the brand is kept by request so the look stays cream, serif and terracotta; the variety is in the compositions, not the material */
+/* Hallmark · waive 65 · cream paper, Playfair and a terracotta accent are the Confetti brand · the owner asked to keep the Confetti brand exactly */
+/* Hallmark · waive 80 · one phone frame, 274x560, around the built Confetti screen · the phone frames the guest-to-gallery story, the product at work */
+/* Hallmark · dismissed F4 · one filled primary per screen; ink and danger serve other screens (danger only for the app's destructive actions) */
+
 @import "tailwindcss";
-
-:root {
-  --background: #fbf7f1;
-  --foreground: #172033;
-  --color-white: #ffffff;
-  --color-black: #000000;
-  --color-paper: #f2eadf;
-  --color-ink: #172033;
-  --color-accent: #e27952;
-  /* Filled buttons with white text: #e27952 under white is 2.96:1, below the
-     4.5:1 WCAG AA asks of body-size text. Same hue, darker. */
-  --color-accent-strong: #bf5530;
-  --color-accent-soft: #f6d3c3;
-  --color-moss: #38584d;
-  --font-sans: var(--font-inter), "Segoe UI", system-ui, sans-serif;
-  --font-display: var(--font-playfair), Georgia, serif;
-  --font-mono: "IBM Plex Mono", "SFMono-Regular", monospace;
-
-  /* Shared atmosphere gradients — tune here, not per-section */
-  --gradient-card-warm: linear-gradient(135deg, rgba(255, 253, 249, 0.98), rgba(246, 211, 195, 0.55));
-  --gradient-card-moss: linear-gradient(135deg, rgba(250, 255, 252, 0.98), rgba(210, 234, 222, 0.62));
-  --gradient-card-paper: linear-gradient(135deg, rgba(255, 254, 251, 0.98), rgba(242, 234, 223, 0.75));
-  --gradient-band-moss: linear-gradient(160deg, rgba(245, 251, 248, 0.98), rgba(222, 238, 231, 0.85));
-  --gradient-band-warm: linear-gradient(160deg, rgba(255, 253, 250, 0.98), rgba(248, 229, 217, 0.7));
-  --gradient-panel-quiet: linear-gradient(160deg, #fffdfb, rgba(242, 234, 223, 0.85));
-  --gradient-hero-glow:
-    radial-gradient(ellipse at top left, rgba(226, 121, 82, 0.22), transparent 44%),
-    radial-gradient(ellipse at bottom right, rgba(56, 88, 77, 0.12), transparent 40%),
-    linear-gradient(160deg, rgba(255, 252, 248, 0.98), rgba(242, 232, 220, 0.9));
-  --gradient-page-wash:
-    radial-gradient(circle at top left, rgba(226, 121, 82, 0.1), transparent 30%),
-    radial-gradient(circle at top right, rgba(56, 88, 77, 0.08), transparent 26%),
-    linear-gradient(180deg, #faf5ee 0%, #f4f0eb 58%, #f1ece4 100%);
-
-  --shadow-card: 0 24px 80px rgba(18, 24, 38, 0.08);
-  --shadow-card-hover: 0 18px 44px rgba(18, 24, 38, 0.14);
-
-  /* Lightbox viewer — warm-tinted dark instead of pure black */
-  --backdrop-lightbox: rgba(24, 16, 12, 0.88);
-  --color-viewer-surface: #1b1512;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  min-height: 100vh;
-  background:
-    radial-gradient(circle at top left, rgba(226, 121, 82, 0.18), transparent 25%),
-    radial-gradient(circle at top right, rgba(56, 88, 77, 0.14), transparent 22%),
-    linear-gradient(180deg, #fffaf4 0%, #fbf7f1 44%, #f3ede4 100%);
-  color: var(--foreground);
-  font-family: var(--font-sans);
-}
-
-a {
-  text-decoration: none;
-}
-
-button,
-input,
-textarea,
-select {
-  font: inherit;
-}
+@import "./tokens.css";
+@import "./base.css" layer(base);
 
 /* iOS Safari zooms the page into any field smaller than 16px when it gets
    focus, and the guest is left pinching back out. Unlayered, so it wins over
@@ -88,71 +21,394 @@ select {
   }
 }
 
-::selection {
-  background: rgba(226, 121, 82, 0.28);
+@layer components {
+  /* ── Canvas ─────────────────────────────────────────────────── */
+  /* One container for every page: capped at --container, the gutters grow
+     past it. `.shell` is the old name, kept so no page has to change it. */
+  .shell,
+  .container {
+    width: 100%;
+    max-width: var(--container);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+  .prose-measure {
+    max-width: 65ch;
+  }
+
+  /* ── Controls ───────────────────────────────────────────────── */
+  /* One button recipe. Primary is the accent fill and appears once a screen;
+     secondary is outlined, quiet is typographic. Marketing controls are
+     48px, app controls (.btn-sm) 40px with the hit area kept at 44px. */
+  .btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    min-height: 48px;
+    padding-inline: var(--space-lg);
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      background-color var(--dur-micro) var(--ease-out),
+      border-color var(--dur-micro) var(--ease-out),
+      color var(--dur-micro) var(--ease-out),
+      transform var(--dur-micro) var(--ease-out);
+  }
+  .btn:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+    transition: none;
+  }
+  .btn:active:not(:disabled):not([aria-disabled="true"]) {
+    transform: translateY(1px);
+  }
+  .btn:disabled,
+  .btn[aria-disabled="true"] {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .btn[aria-busy="true"] {
+    cursor: progress;
+  }
+  .btn-sm {
+    min-height: 40px;
+    padding-inline: var(--space-md);
+    font-size: var(--text-sm);
+  }
+  .btn-sm::after {
+    content: "";
+    position: absolute;
+    inset: -2px;
+  }
+  .btn-primary {
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+  }
+  .btn-primary:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: color-mix(in oklch, var(--color-accent) 86%, var(--color-ink));
+  }
+  .btn-ink {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  .btn-ink:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--color-ink-2);
+  }
+  .btn-secondary {
+    background: var(--color-card);
+    border-color: var(--color-field-edge);
+    color: var(--color-ink);
+  }
+  .btn-secondary:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--color-paper-2);
+    border-color: var(--color-ink-2);
+  }
+  .btn-quiet {
+    background: transparent;
+    color: var(--color-ink);
+    padding-inline: var(--space-sm);
+  }
+  .btn-quiet:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--color-paper-2);
+  }
+  .btn-danger {
+    background: var(--color-error);
+    color: var(--color-accent-ink);
+  }
+  .btn-danger:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: color-mix(in oklch, var(--color-error) 84%, var(--color-ink));
+  }
+  .btn-danger-quiet {
+    background: transparent;
+    border-color: var(--color-field-edge);
+    color: var(--color-error);
+  }
+  .btn-danger-quiet:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--color-error-soft);
+    border-color: var(--color-error);
+  }
+
+  /* An inline text link: the accent, underlined on hover. */
+  .link {
+    color: var(--color-accent);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 0.2em;
+    transition: text-decoration-color var(--dur-micro) var(--ease-out);
+  }
+  .link:hover {
+    text-decoration-color: currentColor;
+  }
+  .link:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* ── Fields ─────────────────────────────────────────────────── */
+  .field {
+    display: block;
+    width: 100%;
+    min-height: 48px;
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--color-field-edge);
+    border-radius: var(--radius-inner);
+    background: var(--color-card);
+    color: var(--color-ink);
+    font-size: 0.9375rem;
+    line-height: 1.4;
+    transition: border-color var(--dur-micro) var(--ease-out);
+  }
+  .field::placeholder {
+    color: var(--color-muted);
+    opacity: 1;
+  }
+  .field:hover:not(:disabled) {
+    border-color: var(--color-ink-2);
+  }
+  .field:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: -2px;
+    border-color: var(--color-focus);
+  }
+  .field:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .field[aria-invalid="true"] {
+    border-color: var(--color-error);
+  }
+  .field-sm {
+    min-height: 40px;
+    padding-block: var(--space-xs);
+  }
+  textarea.field {
+    min-height: 112px;
+    resize: vertical;
+  }
+  .field-label {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+  .field-hint {
+    display: block;
+    min-height: 1lh;
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  /* ── Surfaces (the ladder: space, hairline, well, card) ─────── */
+  .well {
+    background: var(--color-paper-2);
+    border-radius: var(--radius-card);
+  }
+  .card {
+    background: var(--color-card);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-card);
+  }
+  .card-interactive {
+    transition: border-color var(--dur-short) var(--ease-out);
+  }
+  .card-interactive:hover {
+    border-color: var(--color-rule-2);
+  }
+  .card-interactive:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+  .hairline {
+    border-top: var(--rule-hair) solid var(--color-rule);
+  }
+
+  /* A label in the body face, a step smaller, sentence case. */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    padding: var(--space-2xs) var(--space-sm);
+    border-radius: var(--radius-pill);
+    background: var(--color-paper-2);
+    color: var(--color-ink-2);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+  .chip-moss {
+    background: var(--color-moss-soft);
+    color: var(--color-moss);
+  }
+  .chip-accent {
+    background: var(--color-accent-soft);
+    color: var(--color-ink);
+  }
+  .chip-error {
+    background: var(--color-error-soft);
+    color: var(--color-error);
+  }
+  .chip-warning {
+    background: var(--color-warning-soft);
+    color: var(--color-warning);
+  }
+
+  /* Status lines that report what happened, in the state's own colour. */
+  .notice {
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-inner);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+  }
+  .notice-success {
+    background: var(--color-moss-soft);
+    color: var(--color-moss);
+  }
+  .notice-error {
+    background: var(--color-error-soft);
+    color: var(--color-error);
+  }
+  .notice-warning {
+    background: var(--color-warning-soft);
+    color: var(--color-warning);
+  }
+  .notice-info {
+    background: var(--color-paper-2);
+    color: var(--color-ink-2);
+  }
+
+  /* Type roles the scale names, for places a bare element cannot carry. */
+  .display {
+    font-family: var(--font-display);
+    font-weight: var(--display-weight);
+    font-size: var(--text-display);
+    letter-spacing: var(--tracking-display);
+    line-height: 1.04;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+    min-width: 0;
+  }
+  .display-s {
+    font-family: var(--font-display);
+    font-weight: var(--display-weight);
+    font-size: var(--text-display-s);
+    letter-spacing: var(--tracking-display);
+    line-height: 1.08;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+    min-width: 0;
+  }
+  .section-head {
+    font-family: var(--font-display);
+    font-weight: var(--display-weight);
+    font-size: var(--text-section);
+    letter-spacing: var(--tracking-display);
+    line-height: 1.08;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+    min-width: 0;
+  }
+  .title {
+    font-family: var(--font-display);
+    font-weight: var(--display-weight);
+    font-size: var(--text-title);
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+  .lead {
+    font-size: var(--text-lead);
+    line-height: 1.5;
+    color: var(--color-ink-2);
+  }
+  .meta {
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+  .code {
+    font-family: var(--font-outlier);
+    font-size: 0.9em;
+  }
+
+  /* Section rhythm: three steps, mixed. */
+  .section {
+    padding-block: var(--section-gap);
+  }
+  .section-s {
+    padding-block: var(--section-gap-s);
+  }
+  .section-l {
+    padding-block: var(--section-gap-l);
+  }
+  .band {
+    background: var(--color-paper-2);
+    padding-block: var(--section-gap-s);
+  }
+
+  /* App screens: the fixed scale, quieter heads. */
+  .app-title {
+    font-family: var(--font-display);
+    font-weight: var(--display-weight);
+    font-size: clamp(1.75rem, 1vw + 1.25rem, 2.25rem);
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+  }
+  .app-section-title {
+    font-family: var(--font-display);
+    font-weight: var(--display-weight);
+    font-size: 1.375rem;
+    letter-spacing: -0.005em;
+    line-height: 1.25;
+  }
 }
 
-.shell {
-  width: min(1180px, calc(100% - 2rem));
-  margin-inline: auto;
+/* ── Motion the components still use ──────────────────────────── */
+/* One settle on arrival, transform and opacity only. Visible by default:
+   the keyframes start from the end state's neighbour and run on their own,
+   so nothing waits on a script. */
+@keyframes settle {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.settle {
+  animation: settle var(--dur-long) var(--ease-out) both;
 }
 
-.font-display {
-  font-family: var(--font-display);
+/* Guest upload: the tick after a send, the falling confetti once. */
+@keyframes check-pop {
+  0%   { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1);   opacity: 1; }
 }
-
-.mesh-card {
-  position: relative;
-  overflow: hidden;
+.check-pop {
+  animation: check-pop 0.4s var(--ease-out) forwards;
 }
-
-.mesh-card::after {
-  content: "";
+@keyframes confetti-fall {
+  0%   { transform: translateY(0)     rotate(0deg)   scale(1);   opacity: 1; }
+  100% { transform: translateY(110px) rotate(620deg) scale(0.4); opacity: 0; }
+}
+.confetti-particle {
   position: absolute;
-  inset: auto -10% -50% auto;
-  width: 240px;
-  height: 240px;
-  border-radius: 999px;
-  background: radial-gradient(circle, rgba(226, 121, 82, 0.12), transparent 68%);
-  pointer-events: none;
+  border-radius: 2px;
+  animation: confetti-fall 1.4s var(--ease-in) forwards;
 }
-
-@keyframes live-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.85); }
+@keyframes fade-up-in {
+  0%   { transform: translateY(8px); opacity: 0; }
+  100% { transform: translateY(0);   opacity: 1; }
 }
-
-.live-dot {
-  animation: live-pulse 2s ease-in-out infinite;
+.fade-up-in {
+  animation: fade-up-in var(--dur-long) var(--ease-out) both;
 }
-
-@keyframes float-up {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-6px); }
-}
-
-.float-card {
-  animation: float-up 4s ease-in-out infinite;
-}
-
-.float-card-delay {
-  animation: float-up 4s ease-in-out infinite;
-  animation-delay: 1.2s;
-}
-
-/* The push notification on the landing phone: drops in from under the
-   camera island, stays long enough to read, leaves, and comes back. `both`
-   keeps it hidden until its first entrance. */
-/* ── Upload page ─────────────────────────────────────────── */
-
-@keyframes upload-float {
-  0%, 100% { transform: translateY(0) rotate(-3deg); }
-  50%       { transform: translateY(-10px) rotate(3deg); }
-}
-.upload-icon-float {
-  animation: upload-float 3.5s ease-in-out infinite;
-}
-
 @keyframes shimmer-slide {
   0%   { transform: translateX(-150%); }
   100% { transform: translateX(250%); }
@@ -162,179 +418,46 @@ select {
   overflow: hidden;
 }
 .shimmer-fill::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%);
-  animation: shimmer-slide 1.6s ease-in-out infinite;
+  background: linear-gradient(90deg, transparent 0%, color-mix(in oklch, var(--color-card) 60%, transparent) 50%, transparent 100%);
+  animation: shimmer-slide 1.6s linear infinite;
 }
 
-@keyframes check-pop {
-  0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
-  65%  { transform: scale(1.2) rotate(5deg);  opacity: 1; }
-  100% { transform: scale(1)   rotate(0deg);  opacity: 1; }
-}
-.check-pop {
-  animation: check-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-@keyframes confetti-fall {
-  0%   { transform: translateY(0)     rotate(0deg)   scale(1);   opacity: 1; }
-  100% { transform: translateY(110px) rotate(620deg) scale(0.4); opacity: 0; }
-}
-.confetti-particle {
-  position: absolute;
-  border-radius: 2px;
-  animation: confetti-fall 1.4s ease-in forwards;
-}
-
-@keyframes fade-up-in {
-  0%   { transform: translateY(14px); opacity: 0; }
-  100% { transform: translateY(0);    opacity: 1; }
-}
-.fade-up-in {
-  animation: fade-up-in 0.45s ease-out forwards;
-}
-.fade-up-in-delay {
-  opacity: 0;
-  animation: fade-up-in 0.45s ease-out 0.12s forwards;
-}
-.fade-up-in-delay-2 {
-  opacity: 0;
-  animation: fade-up-in 0.45s ease-out 0.26s forwards;
-}
-
-@keyframes success-ring {
-  0%   { box-shadow: 0 0 0 0   rgba(56, 88, 77, 0.45); }
-  100% { box-shadow: 0 0 0 24px rgba(56, 88, 77, 0);   }
-}
-.success-ring {
-  animation: success-ring 0.9s ease-out 0.3s 1;
-}
-
-/* ── Atmosphere utilities (gradient + matching border tint) ── */
-
-.card-warm  { background: var(--gradient-card-warm);  border-color: #edd5c5; }
-.card-moss  { background: var(--gradient-card-moss);  border-color: #c8e0d4; }
-.card-paper { background: var(--gradient-card-paper); border-color: #ddd4c6; }
-.band-moss  { background: var(--gradient-band-moss);  border-color: #cfe0d7; }
-.band-warm  { background: var(--gradient-band-warm);  border-color: #ecd5c6; }
-.panel-quiet { background: var(--gradient-panel-quiet); border-color: #d9cfc1; }
-.hero-glow  { background: var(--gradient-hero-glow); }
-.page-wash  { background: var(--gradient-page-wash); }
-
-/* ── Hover lift for cards ── */
-
-.lift-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.lift-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-card-hover);
-}
-
-/* ── Staggered reveal — reuses fade-up-in on direct children ── */
-
-.stagger-children > * {
-  opacity: 0;
-  animation: fade-up-in 0.5s ease-out forwards;
-}
-.stagger-children > *:nth-child(1)  { animation-delay: 0.03s; }
-.stagger-children > *:nth-child(2)  { animation-delay: 0.08s; }
-.stagger-children > *:nth-child(3)  { animation-delay: 0.13s; }
-.stagger-children > *:nth-child(4)  { animation-delay: 0.18s; }
-.stagger-children > *:nth-child(5)  { animation-delay: 0.23s; }
-.stagger-children > *:nth-child(6)  { animation-delay: 0.28s; }
-.stagger-children > *:nth-child(7)  { animation-delay: 0.33s; }
-.stagger-children > *:nth-child(8)  { animation-delay: 0.38s; }
-.stagger-children > *:nth-child(9)  { animation-delay: 0.42s; }
-.stagger-children > *:nth-child(10) { animation-delay: 0.46s; }
-.stagger-children > *:nth-child(11) { animation-delay: 0.5s; }
-.stagger-children > *:nth-child(12) { animation-delay: 0.54s; }
-.stagger-children > *:nth-child(n + 13) { animation-delay: 0.58s; }
-
-/* ── Lightbox open + media cross-fade ── */
-
+/* Lightbox open + media cross-fade. */
 @keyframes lightbox-backdrop-in {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
 .lightbox-backdrop-in {
-  animation: lightbox-backdrop-in 0.25s ease-out;
+  animation: lightbox-backdrop-in var(--dur-short) var(--ease-out);
 }
-
 @keyframes lightbox-panel-in {
-  from { opacity: 0; transform: translateY(12px) scale(0.985); }
+  from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: none; }
 }
 .lightbox-panel-in {
-  animation: lightbox-panel-in 0.32s cubic-bezier(0.22, 0.8, 0.36, 1);
+  animation: lightbox-panel-in var(--dur-long) var(--ease-out);
 }
-
 @keyframes lightbox-media-in {
-  from { opacity: 0; transform: scale(0.985); }
-  to   { opacity: 1; transform: scale(1); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 .lightbox-media-in {
-  animation: lightbox-media-in 0.28s ease-out;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .lift-card,
-  .lift-card:hover {
-    transition: none;
-    transform: none;
-  }
-  .stagger-children > * {
-    animation: none;
-    opacity: 1;
-  }
-  .lightbox-backdrop-in,
-  .lightbox-panel-in,
-  .lightbox-media-in {
-    animation: none;
-  }
-  .float-card,
-  .float-card-delay {
-    animation: none;
-  }
-}
-
-/* "How it works" scenes: under reduced motion every scene is shown at its
-   final frame, so nothing should transition into it. */
-@media (prefers-reduced-motion: reduce) {
-  [data-hiw] * {
-    transition: none !important;
-    animation: none !important;
-  }
+  animation: lightbox-media-in var(--dur-short) var(--ease-out);
 }
 
 /* ─── Hero device ──────────────────────────────────────────────── */
-/* The two floating cards drift only on desktop; on phones nothing in the hero
-   moves except the screen's own contents. */
-@media (min-width: 1024px) and (hover: hover) {
-  .hd-float {
-    animation: float-up 6s ease-in-out infinite;
-  }
-  .hd-float-late {
-    animation-delay: 1.8s;
-  }
-}
-/* Entrance: one short fade-up. */
+/* The phone holds still; only its screen plays. One short rise on entry. */
 .hd-rise {
-  animation: hd-rise 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: hd-rise 500ms var(--ease-out) both;
 }
 @keyframes hd-rise {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
 }
-/* The two floating cards stand off the phone's sides where there is room;
+/* The two cards beside the phone stand off its sides where there is room;
    on a phone screen they tuck in so nothing is cut off. */
 .hd-badge {
   right: -40%;
@@ -353,40 +476,27 @@ select {
   }
 }
 
-/* ─── Hero pill ────────────────────────────────────────────────── */
-.hero-pill {
-  border: 1px solid transparent;
-  background:
-    linear-gradient(rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.72)) padding-box,
-    linear-gradient(120deg, rgba(226, 121, 82, 0.55), rgba(56, 88, 77, 0.3) 55%, rgba(226, 121, 82, 0.25)) border-box;
-}
-.hero-pill::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.75) 50%, transparent 70%);
-  transform: translateX(-120%);
-  animation: hero-pill-sheen 1.6s ease-out 0.6s 1 both;
-  pointer-events: none;
-}
-@keyframes hero-pill-sheen {
-  to { transform: translateX(120%); }
-}
-.hero-pill-ping {
-  animation: hero-pill-ping 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
-}
-@keyframes hero-pill-ping {
-  0% { transform: scale(1); opacity: 0.55; }
-  80%, 100% { transform: scale(2.6); opacity: 0; }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  [data-hero-device] *,
-  .hd-float,
-  .hd-rise,
-  .hero-pill::after,
-  .hero-pill-ping {
+  .settle,
+  .check-pop,
+  .confetti-particle,
+  .fade-up-in,
+  .shimmer-fill::after,
+  .lightbox-backdrop-in,
+  .lightbox-panel-in,
+  .lightbox-media-in,
+  .hd-rise {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .confetti-particle {
+    display: none;
+  }
+  /* "How it works" and the hero phone: every scene shows its final frame,
+     so nothing transitions into it. */
+  [data-hiw] *,
+  [data-hero-device] * {
     transition: none !important;
     animation: none !important;
   }

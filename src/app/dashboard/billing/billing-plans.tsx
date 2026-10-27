@@ -142,7 +142,7 @@ export function BillingPlans({
                   isCurrent
                     ? "bg-black/8 text-black/40"
                     : meta.accent
-                      ? "bg-[var(--color-accent-strong)] text-white hover:brightness-105 disabled:opacity-60"
+                      ? "bg-[var(--color-accent)] text-white hover:brightness-105 disabled:opacity-60"
                       : "bg-[var(--color-ink)] text-white hover:bg-[var(--color-ink)]/90 disabled:opacity-60"
                 }`}
               >

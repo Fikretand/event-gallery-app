@@ -11,17 +11,10 @@ export function Input({ className, label, hint, id, ...props }: InputProps) {
   const inputId = id ?? props.name;
 
   return (
-    <label className="flex flex-col gap-2 text-sm font-medium text-[var(--color-ink)]" htmlFor={inputId}>
-      <span>{label}</span>
-      <input
-        id={inputId}
-        className={cn(
-          "rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm outline-none transition placeholder:text-black/35 focus:border-[var(--color-ink)] focus:ring-4 focus:ring-[var(--color-accent)]/20",
-          className,
-        )}
-        {...props}
-      />
-      {hint ? <span className="text-xs font-normal text-black/55">{hint}</span> : null}
+    <label className="flex flex-col gap-2" htmlFor={inputId}>
+      <span className="field-label">{label}</span>
+      <input id={inputId} className={cn("field", className)} {...props} />
+      {hint ? <span className="field-hint">{hint}</span> : null}
     </label>
   );
 }

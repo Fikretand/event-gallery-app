@@ -51,7 +51,7 @@ export default async function SignupPage({
           </div>
           <p className="text-sm text-black/55">
             {d.alreadyHaveAccess}{" "}
-            <Link href={`/${locale}/login`} className="font-semibold text-[var(--color-accent-strong)]">
+            <Link href={`/${locale}/login`} className="font-semibold text-[var(--color-accent)]">
               {d.logIn}
             </Link>
             .

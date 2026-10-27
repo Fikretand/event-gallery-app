@@ -4,12 +4,10 @@ import QRCode from "qrcode";
 
 import { AudienceCtas } from "@/components/audience-ctas";
 import { ConfettiExplainer } from "@/components/explainer/confetti-explainer-lazy";
-import { ConfettiHeroAnimation } from "@/components/hero-animation/confetti-hero-animation-lazy";
 import { HeroDevice } from "@/components/hero-device/hero-device";
 import { HowItWorks } from "@/components/how-it-works/how-it-works";
-import { MarketingButtonLink } from "@/components/marketing-button-link";
 import { PricingShowcase } from "@/components/pricing-showcase";
-import { Panel } from "@/components/ui/panel";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteNav } from "@/components/site-nav";
 import { listPublicPhotographers } from "@/lib/events";
 import { daysWord, getDictionary, t, type Locale } from "@/lib/i18n/index";
@@ -23,7 +21,7 @@ import { absoluteUrl } from "@/lib/utils";
 
 function WebsiteIcon() {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
       <circle cx="12" cy="12" r="8.5" />
       <path d="M3.5 12h17" />
       <path d="M12 3.5c2.7 2.4 4.2 5.33 4.2 8.5S14.7 18.1 12 20.5c-2.7-2.4-4.2-5.33-4.2-8.5S9.3 5.9 12 3.5Z" />
@@ -32,7 +30,7 @@ function WebsiteIcon() {
 }
 function InstagramIcon() {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
       <rect x="4.5" y="4.5" width="15" height="15" rx="4.2" />
       <circle cx="12" cy="12" r="3.5" />
       <circle cx="17.2" cy="6.8" r="0.9" fill="currentColor" stroke="none" />
@@ -41,33 +39,39 @@ function InstagramIcon() {
 }
 function FacebookIcon() {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4" fill="currentColor">
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="currentColor">
       <path d="M13.3 20v-6.3h2.2l.33-2.58h-2.53V9.44c0-.75.2-1.26 1.28-1.26h1.37V5.87c-.24-.03-1.05-.1-2-.1-1.97 0-3.32 1.2-3.32 3.4v1.92H8.5v2.58h2.18V20h2.62Z" />
     </svg>
   );
 }
 function MailIcon() {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
       <rect x="3.5" y="5.5" width="17" height="13" rx="2.5" />
       <path d="m5.5 7.5 6.5 5 6.5-5" />
     </svg>
   );
 }
+function PlusIcon() {
+  return (
+    <svg viewBox="0 0 20 20" aria-hidden="true" className="h-5 w-5 shrink-0 text-ink-2 transition-transform duration-[var(--dur-short)] ease-[var(--ease-in-out)] group-open:rotate-45" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+      <path d="M10 4v12M4 10h12" />
+    </svg>
+  );
+}
 
-
-// Editorial photo mosaic for the landing — real event photos from /public.
-// `span` drives the bento rhythm; `grid-flow-dense` keeps it gap-free.
-// 12 cells exactly (2×2 + 1×2 + 2×1 + four singles): three full rows at four
-// columns, six at two. One more tile always left an orphan on the last row.
-const GALLERY_MOSAIC: { src: string; span: string }[] = [
-  { src: "/explainer/assets/gallery-ceremony-1.webp", span: "col-span-2 row-span-2" },
-  { src: "/explainer/assets/party-2.webp", span: "" },
-  { src: "/explainer/assets/gallery-cake-1.webp", span: "" },
-  { src: "/explainer/assets/gallery-toasts-1.webp", span: "row-span-2" },
-  { src: "/explainer/assets/generic-1.webp", span: "" },
-  { src: "/explainer/assets/gallery-reception-1.webp", span: "col-span-2" },
-  { src: "/explainer/assets/party-4.webp", span: "" },
+// Guest photos from real events, at the size a phone screen holds them. The
+// rail runs past the container's edge, so the next one is always cut: there
+// are more than fit, which is the point the section makes.
+const GUEST_PHOTOS: { src: string; w: number; h: number }[] = [
+  { src: "/explainer/assets/gallery-reception-1.webp", w: 667, h: 1000 },
+  { src: "/explainer/assets/party-4.webp", w: 750, h: 1000 },
+  { src: "/explainer/assets/generic-1.webp", w: 667, h: 1000 },
+  { src: "/explainer/assets/gallery-reception-2.webp", w: 427, h: 640 },
+  { src: "/explainer/assets/generic-3.webp", w: 667, h: 1000 },
+  { src: "/explainer/assets/party-5.webp", w: 480, h: 640 },
+  { src: "/explainer/assets/birthday-1.webp", w: 427, h: 640 },
+  { src: "/explainer/assets/gallery-reception-3.webp", w: 427, h: 640 },
 ];
 
 /**
@@ -133,8 +137,8 @@ export default async function HomePage({
 
   const publicPhotographers = await listPublicPhotographers();
   const lp = (path: string) => `/${locale}${path}`;
-  // A real, scannable code on the mockup (it used to be a drawn pattern). It
-  // leads somewhere useful for whoever scans it off the screen.
+  // A real, scannable code on the mockup. It leads somewhere useful for
+  // whoever scans it off the screen.
   const mockupQrSvg = await QRCode.toString(absoluteUrl(lp("/kako-funkcionise")), {
     type: "svg",
     margin: 0,
@@ -142,300 +146,235 @@ export default async function HomePage({
     color: { dark: "#172033", light: "#ffffff" },
   });
 
+  const routes = [
+    {
+      href: lp("/for-photographers"),
+      title: d.forPhotographersEyebrow,
+      body: d.photographerCardBody,
+      cta: d.forPhotographersCtaPrimary,
+      photo: "/explainer/assets/gallery-ceremony-1.webp",
+    },
+    {
+      href: lp("/for-couples"),
+      title: d.forCouplesEyebrow,
+      body: d.coupleCardBody,
+      cta: d.forCouplesCtaPrimary,
+      photo: "/explainer/assets/party-2.webp",
+    },
+  ];
+
   return (
     <main>
       <SiteNav />
 
-      {/* ─── Hero ─────────────────────────────────────────────────── */}
-      {/* The phone's glow and 3D depth reach past the column; clip at the viewport, not the shell. */}
-      <div className="overflow-x-clip">
-      <section className="shell pb-[clamp(40px,6vw,64px)] pt-[clamp(40px,6vw,72px)]">
-        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
-          <div>
-            {/* Pill: a green "no app" tag, one plain sentence, and a jump to how it works. */}
-            <a
-              href="#how-it-works"
-              className="hero-pill group relative inline-flex max-w-full items-center gap-2.5 overflow-hidden rounded-[20px] p-1 pr-3.5 text-[13px] font-medium leading-snug text-[var(--color-ink)]/80 shadow-[0_6px_20px_rgba(18,24,38,0.06)] backdrop-blur transition-colors hover:text-[var(--color-ink)] sm:rounded-full"
-            >
-              <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#e6f2ee] px-2.5 py-1 text-xs font-semibold text-[var(--color-moss)]">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="hero-pill-ping absolute inset-0 rounded-full bg-[var(--color-moss)]" />
-                  <span className="relative h-1.5 w-1.5 rounded-full bg-[var(--color-moss)]" />
-                </span>
-                {d.badgeTag}
-              </span>
-              <span className="min-w-0">{d.badgeText}</span>
-              <svg viewBox="0 0 16 16" aria-hidden className="h-3.5 w-3.5 shrink-0 text-[var(--color-moss)] transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 8h9.5M8.5 4l4 4-4 4" />
-              </svg>
-            </a>
-            <h1 className="font-display mt-6 text-5xl font-semibold leading-[1.04] tracking-tight text-[var(--color-ink)] sm:text-6xl">
+      {/* ─── Hero: the words on six columns, the phone playing the guest →
+           host → gallery story on five. ─── */}
+      <section className="overflow-x-clip">
+        <div className="shell grid min-h-[min(calc(100svh-var(--nav-height)),900px)] items-center gap-y-[var(--space-xl)] py-[var(--space-xl)] lg:grid-cols-12 lg:gap-x-[var(--gap-columns)]">
+          <div className="settle lg:col-span-6">
+            <h1 className="max-w-[16ch] font-display text-[clamp(2.625rem,4.4vw+1rem,4.75rem)] font-semibold leading-[1.03] tracking-[-0.025em] text-ink">
               {d.heroTitle}
             </h1>
-            <p className="mt-6 max-w-xl text-base leading-7 text-black/62 sm:text-lg sm:leading-8">
-              {d.heroBody}
-            </p>
-            <AudienceCtas locale={locale as Locale} showPricingLink className="mt-8" />
-            <p className="mt-5 text-xs text-black/42">{d.heroCaveat}</p>
+            <p className="lead mt-[var(--space-lg)] max-w-[40ch]">{d.heroBody}</p>
+            <AudienceCtas locale={locale as Locale} className="mt-[var(--space-xl)]" />
+            <p className="meta mt-[var(--space-lg)]">{d.heroCaveat}</p>
           </div>
 
-          {/* Hand-held phone playing the guest → host → gallery story */}
-          <HeroDevice copy={d.heroDevice} qrSvg={mockupQrSvg} />
+          <div className="lg:col-span-6 lg:col-start-7">
+            <HeroDevice copy={d.heroDevice} qrSvg={mockupQrSvg} align="start" />
+          </div>
         </div>
       </section>
-      </div>
 
-      {/* ─── Stats strip — quiet, chromeless row between the hero and how it works ── */}
-      <section className="shell pb-10">
-        <div className="grid grid-cols-3 divide-x divide-black/10 border-y border-black/6 py-6 sm:py-7">
+      {/* ─── Three figures the page already stated, parted by hairlines ── */}
+      <section className="shell">
+        <dl className="grid grid-cols-1 border-y border-rule sm:grid-cols-3 sm:divide-x sm:divide-rule">
           {d.stats.map((stat) => (
-            <div key={stat.label} className="min-w-0 px-2 text-center">
-              <p className="font-display text-2xl font-semibold leading-tight text-[var(--color-ink)] sm:text-3xl">
-                {stat.value}
-              </p>
-              <p className="mx-auto mt-1 max-w-[9rem] text-[11px] leading-4 text-black/50 sm:text-xs">{stat.label}</p>
+            <div key={stat.label} className="flex flex-col-reverse gap-2 border-b border-rule py-[var(--space-lg)] last:border-b-0 sm:border-b-0 sm:px-[var(--space-xl)] sm:py-[var(--space-xl)] sm:first:pl-0">
+              <dt className="text-ink-2">{stat.label}</dt>
+              <dd className="num font-display text-[length:var(--text-display-s)] font-semibold leading-none tracking-[-0.02em] text-ink">{stat.value}</dd>
             </div>
           ))}
-        </div>
+        </dl>
       </section>
 
-      {/* ─── How it works — step switcher + animated scenes ─────────── */}
+      {/* ─── How it works: four steps beside the stage that plays them ── */}
       <HowItWorks copy={d.howItWorks} qrSvg={mockupQrSvg} />
 
       {/* The old animated explainer, parked (see SHOW_EXPLAINER). */}
       {SHOW_EXPLAINER ? (
         <section className="shell pb-12 sm:pb-16">
-          <div className="rounded-[34px] border border-[#22334c]/60 bg-[linear-gradient(160deg,#1e2d45,#172033)] p-2.5 shadow-[0_30px_80px_rgba(18,24,38,0.18)] sm:p-3.5">
+          <div className="rounded-[var(--radius-card)] bg-ink p-3">
             <ConfettiExplainer />
           </div>
         </section>
       ) : null}
 
-      {/* ─── Photo mosaic band — real galleries break up the text-heavy flow ── */}
-      <section className="shell pb-14 sm:pb-20">
-        <div className="grid gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:items-center">
-          <div className="max-w-md">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-accent)]">
-              {d.galleryBandEyebrow}
-            </p>
-            <h2 className="font-display mt-3 text-3xl font-semibold leading-tight tracking-tight text-[var(--color-ink)] sm:text-4xl">
-              {d.galleryBandTitle}{" "}
-              <em className="block italic text-[var(--color-accent)]">{d.galleryBandTitleAccent}</em>
-            </h2>
-            <p className="mt-4 text-sm leading-7 text-black/60 sm:text-base">{d.galleryBandBody}</p>
-          </div>
+      {/* ─── The argument, then the photographs that make it ──────────── */}
+      <section className="band overflow-x-clip">
+        <div className="shell grid gap-y-[var(--space-lg)] lg:grid-cols-12 lg:gap-x-[var(--gap-columns)]">
+          <h2 className="section-head text-ink lg:col-span-8">
+            {d.galleryBandTitle}
+            <span className="display-s mt-[var(--space-sm)] block text-ink-2">{d.galleryBandTitleAccent}</span>
+          </h2>
+          <p className="max-w-[52ch] text-[1.0625rem] leading-relaxed text-ink-2 lg:col-span-4 lg:col-start-9 lg:self-end">
+            {d.galleryBandBody}
+          </p>
+        </div>
+        <ul
+          tabIndex={0}
+          aria-label={d.galleryBandEyebrow}
+          // The first photo lines up with the container's left edge; the
+          // rail itself runs to the window's right edge.
+          style={{ paddingLeft: "max(var(--gutter), calc((100% - var(--container)) / 2 + var(--gutter)))" }}
+          className="mt-[var(--space-2xl)] flex snap-x snap-mandatory gap-[var(--space-md)] overflow-x-auto pb-[var(--space-md)] pr-[var(--gutter)] [scrollbar-width:thin] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-focus)]"
+        >
+          {GUEST_PHOTOS.map((photo) => (
+            <li key={photo.src} className="w-[clamp(200px,22vw,300px)] shrink-0 snap-start">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={photo.src}
+                alt=""
+                width={photo.w}
+                height={photo.h}
+                loading="lazy"
+                decoding="async"
+                className="aspect-[3/4] h-auto w-full rounded-[var(--radius-image)] bg-paper-3 object-cover"
+              />
+            </li>
+          ))}
+        </ul>
+      </section>
 
-          <div className="stagger-children grid auto-rows-[112px] grid-flow-row-dense grid-cols-2 gap-2.5 sm:auto-rows-[132px] sm:grid-cols-4 sm:gap-3 lg:auto-rows-[150px]">
-            {GALLERY_MOSAIC.map((tile) => (
-              <div
-                key={tile.src}
-                className={`lift-card overflow-hidden rounded-[18px] border border-black/5 bg-[var(--color-paper)] shadow-[0_10px_30px_rgba(18,24,38,0.06)] sm:rounded-[22px] ${tile.span}`}
-              >
+      {/* ─── Two ways in: the heading beside two routes, each with a photo
+           of the kind of event it is for ─────────────────────────────── */}
+      <section className="shell section">
+        <div className="grid gap-y-[var(--space-xl)] lg:grid-cols-12 lg:gap-x-[var(--gap-columns)]">
+          <h2 className="section-head max-w-[14ch] text-ink lg:col-span-4">{d.whoForTitle}</h2>
+          <ul className="grid gap-x-[var(--gap-columns)] gap-y-[var(--space-2xl)] sm:grid-cols-2 lg:col-span-8">
+            {routes.map((route) => (
+              <li key={route.href} className="flex flex-col">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={tile.src}
+                  src={route.photo}
                   alt=""
+                  width={800}
+                  height={533}
                   loading="lazy"
-                  className="h-full w-full object-cover transition-transform duration-500 ease-out hover:scale-[1.05]"
+                  decoding="async"
+                  className="aspect-[4/3] h-auto w-full rounded-[var(--radius-image)] bg-paper-3 object-cover"
                 />
-              </div>
+                <h3 className="title mt-[var(--space-lg)] text-ink">{route.title}</h3>
+                <p className="mt-[var(--space-sm)] max-w-[44ch] leading-relaxed text-ink-2">{route.body}</p>
+                <Link href={route.href} className="link mt-[var(--space-md)] self-start">
+                  {route.cta}
+                </Link>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </section>
 
-      {/* ─── Who it's for (router band) — quiet full-bleed paper band, left header ── */}
-      <section className="border-y border-black/6 bg-[var(--color-paper)]/45 py-12 sm:py-16">
-        <div className="shell">
-        <div className="mb-7 max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-moss)]">
-            {d.whoForEyebrow}
-          </p>
-          <h2 className="font-display mt-3 text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">
-            {d.whoForTitle}
-          </h2>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-[1.06fr_0.94fr]">
-          {/* Photographers */}
-          <Link
-            href={lp("/for-photographers")}
-            className="band-moss group relative overflow-hidden rounded-[28px] border p-7 transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(56,88,77,0.16)]"
-          >
-            <div className="inline-flex h-12 w-12 items-center justify-center rounded-[18px] bg-white/85 text-[var(--color-moss)] shadow-[0_8px_20px_rgba(18,24,38,0.07)]">
-              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7">
-                <rect x="3" y="6.5" width="18" height="13" rx="2.5" />
-                <path d="M8.5 6.5l1.4-2.2h4.2l1.4 2.2" />
-                <circle cx="12" cy="13" r="3.4" />
-              </svg>
-            </div>
-            <p className="mt-5 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-moss)]">
-              {d.forPhotographersEyebrow}
-            </p>
-            <p className="mt-2 text-sm leading-6 text-black/68">{d.photographerCardBody}</p>
-            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-ink)]">
-              {d.forPhotographersCtaPrimary}
-              <span className="transition-transform group-hover:translate-x-1">→</span>
-            </span>
-          </Link>
-
-          {/* Event hosts */}
-          <Link
-            href={lp("/for-couples")}
-            className="band-warm group relative overflow-hidden rounded-[28px] border p-7 transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(226,121,82,0.16)]"
-          >
-            <div className="inline-flex h-12 w-12 items-center justify-center rounded-[18px] bg-white/85 text-[var(--color-accent)] shadow-[0_8px_20px_rgba(18,24,38,0.07)]">
-              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7">
-                <path d="M12 20.5s-7-4.3-7-9.4a3.6 3.6 0 016.999-1.2A3.6 3.6 0 0119 11.1c0 5.1-7 9.4-7 9.4z" />
-              </svg>
-            </div>
-            <p className="mt-5 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-moss)]">
-              {d.forCouplesEyebrow}
-            </p>
-            <p className="mt-2 text-sm leading-6 text-black/68">{d.coupleCardBody}</p>
-            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-ink)]">
-              {d.forCouplesCtaPrimary}
-              <span className="transition-transform group-hover:translate-x-1">→</span>
-            </span>
-          </Link>
-        </div>
-        </div>
-      </section>
-
-      {/* ─── Pricing ──────────────────────────────────────────────── */}
-      <section className="shell py-12 sm:py-16">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-moss)]">
-              {d.pricingEyebrow}
-            </p>
-            <h2 className="font-display mt-3 text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">
-              {d.pricingTitle}
-            </h2>
-          </div>
-          <Link href={lp("/pricing")} className="inline-block py-1 text-sm font-semibold text-[var(--color-moss)] underline-offset-4 hover:underline">
+      {/* ─── Pricing, monthly or yearly ───────────────────────────────── */}
+      <section id="pricing" className="shell section-s">
+        <div className="mb-[var(--space-2xl)] flex flex-col gap-[var(--space-md)] md:flex-row md:items-end md:justify-between">
+          <h2 className="section-head text-ink">{d.pricingTitle}</h2>
+          <Link href={lp("/pricing")} className="link">
             {d.pricingLink}
           </Link>
         </div>
-        <div className="mt-8">
-          <PricingShowcase />
-        </div>
+        <PricingShowcase />
       </section>
 
-      {/* ─── Photographer spotlight ───────────────────────────────── */}
+      {/* ─── Photographer spotlight (live data, opt-in) ───────────────── */}
       {publicPhotographers.length > 0 ? (
-        <section className="shell py-12 sm:py-16">
-          <div className="mb-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-moss)]">
-              {d.photographerSpotlightEyebrow}
-            </p>
-            <h2 className="font-display mt-3 text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">
-              {d.photographerSpotlightTitle}
-            </h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-black/58">
-              {d.photographerSpotlightBody}
-            </p>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {publicPhotographers.map((profile) => (
-              <Panel key={profile.id} className="lift-card bg-white/88">
-                <div className="flex items-center gap-4">
-                  <div className="h-16 w-16 overflow-hidden rounded-[18px] border border-black/10 bg-[var(--color-paper)] shadow-inner">
+        <section className="shell section-s">
+          <div className="grid gap-y-[var(--space-lg)] lg:grid-cols-12 lg:gap-x-[var(--gap-columns)]">
+            <div className="lg:col-span-4">
+              <h2 className="section-head text-ink">{d.photographerSpotlightTitle}</h2>
+              <p className="mt-[var(--space-md)] max-w-[40ch] text-ink-2">{d.photographerSpotlightBody}</p>
+            </div>
+            <ul className="border-t border-rule lg:col-span-8">
+              {publicPhotographers.map((profile) => (
+                <li key={profile.id} className="flex flex-wrap items-center gap-x-5 gap-y-3 border-b border-rule py-[var(--space-lg)]">
+                  <div className="h-14 w-14 shrink-0 overflow-hidden rounded-full bg-paper-2">
                     {profile.avatarPreviewUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={profile.avatarPreviewUrl} alt={profile.full_name ?? "Photographer"} className="h-full w-full object-cover" />
+                      <img src={profile.avatarPreviewUrl} alt="" width={56} height={56} className="h-full w-full object-cover" />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(235,132,88,0.18),_transparent_55%),linear-gradient(135deg,_rgba(23,32,51,0.08),_rgba(255,248,240,0.92))] text-center text-[9px] font-semibold uppercase tracking-[0.18em] text-black/40">{dict.photographerPlaceholder}</div>
+                      <span className="flex h-full w-full items-center justify-center font-display text-xl font-semibold text-ink-2">
+                        {(profile.full_name ?? "?").slice(0, 1)}
+                      </span>
                     )}
                   </div>
-                  <div>
-                    <p className="font-semibold text-[var(--color-ink)]">{profile.full_name ?? "Photographer"}</p>
-                    {profile.city ? <p className="mt-0.5 text-sm text-black/52">{profile.city}</p> : null}
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-ink">{profile.full_name ?? dict.photographerPlaceholder}</p>
+                    {profile.city ? <p className="meta mt-0.5">{profile.city}</p> : null}
                   </div>
-                </div>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {profile.website_url ? <MarketingButtonLink href={profile.website_url} tone="ghost" className="px-3 py-2 text-xs" external aria-label={`Website for ${profile.full_name}`}><WebsiteIcon /></MarketingButtonLink> : null}
-                  {profile.instagram_url ? <MarketingButtonLink href={profile.instagram_url} tone="ghost" className="px-3 py-2 text-xs" external aria-label={`Instagram for ${profile.full_name}`}><InstagramIcon /></MarketingButtonLink> : null}
-                  {profile.facebook_url ? <MarketingButtonLink href={profile.facebook_url} tone="ghost" className="px-3 py-2 text-xs" external aria-label={`Facebook for ${profile.full_name}`}><FacebookIcon /></MarketingButtonLink> : null}
-                  {profile.public_email_on_homepage && profile.email ? <MarketingButtonLink href={`mailto:${profile.email}`} tone="ghost" className="px-3 py-2 text-xs" aria-label={`Email ${profile.full_name}`}><MailIcon /></MarketingButtonLink> : null}
-                </div>
-              </Panel>
-            ))}
+                  <div className="flex gap-1">
+                    {profile.website_url ? (
+                      <a href={profile.website_url} target="_blank" rel="noreferrer noopener" aria-label={`Website: ${profile.full_name}`} className="btn btn-sm btn-quiet min-w-11">
+                        <WebsiteIcon />
+                      </a>
+                    ) : null}
+                    {profile.instagram_url ? (
+                      <a href={profile.instagram_url} target="_blank" rel="noreferrer noopener" aria-label={`Instagram: ${profile.full_name}`} className="btn btn-sm btn-quiet min-w-11">
+                        <InstagramIcon />
+                      </a>
+                    ) : null}
+                    {profile.facebook_url ? (
+                      <a href={profile.facebook_url} target="_blank" rel="noreferrer noopener" aria-label={`Facebook: ${profile.full_name}`} className="btn btn-sm btn-quiet min-w-11">
+                        <FacebookIcon />
+                      </a>
+                    ) : null}
+                    {profile.public_email_on_homepage && profile.email ? (
+                      <a href={`mailto:${profile.email}`} aria-label={`E-mail: ${profile.full_name}`} className="btn btn-sm btn-quiet min-w-11">
+                        <MailIcon />
+                      </a>
+                    ) : null}
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
       ) : null}
 
-      {/* ─── FAQ ──────────────────────────────────────────────────── */}
-      <section className="shell py-12 sm:py-16">
-        <Panel className="mesh-card panel-quiet">
-          <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr]">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-moss)]">
-                {d.faqEyebrow}
-              </p>
-              <h2 className="font-display mt-4 text-3xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-4xl">
-                {d.faqTitle}
-              </h2>
-              <p className="mt-4 max-w-sm text-sm leading-7 text-black/62">{d.faqBody}</p>
-            </div>
-            <div className="space-y-3">
-              {dm.faqs.map((faq, index) => (
-                <details
-                  key={faq.question}
-                  className="group rounded-[20px] border border-black/8 bg-white/85 p-5"
-                  open={index === 0}
-                >
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold text-[var(--color-ink)] marker:content-none">
-                    <span>{faq.question}</span>
-                    <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--color-paper)] text-[var(--color-moss)] transition group-open:rotate-45">+</span>
-                  </summary>
-                  <p className="mt-3 pr-10 text-sm leading-6 text-black/65">{t(faq.answer, faqFacts)}</p>
-                </details>
-              ))}
-            </div>
+      {/* ─── Questions, as rows beside their heading ──────────────────── */}
+      <section className="shell section">
+        <div className="grid gap-y-[var(--space-xl)] lg:grid-cols-12 lg:gap-x-[var(--gap-columns)]">
+          <div className="lg:col-span-4">
+            <h2 className="section-head text-ink">{d.faqTitle}</h2>
+            <p className="mt-[var(--space-md)] text-ink-2">{d.faqBody}</p>
           </div>
-        </Panel>
-      </section>
-
-      {/* ─── Footer CTA ───────────────────────────────────────────── */}
-      <section className="shell pb-20 pt-4">
-        <div className="hero-glow relative overflow-hidden rounded-[36px] border border-[var(--color-accent)]/18 px-8 py-16 text-center shadow-[0_30px_80px_rgba(18,24,38,0.08)]">
-          <div className="pointer-events-none absolute -left-16 -top-16 h-64 w-64 rounded-full bg-[var(--color-accent)]/8 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-12 -right-12 h-56 w-56 rounded-full bg-[var(--color-moss)]/8 blur-3xl" />
-          <div className="relative">
-            {/* 3D hero loop — QR → camera → Confetti wordmark (lazy, transparent) */}
-            <div className="mx-auto -mt-2 mb-1 h-[clamp(200px,52vw,320px)] w-[clamp(200px,52vw,320px)]">
-              <ConfettiHeroAnimation className="h-full w-full" />
-            </div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-accent)]/22 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-accent)]">
-              <span className="live-dot inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" />
-              {d.footerCtaBadge}
-            </span>
-            <h2 className="font-display mx-auto mt-5 max-w-2xl text-4xl font-semibold leading-[1.06] tracking-tight text-[var(--color-ink)] sm:text-5xl">
-              {d.footerCtaTitle}
-            </h2>
-            <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-black/58">{d.footerCtaBody}</p>
-            <AudienceCtas locale={locale as Locale} align="center" className="mt-8" />
-          </div>
-        </div>
-      </section>
-
-      {/* ─── Footer ───────────────────────────────────────────────── */}
-      <footer className="border-t border-black/8 bg-[var(--color-paper)]/40">
-        <div className="shell flex flex-col gap-6 py-10 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="font-display text-lg font-semibold text-[var(--color-ink)]">Confetti</p>
-            <p className="mt-1 text-xs text-black/60">{d.footerTagline}</p>
-          </div>
-          <nav className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-black/65">
-            {d.footerLinks.map((link) => (
-              <Link key={link.href} href={lp(link.href)} className="inline-block py-1.5 hover:text-[var(--color-ink)]">
-                {link.label}
-              </Link>
+          <div className="border-t border-rule lg:col-span-8">
+            {dm.faqs.map((faq, index) => (
+              <details key={faq.question} className="group border-b border-rule" open={index === 0}>
+                <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-6 py-[var(--space-lg)] text-[1.0625rem] font-semibold text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus)] [&::-webkit-details-marker]:hidden">
+                  <span>{faq.question}</span>
+                  <PlusIcon />
+                </summary>
+                <p className="max-w-[65ch] pb-[var(--space-lg)] pr-10 leading-relaxed text-ink-2">{t(faq.answer, faqFacts)}</p>
+              </details>
             ))}
-          </nav>
+          </div>
         </div>
-      </footer>
+      </section>
+
+      {/* ─── Close: the hero's two ways in, once more ─────────────────── */}
+      <section className="bg-ink text-paper">
+        <div className="shell grid gap-y-[var(--space-xl)] py-[var(--section-gap-s)] lg:grid-cols-12 lg:items-end lg:gap-x-[var(--gap-columns)]">
+          <div className="lg:col-span-7">
+            <h2 className="section-head text-paper">{d.footerCtaTitle}</h2>
+            <p className="mt-[var(--space-lg)] max-w-[48ch] text-[1.0625rem] leading-relaxed text-paper-3">{d.footerCtaBody}</p>
+          </div>
+          <div className="lg:col-span-5">
+            <AudienceCtas locale={locale as Locale} stacked onDark />
+          </div>
+        </div>
+      </section>
+
+      <SiteFooter locale={locale as Locale} />
     </main>
   );
 }

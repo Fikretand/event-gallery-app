@@ -1305,7 +1305,7 @@ export function QrCardEditor({
               onClick={() => setDownloadOpen((open) => !open)}
               disabled={busy !== null || status !== "ready"}
               aria-expanded={downloadOpen}
-              className="rounded-full bg-[var(--color-accent-strong)] px-4 py-2 text-sm font-semibold text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-full bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {busy ? s.preparing : `${s.download} ↓`}
             </button>

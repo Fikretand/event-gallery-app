@@ -1,22 +1,15 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 
 type Tone = "accent" | "ink" | "ghost";
 
+// Same recipes as <Button>: one control, whether it is a link or a button.
 const toneClasses: Record<Tone, string> = {
-  accent:
-    "relative z-10 inline-flex items-center justify-center rounded-full bg-[var(--color-accent-strong)] shadow-[0_16px_36px_rgba(226,121,82,0.24)] transition hover:-translate-y-0.5",
-  ink: "relative z-10 inline-flex items-center justify-center rounded-full bg-[var(--color-ink)] transition hover:-translate-y-0.5",
-  ghost:
-    "inline-flex items-center justify-center rounded-full border border-black/10 bg-white/80 text-[var(--color-ink)] transition hover:bg-white",
-};
-
-const toneStyles: Record<Tone, CSSProperties> = {
-  accent: { color: "#ffffff" },
-  ink: { color: "#ffffff" },
-  ghost: { color: "var(--color-ink)" },
+  accent: "btn-primary",
+  ink: "btn-ink",
+  ghost: "btn-secondary",
 };
 
 export function MarketingButtonLink({
@@ -25,22 +18,24 @@ export function MarketingButtonLink({
   tone = "accent",
   className,
   external = false,
+  "aria-label": ariaLabel,
 }: {
   href: string;
   children: ReactNode;
   tone?: Tone;
   className?: string;
   external?: boolean;
+  "aria-label"?: string;
 }) {
   return (
     <Link
       href={href}
       target={external ? "_blank" : undefined}
       rel={external ? "noreferrer noopener" : undefined}
-      className={cn("px-5 py-3 text-sm font-semibold", toneClasses[tone], className)}
-      style={toneStyles[tone]}
+      aria-label={ariaLabel}
+      className={cn("btn", toneClasses[tone], className)}
     >
-      <span style={toneStyles[tone]}>{children}</span>
+      {children}
     </Link>
   );
 }

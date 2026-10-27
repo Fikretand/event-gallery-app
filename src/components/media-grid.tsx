@@ -576,7 +576,7 @@ export function MediaGrid({
           </h2>
           <ul className="mt-3 grid gap-3 sm:grid-cols-2">
             {messages.map((item) => (
-              <li key={item.id} className="overflow-hidden rounded-[20px] border border-black/8 bg-[var(--color-viewer-surface)]">
+              <li key={item.id} className="overflow-hidden rounded-[20px] border border-black/8 bg-[var(--color-night)]">
                 <video
                   src={item.previewUrl ?? undefined}
                   poster={item.thumbnailUrl ?? undefined}
@@ -638,11 +638,11 @@ export function MediaGrid({
         // containing block for this fixed element, sizing it to the panel
         // instead of the screen — which forced the image to overflow + scroll.
         <div
-          className="lightbox-backdrop-in fixed inset-0 z-[100] flex h-[100dvh] w-screen items-center justify-center bg-[var(--backdrop-lightbox)] p-3 backdrop-blur-sm sm:p-4"
+          className="lightbox-backdrop-in fixed inset-0 z-[100] flex h-[100dvh] w-screen items-center justify-center bg-[var(--backdrop)] p-3 backdrop-blur-sm sm:p-4"
           onClick={() => setActiveId(null)}
         >
           <div
-            className="lightbox-panel-in mx-auto flex h-full w-full max-w-6xl flex-col overflow-hidden rounded-[28px] bg-[var(--color-viewer-surface)] text-white shadow-[0_40px_120px_rgba(0,0,0,0.45)]"
+            className="lightbox-panel-in mx-auto flex h-full w-full max-w-6xl flex-col overflow-hidden rounded-[28px] bg-[var(--color-night)] text-white shadow-[0_40px_120px_rgba(0,0,0,0.45)]"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center justify-between gap-3 border-b border-white/10 px-3 py-3 sm:px-5 sm:py-4">
@@ -740,7 +740,7 @@ export function MediaGrid({
                     type="button"
                     onClick={() => sendReport(activeItem.id)}
                     disabled={reportState === "sending"}
-                    className="rounded-full bg-[var(--color-accent-strong)] px-4 py-2 text-xs font-semibold text-white transition hover:brightness-105 disabled:opacity-60"
+                    className="rounded-full bg-[var(--color-accent)] px-4 py-2 text-xs font-semibold text-white transition hover:brightness-105 disabled:opacity-60"
                   >
                     {vs.reportSend}
                   </button>
@@ -762,7 +762,7 @@ export function MediaGrid({
             ) : null}
 
             <div
-              className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-[var(--color-viewer-surface)]"
+              className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-[var(--color-night)]"
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
@@ -852,7 +852,7 @@ export function MediaGrid({
           >
             {isVideo && !item.thumbnail_key ? (
               <video
-                className="h-full w-full bg-[var(--color-viewer-surface)] object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05]"
+                className="h-full w-full bg-[var(--color-night)] object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05]"
                 src={item.previewUrl ?? undefined}
                 muted
                 playsInline
@@ -874,7 +874,7 @@ export function MediaGrid({
               </span>
             ) : null}
             {isCover ? (
-              <span className="absolute right-2 top-2 rounded-full bg-[var(--color-accent-strong)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white shadow-sm">
+              <span className="absolute right-2 top-2 rounded-full bg-[var(--color-accent)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white shadow-sm">
                 {vs.cover}
               </span>
             ) : null}
@@ -890,7 +890,7 @@ export function MediaGrid({
             className={cn(
               "absolute left-2 top-2 z-10 inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 shadow-sm backdrop-blur transition",
               checked
-                ? "border-[var(--color-accent-strong)] bg-[var(--color-accent-strong)] text-white"
+                ? "border-[var(--color-accent)] bg-[var(--color-accent)] text-white"
                 : "border-white bg-black/25 text-transparent hover:bg-black/40",
             )}
             title={vs.select}
@@ -934,7 +934,7 @@ export function MediaGrid({
         <button className="relative block w-full overflow-hidden text-left" onClick={() => setActiveId(item.id)}>
           {isVideo && !item.thumbnail_key ? (
             <video
-              className="h-64 w-full bg-[var(--color-viewer-surface)] object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+              className="h-64 w-full bg-[var(--color-night)] object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
               src={item.previewUrl ?? undefined}
               muted
               playsInline
@@ -961,7 +961,7 @@ export function MediaGrid({
             </span>
           ) : null}
           {isCover ? (
-            <span className="absolute right-4 top-4 rounded-full bg-[var(--color-accent-strong)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-white">
+            <span className="absolute right-4 top-4 rounded-full bg-[var(--color-accent)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-white">
               {vs.cover}
             </span>
           ) : null}

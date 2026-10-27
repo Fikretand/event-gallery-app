@@ -76,7 +76,7 @@ function rng(seed: number) {
 
 const CONFETTI = (() => {
   const r = rng(42);
-  const cols = ["#e27952", "#38584d", "#f6d3c3", "#172033", "#e9dccb", "#e27952"];
+  const cols = ["var(--color-accent)", "var(--color-moss)", "var(--color-accent-soft)", "var(--color-ink)", "var(--color-paper-3)", "var(--color-accent)"];
   return Array.from({ length: 36 }, (_, i) => {
     const a = ((-90 + (r() * 150 - 75)) * Math.PI) / 180;
     const dist = 90 + r() * 140;
@@ -112,13 +112,13 @@ type State = {
 const INITIAL: State = { active: 0, shown: 0, ph: 0, typed: 0, playing: true, prog: 0, progMs: 0, enter: false, burst: 0, k: 1 };
 
 const Check = ({ size, width }: { size: number; width: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={width} strokeLinecap="round" strokeLinejoin="round">
+  <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ stroke: "var(--color-card)" }} strokeWidth={width} strokeLinecap="round" strokeLinejoin="round">
     <path d="M5 12.5l4.2 4.2L19 7" />
   </svg>
 );
 
 const Lock = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#38584d" strokeWidth="2">
+  <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" style={{ stroke: "var(--color-moss)" }} strokeWidth="2">
     <rect x="5" y="10.5" width="14" height="10" rx="2" />
     <path d="M8 10.5V7.5a4 4 0 018 0v3" />
   </svg>
@@ -304,12 +304,12 @@ export function HowItWorks({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
       n: "0" + (i + 1),
       act,
       done,
-      numBg: act ? "#172033" : done ? "#e6f2ee" : "rgba(255,255,255,.7)",
-      numFg: act ? "#fff" : "#38584d",
-      numBd: act ? "#172033" : done ? "#e6f2ee" : "rgba(56,88,77,.25)",
+      numBg: act ? "var(--color-ink)" : done ? "var(--color-moss-soft)" : "color-mix(in oklch, var(--color-card) 70%, transparent)",
+      numFg: act ? "var(--color-card)" : "var(--color-moss)",
+      numBd: act ? "var(--color-ink)" : done ? "var(--color-moss-soft)" : "color-mix(in oklch, var(--color-moss) 25%, transparent)",
       numS: act ? 1.06 : 1,
-      titleC: act ? "#172033" : "rgba(23,32,51,.72)",
-      bodyC: act ? "rgba(0,0,0,.62)" : "rgba(0,0,0,.55)",
+      titleC: act ? "var(--color-ink)" : "var(--color-ink-2)",
+      bodyC: "var(--color-ink-2)",
     };
   });
 
@@ -331,19 +331,13 @@ export function HowItWorks({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
     transition: `transform 400ms ${SPRING}`,
   });
 
-  const focusRing = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e27952]";
+  const focusRing = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]";
 
   return (
-    <section id="how-it-works" data-hiw="" ref={rootRef} className="shell" style={{ padding: "64px 0 80px", scrollMarginTop: 40 }}>
-      <div style={{ maxWidth: "40rem", marginBottom: 40 }}>
-        <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[var(--color-moss)]">{copy.eyebrow}</p>
-        <h2
-          className="font-display"
-          style={{ marginTop: 12, fontSize: "clamp(30px,4.2vw,42px)", lineHeight: 1.1, fontWeight: 600, letterSpacing: "-.02em", color: "#172033", textWrap: "balance" }}
-        >
-          {copy.title}
-        </h2>
-        <p style={{ marginTop: 14, fontSize: 18, lineHeight: "28px", color: "rgba(0,0,0,.6)", maxWidth: "36rem", textWrap: "pretty" }}>{copy.sub}</p>
+    <section id="how-it-works" data-hiw="" ref={rootRef} className="shell section">
+      <div className="mb-[var(--space-2xl)] grid gap-[var(--space-lg)] lg:grid-cols-12 lg:items-end lg:gap-[var(--gap-columns)]">
+        <h2 className="section-head text-ink lg:col-span-7">{copy.title}</h2>
+        <p className="lead lg:col-span-4 lg:col-start-9">{copy.sub}</p>
       </div>
 
       <div style={{ display: "flex", flexDirection: "row-reverse", flexWrap: "wrap", alignItems: "center", gap: 40 }}>
@@ -358,20 +352,18 @@ export function HowItWorks({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
             flex: "1.45 1 520px",
             minWidth: 0,
             borderRadius: 34,
-            border: "1px solid rgba(34,51,76,.6)",
-            background: "linear-gradient(160deg,#1e2d45,#172033)",
+            background: "var(--color-ink)",
             padding: "0 10px 10px",
-            boxShadow: "0 30px 80px rgba(18,24,38,.18)",
           }}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
         >
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "12px 6px 12px 12px" }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 10, minWidth: 0 }}>
-              <span style={{ fontFamily: MONO, fontSize: 11, fontWeight: 500, letterSpacing: ".06em", color: "rgba(255,255,255,.55)" }}>
+              <span style={{ fontFamily: MONO, fontSize: 11, fontWeight: 500, letterSpacing: ".06em", color: "color-mix(in oklch, var(--color-card) 55%, transparent)" }}>
                 {`0${a + 1} / 04`}
               </span>
-              <span style={{ fontSize: 13, fontWeight: 600, color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "var(--color-card)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {copy.steps[a].title}
               </span>
             </div>
@@ -406,8 +398,7 @@ export function HowItWorks({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
               aspectRatio: "480 / 380",
               borderRadius: 24,
               overflow: "hidden",
-              background:
-                "radial-gradient(ellipse at top left,rgba(226,121,82,.22),transparent 44%),radial-gradient(ellipse at bottom right,rgba(56,88,77,.12),transparent 40%),linear-gradient(160deg,rgba(255,252,248,.98),rgba(242,232,220,.9))",
+              background: "var(--color-paper-2)",
             }}
           >
             <p className="sr-only">
@@ -463,9 +454,8 @@ export function HowItWorks({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                     position: "absolute",
                     inset: 0,
                     borderRadius: 22,
-                    background: "rgba(255,255,255,.88)",
-                    border: "1px solid rgba(0,0,0,.08)",
-                    boxShadow: "0 16px 44px rgba(18,24,38,.10)",
+                    background: "var(--color-card)",
+                    border: "1px solid var(--color-rule)",
                     opacity: st.act ? 1 : 0,
                     transition: `opacity 350ms ${EASE}`,
                   }}
@@ -480,7 +470,7 @@ export function HowItWorks({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                         top: 50,
                         bottom: -40,
                         borderRadius: 2,
-                        background: "rgba(56,88,77,.14)",
+                        background: "color-mix(in oklch, var(--color-moss) 14%, transparent)",
                         overflow: "hidden",
                       }}
                     >
@@ -489,7 +479,7 @@ export function HowItWorks({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                           display: "block",
                           width: "100%",
                           height: "100%",
-                          background: "#38584d",
+                          background: "var(--color-moss)",
                           transformOrigin: "top",
                           transform: `scaleY(${st.done ? 1 : 0})`,
                           transition: `transform 600ms ${EASE}`,
@@ -516,14 +506,14 @@ export function HowItWorks({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                       <span style={{ display: "block", marginTop: 6, fontSize: 16, lineHeight: "25px", color: st.bodyC, textWrap: "pretty" }}>{st.body}</span>
                       <span
                         aria-hidden="true"
-                        style={{ display: "block", marginTop: 14, height: 2, borderRadius: 2, background: "rgba(0,0,0,.06)", overflow: "hidden" }}
+                        style={{ display: "block", marginTop: 14, height: 2, borderRadius: 2, background: "color-mix(in oklch, var(--color-device-black) 6%, transparent)", overflow: "hidden" }}
                       >
                         <span
                           style={{
                             display: "block",
                             width: "100%",
                             height: "100%",
-                            background: "#e27952",
+                            background: "var(--color-accent)",
                             transformOrigin: "left",
                             transform: `scaleX(${st.act ? s.prog : 0})`,
                             transition: `transform ${st.act ? s.progMs : 0}ms linear`,
@@ -549,7 +539,7 @@ export function HowItWorks({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                   right: "12.5%",
                   height: 2,
                   borderRadius: 2,
-                  background: "rgba(56,88,77,.14)",
+                  background: "color-mix(in oklch, var(--color-moss) 14%, transparent)",
                   overflow: "hidden",
                 }}
               >
@@ -558,7 +548,7 @@ export function HowItWorks({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                     display: "block",
                     width: "100%",
                     height: "100%",
-                    background: "#38584d",
+                    background: "var(--color-moss)",
                     transformOrigin: "left",
                     transform: `scaleX(${a / 3})`,
                     transition: `transform 600ms ${EASE}`,
@@ -601,15 +591,15 @@ export function HowItWorks({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
               ))}
             </div>
             <div style={{ marginTop: 18, minHeight: 150 }}>
-              <p style={{ fontSize: 21, lineHeight: "28px", fontWeight: 600, color: "#172033" }}>{copy.steps[a].title}</p>
-              <p style={{ marginTop: 6, fontSize: 17, lineHeight: "27px", color: "rgba(0,0,0,.62)", textWrap: "pretty" }}>{copy.steps[a].body}</p>
-              <div aria-hidden="true" style={{ marginTop: 16, height: 2, borderRadius: 2, background: "rgba(0,0,0,.06)", overflow: "hidden" }}>
+              <p style={{ fontSize: 21, lineHeight: "28px", fontWeight: 600, color: "var(--color-ink)" }}>{copy.steps[a].title}</p>
+              <p style={{ marginTop: 6, fontSize: 17, lineHeight: "27px", color: "color-mix(in oklch, var(--color-device-black) 62%, transparent)", textWrap: "pretty" }}>{copy.steps[a].body}</p>
+              <div aria-hidden="true" style={{ marginTop: 16, height: 2, borderRadius: 2, background: "color-mix(in oklch, var(--color-device-black) 6%, transparent)", overflow: "hidden" }}>
                 <span
                   style={{
                     display: "block",
                     width: "100%",
                     height: "100%",
-                    background: "#e27952",
+                    background: "var(--color-accent)",
                     transformOrigin: "left",
                     transform: `scaleX(${s.prog})`,
                     transition: `transform ${s.progMs}ms linear`,
@@ -628,11 +618,11 @@ type Ui = Copy["ui"];
 
 // ─── Scene 1 · Create event ─────────────────────────────────────────
 function SceneCreate({ ui, p, typed, enter }: { ui: Ui; p: number; typed: string; enter: CSSProperties }) {
-  const label: CSSProperties = { fontSize: 11, fontWeight: 600, color: "rgba(0,0,0,.55)" };
+  const label: CSSProperties = { fontSize: 11, fontWeight: 600, color: "color-mix(in oklch, var(--color-device-black) 55%, transparent)" };
   return (
     <div style={enter}>
       <div
-        style={{ position: "absolute", left: 104, top: 54, width: 280, height: 280, borderRadius: 24, background: "#efe5d8", border: "1px solid rgba(0,0,0,.05)", transform: "rotate(-4deg)" }}
+        style={{ position: "absolute", left: 104, top: 54, width: 280, height: 280, borderRadius: 24, background: "var(--color-paper-3)", border: "1px solid color-mix(in oklch, var(--color-device-black) 5%, transparent)", transform: "rotate(-4deg)" }}
       />
       <div
         style={{
@@ -641,33 +631,33 @@ function SceneCreate({ ui, p, typed, enter }: { ui: Ui; p: number; typed: string
           top: 40,
           width: 300,
           borderRadius: 24,
-          background: "#fff",
-          border: "1px solid rgba(0,0,0,.08)",
-          boxShadow: "0 16px 44px rgba(18,24,38,.12)",
+          background: "var(--color-card)",
+          border: "1px solid color-mix(in oklch, var(--color-device-black) 8%, transparent)",
+          boxShadow: "0 16px 44px color-mix(in oklch, var(--color-ink) 12%, transparent)",
           padding: "22px 22px 20px",
         }}
       >
-        <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".24em", color: "#38584d" }}>{ui.newEvent}</p>
+        <p style={{ fontSize: 10, fontWeight: 700, color: "var(--color-moss)" }}>{ui.newEvent}</p>
         <p style={{ ...label, marginTop: 14 }}>{ui.eventName}</p>
         <div
           style={{
             marginTop: 6,
             height: 42,
             borderRadius: 12,
-            border: "1px solid rgba(0,0,0,.1)",
-            background: "#fffdfa",
+            border: "1px solid color-mix(in oklch, var(--color-device-black) 10%, transparent)",
+            background: "var(--color-paper)",
             padding: "0 12px",
             display: "flex",
             alignItems: "center",
             fontSize: 14,
             fontWeight: 500,
-            color: "#172033",
+            color: "var(--color-ink)",
             whiteSpace: "nowrap",
             overflow: "hidden",
           }}
         >
           <span>{typed}</span>
-          <span style={{ display: "inline-block", width: 1.5, height: 18, marginLeft: 1, background: "#e27952", opacity: p < 1 ? 1 : 0 }} />
+          <span style={{ display: "inline-block", width: 1.5, height: 18, marginLeft: 1, background: "var(--color-accent)", opacity: p < 1 ? 1 : 0 }} />
         </div>
         <div style={{ marginTop: 14, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, height: 28 }}>
           <p style={label}>{ui.date}</p>
@@ -677,18 +667,18 @@ function SceneCreate({ ui, p, typed, enter }: { ui: Ui; p: number; typed: string
               alignItems: "center",
               gap: 6,
               borderRadius: 999,
-              background: "#f2eadf",
+              background: "var(--color-paper-2)",
               padding: "6px 11px",
               fontSize: 12,
               fontWeight: 600,
-              color: "#172033",
+              color: "var(--color-ink)",
               opacity: p >= 1 ? 1 : 0,
               transform: `scale(${p >= 1 ? 1 : 0.85})`,
               transformOrigin: "right center",
               transition: `opacity 300ms ease-out, transform 450ms ${SPRING}`,
             }}
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#38584d" strokeWidth="2">
+            <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ stroke: "var(--color-moss)" }} strokeWidth="2">
               <rect x="3" y="4.5" width="18" height="16" rx="2.5" />
               <path d="M8 2.5v4M16 2.5v4M3 11h18" />
             </svg>
@@ -704,7 +694,7 @@ function SceneCreate({ ui, p, typed, enter }: { ui: Ui; p: number; typed: string
                 fontSize: 11,
                 fontWeight: 600,
                 letterSpacing: ".12em",
-                color: "#38584d",
+                color: "var(--color-moss)",
                 opacity: p >= 2 ? 1 : 0,
                 transform: `translateX(${p >= 2 ? 0 : -6}px)`,
                 transition: `opacity 300ms ease-out 150ms, transform 400ms ${EASE} 150ms`,
@@ -713,8 +703,8 @@ function SceneCreate({ ui, p, typed, enter }: { ui: Ui; p: number; typed: string
               4821
             </span>
           </div>
-          <span style={{ position: "relative", display: "block", width: 40, height: 24, borderRadius: 999, background: "rgba(0,0,0,.12)" }}>
-            <span style={{ position: "absolute", inset: 0, borderRadius: 999, background: "#38584d", opacity: p >= 2 ? 1 : 0, transition: "opacity 250ms ease-out" }} />
+          <span style={{ position: "relative", display: "block", width: 40, height: 24, borderRadius: 999, background: "color-mix(in oklch, var(--color-device-black) 12%, transparent)" }}>
+            <span style={{ position: "absolute", inset: 0, borderRadius: 999, background: "var(--color-moss)", opacity: p >= 2 ? 1 : 0, transition: "opacity 250ms ease-out" }} />
             <span
               style={{
                 position: "absolute",
@@ -723,8 +713,8 @@ function SceneCreate({ ui, p, typed, enter }: { ui: Ui; p: number; typed: string
                 width: 18,
                 height: 18,
                 borderRadius: 999,
-                background: "#fff",
-                boxShadow: "0 1px 3px rgba(0,0,0,.2)",
+                background: "var(--color-card)",
+                boxShadow: "0 1px 3px color-mix(in oklch, var(--color-device-black) 20%, transparent)",
                 transform: `translateX(${p >= 2 ? 16 : 0}px)`,
                 transition: "transform 300ms cubic-bezier(.34,1.4,.64,1)",
               }}
@@ -737,7 +727,7 @@ function SceneCreate({ ui, p, typed, enter }: { ui: Ui; p: number; typed: string
             marginTop: 20,
             height: 44,
             borderRadius: 999,
-            background: "#e27952",
+            background: "var(--color-accent)",
             overflow: "hidden",
             transform: `scale(${p === 3 ? 0.96 : 1})`,
             transition: "transform 200ms ease-out",
@@ -752,7 +742,7 @@ function SceneCreate({ ui, p, typed, enter }: { ui: Ui; p: number; typed: string
               justifyContent: "center",
               fontSize: 14,
               fontWeight: 600,
-              color: "#fff",
+              color: "var(--color-card)",
               opacity: p >= 4 ? 0 : 1,
               transition: "opacity 250ms ease-out",
             }}
@@ -767,10 +757,10 @@ function SceneCreate({ ui, p, typed, enter }: { ui: Ui; p: number; typed: string
               alignItems: "center",
               justifyContent: "center",
               gap: 8,
-              background: "#38584d",
+              background: "var(--color-moss)",
               fontSize: 14,
               fontWeight: 600,
-              color: "#fff",
+              color: "var(--color-card)",
               opacity: p >= 4 ? 1 : 0,
               transition: "opacity 300ms ease-out",
             }}
@@ -788,11 +778,11 @@ function SceneCreate({ ui, p, typed, enter }: { ui: Ui; p: number; typed: string
           width: 48,
           height: 48,
           borderRadius: 999,
-          background: "#38584d",
+          background: "var(--color-moss)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          boxShadow: "0 10px 24px rgba(56,88,77,.35)",
+          boxShadow: "0 10px 24px color-mix(in oklch, var(--color-moss) 35%, transparent)",
           opacity: p >= 4 ? 1 : 0,
           transform: `scale(${p >= 4 ? 1 : 0.3})`,
           transition: `opacity 200ms ease-out, transform 500ms ${SPRING}`,
@@ -807,7 +797,7 @@ function SceneCreate({ ui, p, typed, enter }: { ui: Ui; p: number; typed: string
 // ─── Scene 2 · Share the QR code ────────────────────────────────────
 function SceneShare({ ui, p, qrSvg, enter }: { ui: Ui; p: number; qrSvg: string; enter: CSSProperties }) {
   const corner = (pos: CSSProperties): CSSProperties => ({ position: "absolute", width: 20, height: 20, ...pos });
-  const edge = "2px solid rgba(255,255,255,.85)";
+  const edge = "2px solid color-mix(in oklch, var(--color-card) 85%, transparent)";
   const btnLayer: CSSProperties = {
     position: "absolute",
     inset: 0,
@@ -816,12 +806,12 @@ function SceneShare({ ui, p, qrSvg, enter }: { ui: Ui; p: number; qrSvg: string;
     justifyContent: "center",
     fontSize: 10.5,
     fontWeight: 600,
-    color: "#fff",
+    color: "var(--color-card)",
   };
   return (
     <div style={enter}>
-      <div style={{ position: "absolute", left: 30, top: 318, width: 420, height: 28, borderRadius: "50%", background: "rgba(23,32,51,.07)" }} />
-      <div style={{ position: "absolute", left: 80, top: 88, width: 172, height: 236, borderRadius: 18, background: "#e9dccb", transform: "rotate(4deg)" }} />
+      <div style={{ position: "absolute", left: 30, top: 318, width: 420, height: 28, borderRadius: "50%", background: "color-mix(in oklch, var(--color-ink) 7%, transparent)" }} />
+      <div style={{ position: "absolute", left: 80, top: 88, width: 172, height: 236, borderRadius: 18, background: "var(--color-paper-3)", transform: "rotate(4deg)" }} />
       <div
         style={{
           position: "absolute",
@@ -830,17 +820,17 @@ function SceneShare({ ui, p, qrSvg, enter }: { ui: Ui; p: number; qrSvg: string;
           width: 176,
           height: 244,
           borderRadius: 18,
-          background: "#fff",
-          border: "1px solid rgba(0,0,0,.08)",
-          boxShadow: "0 16px 44px rgba(18,24,38,.12)",
+          background: "var(--color-card)",
+          border: "1px solid color-mix(in oklch, var(--color-device-black) 8%, transparent)",
+          boxShadow: "0 16px 44px color-mix(in oklch, var(--color-ink) 12%, transparent)",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           padding: "18px 16px 0",
         }}
       >
-        <p style={{ fontFamily: SERIF, fontSize: 16, fontWeight: 600, color: "#172033" }}>Amra &amp; Tarik</p>
-        <p style={{ marginTop: 2, fontSize: 10, color: "rgba(0,0,0,.45)" }}>{ui.dateVal}</p>
+        <p style={{ fontFamily: SERIF, fontSize: 16, fontWeight: 600, color: "var(--color-ink)" }}>Amra &amp; Tarik</p>
+        <p style={{ marginTop: 2, fontSize: 10, color: "color-mix(in oklch, var(--color-device-black) 45%, transparent)" }}>{ui.dateVal}</p>
         <div style={{ position: "relative", marginTop: 14, width: 116, height: 116 }}>
           <div className="h-full w-full [&>svg]:h-full [&>svg]:w-full" dangerouslySetInnerHTML={{ __html: qrSvg }} />
           <span
@@ -851,8 +841,8 @@ function SceneShare({ ui, p, qrSvg, enter }: { ui: Ui; p: number; qrSvg: string;
               top: 0,
               height: 2,
               borderRadius: 2,
-              background: "#e27952",
-              boxShadow: "0 0 12px 2px rgba(226,121,82,.55)",
+              background: "var(--color-accent)",
+              boxShadow: "0 0 12px 2px color-mix(in oklch, var(--color-accent) 55%, transparent)",
               opacity: p === 2 ? 1 : 0,
               transform: `translateY(${p >= 2 ? 114 : 0}px)`,
               transition: "transform 700ms cubic-bezier(.65,0,.35,1), opacity 200ms ease-out",
@@ -864,11 +854,9 @@ function SceneShare({ ui, p, qrSvg, enter }: { ui: Ui; p: number; qrSvg: string;
             marginTop: 14,
             fontSize: 8.5,
             fontWeight: 700,
-            textTransform: "uppercase",
-            letterSpacing: ".14em",
             lineHeight: 1.35,
             textAlign: "center",
-            color: "rgba(0,0,0,.45)",
+            color: "var(--color-ink-2)",
           }}
         >
           {ui.scanLabel}
@@ -883,22 +871,22 @@ function SceneShare({ ui, p, qrSvg, enter }: { ui: Ui; p: number; qrSvg: string;
           width: 136,
           height: 256,
           borderRadius: 28,
-          background: "#141414",
+          background: "var(--color-device-black)",
           padding: 6,
-          boxShadow: "0 24px 50px rgba(18,24,38,.3)",
+          boxShadow: "0 24px 50px color-mix(in oklch, var(--color-ink) 30%, transparent)",
           opacity: p >= 1 ? 1 : 0,
           transform: `translateX(${p >= 1 ? 0 : 150}px) rotate(${p >= 1 ? -5 : 8}deg)`,
           transition: `opacity 300ms ease-out, transform 600ms ${EASE}`,
         }}
       >
-        <div style={{ position: "relative", width: "100%", height: "100%", borderRadius: 22, overflow: "hidden", background: "#f9f5ef" }}>
-          <span style={{ position: "absolute", left: "50%", top: 7, width: 40, height: 11, marginLeft: -20, borderRadius: 6, background: "#030303", zIndex: 3 }} />
+        <div style={{ position: "relative", width: "100%", height: "100%", borderRadius: 22, overflow: "hidden", background: "var(--color-paper)" }}>
+          <span style={{ position: "absolute", left: "50%", top: 7, width: 40, height: 11, marginLeft: -20, borderRadius: 6, background: "var(--color-device-black)", zIndex: 3 }} />
           {/* Camera viewfinder */}
           <div
             style={{
               position: "absolute",
               inset: 0,
-              background: "#1b1512",
+              background: "var(--color-night)",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -913,37 +901,37 @@ function SceneShare({ ui, p, qrSvg, enter }: { ui: Ui; p: number; qrSvg: string;
               <span style={corner({ right: 0, top: 0, borderRight: edge, borderTop: edge, borderTopRightRadius: 6 })} />
               <span style={corner({ left: 0, bottom: 0, borderLeft: edge, borderBottom: edge, borderBottomLeftRadius: 6 })} />
               <span style={corner({ right: 0, bottom: 0, borderRight: edge, borderBottom: edge, borderBottomRightRadius: 6 })} />
-              <div style={{ width: 58, height: 58, borderRadius: 6, background: "rgba(255,255,255,.9)", padding: 5, opacity: 0.8 }}>
+              <div style={{ width: 58, height: 58, borderRadius: 6, background: "color-mix(in oklch, var(--color-card) 90%, transparent)", padding: 5, opacity: 0.8 }}>
                 <div className="h-full w-full [&>svg]:h-full [&>svg]:w-full" dangerouslySetInnerHTML={{ __html: qrSvg }} />
               </div>
             </div>
-            <p style={{ fontSize: 8.5, fontWeight: 500, color: "rgba(255,255,255,.65)", textAlign: "center", padding: "0 10px" }}>{ui.cameraHint}</p>
+            <p style={{ fontSize: 8.5, fontWeight: 500, color: "color-mix(in oklch, var(--color-card) 65%, transparent)", textAlign: "center", padding: "0 10px" }}>{ui.cameraHint}</p>
           </div>
           {/* Guest upload page */}
           <div style={{ position: "absolute", inset: 0, padding: "30px 12px 12px", opacity: p >= 3 ? 1 : 0, transition: "opacity 350ms ease-out" }}>
-            <p style={{ fontSize: 7.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".22em", color: "#38584d" }}>{ui.guestUpload}</p>
-            <p style={{ marginTop: 3, fontFamily: SERIF, fontSize: 15, fontWeight: 600, color: "#172033" }}>Amra &amp; Tarik</p>
-            <p style={{ marginTop: 2, fontSize: 8.5, color: "rgba(0,0,0,.45)" }}>{ui.noApp}</p>
+            <p style={{ fontSize: 7.5, fontWeight: 700, color: "var(--color-moss)" }}>{ui.guestUpload}</p>
+            <p style={{ marginTop: 3, fontFamily: SERIF, fontSize: 15, fontWeight: 600, color: "var(--color-ink)" }}>Amra &amp; Tarik</p>
+            <p style={{ marginTop: 2, fontSize: 8.5, color: "color-mix(in oklch, var(--color-device-black) 45%, transparent)" }}>{ui.noApp}</p>
             <div
               style={{
                 marginTop: 12,
                 height: 92,
                 borderRadius: 14,
-                border: "1.5px dashed rgba(56,88,77,.3)",
-                background: "rgba(255,255,255,.6)",
+                border: "1.5px dashed color-mix(in oklch, var(--color-moss) 30%, transparent)",
+                background: "color-mix(in oklch, var(--color-card) 60%, transparent)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#38584d" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" style={{ stroke: "var(--color-moss)" }} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 16V5M7.5 9.5L12 5l4.5 4.5" />
                 <path d="M5 15v3a2 2 0 002 2h10a2 2 0 002-2v-3" />
               </svg>
             </div>
-            <div style={{ position: "absolute", left: 12, right: 12, bottom: 14, height: 34, borderRadius: 999, background: "#e27952", overflow: "hidden" }}>
+            <div style={{ position: "absolute", left: 12, right: 12, bottom: 14, height: 34, borderRadius: 999, background: "var(--color-accent)", overflow: "hidden" }}>
               <span style={{ ...btnLayer, opacity: p >= 4 ? 0 : 1, transition: "opacity 250ms ease-out" }}>{ui.addPhotos}</span>
-              <span style={{ ...btnLayer, gap: 5, background: "#38584d", opacity: p >= 4 ? 1 : 0, transition: "opacity 300ms ease-out 300ms" }}>
+              <span style={{ ...btnLayer, gap: 5, background: "var(--color-moss)", opacity: p >= 4 ? 1 : 0, transition: "opacity 300ms ease-out 300ms" }}>
                 <Check size={11} width={3} />
                 {ui.sent}
               </span>
@@ -965,10 +953,10 @@ function SceneShare({ ui, p, qrSvg, enter }: { ui: Ui; p: number; qrSvg: string;
               width: 60,
               height: 60,
               borderRadius: 12,
-              border: "3px solid #fff",
+              border: "3px solid var(--color-card)",
               overflow: "hidden",
-              background: "#f2eadf",
-              boxShadow: "0 12px 28px rgba(18,24,38,.2)",
+              background: "var(--color-paper-2)",
+              boxShadow: "0 12px 28px color-mix(in oklch, var(--color-ink) 20%, transparent)",
               opacity: on ? 1 : 0,
               transform: `translate(${on ? FLY[i][0] : 0}px, ${on ? FLY[i][1] : 0}px) rotate(${on ? FLY[i][2] : 0}deg) scale(${on ? 1 : 0.4})`,
               transition: `opacity 250ms ease-out ${d}ms, transform 650ms ${EASE} ${d}ms`,
@@ -1000,19 +988,19 @@ function SceneCurate({ ui, p, enter }: { ui: Ui; p: number; enter: CSSProperties
           width: 420,
           height: 336,
           borderRadius: 24,
-          background: "#fff",
-          border: "1px solid rgba(0,0,0,.08)",
-          boxShadow: "0 16px 44px rgba(18,24,38,.12)",
+          background: "var(--color-card)",
+          border: "1px solid color-mix(in oklch, var(--color-device-black) 8%, transparent)",
+          boxShadow: "0 16px 44px color-mix(in oklch, var(--color-ink) 12%, transparent)",
         }}
       >
         <div style={{ position: "absolute", left: 20, right: 20, top: 18, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
           <div>
-            <p style={{ fontSize: 9.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".22em", color: "#38584d" }}>{ui.queue}</p>
-            <p style={{ marginTop: 3, fontSize: 14, fontWeight: 600, color: "#172033" }}>Amra &amp; Tarik</p>
+            <p style={{ fontSize: 9.5, fontWeight: 700, color: "var(--color-moss)" }}>{ui.queue}</p>
+            <p style={{ marginTop: 3, fontSize: 14, fontWeight: 600, color: "var(--color-ink)" }}>Amra &amp; Tarik</p>
           </div>
           <div style={{ display: "flex", gap: 6 }}>
-            <span style={{ ...pill, background: "#e6f2ee", color: "#38584d" }}>{`${ui.visible} ${visN}`}</span>
-            <span style={{ ...pill, background: "#f2eadf", color: "rgba(0,0,0,.55)" }}>{`${ui.hidden} ${hidN}`}</span>
+            <span style={{ ...pill, background: "var(--color-moss-soft)", color: "var(--color-moss)" }}>{`${ui.visible} ${visN}`}</span>
+            <span style={{ ...pill, background: "var(--color-paper-2)", color: "color-mix(in oklch, var(--color-device-black) 55%, transparent)" }}>{`${ui.hidden} ${hidN}`}</span>
           </div>
         </div>
         <div
@@ -1023,7 +1011,7 @@ function SceneCurate({ ui, p, enter }: { ui: Ui; p: number; enter: CSSProperties
             width: 120,
             height: 108,
             borderRadius: 14,
-            border: "1.5px dashed rgba(0,0,0,.14)",
+            border: "1.5px dashed color-mix(in oklch, var(--color-device-black) 14%, transparent)",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -1033,10 +1021,10 @@ function SceneCurate({ ui, p, enter }: { ui: Ui; p: number; enter: CSSProperties
             transition: "opacity 300ms ease-out 250ms",
           }}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,.4)" strokeWidth="1.8" strokeLinecap="round">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ stroke: "color-mix(in oklch, var(--color-device-black) 40%, transparent)" }} strokeWidth="1.8" strokeLinecap="round">
             <path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 12.5h9l1-12.5" />
           </svg>
-          <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(0,0,0,.45)" }}>{ui.deleted}</span>
+          <span style={{ fontSize: 10, fontWeight: 600, color: "color-mix(in oklch, var(--color-device-black) 45%, transparent)" }}>{ui.deleted}</span>
         </div>
         {TILE_SRC.map((f, i) => {
           const gone = i === 4 && removed;
@@ -1051,7 +1039,7 @@ function SceneCurate({ ui, p, enter }: { ui: Ui; p: number; enter: CSSProperties
                 height: 108,
                 borderRadius: 14,
                 overflow: "hidden",
-                background: "#f2eadf",
+                background: "var(--color-paper-2)",
                 opacity: gone ? 0 : 1,
                 transform: `translateX(${gone ? 50 : 0}px) scale(${gone ? 0.9 : 1})`,
                 transition: `opacity 350ms ease-out, transform 450ms ${EASE}`,
@@ -1075,7 +1063,7 @@ function SceneCurate({ ui, p, enter }: { ui: Ui; p: number; enter: CSSProperties
                 style={{
                   position: "absolute",
                   inset: 0,
-                  background: "rgba(23,32,51,.55)",
+                  background: "color-mix(in oklch, var(--color-ink) 55%, transparent)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -1083,7 +1071,7 @@ function SceneCurate({ ui, p, enter }: { ui: Ui; p: number; enter: CSSProperties
                   transition: "opacity 450ms ease-out",
                 }}
               >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" style={{ stroke: "var(--color-card)" }} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M3 3l18 18" />
                   <path d="M10.6 5.1c.46-.07.93-.1 1.4-.1 5 0 9 4.5 10 7-.4 1-1.2 2.3-2.4 3.5M6.6 6.6C4.4 8 2.8 10.2 2 12c1 2.5 5 7 10 7 1.8 0 3.4-.6 4.8-1.4" />
                   <path d="M9.9 9.9a3 3 0 004.2 4.2" />
@@ -1097,11 +1085,11 @@ function SceneCurate({ ui, p, enter }: { ui: Ui; p: number; enter: CSSProperties
                   width: 24,
                   height: 24,
                   borderRadius: 999,
-                  background: "#38584d",
+                  background: "var(--color-moss)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  boxShadow: "0 4px 10px rgba(56,88,77,.4)",
+                  boxShadow: "0 4px 10px color-mix(in oklch, var(--color-moss) 40%, transparent)",
                   transform: `scale(${ok ? 1 : 0})`,
                   transition: `transform 450ms ${SPRING} 150ms`,
                 }}
@@ -1113,12 +1101,12 @@ function SceneCurate({ ui, p, enter }: { ui: Ui; p: number; enter: CSSProperties
         })}
         <div style={{ position: "absolute", left: 20, bottom: 16, display: "flex", alignItems: "center", gap: 6 }}>
           <Lock />
-          <span style={{ fontSize: 10.5, color: "rgba(0,0,0,.5)" }}>{ui.hiddenNote}</span>
+          <span style={{ fontSize: 10.5, color: "color-mix(in oklch, var(--color-device-black) 50%, transparent)" }}>{ui.hiddenNote}</span>
         </div>
       </div>
       <div style={{ position: "absolute", left: 0, top: 0, transform: `translate(${cur[0]}px, ${cur[1]}px)`, transition: `transform 450ms ${EASE}` }}>
-        <svg width="22" height="24" viewBox="0 0 22 24">
-          <path d="M3 2l14 9.5-6.2 1.3 3.6 7-2.6 1.3-3.6-7L3 18z" fill="#172033" stroke="#fff" strokeWidth="1.5" strokeLinejoin="round" />
+        <svg aria-hidden="true" width="22" height="24" viewBox="0 0 22 24">
+          <path d="M3 2l14 9.5-6.2 1.3 3.6 7-2.6 1.3-3.6-7L3 18z" style={{ fill: "var(--color-ink)", stroke: "var(--color-card)" }} strokeWidth="1.5" strokeLinejoin="round" />
         </svg>
       </div>
     </div>
@@ -1139,9 +1127,9 @@ function SceneDeliver({ ui, p, burst, enter }: { ui: Ui; p: number; burst: numbe
           width: 360,
           height: 338,
           borderRadius: 24,
-          background: "#fff",
-          border: "1px solid rgba(0,0,0,.08)",
-          boxShadow: "0 16px 44px rgba(18,24,38,.12)",
+          background: "var(--color-card)",
+          border: "1px solid color-mix(in oklch, var(--color-device-black) 8%, transparent)",
+          boxShadow: "0 16px 44px color-mix(in oklch, var(--color-ink) 12%, transparent)",
           padding: 16,
           transform: `scale(${open ? 1 : 0.96})`,
           transition: `transform 500ms ${EASE}`,
@@ -1149,11 +1137,11 @@ function SceneDeliver({ ui, p, burst, enter }: { ui: Ui; p: number; burst: numbe
       >
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
           <div>
-            <p style={{ fontSize: 8.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".28em", color: "#38584d" }}>{ui.privateGallery}</p>
-            <p style={{ marginTop: 3, fontSize: 16, fontWeight: 600, color: "#172033" }}>Amra &amp; Tarik</p>
-            <p style={{ marginTop: 1, fontSize: 10, color: "rgba(0,0,0,.4)" }}>{ui.dateVal}</p>
+            <p style={{ fontSize: 8.5, fontWeight: 700, color: "var(--color-moss)" }}>{ui.privateGallery}</p>
+            <p style={{ marginTop: 3, fontSize: 16, fontWeight: 600, color: "var(--color-ink)" }}>Amra &amp; Tarik</p>
+            <p style={{ marginTop: 1, fontSize: 10, color: "color-mix(in oklch, var(--color-device-black) 40%, transparent)" }}>{ui.dateVal}</p>
           </div>
-          <span style={{ borderRadius: 999, background: "#e6f2ee", padding: "4px 9px", fontSize: 9.5, fontWeight: 600, color: "#38584d", whiteSpace: "nowrap" }}>
+          <span style={{ borderRadius: 999, background: "var(--color-moss-soft)", padding: "4px 9px", fontSize: 9.5, fontWeight: 600, color: "var(--color-moss)", whiteSpace: "nowrap" }}>
             {ui.pinProtected}
           </span>
         </div>
@@ -1161,7 +1149,7 @@ function SceneDeliver({ ui, p, burst, enter }: { ui: Ui; p: number; burst: numbe
           {GAL_SRC.map((f, i) => {
             const d = 80 + i * 70;
             return (
-              <div key={f} style={{ gridColumn: i === 0 ? "span 2" : "auto", borderRadius: 10, overflow: "hidden", background: "#f2eadf" }}>
+              <div key={f} style={{ gridColumn: i === 0 ? "span 2" : "auto", borderRadius: 10, overflow: "hidden", background: "var(--color-paper-2)" }}>
                 <img
                   src={IMG + f}
                   alt=""
@@ -1180,47 +1168,45 @@ function SceneDeliver({ ui, p, burst, enter }: { ui: Ui; p: number; burst: numbe
             );
           })}
         </div>
-        <div style={{ position: "relative", marginTop: 16, height: 44, borderRadius: 999, background: "#172033", overflow: "hidden" }}>
+        <div style={{ position: "relative", marginTop: 16, height: 44, borderRadius: 999, background: "var(--color-ink)", overflow: "hidden" }}>
           <div style={{ ...layer, gap: 9, opacity: p >= 4 ? 0 : 1, transition: "opacity 250ms ease-out" }}>
             <span style={{ position: "relative", width: 18, height: 18 }}>
-              <svg
+              <svg aria-hidden="true"
                 width="18"
                 height="18"
                 viewBox="0 0 20 20"
-                style={{ position: "absolute", inset: 0, opacity: p >= 3 ? 0 : 1, transition: "opacity 200ms ease-out" }}
+                style={{ position: "absolute", inset: 0, opacity: p >= 3 ? 0 : 1, transition: "opacity 200ms ease-out", stroke: "var(--color-card)" }}
                 fill="none"
-                stroke="#fff"
                 strokeWidth="1.9"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
                 <path d="M10 3.5v9M6 9l4 4 4-4M4 16.5h12" />
               </svg>
-              <svg width="18" height="18" viewBox="0 0 20 20" style={{ position: "absolute", inset: 0, opacity: p === 3 ? 1 : 0, transition: "opacity 200ms ease-out" }}>
-                <circle cx="10" cy="10" r="8" fill="none" stroke="rgba(255,255,255,.22)" strokeWidth="2.2" />
+              <svg aria-hidden="true" width="18" height="18" viewBox="0 0 20 20" style={{ position: "absolute", inset: 0, opacity: p === 3 ? 1 : 0, transition: "opacity 200ms ease-out" }}>
+                <circle cx="10" cy="10" r="8" fill="none" style={{ stroke: "color-mix(in oklch, var(--color-card) 22%, transparent)" }} strokeWidth="2.2" />
                 <circle
                   cx="10"
                   cy="10"
                   r="8"
                   fill="none"
-                  stroke="#e27952"
                   strokeWidth="2.2"
                   strokeLinecap="round"
                   strokeDasharray="50.27"
                   strokeDashoffset={p >= 3 ? 0 : 50.27}
                   transform="rotate(-90 10 10)"
-                  style={{ transition: `stroke-dashoffset ${p >= 3 ? 1000 : 0}ms linear` }}
+                  style={{ stroke: "var(--color-accent)", transition: `stroke-dashoffset ${p >= 3 ? 1000 : 0}ms linear` }}
                 />
               </svg>
             </span>
-            <span style={{ fontSize: 13, fontWeight: 600, color: "#fff" }}>{ui.downloadAll}</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--color-card)" }}>{ui.downloadAll}</span>
           </div>
-          <div style={{ ...layer, gap: 8, background: "#38584d", opacity: p >= 4 ? 1 : 0, transition: "opacity 300ms ease-out" }}>
+          <div style={{ ...layer, gap: 8, background: "var(--color-moss)", opacity: p >= 4 ? 1 : 0, transition: "opacity 300ms ease-out" }}>
             <Check size={15} width={2.8} />
-            <span style={{ fontSize: 13, fontWeight: 600, color: "#fff" }}>{ui.downloaded}</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--color-card)" }}>{ui.downloaded}</span>
           </div>
         </div>
-        <div style={{ position: "absolute", inset: 0, borderRadius: 24, background: "rgba(23,32,51,.28)", opacity: open ? 0 : 1, transition: "opacity 400ms ease-out" }} />
+        <div style={{ position: "absolute", inset: 0, borderRadius: 24, background: "color-mix(in oklch, var(--color-ink) 28%, transparent)", opacity: open ? 0 : 1, transition: "opacity 400ms ease-out" }} />
       </div>
 
       {/* Share sheet, dismissed once the link is copied */}
@@ -1231,17 +1217,17 @@ function SceneDeliver({ ui, p, burst, enter }: { ui: Ui; p: number; burst: numbe
           top: 130,
           width: 312,
           borderRadius: 22,
-          background: "#fff",
-          border: "1px solid rgba(0,0,0,.08)",
-          boxShadow: "0 24px 60px rgba(18,24,38,.22)",
+          background: "var(--color-card)",
+          border: "1px solid color-mix(in oklch, var(--color-device-black) 8%, transparent)",
+          boxShadow: "0 24px 60px color-mix(in oklch, var(--color-ink) 22%, transparent)",
           padding: 18,
           opacity: open ? 0 : 1,
           transform: `translateY(${open ? 40 : 0}px)`,
           transition: `opacity 350ms ease-out, transform 450ms ${EASE}`,
         }}
       >
-        <p style={{ fontSize: 15, fontWeight: 600, color: "#172033" }}>{ui.shareTitle}</p>
-        <p style={{ marginTop: 3, fontSize: 10.5, color: "rgba(0,0,0,.5)" }}>{ui.shareSub}</p>
+        <p style={{ fontSize: 15, fontWeight: 600, color: "var(--color-ink)" }}>{ui.shareTitle}</p>
+        <p style={{ marginTop: 3, fontSize: 10.5, color: "color-mix(in oklch, var(--color-device-black) 50%, transparent)" }}>{ui.shareSub}</p>
         <div
           style={{
             marginTop: 14,
@@ -1250,25 +1236,25 @@ function SceneDeliver({ ui, p, burst, enter }: { ui: Ui; p: number; burst: numbe
             gap: 8,
             height: 40,
             borderRadius: 12,
-            background: "#f7f2ea",
-            border: "1px solid rgba(0,0,0,.06)",
+            background: "var(--color-paper)",
+            border: "1px solid color-mix(in oklch, var(--color-device-black) 6%, transparent)",
             padding: "0 5px 0 11px",
           }}
         >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#38584d" strokeWidth="2">
+          <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ stroke: "var(--color-moss)" }} strokeWidth="2">
             <rect x="5" y="10.5" width="14" height="10" rx="2" />
             <path d="M8 10.5V7.5a4 4 0 018 0v3" />
           </svg>
-          <span style={{ flex: 1, minWidth: 0, fontFamily: MONO, fontSize: 11, color: "#172033", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          <span style={{ flex: 1, minWidth: 0, fontFamily: MONO, fontSize: 11, color: "var(--color-ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             …/g/amra-tarik
           </span>
-          <span style={{ position: "relative", display: "block", height: 30, minWidth: 84, borderRadius: 999, background: "#e27952", overflow: "hidden" }}>
+          <span style={{ position: "relative", display: "block", height: 30, minWidth: 84, borderRadius: 999, background: "var(--color-accent)", overflow: "hidden" }}>
             <span
               style={{
                 ...layer,
                 fontSize: 10.5,
                 fontWeight: 600,
-                color: "#fff",
+                color: "var(--color-card)",
                 padding: "0 10px",
                 whiteSpace: "nowrap",
                 opacity: p >= 1 ? 0 : 1,
@@ -1281,10 +1267,10 @@ function SceneDeliver({ ui, p, burst, enter }: { ui: Ui; p: number; burst: numbe
               style={{
                 ...layer,
                 gap: 4,
-                background: "#38584d",
+                background: "var(--color-moss)",
                 fontSize: 10.5,
                 fontWeight: 600,
-                color: "#fff",
+                color: "var(--color-card)",
                 whiteSpace: "nowrap",
                 opacity: p >= 1 ? 1 : 0,
                 transition: "opacity 250ms ease-out",
@@ -1299,18 +1285,18 @@ function SceneDeliver({ ui, p, burst, enter }: { ui: Ui; p: number; burst: numbe
           <span
             style={{
               borderRadius: 999,
-              background: "#e6f2ee",
+              background: "var(--color-moss-soft)",
               padding: "4px 9px",
               fontFamily: MONO,
               fontSize: 10,
               fontWeight: 600,
               letterSpacing: ".08em",
-              color: "#38584d",
+              color: "var(--color-moss)",
             }}
           >
             PIN 4821
           </span>
-          <span style={{ fontSize: 10, color: "rgba(0,0,0,.45)" }}>{ui.optional}</span>
+          <span style={{ fontSize: 10, color: "color-mix(in oklch, var(--color-device-black) 45%, transparent)" }}>{ui.optional}</span>
         </div>
       </div>
 

@@ -84,7 +84,7 @@ export async function CoupleDashboard({
           action={
             <Link
               href={`/dashboard/events/${event.slug}`}
-              className="rounded-full bg-[var(--color-accent-strong)] px-4 py-2 text-sm font-semibold text-white"
+              className="rounded-full bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-white"
             >
               {d.manageEventBtn}
             </Link>
@@ -220,7 +220,7 @@ export async function CoupleDashboard({
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link
                 href="/dashboard/events/new?intent=couple"
-                className="rounded-full bg-[var(--color-accent-strong)] px-8 py-3 text-sm font-semibold text-white shadow-[0_12px_32px_rgba(226,121,82,0.28)] transition hover:bg-[var(--color-accent)]/88"
+                className="rounded-full bg-[var(--color-accent)] px-8 py-3 text-sm font-semibold text-white shadow-[0_12px_32px_rgba(226,121,82,0.28)] transition hover:bg-[var(--color-accent)]/88"
               >
                 {d.createEventBtn}
               </Link>

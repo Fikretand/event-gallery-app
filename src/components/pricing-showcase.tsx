@@ -12,23 +12,29 @@ import { cn } from "@/lib/utils";
 type BillingMode = "monthly" | "yearly";
 
 /**
- * "39 KM" / "€19" as one unit: the number big, the currency smaller, never
+ * "39 KM" / "€19" as one unit: the number large, the currency smaller, never
  * split across lines, and the billing period on its own line underneath.
- * Before, the price and its label shared a flex row, so "39 KM" wrapped to
- * two lines on one card and stayed on one line on the next.
  */
 function PriceTag({ value, label }: { value: string; label: string }) {
   const m = /^(\D*?)\s*([\d.,]+)\s*(\D*)$/.exec(value.trim());
   const [prefix, amount, suffix] = m ? [m[1], m[2], m[3]] : ["", value, ""];
   return (
-    <div className="mt-6">
-      <p className="flex items-baseline gap-1.5 whitespace-nowrap font-semibold tracking-tight text-[var(--color-ink)]">
-        {prefix ? <span className="text-2xl">{prefix}</span> : null}
-        <span className="text-5xl">{amount}</span>
-        {suffix ? <span className="text-2xl">{suffix}</span> : null}
+    <div>
+      <p className="flex items-baseline gap-1.5 whitespace-nowrap text-ink">
+        {prefix ? <span className="text-xl font-semibold">{prefix}</span> : null}
+        <span className="num font-display text-[length:var(--text-display-s)] font-semibold leading-none tracking-[-0.02em]">{amount}</span>
+        {suffix ? <span className="text-xl font-semibold">{suffix}</span> : null}
       </p>
-      <p className="mt-1 text-sm leading-5 text-black/55">{label}</p>
+      <p className="meta mt-2">{label}</p>
     </div>
+  );
+}
+
+function Check() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true" className="mt-1 h-4 w-4 shrink-0 text-moss" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 8.5 6.5 12 13 4.5" />
+    </svg>
   );
 }
 
@@ -36,51 +42,89 @@ function extractLocale(pathname: string): Locale {
   return pathname.startsWith("/bs") ? "bs" : "en";
 }
 
-export function OneTimePlanCard({ compact = false }: { compact?: boolean }) {
-  const locale = extractLocale(usePathname());
+type PlanColumn = {
+  key: string;
+  name: string;
+  summary: string;
+  tag?: string;
+  price: string;
+  priceLabel: string;
+  note: string;
+  href: string;
+  cta: string;
+  primary: boolean;
+  includesLabel: string;
+  features: string[];
+};
+
+/**
+ * One plan as a column of the price table. The four rows (name, price,
+ * action, what is included) line up across columns through a subgrid, so
+ * every button sits on the same line whatever the summaries' lengths.
+ */
+function Column({ plan }: { plan: PlanColumn }) {
+  return (
+    <article className="grid gap-y-6 border-t border-rule pt-8 lg:row-span-4 lg:grid-rows-subgrid lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0 lg:first:border-l-0 lg:first:pl-0">
+      <div>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <h3 className="title text-ink">{plan.name}</h3>
+          {plan.tag ? <span className="chip chip-accent">{plan.tag}</span> : null}
+        </div>
+        <p className="mt-3 max-w-[34ch] text-ink-2">{plan.summary}</p>
+      </div>
+      <div>
+        <PriceTag value={plan.price} label={plan.priceLabel} />
+        <p className="mt-2 text-sm text-moss">{plan.note}</p>
+      </div>
+      <div className="self-start">
+        <MarketingButtonLink href={plan.href} tone={plan.primary ? "accent" : "ghost"} className="w-full">
+          {plan.cta}
+        </MarketingButtonLink>
+      </div>
+      <div>
+        <p className="text-sm font-semibold text-ink">{plan.includesLabel}</p>
+        <ul className="mt-3 space-y-2.5">
+          {plan.features.map((feature) => (
+            <li key={feature} className="flex items-start gap-3 text-[0.9375rem] leading-6 text-ink-2">
+              <Check />
+              <span>{feature}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </article>
+  );
+}
+
+function oneEventColumn(locale: Locale): PlanColumn {
   const dict = getDictionary(locale);
   const ui = dict.pricingUi;
   const plan = dict.marketing.couplePlan;
-  const lp = (path: string) => `/${locale}${path}`;
+  return {
+    key: "one-event",
+    name: plan.name,
+    summary: plan.summary,
+    price: baseCouple.price,
+    priceLabel: plan.priceLabel,
+    note: ui.oneTimePerfect,
+    href: `/${locale}/signup?intent=couple`,
+    cta: plan.trialCtaLabel,
+    primary: false,
+    includesLabel: ui.includes,
+    features: plan.features,
+  };
+}
 
+/** The One Event plan on its own, for the couples page. */
+export function OneTimePlanCard({ compact = false }: { compact?: boolean }) {
+  const locale = extractLocale(usePathname());
+  const column = oneEventColumn(locale);
   return (
-    <section
-      className={cn(
-        "lift-card rounded-[30px] border border-black/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(246,211,195,0.56))] p-7 shadow-[0_24px_80px_rgba(18,24,38,0.08)] backdrop-blur",
-        compact ? "max-w-xl" : "",
-      )}
-    >
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-moss)]">{ui.oneTimePlan}</p>
-        <p className="mt-4 font-display text-3xl font-semibold tracking-tight text-[var(--color-ink)]">{plan.name}</p>
-        <p className="mt-2 max-w-xs text-sm leading-6 text-black/62">{plan.summary}</p>
+    <div className={cn("card p-8", compact ? "max-w-xl" : "")}>
+      <div className="grid gap-y-6 [&>article]:border-0 [&>article]:p-0">
+        <Column plan={{ ...column, primary: true }} />
       </div>
-
-      <PriceTag value={baseCouple.price} label={plan.priceLabel} />
-      <p className="mt-2 text-sm text-[var(--color-moss)]">{ui.oneTimePerfect}</p>
-
-      <MarketingButtonLink
-        href={lp("/signup?intent=couple")}
-        tone="ink"
-        className="mt-6 w-full rounded-[18px] py-4"
-      >
-        {plan.trialCtaLabel}
-      </MarketingButtonLink>
-
-      <div className="mt-7 border-t border-black/8 pt-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/60">{ui.includes}</p>
-        <div className="mt-4 space-y-3">
-          {plan.features.map((feature) => (
-            <div key={feature} className="flex items-start gap-3 text-sm leading-6 text-[var(--color-ink)]">
-              <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/90 text-[11px] font-bold text-[var(--color-accent)]">
-                {"✓"}
-              </span>
-              <span>{feature}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
+    </div>
   );
 }
 
@@ -90,6 +134,7 @@ export function PricingShowcase() {
   const dict = getDictionary(locale);
   const ui = dict.pricingUi;
   const lp = (path: string) => `/${locale}${path}`;
+  const oneEvent = oneEventColumn(locale);
 
   // Merge locale text with locale-independent prices/flags from marketing.ts
   const plans = dict.marketing.photographerPlans.map((plan, i) => ({
@@ -101,95 +146,59 @@ export function PricingShowcase() {
     featured: basePlans[i].featured ?? false,
   }));
   const maxSaving = Math.max(...basePlans.map((p) => p.savingPercent));
+  const isYearly = billing === "yearly";
+
+  const columns: PlanColumn[] = [
+    ...plans.map((plan) => ({
+      key: plan.name,
+      name: plan.name,
+      summary: plan.summary,
+      tag: plan.featured ? ui.mostPopular : undefined,
+      price: isYearly ? plan.yearlyPrice : plan.monthlyPrice,
+      priceLabel: isYearly ? plan.yearlyLabel : plan.monthlyLabel,
+      note: isYearly
+        ? t(plan.yearlyTotalNote, { total: plan.yearlyTotal })
+        : t(plan.savingsLabel, { percent: String(plan.savingPercent) }),
+      href: lp(`/signup?intent=photographer&plan=${plan.name.toLowerCase()}`),
+      cta: plan.ctaLabel,
+      primary: plan.featured,
+      includesLabel: ui.includes,
+      features: plan.features,
+    })),
+    oneEvent,
+  ];
+
+  const segment =
+    "inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-[var(--radius-pill)] px-4 text-[0.9375rem] sm:px-5 font-semibold transition-colors duration-[var(--dur-micro)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus)]";
 
   return (
-    <div className="space-y-8">
-      <div className="mx-auto flex w-fit items-center rounded-[22px] border border-black/8 bg-white/80 p-1 shadow-[0_18px_40px_rgba(18,24,38,0.08)]">
+    <div className="space-y-[var(--space-2xl)]">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+      <div role="group" aria-label={`${ui.monthlyBilling} / ${ui.yearlyBilling}`} className="inline-flex rounded-[var(--radius-pill)] bg-paper-2 p-1">
         <button
           type="button"
+          aria-pressed={!isYearly}
           onClick={() => setBilling("monthly")}
-          className={cn(
-            "rounded-[18px] px-5 py-3 text-sm font-semibold transition",
-            billing === "monthly" ? "bg-[var(--color-ink)] text-[#fff]" : "text-black/62 hover:bg-black/4",
-          )}
+          className={cn(segment, !isYearly ? "bg-card text-ink shadow-[var(--shadow-card)]" : "text-ink-2 hover:text-ink")}
         >
           {ui.monthlyBilling}
         </button>
         <button
           type="button"
+          aria-pressed={isYearly}
           onClick={() => setBilling("yearly")}
-          className={cn(
-            "flex items-center gap-2 rounded-[18px] px-5 py-3 text-sm font-semibold transition",
-            billing === "yearly" ? "bg-[#dff3fb] text-[var(--color-ink)]" : "text-black/62 hover:bg-black/4",
-          )}
+          className={cn(segment, isYearly ? "bg-card text-ink shadow-[var(--shadow-card)]" : "text-ink-2 hover:text-ink")}
         >
           {ui.yearlyBilling}
-          <span className="rounded-full bg-white/90 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-[var(--color-moss)]">
-            {t(ui.save20, { percent: String(maxSaving) })}
-          </span>
         </button>
       </div>
+      <p className="text-sm font-medium text-moss">{t(ui.save20, { percent: String(maxSaving) })}</p>
+      </div>
 
-      <div className="grid gap-5 xl:grid-cols-[1fr_1.06fr_1fr]">
-        {plans.map((plan) => {
-          const isYearly = billing === "yearly";
-          const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
-          const label = isYearly ? plan.yearlyLabel : plan.monthlyLabel;
-
-          return (
-            <section
-              key={plan.name}
-              className={cn(
-                "lift-card rounded-[30px] border p-7 shadow-[0_24px_80px_rgba(18,24,38,0.08)] backdrop-blur",
-                plan.featured
-                  ? "relative border-[#9edffc] bg-white ring-2 ring-[#cfefff]"
-                  : "border-black/10 bg-white/82",
-              )}
-            >
-              {/* The badge sits on the card's top edge, so the name and summary
-                  wrap exactly like the other cards'. */}
-              {plan.featured ? (
-                <span className="absolute -top-3 left-7 rounded-full bg-[#dff3fb] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#156480] ring-1 ring-[#9edffc]">
-                  {ui.mostPopular}
-                </span>
-              ) : null}
-              <div>
-                <p className="font-display text-3xl font-semibold tracking-tight text-[var(--color-ink)]">{plan.name}</p>
-                <p className="mt-2 max-w-xs text-sm leading-6 text-black/62">{plan.summary}</p>
-              </div>
-
-              <PriceTag value={price} label={label} />
-              <p className="mt-2 text-sm text-[var(--color-moss)]">
-                {isYearly
-                  ? t(plan.yearlyTotalNote, { total: plan.yearlyTotal })
-                  : t(plan.savingsLabel, { percent: String(plan.savingPercent) })}
-              </p>
-
-              <MarketingButtonLink
-                href={lp(`/signup?intent=photographer&plan=${plan.name.toLowerCase()}`)}
-                tone={plan.featured ? "ink" : "accent"}
-                className={cn("mt-6 w-full rounded-[18px] py-4", !plan.featured && "shadow-[0_16px_36px_rgba(226,121,82,0.22)]")}
-              >
-                {plan.ctaLabel}
-              </MarketingButtonLink>
-
-              <div className="mt-7 border-t border-black/8 pt-6">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/60">{ui.includes}</p>
-                <div className="mt-4 space-y-3">
-                  {plan.features.map((feature) => (
-                    <div key={feature} className="flex items-start gap-3 text-sm leading-6 text-[var(--color-ink)]">
-                      <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#dff3fb] text-[11px] font-bold text-[#156480]">
-                        {"✓"}
-                      </span>
-                      <span>{feature}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-          );
-        })}
-        <OneTimePlanCard />
+      <div className="grid gap-y-10 lg:grid-cols-3 lg:grid-rows-[auto_auto_auto_1fr] lg:gap-x-8 lg:gap-y-6">
+        {columns.map((plan) => (
+          <Column key={plan.key} plan={plan} />
+        ))}
       </div>
     </div>
   );

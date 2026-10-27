@@ -221,7 +221,7 @@ export function LiveSlideshow({ slug, title, initialSlides, initialIncludePendin
             />
           )}
           {isNew ? (
-            <span className="absolute left-[3vw] top-[3vh] rounded-full bg-[var(--color-accent-strong)] px-[1.4vw] py-[0.6vh] text-[clamp(14px,1.4vw,28px)] font-semibold uppercase tracking-[0.18em]">
+            <span className="absolute left-[3vw] top-[3vh] rounded-full bg-[var(--color-accent)] px-[1.4vw] py-[0.6vh] text-[clamp(14px,1.4vw,28px)] font-semibold uppercase tracking-[0.18em]">
               {s.newBadge}
             </span>
           ) : null}
@@ -274,7 +274,7 @@ export function LiveSlideshow({ slug, title, initialSlides, initialIncludePendin
               type="checkbox"
               checked={includePending}
               onChange={(event) => togglePending(event.target.checked)}
-              className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--color-accent-strong)]"
+              className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--color-accent)]"
             />
             <span className="font-semibold leading-snug">{s.includePending}</span>
           </label>

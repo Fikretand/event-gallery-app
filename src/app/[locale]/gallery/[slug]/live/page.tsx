@@ -45,7 +45,7 @@ export default async function LiveGalleryPage({
             {closed ? null : (
               <Link
                 href={`/${lang}/gallery/${event.slug}`}
-                className="mt-5 inline-flex rounded-full bg-[var(--color-accent-strong)] px-5 py-2.5 text-sm font-semibold text-white"
+                className="mt-5 inline-flex rounded-full bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-white"
               >
                 {s.lockedCta}
               </Link>

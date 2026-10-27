@@ -2,6 +2,7 @@ import type { PropsWithChildren } from "react";
 
 import { cn } from "@/lib/utils";
 
+/** A card: the raised rung of the surface ladder, one per nesting level. */
 export function Panel({
   children,
   className,
@@ -11,13 +12,7 @@ export function Panel({
   id?: string;
 }>) {
   return (
-    <section
-      id={id}
-      className={cn(
-        "rounded-[28px] border border-black/10 bg-white/85 p-6 shadow-[0_24px_80px_rgba(18,24,38,0.08)] backdrop-blur",
-        className,
-      )}
-    >
+    <section id={id} className={cn("card p-6 sm:p-8", className)}>
       {children}
     </section>
   );

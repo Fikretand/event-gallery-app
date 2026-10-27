@@ -537,7 +537,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
                     isDone
                       ? "bg-[var(--color-moss)] text-white"
                       : isActive
-                        ? "bg-[var(--color-accent-strong)] text-white shadow-[0_4px_16px_rgba(226,121,82,0.38)]"
+                        ? "bg-[var(--color-accent)] text-white shadow-[0_4px_16px_rgba(226,121,82,0.38)]"
                         : "bg-black/8 text-black/30",
                   )}
                 >
@@ -546,7 +546,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
                 <span
                   className={cn(
                     "text-xs font-medium transition-colors",
-                    isActive ? "text-[var(--color-accent-strong)]" : isDone ? "text-[var(--color-moss)]" : "text-black/32",
+                    isActive ? "text-[var(--color-accent)]" : isDone ? "text-[var(--color-moss)]" : "text-black/32",
                   )}
                 >
                   {label}
@@ -585,7 +585,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="mt-6 flex w-full items-center justify-center gap-3 rounded-[20px] bg-[var(--color-accent-strong)] px-6 py-5 text-lg font-semibold text-white shadow-[0_8px_28px_rgba(226,121,82,0.38)] transition-all hover:brightness-105 active:scale-[0.98] md:py-4 md:text-base"
+            className="mt-6 flex w-full items-center justify-center gap-3 rounded-[20px] bg-[var(--color-accent)] px-6 py-5 text-lg font-semibold text-white shadow-[0_8px_28px_rgba(226,121,82,0.38)] transition-all hover:brightness-105 active:scale-[0.98] md:py-4 md:text-base"
           >
             <span className="text-xl">📷</span>
             {s.selectPhotosBtn}
@@ -694,7 +694,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
             type="button"
             onClick={startUpload}
             disabled={isPending || activeItems.length === 0}
-            className="flex w-full items-center justify-center gap-3 rounded-[20px] bg-[var(--color-accent-strong)] px-6 py-5 text-lg font-semibold text-white shadow-[0_8px_28px_rgba(226,121,82,0.38)] transition-all hover:brightness-105 active:scale-[0.98] disabled:opacity-60 md:py-4 md:text-base"
+            className="flex w-full items-center justify-center gap-3 rounded-[20px] bg-[var(--color-accent)] px-6 py-5 text-lg font-semibold text-white shadow-[0_8px_28px_rgba(226,121,82,0.38)] transition-all hover:brightness-105 active:scale-[0.98] disabled:opacity-60 md:py-4 md:text-base"
           >
             <span className="text-xl">✉️</span>
             {s.sendBtn}
@@ -750,7 +750,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
                         : item.status === "done"
                           ? "text-[var(--color-moss)]"
                           : item.status === "waiting" || item.status === "retrying"
-                            ? "text-[var(--color-accent-strong)]"
+                            ? "text-[var(--color-accent)]"
                             : "text-black/60",
                     )}
                   >
@@ -829,7 +829,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
             <button
               type="button"
               onClick={() => { setSuccess(null); setError(null); setItems([]); inputRef.current?.click(); }}
-              className="inline-flex items-center gap-2 rounded-[16px] bg-[var(--color-accent-strong)] px-6 py-3 text-sm font-semibold text-white shadow-[0_6px_20px_rgba(226,121,82,0.32)] transition hover:brightness-105"
+              className="inline-flex items-center gap-2 rounded-[16px] bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-white shadow-[0_6px_20px_rgba(226,121,82,0.32)] transition hover:brightness-105"
             >
               + {s.uploadAnotherBtn}
             </button>

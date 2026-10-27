@@ -173,7 +173,7 @@ export function AuthForm({
 
         {mode === "login" ? (
           <div className="flex justify-end">
-            <Link href={forgotHref} className="inline-block py-1 text-sm font-semibold text-[var(--color-accent-strong)]">
+            <Link href={forgotHref} className="inline-block py-1 text-sm font-semibold text-[var(--color-accent)]">
               {s.formForgotPassword}
             </Link>
           </div>

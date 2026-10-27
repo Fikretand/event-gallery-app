@@ -65,7 +65,7 @@ export default async function UploadPage({
       <div className="px-5 pb-8 text-center">
         <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-accent)]/25 bg-[var(--color-accent-soft)]/50 px-4 py-1.5">
           <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" />
-          <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-accent-strong)]">
+          <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-accent)]">
             {d.badge}
           </span>
         </span>

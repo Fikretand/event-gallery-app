@@ -60,7 +60,6 @@ const IO = "cubic-bezier(.45,0,.55,1)";
 const SPR = "cubic-bezier(.34,1.45,.64,1)";
 const N = "none";
 const SERIF = "var(--font-display)";
-const MONO = "var(--font-jetbrains), ui-monospace, monospace";
 
 // ─── The phone, drawn in code ─────────────────────────────────────
 // A photo of a phone with HTML pasted onto its screen never lines up with
@@ -120,13 +119,13 @@ type Rect = { x: number; w: number };
 
 const StatusIcons = ({ battery }: { battery: string }) => (
   <div style={{ position: "absolute", right: 34, top: 21, display: "flex", alignItems: "center", gap: 6 }}>
-    <svg width="18" height="12" viewBox="0 0 18 12">
+    <svg aria-hidden="true" width="18" height="12" viewBox="0 0 18 12">
       <rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor" />
       <rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="currentColor" />
       <rect x="10" y="3" width="3" height="9" rx="1" fill="currentColor" />
       <rect x="15" y="0" width="3" height="12" rx="1" fill="currentColor" />
     </svg>
-    <svg width="16" height="12" viewBox="0 0 14 11" fill="none">
+    <svg aria-hidden="true" width="16" height="12" viewBox="0 0 14 11" fill="none">
       <circle cx="7" cy="9.5" r="1.3" fill="currentColor" />
       <path d="M4.2 6.8a4 4 0 015.6 0" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
       <path d="M1.4 4a8 8 0 0111.2 0" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
@@ -154,13 +153,18 @@ const Brackets = ({ color }: { color: string }) => {
 };
 
 const LockIcon = ({ size, width }: { size: number; width: number }) => (
-  <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor" strokeWidth={width}>
+  <svg aria-hidden="true" viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor" strokeWidth={width}>
     <rect x="5" y="11" width="14" height="9" rx="2" />
     <path d="M8 11V8a4 4 0 018 0v3" />
   </svg>
 );
 
-export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
+/**
+ * `align="start"` sets the phone against the left of its column (with room
+ * for the QR card that stands off its side), so it sits beside the hero's
+ * text rather than adrift in the middle of a wide column.
+ */
+export function HeroDevice({ copy, qrSvg, align = "center" }: { copy: Copy; qrSvg: string; align?: "center" | "start" }) {
   const c = copy.screen;
   const reduced = useSyncExternalStore(
     subscribeReduced,
@@ -348,8 +352,8 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
     <div
       aria-hidden="true"
       data-hero-device=""
-      className="lg:self-start"
-      style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center" }}
+      className={align === "start" ? "justify-center lg:justify-start lg:pl-[clamp(56px,6vw,88px)]" : "justify-center"}
+      style={{ position: "relative", display: "flex", alignItems: "center" }}
     >
       <div
         ref={stageRef}
@@ -365,24 +369,12 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
         <div
           style={{
             ...abs,
-            left: "-40%",
-            right: "-40%",
-            top: "6%",
-            bottom: "10%",
-            borderRadius: "50%",
-            background: "radial-gradient(closest-side, rgba(226,121,82,.2), rgba(226,121,82,.06) 55%, transparent)",
-            pointerEvents: "none",
-          }}
-        />
-        <div
-          style={{
-            ...abs,
             left: "6%",
             right: "2%",
             bottom: "-7%",
             height: "9%",
             borderRadius: "50%",
-            background: "radial-gradient(closest-side, rgba(110,66,38,.26), rgba(110,66,38,.08) 55%, transparent)",
+            background: "radial-gradient(closest-side, color-mix(in oklch, var(--color-night) 26%, transparent), color-mix(in oklch, var(--color-night) 8%, transparent) 55%, transparent)",
             pointerEvents: "none",
           }}
         />
@@ -399,8 +391,8 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                         borderRadius: 4,
                         background:
                           "right" in b
-                            ? "linear-gradient(90deg,#8a8274,#d6cebf 55%,#6c6559)"
-                            : "linear-gradient(90deg,#6c6559,#c9c0b1 45%,#8a8274)",
+                            ? "linear-gradient(90deg,var(--color-titanium-5),var(--color-titanium-1) 55%,var(--color-titanium-6))"
+                            : "linear-gradient(90deg,var(--color-titanium-6),var(--color-titanium-2) 45%,var(--color-titanium-5))",
                       }}
                     />
                   ))}
@@ -412,25 +404,25 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                   >
                     <defs>
                       <linearGradient id="cfTi" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0" stopColor="#f1ebe1" />
-                        <stop offset=".16" stopColor="#c3baab" />
-                        <stop offset=".46" stopColor="#9b9282" />
-                        <stop offset=".72" stopColor="#b9b0a1" />
-                        <stop offset=".9" stopColor="#8a8173" />
-                        <stop offset="1" stopColor="#6f675b" />
+                        <stop offset="0" style={{ stopColor: "var(--color-paper-2)" }} />
+                        <stop offset=".16" style={{ stopColor: "var(--color-titanium-2)" }} />
+                        <stop offset=".46" style={{ stopColor: "var(--color-titanium-4)" }} />
+                        <stop offset=".72" style={{ stopColor: "var(--color-titanium-3)" }} />
+                        <stop offset=".9" style={{ stopColor: "var(--color-titanium-5)" }} />
+                        <stop offset="1" style={{ stopColor: "var(--color-titanium-6)" }} />
                       </linearGradient>
                       <linearGradient id="cfRim" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0" stopColor="rgba(255,255,255,.95)" />
-                        <stop offset=".35" stopColor="rgba(255,255,255,.25)" />
-                        <stop offset=".7" stopColor="rgba(255,255,255,.08)" />
-                        <stop offset="1" stopColor="rgba(255,255,255,.35)" />
+                        <stop offset="0" style={{ stopColor: "color-mix(in oklch, var(--color-card) 95%, transparent)" }} />
+                        <stop offset=".35" style={{ stopColor: "color-mix(in oklch, var(--color-card) 25%, transparent)" }} />
+                        <stop offset=".7" style={{ stopColor: "color-mix(in oklch, var(--color-card) 8%, transparent)" }} />
+                        <stop offset="1" style={{ stopColor: "color-mix(in oklch, var(--color-card) 35%, transparent)" }} />
                       </linearGradient>
                     </defs>
                     <path d={OUTER} fill="url(#cfTi)" />
                     <path d={OUTER} fill="none" stroke="url(#cfRim)" strokeWidth="1.4" />
-                    <path d={BEZEL} fill="none" stroke="rgba(40,34,28,.55)" strokeWidth="1" />
-                    <path d={BEZEL} fill="#0a0a0b" />
-                    <path d={BEZEL} fill="none" stroke="rgba(255,255,255,.07)" strokeWidth="1" />
+                    <path d={BEZEL} fill="none" style={{ stroke: "color-mix(in oklch, var(--color-night) 55%, transparent)" }} strokeWidth="1" />
+                    <path d={BEZEL} style={{ fill: "var(--color-device-black)" }} />
+                    <path d={BEZEL} fill="none" style={{ stroke: "color-mix(in oklch, var(--color-card) 7%, transparent)" }} strokeWidth="1" />
                   </svg>
 
                 {/* ─── The live screen ─── */}
@@ -443,13 +435,13 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                     height: SCREEN.h,
                     borderRadius: 55,
                     overflow: "hidden",
-                    background: "#0b0b0d",
+                    background: "var(--color-device-black)",
                     // A cue re-render never repaints anything outside the screen.
                     contain: "layout paint",
                   }}
                 >
                   {/* 1 · Camera scanning the QR on a table card */}
-                  <div style={{ ...fill, background: "#0b0b0d" }}>
+                  <div style={{ ...fill, background: "var(--color-device-black)" }}>
                     <img
                       src={CAMERA_BG}
                       alt=""
@@ -463,8 +455,8 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                         width: 200,
                         height: 254,
                         borderRadius: 18,
-                        background: "#fbf8f3",
-                        boxShadow: "0 30px 60px rgba(0,0,0,.45)",
+                        background: "var(--color-paper)",
+                        boxShadow: "0 30px 60px color-mix(in oklch, var(--color-device-black) 45%, transparent)",
                         transform: "rotate(-3deg)",
                         display: "flex",
                         flexDirection: "column",
@@ -472,13 +464,13 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                         paddingTop: 18,
                       }}
                     >
-                      <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: ".18em", color: "#38584d" }}>{c.eventNameCaps}</span>
+                      <span style={{ fontSize: 10, color: "var(--color-moss)" }}>{c.eventName}</span>
                       <div
                         className="[&>svg]:h-full [&>svg]:w-full"
                         style={{ marginTop: 12, width: 138, height: 138 }}
                         dangerouslySetInnerHTML={{ __html: qrSvg }}
                       />
-                      <span style={{ marginTop: 12, fontSize: 10, fontWeight: 700, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(0,0,0,.45)" }}>
+                      <span style={{ marginTop: 12, fontSize: 10, fontWeight: 700, color: "color-mix(in oklch, var(--color-device-black) 45%, transparent)" }}>
                         {copy.cards.qrLabel}
                       </span>
                     </div>
@@ -492,10 +484,10 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                         }}
                       >
                         <div style={{ ...fill, opacity: green ? 0 : 1, transition: inR(1200, 1450) ? "opacity 250ms ease" : N }}>
-                          <Brackets color="#fff" />
+                          <Brackets color="var(--color-card)" />
                         </div>
                         <div style={{ ...fill, opacity: green ? 1 : 0, transition: inR(1200, 1450) ? "opacity 250ms ease" : N }}>
-                          <Brackets color="#8fd6b3" />
+                          <Brackets color="var(--color-device-mint)" />
                         </div>
                       </div>
                       <div
@@ -506,8 +498,8 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                           top: 0,
                           height: 2,
                           borderRadius: 2,
-                          background: "linear-gradient(90deg, transparent, rgba(255,255,255,.95), transparent)",
-                          boxShadow: "0 0 14px 2px rgba(255,255,255,.35)",
+                          background: "linear-gradient(90deg, transparent, color-mix(in oklch, var(--color-card) 95%, transparent), transparent)",
+                          boxShadow: "0 0 14px 2px color-mix(in oklch, var(--color-card) 35%, transparent)",
                           transform: inR(300, 3000) ? "translateY(272px)" : "translateY(0)",
                           opacity: inR(300, 1200) ? 1 : 0,
                           transition: inR(300, 1450) ? `transform 900ms ${IO}, opacity 200ms ease` : N,
@@ -523,7 +515,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                           height: 240,
                           margin: "-120px 0 0 -120px",
                           borderRadius: "50%",
-                          border: "2px solid rgba(143,214,179,.9)",
+                          border: "2px solid color-mix(in oklch, var(--color-device-mint) 90%, transparent)",
                           opacity: 0,
                         }}
                       />
@@ -547,9 +539,9 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                           alignItems: "center",
                           gap: 10,
                           borderRadius: 999,
-                          background: "rgba(255,255,255,.9)",
+                          background: "color-mix(in oklch, var(--color-card) 90%, transparent)",
                           padding: "8px 16px 8px 8px",
-                          boxShadow: "0 10px 30px rgba(0,0,0,.3)",
+                          boxShadow: "0 10px 30px color-mix(in oklch, var(--color-device-black) 30%, transparent)",
                         }}
                       >
                         <span
@@ -560,8 +552,8 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                             alignItems: "center",
                             justifyContent: "center",
                             borderRadius: 8,
-                            background: "#e27952",
-                            color: "#fff",
+                            background: "var(--color-accent)",
+                            color: "var(--color-card)",
                             fontFamily: SERIF,
                             fontSize: 15,
                             fontWeight: 600,
@@ -569,10 +561,10 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                         >
                           C
                         </span>
-                        <span style={{ fontSize: 15, fontWeight: 600, color: "#172033", whiteSpace: "nowrap" }}>{c.camChip}</span>
+                        <span style={{ fontSize: 15, fontWeight: 600, color: "var(--color-ink)", whiteSpace: "nowrap" }}>{c.camChip}</span>
                       </div>
                     </div>
-                    <div style={{ ...abs, left: 0, right: 0, bottom: 122, textAlign: "center", fontSize: 13, fontWeight: 600, letterSpacing: ".12em", color: "#ffd60a" }}>
+                    <div style={{ ...abs, left: 0, right: 0, bottom: 122, textAlign: "center", fontSize: 13, fontWeight: 600, letterSpacing: ".12em", color: "var(--color-device-signal)" }}>
                       {c.cameraMode}
                     </div>
                     <div
@@ -584,13 +576,13 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                         height: 76,
                         marginLeft: -38,
                         borderRadius: "50%",
-                        border: "4px solid #fff",
+                        border: "4px solid var(--color-card)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                       }}
                     >
-                      <div style={{ width: 60, height: 60, borderRadius: "50%", background: "#fff" }} />
+                      <div style={{ width: 60, height: 60, borderRadius: "50%", background: "var(--color-card)" }} />
                     </div>
                   </div>
 
@@ -598,15 +590,15 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                   <div
                     style={{
                       ...fill,
-                      background: "#fbf8f3",
+                      background: "var(--color-paper)",
                       transform: upOn ? "translateY(0)" : inR(3000, 3600) ? "scale(.94)" : "translateY(100%)",
                       opacity: t >= 3000 ? 0 : 1,
                       transition: inR(1450, 2600) ? `transform 560ms ${E}` : inR(3000, 3600) ? `transform 500ms ${E}, opacity 400ms ease` : N,
                     }}
                   >
                     <div style={{ ...abs, left: 24, right: 24, top: 74 }}>
-                      <p style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".2em", textTransform: "uppercase", color: "#38584d" }}>{c.eventMeta}</p>
-                      <p style={{ marginTop: 8, fontFamily: SERIF, fontSize: 40, lineHeight: 1.05, fontWeight: 600, letterSpacing: "-0.02em", color: "#172033" }}>
+                      <p style={{ fontSize: 11, color: "var(--color-moss)" }}>{c.eventMeta}</p>
+                      <p style={{ marginTop: 8, fontFamily: SERIF, fontSize: 40, lineHeight: 1.05, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--color-ink)" }}>
                         {c.eventName}
                       </p>
                       <span
@@ -614,11 +606,11 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                           display: "inline-flex",
                           marginTop: 14,
                           borderRadius: 999,
-                          background: "#e6f2ee",
+                          background: "var(--color-moss-soft)",
                           padding: "6px 12px",
                           fontSize: 13,
                           fontWeight: 600,
-                          color: "#38584d",
+                          color: "var(--color-moss)",
                         }}
                       >
                         {c.noApp}
@@ -632,8 +624,8 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                         top: 236,
                         height: 204,
                         borderRadius: 26,
-                        border: "1.5px dashed rgba(56,88,77,.35)",
-                        background: "#fff",
+                        border: "1.5px dashed color-mix(in oklch, var(--color-moss) 35%, transparent)",
+                        background: "var(--color-card)",
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
@@ -651,8 +643,8 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                           alignItems: "center",
                           justifyContent: "center",
                           borderRadius: 18,
-                          background: "rgba(226,121,82,.12)",
-                          color: "#e27952",
+                          background: "color-mix(in oklch, var(--color-accent) 12%, transparent)",
+                          color: "var(--color-accent)",
                         }}
                       >
                         <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -661,12 +653,12 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                           <circle cx="12" cy="13" r="3.4" />
                         </svg>
                       </span>
-                      <span style={{ fontSize: 18, fontWeight: 600, color: "#172033" }}>{c.addPhotos}</span>
-                      <span style={{ fontSize: 14, color: "rgba(0,0,0,.5)" }}>{c.addPhotosSub}</span>
+                      <span style={{ fontSize: 18, fontWeight: 600, color: "var(--color-ink)" }}>{c.addPhotos}</span>
+                      <span style={{ fontSize: 14, color: "color-mix(in oklch, var(--color-device-black) 50%, transparent)" }}>{c.addPhotosSub}</span>
                     </div>
                     <div style={{ ...abs, left: 24, top: 460, display: "flex", gap: 12 }}>
                       {[0, 1, 2].map((i) => (
-                        <div key={i} style={{ width: 107, height: 107, borderRadius: 20, background: "#f2eadf" }} />
+                        <div key={i} style={{ width: 107, height: 107, borderRadius: 20, background: "var(--color-paper-2)" }} />
                       ))}
                     </div>
                     <div
@@ -681,9 +673,9 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                     >
                       <div style={{ position: "relative", height: 22 }}>
                         {[
-                          { text: c.selected, on: inR(2250, 2400), color: "#172033" },
-                          { text: c.sending, on: inR(2400, 2950), color: "#172033" },
-                          { text: c.sent, on: inR(2950, 3600), color: "#38584d" },
+                          { text: c.selected, on: inR(2250, 2400), color: "var(--color-ink)" },
+                          { text: c.sending, on: inR(2400, 2950), color: "var(--color-ink)" },
+                          { text: c.sent, on: inR(2950, 3600), color: "var(--color-moss)" },
                         ].map((l) => (
                           <span
                             key={l.text}
@@ -700,12 +692,12 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                           </span>
                         ))}
                       </div>
-                      <div style={{ marginTop: 10, height: 8, borderRadius: 999, background: "#f2eadf", overflow: "hidden" }}>
+                      <div style={{ marginTop: 10, height: 8, borderRadius: 999, background: "var(--color-paper-2)", overflow: "hidden" }}>
                         <div
                           style={{
                             height: "100%",
                             borderRadius: 999,
-                            background: "#38584d",
+                            background: "var(--color-moss)",
                             transformOrigin: "0 50%",
                             transform: inR(2400, 3600) ? "scaleX(1)" : "scaleX(0)",
                             transition: inR(2400, 3000) ? "transform 540ms cubic-bezier(.4,0,.2,1)" : N,
@@ -722,14 +714,14 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                         top: 676,
                         height: 58,
                         borderRadius: 20,
-                        background: "#e27952",
-                        color: "#fff",
+                        background: "var(--color-accent)",
+                        color: "var(--color-card)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                         fontSize: 17,
                         fontWeight: 600,
-                        boxShadow: "0 12px 32px rgba(226,121,82,.30)",
+                        boxShadow: "0 12px 32px color-mix(in oklch, var(--color-accent) 30%, transparent)",
                       }}
                     >
                       {c.send}
@@ -740,7 +732,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                   <div
                     style={{
                       ...fill,
-                      background: "#f9f5ef",
+                      background: "var(--color-paper)",
                       transform: galOn ? "scale(1)" : "scale(1.03)",
                       opacity: galOn ? 1 : 0,
                       transition: inR(3000, 3600)
@@ -757,12 +749,12 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                         right: 16,
                         top: 62,
                         borderRadius: 26,
-                        background: "#fff",
-                        boxShadow: "0 6px 28px rgba(18,24,38,.09)",
+                        background: "var(--color-card)",
+                        boxShadow: "0 6px 28px color-mix(in oklch, var(--color-ink) 9%, transparent)",
                         padding: "18px 20px 16px",
                       }}
                     >
-                      <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".28em", textTransform: "uppercase", color: "#38584d" }}>{c.galleryEyebrow}</p>
+                      <p style={{ fontSize: 11, fontWeight: 700, color: "var(--color-moss)" }}>{c.galleryEyebrow}</p>
                       <p
                         style={{
                           marginTop: 6,
@@ -770,7 +762,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                           fontSize: 24,
                           lineHeight: 1.15,
                           fontWeight: 600,
-                          color: "#172033",
+                          color: "var(--color-ink)",
                           whiteSpace: "nowrap",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
@@ -778,7 +770,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                       >
                         {c.galleryName}
                       </p>
-                      <p style={{ marginTop: 4, fontSize: 13, lineHeight: "18px", color: "rgba(0,0,0,.45)", display: "flex", gap: 4, alignItems: "center" }}>
+                      <p style={{ marginTop: 4, fontSize: 13, lineHeight: "18px", color: "color-mix(in oklch, var(--color-device-black) 45%, transparent)", display: "flex", gap: 4, alignItems: "center" }}>
                         <span>{c.date} ·</span>
                         <span style={{ display: "inline-block", height: 18, overflow: "hidden", fontVariantNumeric: "tabular-nums" }}>
                           <span
@@ -797,7 +789,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                         <span>{c.photosWord}</span>
                       </p>
                       <div style={{ marginTop: 10, display: "flex", gap: 6 }}>
-                        <span style={{ borderRadius: 999, background: "#f2eadf", padding: "4px 10px", fontSize: 12, fontWeight: 500, color: "rgba(0,0,0,.55)" }}>
+                        <span style={{ borderRadius: 999, background: "var(--color-paper-2)", padding: "4px 10px", fontSize: 12, fontWeight: 500, color: "color-mix(in oklch, var(--color-device-black) 55%, transparent)" }}>
                           {c.guests}
                         </span>
                         <span
@@ -806,11 +798,11 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                             alignItems: "center",
                             gap: 5,
                             borderRadius: 999,
-                            background: "#e6f2ee",
+                            background: "var(--color-moss-soft)",
                             padding: "4px 10px",
                             fontSize: 12,
                             fontWeight: 500,
-                            color: "#38584d",
+                            color: "var(--color-moss)",
                           }}
                         >
                           <LockIcon size={12} width={2.2} />
@@ -831,7 +823,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                               alignItems: "center",
                               padding: "0 14px",
                               borderRadius: 999,
-                              background: "rgba(255,255,255,.75)",
+                              background: "color-mix(in oklch, var(--color-card) 75%, transparent)",
                               fontSize: 13,
                               fontWeight: 600,
                               color: "transparent",
@@ -850,7 +842,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                           height: 34,
                           width: base,
                           borderRadius: 999,
-                          background: "#172033",
+                          background: "var(--color-ink)",
                           transformOrigin: "0 50%",
                           transform: tabRects ? `translateX(${tabRects[tab].x}px) scaleX(${(tabRects[tab].w / base).toFixed(4)})` : "none",
                           transition: inR(8300, 11300) ? `transform 520ms ${E}` : N,
@@ -873,8 +865,8 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                               fontSize: 13,
                               fontWeight: 600,
                               whiteSpace: "nowrap",
-                              color: i === tab ? "#fff" : "rgba(0,0,0,.42)",
-                              background: !tabRects && i === tab ? "#172033" : "transparent",
+                              color: i === tab ? "var(--color-card)" : "color-mix(in oklch, var(--color-device-black) 42%, transparent)",
+                              background: !tabRects && i === tab ? "var(--color-ink)" : "transparent",
                               transition: inR(8300, 11300) ? "color 260ms ease" : N,
                             }}
                           >
@@ -909,13 +901,13 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                             }}
                           >
                             {col.map((it, ii) => (
-                              <div key={ii} style={{ position: "relative", height: it.h, borderRadius: 16, overflow: "hidden", background: "#f2eadf" }}>
+                              <div key={ii} style={{ position: "relative", height: it.h, borderRadius: 16, overflow: "hidden", background: "var(--color-paper-2)" }}>
                                 <img src={it.src} alt="" loading="lazy" decoding="async" style={cover} />
                                 <div
                                   style={{
                                     ...fill,
                                     borderRadius: 16,
-                                    boxShadow: "inset 0 0 0 3px #38584d",
+                                    boxShadow: "inset 0 0 0 3px var(--color-moss)",
                                     opacity: "fresh" in it ? freshRing : 0,
                                     transition: inR(6800, 9000) ? "opacity 500ms ease" : N,
                                   }}
@@ -927,7 +919,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                       </div>
                     </div>
 
-                    <div style={{ ...fill, background: "#172033", opacity: sOn ? 0.16 : 0, transition: inR(5250, 8300) ? "opacity 400ms ease" : N, pointerEvents: "none" }} />
+                    <div style={{ ...fill, background: "var(--color-ink)", opacity: sOn ? 0.16 : 0, transition: inR(5250, 8300) ? "opacity 400ms ease" : N, pointerEvents: "none" }} />
 
                     {/* "Hidden until you approve" sheet */}
                     <div
@@ -938,16 +930,16 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                         top: 404,
                         height: 520,
                         borderRadius: "34px 34px 0 0",
-                        background: "#fff",
-                        boxShadow: "0 -12px 40px rgba(18,24,38,.14)",
+                        background: "var(--color-card)",
+                        boxShadow: "0 -12px 40px color-mix(in oklch, var(--color-ink) 14%, transparent)",
                         transform: sOn ? "translateY(0)" : "translateY(105%)",
                         transition: sOn ? `transform 600ms ${E}` : inR(7500, 8300) ? "transform 480ms cubic-bezier(.4,0,.2,1)" : N,
                       }}
                     >
-                      <div style={{ width: 40, height: 5, borderRadius: 3, background: "rgba(0,0,0,.14)", margin: "10px auto 0" }} />
+                      <div style={{ width: 40, height: 5, borderRadius: 3, background: "color-mix(in oklch, var(--color-device-black) 14%, transparent)", margin: "10px auto 0" }} />
                       <div style={{ padding: "14px 24px 0" }}>
-                        <p style={{ fontFamily: MONO, fontSize: 11, letterSpacing: ".2em", textTransform: "uppercase", color: "#e27952" }}>{c.sheetEyebrow}</p>
-                        <p style={{ marginTop: 6, fontFamily: SERIF, fontSize: 23, lineHeight: 1.2, fontWeight: 600, color: "#172033", textWrap: "balance" }}>
+                        <p style={{ fontSize: 11, color: "var(--color-accent)" }}>{c.sheetEyebrow}</p>
+                        <p style={{ marginTop: 6, fontFamily: SERIF, fontSize: 23, lineHeight: 1.2, fontWeight: 600, color: "var(--color-ink)", textWrap: "balance" }}>
                           {c.sheetTitle}
                         </p>
                       </div>
@@ -967,8 +959,8 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                                   width: 28,
                                   height: 28,
                                   borderRadius: "50%",
-                                  background: "#38584d",
-                                  border: "2px solid #fff",
+                                  background: "var(--color-moss)",
+                                  border: "2px solid var(--color-card)",
                                   display: "flex",
                                   alignItems: "center",
                                   justifyContent: "center",
@@ -977,7 +969,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                                   transition: sp.chkTr,
                                 }}
                               >
-                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" style={{ stroke: "var(--color-card)" }} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                                   <path d="M5 12.5l4.5 4.5L19 7.5" />
                                 </svg>
                               </div>
@@ -991,7 +983,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                                   gap: 5,
                                   fontSize: 12,
                                   fontWeight: 600,
-                                  color: "rgba(0,0,0,.45)",
+                                  color: "color-mix(in oklch, var(--color-device-black) 45%, transparent)",
                                   opacity: sp.hidOp,
                                   transition: sp.chkTr,
                                 }}
@@ -1002,7 +994,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                                 </svg>
                                 {c.hidden}
                               </span>
-                              <span style={{ ...label, fontSize: 12, fontWeight: 600, color: "#38584d", opacity: sp.chkOp, transition: sp.chkTr }}>{c.approved}</span>
+                              <span style={{ ...label, fontSize: 12, fontWeight: 600, color: "var(--color-moss)", opacity: sp.chkOp, transition: sp.chkTr }}>{c.approved}</span>
                             </div>
                           </div>
                         ))}
@@ -1030,9 +1022,9 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                         style={{
                           position: "relative",
                           borderRadius: 26,
-                          border: "1px solid rgba(255,255,255,.7)",
-                          background: "rgba(255,255,255,.96)",
-                          boxShadow: "0 14px 40px rgba(18,24,38,.2)",
+                          border: "1px solid color-mix(in oklch, var(--color-card) 70%, transparent)",
+                          background: "color-mix(in oklch, var(--color-card) 96%, transparent)",
+                          boxShadow: "0 14px 40px color-mix(in oklch, var(--color-ink) 20%, transparent)",
                           padding: 14,
                         }}
                       >
@@ -1046,20 +1038,20 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                               alignItems: "center",
                               justifyContent: "center",
                               borderRadius: 10,
-                              background: "#e27952",
-                              color: "#fff",
+                              background: "var(--color-accent)",
+                              color: "var(--color-card)",
                               fontFamily: SERIF,
                               fontSize: 19,
                               fontWeight: 600,
-                              boxShadow: "inset 0 -1px 0 rgba(0,0,0,.12)",
+                              boxShadow: "inset 0 -1px 0 color-mix(in oklch, var(--color-device-black) 12%, transparent)",
                             }}
                           >
                             C
                           </span>
                           <div style={{ minWidth: 0, flex: 1 }}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
-                              <span style={{ fontSize: 13, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", color: "rgba(0,0,0,.55)" }}>Confetti</span>
-                              <span style={{ fontSize: 12, color: "rgba(0,0,0,.4)" }}>{c.notifTime}</span>
+                              <span style={{ fontSize: 13, fontWeight: 600, color: "color-mix(in oklch, var(--color-device-black) 55%, transparent)" }}>Confetti</span>
+                              <span style={{ fontSize: 12, color: "color-mix(in oklch, var(--color-device-black) 40%, transparent)" }}>{c.notifTime}</span>
                             </div>
                             <p
                               style={{
@@ -1067,7 +1059,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                                 fontSize: 15,
                                 lineHeight: "19px",
                                 fontWeight: 500,
-                                color: "#172033",
+                                color: "var(--color-ink)",
                                 whiteSpace: "nowrap",
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
@@ -1083,13 +1075,13 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                               key={g}
                               src={g}
                               alt=""
-                              style={{ width: 44, height: 44, borderRadius: 10, objectFit: "cover", display: "block", boxShadow: "0 0 0 1px rgba(0,0,0,.05)" }}
+                              style={{ width: 44, height: 44, borderRadius: 10, objectFit: "cover", display: "block", boxShadow: "0 0 0 1px color-mix(in oklch, var(--color-device-black) 5%, transparent)" }}
                             />
                           ))}
                         </div>
                         <div
                           ref={touchRef}
-                          style={{ ...abs, left: "50%", top: "50%", width: 64, height: 64, margin: "-32px 0 0 -32px", borderRadius: "50%", background: "rgba(23,32,51,.14)", opacity: 0 }}
+                          style={{ ...abs, left: "50%", top: "50%", width: 64, height: 64, margin: "-32px 0 0 -32px", borderRadius: "50%", background: "color-mix(in oklch, var(--color-ink) 14%, transparent)", opacity: 0 }}
                         />
                       </div>
                     </div>
@@ -1108,7 +1100,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                         borderRadius: 20,
                         overflow: "hidden",
                         transformOrigin: "0 0",
-                        boxShadow: "0 10px 24px rgba(18,24,38,.18)",
+                        boxShadow: "0 10px 24px color-mix(in oklch, var(--color-ink) 18%, transparent)",
                         transform: f.tf,
                         opacity: f.op,
                         transition: f.tr,
@@ -1119,13 +1111,13 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                   ))}
 
                   {/* Status bar: light over the camera, dark over the app */}
-                  <div style={{ ...abs, left: 0, right: 0, top: 0, height: 54, opacity: dark ? 1 : 0, transition: "opacity 300ms", color: "#fff" }}>
+                  <div style={{ ...abs, left: 0, right: 0, top: 0, height: 54, opacity: dark ? 1 : 0, transition: "opacity 300ms", color: "var(--color-card)" }}>
                     <span style={{ ...abs, left: 44, top: 18, fontSize: 17, fontWeight: 600 }}>9:41</span>
-                    <StatusIcons battery="rgba(255,255,255,.6)" />
+                    <StatusIcons battery="color-mix(in oklch, var(--color-card) 60%, transparent)" />
                   </div>
-                  <div style={{ ...abs, left: 0, right: 0, top: 0, height: 54, opacity: dark ? 0 : 1, transition: "opacity 300ms", color: "#172033" }}>
+                  <div style={{ ...abs, left: 0, right: 0, top: 0, height: 54, opacity: dark ? 0 : 1, transition: "opacity 300ms", color: "var(--color-ink)" }}>
                     <span style={{ ...abs, left: 44, top: 18, fontSize: 17, fontWeight: 600 }}>9:41</span>
-                    <StatusIcons battery="rgba(23,32,51,.5)" />
+                    <StatusIcons battery="color-mix(in oklch, var(--color-ink) 50%, transparent)" />
                   </div>
                   <div
                     style={{
@@ -1135,12 +1127,12 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                       width: 135,
                       height: 5,
                       borderRadius: 3,
-                      background: dark ? "rgba(255,255,255,.7)" : "rgba(23,32,51,.35)",
+                      background: dark ? "color-mix(in oklch, var(--color-card) 70%, transparent)" : "color-mix(in oklch, var(--color-ink) 35%, transparent)",
                       transition: "background 300ms",
                     }}
                   />
                   {/* Dynamic Island */}
-                  <div style={{ ...abs, left: 133, top: 11, width: 127, height: 37, borderRadius: 20, background: "#000", boxShadow: "0 0 0 1px rgba(255,255,255,.04)" }}>
+                  <div style={{ ...abs, left: 133, top: 11, width: 127, height: 37, borderRadius: 20, background: "var(--color-device-black)", boxShadow: "0 0 0 1px color-mix(in oklch, var(--color-card) 4%, transparent)" }}>
                     <div
                       style={{
                         ...abs,
@@ -1149,7 +1141,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                         width: 15,
                         height: 15,
                         borderRadius: "50%",
-                        background: "radial-gradient(circle at 35% 35%, #1d2433, #050608 60%)",
+                        background: "radial-gradient(circle at 35% 35%, var(--color-ink), var(--color-device-black) 60%)",
                       }}
                     />
                   </div>
@@ -1160,8 +1152,8 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                       borderRadius: 55,
                       pointerEvents: "none",
                       background:
-                        "linear-gradient(121deg, rgba(255,255,255,.13) 0%, rgba(255,255,255,.04) 24%, rgba(255,255,255,0) 38%, rgba(255,255,255,0) 80%, rgba(255,255,255,.04) 100%)",
-                      boxShadow: "inset 0 0 0 1.5px rgba(0,0,0,.55), inset 0 0 22px rgba(0,0,0,.28)",
+                        "linear-gradient(121deg, color-mix(in oklch, var(--color-card) 13%, transparent) 0%, color-mix(in oklch, var(--color-card) 4%, transparent) 24%, transparent 38%, transparent 80%, color-mix(in oklch, var(--color-card) 4%, transparent) 100%)",
+                      boxShadow: "inset 0 0 0 1.5px color-mix(in oklch, var(--color-device-black) 55%, transparent), inset 0 0 22px color-mix(in oklch, var(--color-device-black) 28%, transparent)",
                     }}
                   />
                 </div>
@@ -1177,7 +1169,7 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                       borderRadius: 78,
                       pointerEvents: "none",
                       background:
-                        "linear-gradient(121deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,.05) 22%, rgba(255,255,255,0) 34%, rgba(255,255,255,0) 70%, rgba(255,255,255,.06) 86%, rgba(255,255,255,0) 100%)",
+                        "linear-gradient(121deg, color-mix(in oklch, var(--color-card) 16%, transparent) 0%, color-mix(in oklch, var(--color-card) 5%, transparent) 22%, transparent 34%, transparent 70%, color-mix(in oklch, var(--color-card) 6%, transparent) 86%, transparent 100%)",
                     }}
                   />
                 </div>
@@ -1191,10 +1183,10 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                 alignItems: "center",
                 gap: 8,
                 borderRadius: 999,
-                border: "1px solid rgba(255,255,255,.75)",
-                background: "rgba(255,255,255,.94)",
+                border: "1px solid color-mix(in oklch, var(--color-card) 75%, transparent)",
+                background: "color-mix(in oklch, var(--color-card) 94%, transparent)",
                 padding: "8px 14px 8px 10px",
-                boxShadow: "0 16px 44px rgba(18,24,38,.14)",
+                boxShadow: "0 16px 44px color-mix(in oklch, var(--color-ink) 14%, transparent)",
                 whiteSpace: "nowrap",
               }}
             >
@@ -1206,13 +1198,13 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                   alignItems: "center",
                   justifyContent: "center",
                   borderRadius: "50%",
-                  background: "#e6f2ee",
-                  color: "#38584d",
+                  background: "var(--color-moss-soft)",
+                  color: "var(--color-moss)",
                 }}
               >
                 <LockIcon size={12} width={2.4} />
               </span>
-              <span style={{ fontSize: "clamp(11px, 2.6vw, 12.5px)", fontWeight: 600, color: "#172033" }}>{copy.cards.privateBadge}</span>
+              <span style={{ fontSize: "clamp(11px, 2.6vw, 12.5px)", fontWeight: 600, color: "var(--color-ink)" }}>{copy.cards.privateBadge}</span>
             </div>
           </div>
 
@@ -1224,10 +1216,10 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                 flexDirection: "column",
                 alignItems: "center",
                 borderRadius: 20,
-                border: "1px solid rgba(0,0,0,.08)",
-                background: "rgba(255,255,255,.96)",
+                border: "1px solid color-mix(in oklch, var(--color-device-black) 8%, transparent)",
+                background: "color-mix(in oklch, var(--color-card) 96%, transparent)",
                 padding: "12px 12px 10px",
-                boxShadow: "0 16px 44px rgba(18,24,38,.16)",
+                boxShadow: "0 16px 44px color-mix(in oklch, var(--color-ink) 16%, transparent)",
               }}
             >
               <div className="aspect-square w-full bg-white [&>svg]:h-full [&>svg]:w-full" dangerouslySetInnerHTML={{ __html: qrSvg }} />
@@ -1235,13 +1227,10 @@ export function HeroDevice({ copy, qrSvg }: { copy: Copy; qrSvg: string }) {
                 style={{
                   marginTop: 8,
                   textAlign: "center",
-                  fontFamily: MONO,
-                  fontSize: 8.5,
-                  lineHeight: 1.35,
-                  fontWeight: 500,
-                  letterSpacing: ".12em",
-                  textTransform: "uppercase",
-                  color: "rgba(0,0,0,.5)",
+                  fontSize: 11,
+                  lineHeight: 1.3,
+                  fontWeight: 600,
+                  color: "var(--color-ink)",
                   textWrap: "balance",
                 }}
               >

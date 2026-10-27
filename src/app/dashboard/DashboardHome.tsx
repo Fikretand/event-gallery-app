@@ -79,7 +79,7 @@ export async function DashboardHome({
         action={
           <Link
             href={`${prefix}/dashboard/events/new`}
-            className="rounded-full bg-[var(--color-accent-strong)] px-4 py-2 text-sm font-semibold text-white"
+            className="rounded-full bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-white"
           >
             {h.newEvent}
           </Link>

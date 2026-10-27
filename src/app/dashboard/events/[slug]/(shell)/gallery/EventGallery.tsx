@@ -79,7 +79,7 @@ export async function EventGallery({ locale, slug }: { locale: Locale; slug: str
               </span>
               <span
                 aria-hidden
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-strong)] text-lg font-semibold text-white transition group-open:rotate-45"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent)] text-lg font-semibold text-white transition group-open:rotate-45"
               >
                 +
               </span>

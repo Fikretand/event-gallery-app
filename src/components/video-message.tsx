@@ -229,7 +229,7 @@ export function VideoMessage({ slug, pinRequired, strings: s, upload }: Props) {
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-[18px] border border-[var(--color-accent-strong)]/30 bg-[var(--color-accent-soft)]/40 px-5 py-4 text-base font-semibold text-[var(--color-accent-strong)] transition hover:bg-[var(--color-accent-soft)]/70"
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-[18px] border border-[var(--color-accent)]/30 bg-[var(--color-accent-soft)]/40 px-5 py-4 text-base font-semibold text-[var(--color-accent)] transition hover:bg-[var(--color-accent-soft)]/70"
         >
           ● {s.recordBtn}
         </button>
@@ -274,7 +274,7 @@ export function VideoMessage({ slug, pinRequired, strings: s, upload }: Props) {
             type="button"
             onClick={send}
             disabled={phase.kind === "sending"}
-            className="flex w-full items-center justify-center rounded-[18px] bg-[var(--color-accent-strong)] px-5 py-4 text-base font-semibold text-white shadow-[0_8px_28px_rgba(226,121,82,0.3)] transition hover:brightness-105 disabled:opacity-70"
+            className="flex w-full items-center justify-center rounded-[18px] bg-[var(--color-accent)] px-5 py-4 text-base font-semibold text-white shadow-[0_8px_28px_rgba(226,121,82,0.3)] transition hover:brightness-105 disabled:opacity-70"
           >
             {phase.kind === "sending" ? fill(s.sending, { progress: phase.progress }) : s.sendBtn}
           </button>
