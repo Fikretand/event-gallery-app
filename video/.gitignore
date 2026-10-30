@@ -1,0 +1,7 @@
+node_modules/
+out/
+kinetograph.lock.json
+# Real footage, photos and voiceover stay on the owner's computer: they show
+# real people, and only some of them agreed to appear in an ad.
+public/footage/
+public/voice/

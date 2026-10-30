@@ -581,6 +581,7 @@ Stable + correct; refactor only if a task explicitly requires it.
 ```
 design.md                            # the locked design system (read first)
 .claude/skills/hallmark/             # vendored Hallmark skill (v2.0.0)
+video/                               # marketing reels (Kinetograph), separate from the app — see video/CLAUDE.md
 src/
 ├── app/
 │   ├── [locale]/                       # Locale-aware mirrors of every

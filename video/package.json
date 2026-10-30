@@ -1,0 +1,16 @@
+{
+  "name": "confetti-video",
+  "private": true,
+  "description": "Confetti marketing reels, rendered with Kinetograph. Separate from the web app.",
+  "type": "module",
+  "scripts": {
+    "doctor": "kinetograph doctor",
+    "strip": "kinetograph strip src/reel.tsx -n 16 -o out/strip.png",
+    "still": "kinetograph still src/reel.tsx",
+    "render": "kinetograph render src/reel.tsx -o out/confetti-reel.mp4",
+    "studio": "kinetograph studio src/reel.tsx"
+  },
+  "dependencies": {
+    "kinetograph": "0.2.5"
+  }
+}

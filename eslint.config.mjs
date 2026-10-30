@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Marketing reels, a separate Kinetograph project.
+    "video/**",
   ]),
 ]);
 
