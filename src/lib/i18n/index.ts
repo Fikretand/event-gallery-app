@@ -1081,6 +1081,10 @@ export interface Dict {
     oneTimePlan: string;
     oneTimePerfect: string;
     trialNote: string;
+    photographerGroup: string;
+    photographerGroupNote: string;
+    oneTimeGroup: string;
+    oneTimeGroupNote: string;
   };
   testimonialsUi: {
     sectionEyebrow: string;

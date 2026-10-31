@@ -1599,6 +1599,10 @@ export const dict: Dict = {
     oneTimePlan: "One-time plan",
     oneTimePerfect: "Perfect for one private event – wedding, birthday, or anything worth keeping.",
     trialNote: "7 days or 20 photos, no card needed",
+    photographerGroup: "For photographers",
+    photographerGroupNote: "A subscription for many events, monthly or yearly.",
+    oneTimeGroup: "For one event",
+    oneTimeGroupNote: "Pay once, no subscription.",
   },
   testimonialsUi: {
     sectionEyebrow: "Social proof",

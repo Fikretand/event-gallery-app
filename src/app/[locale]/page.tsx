@@ -75,6 +75,14 @@ const GUEST_PHOTOS: { src: string; w: number; h: number }[] = [
   { src: "/explainer/assets/gallery-reception-3.webp", w: 427, h: 640 },
 ];
 
+// The photo for each way in: a photographer's own frame for photographers,
+// guests celebrating for hosts. `focus` is the object-position that keeps the
+// faces in a 4:3 crop. Replace these with the owner's photos in /public/landing.
+const ROUTE_PHOTOS = {
+  photographer: { src: "/explainer/assets/upload-3.webp", w: 600, h: 600, focus: "50% 55%" },
+  host: { src: "/explainer/assets/gallery-reception-3.webp", w: 427, h: 640, focus: "50% 35%" },
+} as const;
+
 /**
  * The animated "Kako funkcioniše" explainer. Hidden for now at the owner's
  * request — `HowItWorks` (switcher + four short scenes) replaced it.
@@ -153,14 +161,16 @@ export default async function HomePage({
       title: d.forPhotographersEyebrow,
       body: d.photographerCardBody,
       cta: d.forPhotographersCtaPrimary,
-      photo: "/explainer/assets/gallery-ceremony-1.webp",
+      primary: true,
+      photo: ROUTE_PHOTOS.photographer,
     },
     {
       href: lp("/for-couples"),
       title: d.forCouplesEyebrow,
       body: d.coupleCardBody,
       cta: d.forCouplesCtaPrimary,
-      photo: "/explainer/assets/party-2.webp",
+      primary: false,
+      photo: ROUTE_PHOTOS.host,
     },
   ];
 
@@ -168,32 +178,40 @@ export default async function HomePage({
     <main>
       <SiteNav />
 
-      {/* ─── Hero: the words on six columns, the phone playing the guest →
-           host → gallery story on five. ─── */}
+      {/* ─── Hero. Wide: the words and the two ways in on six columns, the
+           phone playing the guest → host → gallery story beside them. Phone:
+           the words centred, then the phone, then the buttons, so the first
+           screen says what this is before it asks for anything. ─── */}
       <section className="overflow-x-clip">
-        <div className="shell grid min-h-[min(calc(100svh-var(--nav-height)),900px)] items-center gap-y-[var(--space-xl)] py-[var(--space-xl)] lg:grid-cols-12 lg:gap-x-[var(--gap-columns)]">
-          <div className="settle lg:col-span-6">
-            <h1 className="max-w-[16ch] font-display text-[clamp(2.625rem,4.4vw+1rem,4.75rem)] font-semibold leading-[1.03] tracking-[-0.025em] text-ink">
+        <div className="shell grid min-h-[min(calc(100svh-var(--nav-height)),900px)] content-center gap-y-[var(--space-xl)] py-[var(--space-xl)] lg:grid-cols-12 lg:grid-rows-[auto_auto] lg:gap-x-[var(--gap-columns)] lg:gap-y-[var(--space-xl)]">
+          <div className="settle text-center lg:col-span-6 lg:row-start-1 lg:self-end lg:text-left">
+            <h1 className="mx-auto max-w-[16ch] font-display text-[clamp(2.5rem,4.4vw+1rem,4.75rem)] font-semibold leading-[1.03] tracking-[-0.025em] text-ink lg:mx-0">
               {d.heroTitle}
             </h1>
-            <p className="lead mt-[var(--space-lg)] max-w-[40ch]">{d.heroBody}</p>
-            <AudienceCtas locale={locale as Locale} className="mt-[var(--space-xl)]" />
-            <p className="meta mt-[var(--space-lg)]">{d.heroCaveat}</p>
+            <p className="lead mx-auto mt-[var(--space-lg)] max-w-[34ch] lg:mx-0 lg:max-w-[40ch]">{d.heroBody}</p>
           </div>
 
-          <div className="lg:col-span-6 lg:col-start-7">
+          <div className="lg:col-span-6 lg:col-start-7 lg:row-span-2 lg:row-start-1 lg:self-center">
             <HeroDevice copy={d.heroDevice} qrSvg={mockupQrSvg} align="start" />
+          </div>
+
+          <div className="lg:col-span-6 lg:row-start-2 lg:self-start">
+            {/* Captions centred under the buttons on a phone, like the words above. */}
+            <AudienceCtas locale={locale as Locale} className="[&_.meta]:text-center lg:[&_.meta]:text-left" />
+            <p className="meta mt-[var(--space-lg)] text-center lg:text-left">{d.heroCaveat}</p>
           </div>
         </div>
       </section>
 
       {/* ─── Three figures the page already stated, parted by hairlines ── */}
       <section className="shell">
-        <dl className="grid grid-cols-1 border-y border-rule sm:grid-cols-3 sm:divide-x sm:divide-rule">
+        {/* Three across at every width: on a phone a stacked list of three
+            short figures read as filler between the hero and the steps. */}
+        <dl className="grid grid-cols-3 divide-x divide-rule border-y border-rule">
           {d.stats.map((stat) => (
-            <div key={stat.label} className="flex flex-col-reverse gap-2 border-b border-rule py-[var(--space-lg)] last:border-b-0 sm:border-b-0 sm:px-[var(--space-xl)] sm:py-[var(--space-xl)] sm:first:pl-0">
-              <dt className="text-ink-2">{stat.label}</dt>
-              <dd className="num font-display text-[length:var(--text-display-s)] font-semibold leading-none tracking-[-0.02em] text-ink">{stat.value}</dd>
+            <div key={stat.label} className="flex flex-col-reverse items-center justify-end gap-2 px-2 py-[var(--space-lg)] text-center sm:items-start sm:px-[var(--space-xl)] sm:py-[var(--space-xl)] sm:text-left sm:first:pl-0">
+              <dt className="text-sm leading-snug text-ink-2 sm:text-base">{stat.label}</dt>
+              <dd className="num font-display text-[2rem] font-semibold leading-none tracking-[-0.02em] text-ink sm:text-[length:var(--text-display-s)]">{stat.value}</dd>
             </div>
           ))}
         </dl>
@@ -216,7 +234,7 @@ export default async function HomePage({
         <div className="shell grid gap-y-[var(--space-lg)] lg:grid-cols-12 lg:gap-x-[var(--gap-columns)]">
           <h2 className="section-head text-ink lg:col-span-8">
             {d.galleryBandTitle}
-            <span className="display-s mt-[var(--space-sm)] block text-ink-2">{d.galleryBandTitleAccent}</span>
+            <span className="display-s mt-[var(--space-sm)] block italic text-accent">{d.galleryBandTitleAccent}</span>
           </h2>
           <p className="max-w-[52ch] text-[1.0625rem] leading-relaxed text-ink-2 lg:col-span-4 lg:col-start-9 lg:self-end">
             {d.galleryBandBody}
@@ -247,39 +265,40 @@ export default async function HomePage({
         </ul>
       </section>
 
-      {/* ─── Two ways in: the heading beside two routes, each with a photo
-           of the kind of event it is for ─────────────────────────────── */}
+      {/* ─── Two ways in: a centred heading over two cards, each with a photo
+           of who it is for and a button that says where it goes ───────── */}
       <section className="shell section">
-        <div className="grid gap-y-[var(--space-xl)] lg:grid-cols-12 lg:gap-x-[var(--gap-columns)]">
-          <h2 className="section-head max-w-[14ch] text-ink lg:col-span-4">{d.whoForTitle}</h2>
-          <ul className="grid gap-x-[var(--gap-columns)] gap-y-[var(--space-2xl)] sm:grid-cols-2 lg:col-span-8">
-            {routes.map((route) => (
-              <li key={route.href} className="flex flex-col">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={route.photo}
-                  alt=""
-                  width={800}
-                  height={533}
-                  loading="lazy"
-                  decoding="async"
-                  className="aspect-[4/3] h-auto w-full rounded-[var(--radius-image)] bg-paper-3 object-cover"
-                />
-                <h3 className="title mt-[var(--space-lg)] text-ink">{route.title}</h3>
-                <p className="mt-[var(--space-sm)] max-w-[44ch] leading-relaxed text-ink-2">{route.body}</p>
-                <Link href={route.href} className="link mt-[var(--space-md)] self-start">
+        <h2 className="section-head mx-auto max-w-[18ch] text-center text-ink">{d.whoForTitle}</h2>
+        <ul className="mt-[var(--space-2xl)] grid gap-[var(--space-lg)] md:grid-cols-2 md:gap-[var(--gap-columns)]">
+          {routes.map((route) => (
+            <li key={route.href} className="card flex flex-col overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={route.photo.src}
+                alt=""
+                width={route.photo.w}
+                height={route.photo.h}
+                loading="lazy"
+                decoding="async"
+                style={{ objectPosition: route.photo.focus }}
+                className="aspect-[4/3] h-auto w-full bg-paper-3 object-cover"
+              />
+              <div className="flex flex-1 flex-col p-6 sm:p-8">
+                <h3 className="font-display text-[1.75rem] font-semibold leading-tight text-ink sm:text-[2rem]">{route.title}</h3>
+                <p className="mt-[var(--space-sm)] max-w-[44ch] flex-1 leading-relaxed text-ink-2">{route.body}</p>
+                <Link href={route.href} className={`btn ${route.primary ? "btn-primary" : "btn-ink"} mt-[var(--space-lg)] w-full sm:w-auto sm:self-start`}>
                   {route.cta}
                 </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+              </div>
+            </li>
+          ))}
+        </ul>
       </section>
 
       {/* ─── Pricing, monthly or yearly ───────────────────────────────── */}
       <section id="pricing" className="shell section-s">
-        <div className="mb-[var(--space-2xl)] flex flex-col gap-[var(--space-md)] md:flex-row md:items-end md:justify-between">
-          <h2 className="section-head text-ink">{d.pricingTitle}</h2>
+        <div className="mb-[var(--space-2xl)] flex flex-col items-center gap-[var(--space-md)] text-center">
+          <h2 className="section-head max-w-[18ch] text-ink">{d.pricingTitle}</h2>
           <Link href={lp("/pricing")} className="link">
             {d.pricingLink}
           </Link>

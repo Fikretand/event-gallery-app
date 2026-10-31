@@ -71,7 +71,7 @@ export default async function ForCouplesPage({
         <div className="settle lg:col-span-7">
           <h1 className="max-w-[18ch] font-display text-[clamp(2.5rem,4vw+1rem,4.5rem)] font-semibold leading-[1.04] text-ink">
             {d.title}
-            <span className="display-s mt-[var(--space-sm)] block text-ink-2">{d.titleAccent}</span>
+            <span className="display-s mt-[var(--space-sm)] block italic text-accent">{d.titleAccent}</span>
           </h1>
           <p className="lead mt-[var(--space-lg)] max-w-[52ch]">{d.body}</p>
           <div className="mt-[var(--space-xl)] flex flex-col gap-3 sm:flex-row sm:items-center">

@@ -1603,6 +1603,10 @@ export const dict: Dict = {
     oneTimePlan: "Jednokratni plan",
     oneTimePerfect: "Savršeno za jedan privatni događaj – vjenčanje, rođendan ili bilo šta vrijedno pamćenja.",
     trialNote: "7 dana ili 20 fotografija, bez kartice",
+    photographerGroup: "Za fotografe",
+    photographerGroupNote: "Pretplata za više događaja, mjesečno ili godišnje.",
+    oneTimeGroup: "Za jedan događaj",
+    oneTimeGroupNote: "Plaćate jednom, bez pretplate.",
   },
   testimonialsUi: {
     sectionEyebrow: "Recenzije",
