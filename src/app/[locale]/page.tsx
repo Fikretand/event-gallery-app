@@ -61,27 +61,30 @@ function PlusIcon() {
   );
 }
 
-// Guest photos from real events, at the size a phone screen holds them. The
-// rail runs past the container's edge, so the next one is always cut: there
-// are more than fit, which is the point the section makes.
-const GUEST_PHOTOS: { src: string; w: number; h: number }[] = [
-  { src: "/explainer/assets/gallery-reception-1.webp", w: 667, h: 1000 },
-  { src: "/explainer/assets/party-4.webp", w: 750, h: 1000 },
-  { src: "/explainer/assets/generic-1.webp", w: 667, h: 1000 },
-  { src: "/explainer/assets/gallery-reception-2.webp", w: 427, h: 640 },
-  { src: "/explainer/assets/generic-3.webp", w: 667, h: 1000 },
-  { src: "/explainer/assets/party-5.webp", w: 480, h: 640 },
-  { src: "/explainer/assets/birthday-1.webp", w: 427, h: 640 },
-  { src: "/explainer/assets/gallery-reception-3.webp", w: 427, h: 640 },
+// The owner's photos in /public/landing: the original (1600 px wide) plus a
+// 720 and a 1200 px copy, so a 300 px tile never downloads the full file.
+type LandingPhoto = { name: string; w: number; h: number; focus?: string };
+const landingSrcSet = (name: string) => `/landing/${name}-720.webp 720w, /landing/${name}-1200.webp 1200w`;
+
+// Photos from real events, at the size a phone screen holds them. The rail
+// runs past the container's edge, so the next one is always cut: there are
+// more than fit, which is the point the section makes.
+const GUEST_PHOTOS: LandingPhoto[] = [
+  { name: "sunset-kiss", w: 720, h: 1280 },
+  { name: "polaroids", w: 720, h: 1170 },
+  { name: "embrace", w: 720, h: 1279, focus: "50% 30%" },
+  { name: "qr-table", w: 720, h: 1079 },
+  { name: "bouquet-lake", w: 720, h: 1080, focus: "50% 30%" },
+  { name: "bw-veil", w: 720, h: 1080 },
 ];
 
-// The photo for each way in: a photographer's own frame for photographers,
-// guests celebrating for hosts. `focus` is the object-position that keeps the
-// faces in a 4:3 crop. Replace these with the owner's photos in /public/landing.
-const ROUTE_PHOTOS = {
-  photographer: { src: "/explainer/assets/upload-3.webp", w: 600, h: 600, focus: "50% 55%" },
-  host: { src: "/explainer/assets/gallery-reception-3.webp", w: 427, h: 640, focus: "50% 35%" },
-} as const;
+// The photo for each way in: a photographer's portrait for photographers,
+// guests filming the couple on their phones for hosts. `focus` is the
+// object-position that keeps the faces in a 4:3 crop.
+const ROUTE_PHOTOS: { photographer: LandingPhoto; host: LandingPhoto } = {
+  photographer: { name: "bw-portrait", w: 720, h: 1172, focus: "50% 22%" },
+  host: { name: "guests-filming", w: 720, h: 1080, focus: "50% 38%" },
+};
 
 /**
  * The animated "Kako funkcioniše" explainer. Hidden for now at the owner's
@@ -245,19 +248,27 @@ export default async function HomePage({
           aria-label={d.galleryBandEyebrow}
           // The first photo lines up with the container's left edge; the
           // rail itself runs to the window's right edge.
-          style={{ paddingLeft: "max(var(--gutter), calc((100% - var(--container)) / 2 + var(--gutter)))" }}
+          // scroll-padding matches it, or snapping parks the first photo
+          // against the window's edge instead of the container's.
+          style={{
+            paddingLeft: "max(var(--gutter), calc((100% - var(--container)) / 2 + var(--gutter)))",
+            scrollPaddingLeft: "max(var(--gutter), calc((100% - var(--container)) / 2 + var(--gutter)))",
+          }}
           className="mt-[var(--space-2xl)] flex snap-x snap-mandatory gap-[var(--space-md)] overflow-x-auto pb-[var(--space-md)] pr-[var(--gutter)] [scrollbar-width:thin] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-focus)]"
         >
           {GUEST_PHOTOS.map((photo) => (
-            <li key={photo.src} className="w-[clamp(200px,22vw,300px)] shrink-0 snap-start">
+            <li key={photo.name} className="w-[clamp(200px,22vw,300px)] shrink-0 snap-start">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={photo.src}
+                src={`/landing/${photo.name}-720.webp`}
+                srcSet={landingSrcSet(photo.name)}
+                sizes="(min-width: 1024px) 300px, 60vw"
                 alt=""
                 width={photo.w}
                 height={photo.h}
                 loading="lazy"
                 decoding="async"
+                style={photo.focus ? { objectPosition: photo.focus } : undefined}
                 className="aspect-[3/4] h-auto w-full rounded-[var(--radius-image)] bg-paper-3 object-cover"
               />
             </li>
@@ -274,7 +285,9 @@ export default async function HomePage({
             <li key={route.href} className="card flex flex-col overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={route.photo.src}
+                src={`/landing/${route.photo.name}-720.webp`}
+                srcSet={landingSrcSet(route.photo.name)}
+                sizes="(min-width: 768px) 50vw, 100vw"
                 alt=""
                 width={route.photo.w}
                 height={route.photo.h}
