@@ -14,7 +14,7 @@ and in your local `.env.local`.
 |---|---|
 | Checkout | `POST /api/billing/checkout` → `createWhopCheckout` in `src/lib/billing.ts`. It creates a checkout configuration with `variant_id` = the plan, `metadata.userId` and `redirect_url`, and returns its `purchase_url`. |
 | Webhook | `POST /api/billing/whop/webhook`. Standard Webhooks, HMAC keyed on the literal `ws_…` secret (`verifyWhopSignature`). |
-| Catalogue script | `node scripts/whop-setup.mjs --env sandbox|production [--webhook-url …]` |
+| Catalogue script | `node scripts/whop-setup.mjs --env sandbox [--webhook-url …]` writes sandbox ids into `.env.local`; `--env production` (key in `WHOP_PRODUCTION_API_KEY`) only prints the ids for Vercel. |
 | Customer portal | Hosted by Whop (whop.com/@me). No app code. |
 
 Whop copies checkout `metadata` onto the payment and the membership, so every
@@ -59,6 +59,20 @@ Polar was removed entirely when Whop went in: it never had a real customer
 (only 0 KM test orders in production and a sandbox test subscription). The
 `POLAR_*` variables can be deleted from Vercel, and the Polar webhook endpoint
 in the Polar dashboard can be disabled.
+
+## Shapes: webhook vs REST
+Whop sends the same object in two shapes. Webhook payloads carry flat ids
+(`variant_id`, `membership_id`, `payment_id`); the REST API, even pinned to the
+same date, nests them (`plan: { id }`, `membership: { id }`, `plan_id`,
+`payment: { id }`). The webhook reads both. Found in the sandbox test on
+2026-11-05, where a refund was silently skipped until PR #2.
+
+## Sandbox test, 2026-11-05 (passed)
+On www.confetti.ba with `WHOP_ENVIRONMENT=sandbox`: purchase → `active`;
+partial refund (70 of 79 KM) → unchanged; refund of the rest → `canceled`; a
+second purchase on another couple account → `active`. Sandbox business
+`Confetti_test` (`biz_YzT3bWdBAYSq3Y`). Sandbox API keys lack
+`developer:manage_webhook`, so the webhook was created in the dashboard.
 
 ## Test before announcing
 1. Sandbox: run the script with `--env sandbox` and a public webhook URL (a
