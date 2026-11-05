@@ -45,8 +45,8 @@ function fill(template: string, values: Record<string, string>) {
  *
  * Two providers, chosen server-side:
  *
- * - **Polar** (preferred): POST to `/api/billing/checkout`, which creates a
- *   Polar checkout carrying the buyer's account id, then redirect to the
+ * - **Whop** (preferred): POST to `/api/billing/checkout`, which creates a
+ *   Whop checkout carrying the buyer's account id, then redirect to the
  *   returned hosted URL. Because the account id rides along in the checkout
  *   metadata, the webhook activates the right account no matter which email
  *   the buyer pays with — so no email hint is needed.
@@ -66,7 +66,7 @@ export function CoupleCheckoutButton({
   priceLabel,
   strings = FALLBACK,
 }: {
-  provider: "polar" | "payhip";
+  provider: "whop" | "payhip";
   productKey: string;
   userEmail: string;
   paymentsEnabled: boolean;
@@ -76,11 +76,11 @@ export function CoupleCheckoutButton({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isPolar = provider === "polar";
-  const canCheckout = paymentsEnabled && (isPolar || Boolean(productKey));
+  const isWhop = provider === "whop";
+  const canCheckout = paymentsEnabled && (isWhop || Boolean(productKey));
   const label = fill(strings.buyOneEvent, { price: priceLabel });
 
-  const openPolarCheckout = useCallback(async () => {
+  const openWhopCheckout = useCallback(async () => {
     setBusy(true);
     setError(null);
     try {
@@ -127,17 +127,17 @@ export function CoupleCheckoutButton({
 
   return (
     <>
-      {!isPolar && <Script src="https://payhip.com/payhip.js" strategy="afterInteractive" />}
+      {!isWhop && <Script src="https://payhip.com/payhip.js" strategy="afterInteractive" />}
       <div className="mt-5">
         <button
-          onClick={isPolar ? openPolarCheckout : openPayhipCheckout}
+          onClick={isWhop ? openWhopCheckout : openPayhipCheckout}
           disabled={busy}
           className="btn btn-primary w-full"
         >
           {busy ? strings.checkoutOpening : label}
         </button>
         <p className="meta mt-2">{strings.checkoutSecure}</p>
-        {!isPolar && userEmail && (
+        {!isWhop && userEmail && (
           <p className="meta mt-1">
             {fill(strings.checkoutEmailHint, { email: userEmail })}
           </p>

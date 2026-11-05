@@ -25,7 +25,7 @@ export function BillingPlans({
   isActiveSub: boolean;
   paymentsEnabled: boolean;
   pricing: Record<PlanId, Record<Cycle, number>>;
-  /** Polar bills in BAM; the legacy providers bill in EUR. */
+  /** Whop bills in BAM; the legacy providers bill in EUR. */
   currency: "BAM" | "EUR";
   strings: Dict["dashboard"]["billingPlans"];
 }) {

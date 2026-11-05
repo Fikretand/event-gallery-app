@@ -2,11 +2,11 @@ import { NextResponse } from "next/server";
 
 import {
   createCheckout,
-  createPolarCheckout,
+  createWhopCheckout,
   getPayhipProductKey,
-  getPolarProductId,
+  getWhopPlanId,
   hasPayments,
-  hasPolar,
+  hasWhop,
   payhipCheckoutUrl,
   planFitsAccount,
   type CheckoutPlanId,
@@ -59,20 +59,20 @@ export async function POST(request: Request) {
     // Land on the dashboard home; couples are forwarded to theirs, flag intact.
     const successUrl = `${baseUrl}/dashboard?paid=1`;
 
-    // ── Polar (Merchant of Record) — preferred when configured ───────────
+    // ── Whop — preferred when configured ─────────────────────────────────
     // Works for every plan; the buyer's account id rides along in metadata so
     // the webhook can activate the right account regardless of payment email.
-    if (hasPolar) {
-      const polarProductId = getPolarProductId(plan, cycle);
-      if (polarProductId) {
-        const url = await createPolarCheckout({
-          productId: polarProductId,
-          user: { id: user.id, email },
-          successUrl,
+    if (hasWhop) {
+      const whopPlanId = getWhopPlanId(plan, cycle);
+      if (whopPlanId) {
+        const url = await createWhopCheckout({
+          planId: whopPlanId,
+          user: { id: user.id },
+          redirectUrl: successUrl,
         });
         return NextResponse.json({ url });
       }
-      // No Polar product for this plan yet — fall through to the legacy paths.
+      // No Whop plan for this one yet — fall through to the legacy paths.
     }
 
     // ── Couple: one-time Payhip purchase ─────────────────────────────────
@@ -114,7 +114,7 @@ export async function POST(request: Request) {
     // never sees it — log it so it lands in the deployment logs.
     console.error("[checkout] failed", {
       message,
-      polarServer: env.polarServer,
+      whopEnvironment: env.whopEnvironment,
       detail: error instanceof Error ? (error.cause ?? error.stack?.slice(0, 500)) : error,
     });
     const status = message.includes("NOT_CONFIGURED") ? 503 : 400;

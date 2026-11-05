@@ -20,7 +20,7 @@ _Last updated: 2026-10-27._
 `event-gallery-app-rho.vercel.app` still serves production, so earlier links
 and printed QR codes keep working). Auth,
 event CRUD, guest upload, gallery PIN, media moderation, QR posters, **full
-i18n (EN/BS) across dashboard _and_ the inner forms**, **Polar + Payhip
+i18n (EN/BS) across dashboard _and_ the inner forms**, **Whop + Payhip
 payment integration**, **admin panel** (incl. manual plan activation), and a
 **Fabric.js QR card editor** (10 templates, undo/redo, centre snapping,
 shapes, draft autosave, mobile layout) are all shipped.
@@ -67,7 +67,7 @@ Copy is now event-generic; the data model always was.
 | PDF wrapping | `pdf-lib` | ^1.17 |
 | QR code | `qrcode` | ^1.5 |
 | ZIP download | `jszip` | ^3.10 |
-| Payments (MoR) | `@polar-sh/sdk` | ^0.49 |
+| Payments | Whop REST API (plain `fetch`, no SDK) | API date 2026-08-14 |
 | Testing | Vitest | ^4.1 |
 | Linting | ESLint + `eslint-config-next` | ^9 |
 
@@ -258,30 +258,28 @@ Every page exists in both `/dashboard/...` (English default) and
   `src/lib/qr-card-editor/presets.ts`, geometry-guarded by `presets.test.ts`.
   Export at A4 300 DPI PNG or PDF.
 
-### Payments — Polar (preferred) + Payhip (fallback)
+### Payments — Whop (preferred) + Payhip (fallback)
 
-**Polar** (Merchant of Record — handles VAT/invoicing) is the provider the code
-now prefers. `POST /api/billing/checkout` creates a Polar checkout via
-`@polar-sh/sdk` whenever `POLAR_ACCESS_TOKEN` **and** a product id for the
-requested plan are set, and falls through to Payhip / LemonSqueezy otherwise.
+**Whop** replaced Polar in November 2026 (Polar had technical
+problems on the owner's side). `POST /api/billing/checkout` creates a Whop
+checkout configuration (plain `fetch`, no SDK) whenever `WHOP_API_KEY` **and**
+a plan id for the requested plan are set, and falls through to Payhip /
+LemonSqueezy otherwise. Setup, env and test checklist: `WHOP_SETUP.md`.
 
-- The buyer's account id travels in `metadata.userId` + `externalCustomerId`,
-  so the webhook activates the exact account — no email-matching guesswork.
-- Webhook: `/api/billing/polar/webhook` (503 until `POLAR_WEBHOOK_SECRET` is
-  set). Handles `order.created` (only once paid), `order.paid`,
-  `order.refunded` and the `subscription.*` lifecycle; anything else is
-  acknowledged and ignored. A 100%-discount test order announces itself
-  through `order.created` and never `order.paid`, hence the first case.
-- **Do not verify with the SDK's `validateEvent` alone.** Polar's endpoints
-  report `uses_standard_webhook_signature: true`, meaning the HMAC key is the
-  base64-*decoded* secret (32 raw bytes). `validateEvent` instead keys on
-  `utf8(secret)`, so it rejects every delivery from such an endpoint — a 403
-  that looks exactly like a wrong secret. The route therefore does Standard
-  Webhooks verification itself with `node:crypto`, trying all three key
-  derivations in `polarWebhookKeys` and logging which matched, then re-signs
-  with the SDK's key purely to reuse its typed parsing. Confirmed against a
-  real sandbox delivery: 403 under the SDK derivations, 200 once
-  `base64(bare)` was included.
+- The buyer's account id travels in checkout `metadata.userId`; Whop copies it
+  onto the payment and the membership, so every event names the exact account.
+  Each purchase is stored by its membership id (`mem_…`).
+- Webhook: `/api/billing/whop/webhook` (503 until `WHOP_WEBHOOK_SECRET` is
+  set, tested in `route.test.ts`). `payment.succeeded` activates; the
+  `membership.*` events carry the subscription lifecycle and renewal date (a
+  One Event membership only ever activates through them); a `refund.*` that
+  has `succeeded` reads the payment back from the API and cancels its
+  purchase, unless the refund was partial.
+- **Whop's HMAC key is the literal UTF-8 bytes of the `ws_…` secret**, prefix
+  included. That is what `unwrapWebhook` in `@whop/sdk` does too; the route
+  checks it with `node:crypto` (`verifyWhopSignature`).
+- REST reads and the webhook are pinned to `Api-Version-Date 2026-08-14`
+  (`WHOP_API_VERSION_DATE`).
 - Prices are quoted in the currency the active provider charges. One Event is
   **79,00 KM** (`ONE_EVENT_PRICE`); Solo and Pro come from `PLAN_PRICING_BAM`
   — 49 / 39 KM and 99 / 79 KM per month, yearly billing twelve of those at
@@ -292,10 +290,12 @@ requested plan are set, and falls through to Payhip / LemonSqueezy otherwise.
   the account's **real** state rather than assuming success: the webhook
   usually lands a beat after the redirect, so until it does the banner says
   "activating" and re-checks the server a few times.
-- Env: `POLAR_ACCESS_TOKEN`, `POLAR_WEBHOOK_SECRET`, `POLAR_SERVER`
-  (`sandbox` while testing), `POLAR_PRODUCT_{ONE_EVENT,SOLO_*,PRO_*}`.
-  **Since 2026-10-15 all of them point at production org `confetti-ba`**;
-  ids and the test checklist are in `POLAR_SETUP.md`.
+
+**Polar** (Oct–Nov 2026) is gone: checkout, webhook, `@polar-sh/sdk`,
+`POLAR_SETUP.md` and every `POLAR_*` variable. It never had a real customer
+(production org `confetti-ba` held only 0 KM test orders). Its one lesson is
+kept in `billing.test.ts`: a Standard Webhooks secret can be keyed three
+ways, so test the provider's exact derivation against a real delivery.
 
 **Payhip** stays wired as the fallback: One Event (€39, key `6VaFA`) via the
 `Payhip.Checkout.open` overlay, webhook at `/api/billing/webhook` with
@@ -379,11 +379,11 @@ via QR code.
 | Couple / event host | One Event | 79 KM one-time | One meaningful life event |
 
 **Every price comes from `src/lib/pricing.ts`.** Marketing pages, the dashboard
-plan chooser and the Polar catalogue have to agree, so nothing else writes a
+plan chooser and the Whop catalogue have to agree, so nothing else writes a
 number down: `marketing.ts` derives its cards from that table, the yearly total
 and the "save 20%" claim are computed rather than typed, and `pricing.test.ts`
 fails if a card drifts from the table. Changing a price means editing that file
-**and** the amount in Polar.
+**and** the amount on the Whop plan.
 
 **Solo and Pro differ in exactly two things** — `SOLO_/PRO_ACTIVE_EVENT_LIMIT`
 and `SOLO_/PRO_STORAGE_LIMIT_BYTES`. Nothing else is plan-gated: guest video is
@@ -424,13 +424,13 @@ thumbnails) is **done**. What is genuinely left:
    `add_upload_session_id_to_media.sql`. The billing one is not optional —
    without it every payment webhook and the admin "mark as paid" action fail
    silently and paying customers stay on the free trial.
-2. **Polar is live in production** (org `confetti-ba`, see `POLAR_SETUP.md`).
-   Approved by Polar on 2026-10-15 (checkout, renewals, payouts, refunds all
-   enabled; support email `podrska@confetti.ba`). Proven end to end the same
-   day with a 100%-discount One Event order: Polar order paid → webhook →
-   `users.subscription_status = 'active'`, `subscription_provider = 'polar'`,
-   `subscription_external_id` = order id. Still worth watching: the first real
-   payout reaching the BiH bank account. Payhip remains the fallback (the €39
+2. **Whop replaces Polar** (business `biz_1nkrffanR1jzik`,
+   see `WHOP_SETUP.md`). The code is on branch `claude/whop-payments`; going
+   live needs the production catalogue, the webhook and every `WHOP_*`
+   variable in Vercel, then a 100%-promo One Event test. Until those are set,
+   checkout falls back to Payhip, so set them in the same deploy that ships
+   the branch. Polar is removed from the code; its `POLAR_*` variables can
+   be deleted from Vercel. Payhip remains the fallback (the €39
    One Event product works); its Solo/Pro products were never created, and its
    webhook verification assumes a form-encoded `security_token` while the docs
    describe a newer JSON+signature scheme — see
@@ -625,7 +625,7 @@ src/
 │       │               download,section}/route.ts
 │       ├── media/download-batch/route.ts # ZIP
 │       ├── qr-card/pdf/route.ts          # editor → PDF wrapper
-│       ├── billing/{checkout, webhook, polar/webhook}/route.ts
+│       ├── billing/{checkout, webhook, whop/webhook}/route.ts
 │       └── internal/{process-media, purge-deleted-media}/route.ts
 │
 ├── lib/
@@ -647,7 +647,7 @@ src/
 │   ├── live-slides.ts               # venue live view data + access
 │   ├── pricing.ts                   # the only place a price is written down
 │   ├── brand-colors.ts              # hex for QR/canvas/OG, where CSS vars can't reach
-│   ├── billing.ts                   # Polar + Payhip + LemonSqueezy helpers
+│   ├── billing.ts                   # Whop + Payhip + LemonSqueezy helpers
 │   ├── billing-status.ts            # plan/status wording, shared w/ client
 │   ├── qr-posters.ts                # 4 SVG poster templates
 │   ├── qr-posters-render.ts         # Resvg + pdf-lib pipeline

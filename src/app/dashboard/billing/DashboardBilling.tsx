@@ -7,7 +7,7 @@ import { getAccountTypeForUser, getRequiredUser, getUserProfile } from "@/lib/au
 import {
   hasActiveSubscription,
   hasPayments,
-  hasPolar,
+  hasWhop,
   ONE_EVENT_PRICE,
   planPricingFor,
 } from "@/lib/billing";
@@ -48,12 +48,12 @@ export async function DashboardBilling({
 
   if (isCouple && isActiveSub) redirect(`${prefix}/dashboard/couple`);
 
-  // Polar is preferred for the One Event purchase when its product is set up;
+  // Whop is preferred for the One Event purchase when its plan is set up;
   // otherwise fall back to the legacy Payhip overlay.
-  const oneEventProvider = hasPolar && env.polarProductOneEvent ? "polar" : "payhip";
+  const oneEventProvider = hasWhop && env.whopPlanOneEvent ? "whop" : "payhip";
   const oneEventPrice = ONE_EVENT_PRICE[oneEventProvider];
   // Photographer plans follow whichever provider will take the payment.
-  const subscriptionProvider = hasPolar && env.polarProductSoloMonthly ? "polar" : "payhip";
+  const subscriptionProvider = hasWhop && env.whopPlanSoloMonthly ? "whop" : "payhip";
   const { pricing: planPricing, currency: planCurrency } = planPricingFor(subscriptionProvider);
 
   const planLabel = isCouple ? b.oneEvent : currentPlan === "pro" ? "Pro" : "Solo";
@@ -145,7 +145,7 @@ export async function DashboardBilling({
                 productKey={env.payhipProductOneEvent ?? ""}
                 userEmail={user.email ?? ""}
                 paymentsEnabled={
-                  oneEventProvider === "polar"
+                  oneEventProvider === "whop"
                     ? true
                     : hasPayments && Boolean(env.payhipProductOneEvent)
                 }
