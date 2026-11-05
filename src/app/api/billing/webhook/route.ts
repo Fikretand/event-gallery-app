@@ -73,7 +73,7 @@ export async function POST(request: Request) {
   // ── Determine plan from product key ──────────────────────────────────────
   const planInfo = planFromPayhipProduct(productId);
   if (!planFitsAccount(planInfo?.plan, userData.account_type as string | null)) {
-    // Same rule as the Polar webhook: an order for a product this account type
+    // Same rule as the Whop webhook: an order for a product this account type
     // cannot hold (or an unknown product) never changes the account.
     console.error("[payhip-webhook] product does not fit the account", {
       userId,

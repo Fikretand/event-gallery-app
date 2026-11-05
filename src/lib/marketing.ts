@@ -10,7 +10,7 @@ import {
  * Locale-independent plan facts for the marketing pages.
  *
  * Prices are derived from `@/lib/pricing`, never typed in again, so the number
- * on the pricing page is the number Polar charges. Names, summaries and
+ * on the pricing page is the number Whop charges. Names, summaries and
  * feature copy are translated and live in the i18n dictionaries instead.
  *
  * Feature lists must describe what the app actually enforces. Solo and Pro

@@ -14,7 +14,7 @@ export type BillingDescription = {
   plan: string;
   /** Whether money is actually coming in, e.g. "Active" or "Free trial". */
   status: string;
-  /** Who is billing them, when anyone is — "polar", "payhip", "manual". */
+  /** Who is billing them, when anyone is — "whop", "payhip", "manual". */
   provider: string | null;
   tone: BillingTone;
 };

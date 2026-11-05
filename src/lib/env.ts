@@ -34,16 +34,18 @@ export const env = {
   payhipProductSoloYearly: optional(process.env.PAYHIP_PRODUCT_SOLO_YEARLY),
   payhipProductProMonthly: optional(process.env.PAYHIP_PRODUCT_PRO_MONTHLY),
   payhipProductProYearly: optional(process.env.PAYHIP_PRODUCT_PRO_YEARLY),
-  // ── Payments (Polar — Merchant of Record) ──
-  polarAccessToken: optional(process.env.POLAR_ACCESS_TOKEN),
-  polarWebhookSecret: optional(process.env.POLAR_WEBHOOK_SECRET),
-  polarProductOneEvent: optional(process.env.POLAR_PRODUCT_ONE_EVENT),
-  polarProductSoloMonthly: optional(process.env.POLAR_PRODUCT_SOLO_MONTHLY),
-  polarProductSoloYearly: optional(process.env.POLAR_PRODUCT_SOLO_YEARLY),
-  polarProductProMonthly: optional(process.env.POLAR_PRODUCT_PRO_MONTHLY),
-  polarProductProYearly: optional(process.env.POLAR_PRODUCT_PRO_YEARLY),
+  // ── Payments (Whop — active provider) ──
+  whopApiKey: optional(process.env.WHOP_API_KEY),
+  whopWebhookSecret: optional(process.env.WHOP_WEBHOOK_SECRET),
+  /** The `biz_…` account the plans belong to; checkouts are created on it. */
+  whopAccountId: optional(process.env.WHOP_ACCOUNT_ID),
+  whopPlanOneEvent: optional(process.env.WHOP_PLAN_ONE_EVENT),
+  whopPlanSoloMonthly: optional(process.env.WHOP_PLAN_SOLO_MONTHLY),
+  whopPlanSoloYearly: optional(process.env.WHOP_PLAN_SOLO_YEARLY),
+  whopPlanProMonthly: optional(process.env.WHOP_PLAN_PRO_MONTHLY),
+  whopPlanProYearly: optional(process.env.WHOP_PLAN_PRO_YEARLY),
   /** "sandbox" while testing, "production" once live. */
-  polarServer: (optional(process.env.POLAR_SERVER) === "sandbox" ? "sandbox" : "production") as
+  whopEnvironment: (optional(process.env.WHOP_ENVIRONMENT) === "sandbox" ? "sandbox" : "production") as
     | "sandbox"
     | "production",
 };
@@ -53,10 +55,10 @@ export const hasSupabaseAdmin = Boolean(hasSupabase && env.supabaseServiceRoleKe
 export const hasR2 = Boolean(
   env.r2AccountId && env.r2AccessKeyId && env.r2SecretAccessKey && env.r2Bucket,
 );
-/** Polar can create checkouts once an access token is present. */
-export const hasPolar = Boolean(env.polarAccessToken);
+/** Whop can create checkouts once an API key is present. */
+export const hasWhop = Boolean(env.whopApiKey);
 /** True once any payment provider is configured — gates live checkout. */
-export const hasPayments = Boolean(env.payhipWebhookSecret || env.polarAccessToken);
+export const hasPayments = Boolean(env.payhipWebhookSecret || env.whopApiKey);
 
 export function missingEnvMessage() {
   return "Missing environment variables. Copy .env.example and provide Supabase, R2, and app secrets before using protected flows.";

@@ -26,15 +26,15 @@ describe("describePlan", () => {
 
 describe("describeBilling", () => {
   it("separates paying from the built-in free trial", () => {
-    expect(describeBilling({ ...base, subscription_status: "active", subscription_provider: "polar" }))
-      .toMatchObject({ status: "Paid", provider: "polar", tone: "paid" });
+    expect(describeBilling({ ...base, subscription_status: "active", subscription_provider: "whop" }))
+      .toMatchObject({ status: "Paid", provider: "whop", tone: "paid" });
     expect(describeBilling(base)).toMatchObject({ status: "Free trial", provider: null, tone: "trial" });
   });
 
   it("does not report a refunded or lapsed account as paying", () => {
-    expect(describeBilling({ ...base, subscription_status: "canceled", subscription_provider: "polar" }))
+    expect(describeBilling({ ...base, subscription_status: "canceled", subscription_provider: "whop" }))
       .toMatchObject({ status: "Canceled", tone: "ended" });
-    expect(describeBilling({ ...base, subscription_status: "past_due", subscription_provider: "polar" }))
+    expect(describeBilling({ ...base, subscription_status: "past_due", subscription_provider: "whop" }))
       .toMatchObject({ status: "Past due", tone: "overdue" });
   });
 

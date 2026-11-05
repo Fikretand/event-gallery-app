@@ -1,10 +1,10 @@
-import { Polar } from "@polar-sh/sdk";
+import { createHmac, timingSafeEqual } from "node:crypto";
 
-import { env, hasPayments, hasPolar } from "@/lib/env";
+import { env, hasPayments, hasWhop } from "@/lib/env";
 import type { CheckoutPlanId, PlanId } from "@/lib/pricing";
 import type { BillingCycle, UserRecord } from "@/lib/types";
 
-export { hasPayments, hasPolar };
+export { hasPayments, hasWhop };
 
 export type { PlanId, CheckoutPlanId } from "@/lib/pricing";
 export {
@@ -90,99 +90,134 @@ export function billingEventDecision(input: {
   return "apply";
 }
 
-// ── Polar (Merchant of Record) ───────────────────────────────────────────────
+// ── Whop (active provider) ───────────────────────────────────────────────────
 
-function polarClient() {
-  if (!env.polarAccessToken) throw new Error("PAYMENTS_NOT_CONFIGURED");
-  return new Polar({ accessToken: env.polarAccessToken, server: env.polarServer });
+/**
+ * Payload shape the webhook and the REST reads are pinned to. Whop versions
+ * `data` by date; pinning keeps a field rename on their side from silently
+ * breaking activation here. The webhook endpoint is created with the same pin.
+ */
+export const WHOP_API_VERSION_DATE = "2026-08-14";
+
+function whopApiBase(): string {
+  return env.whopEnvironment === "sandbox"
+    ? "https://sandbox-api.whop.com/api/v1"
+    : "https://api.whop.com/api/v1";
 }
 
-/** Polar product id for a plan + cycle, or undefined when not configured. */
-export function getPolarProductId(plan: CheckoutPlanId, cycle: BillingCycle): string | undefined {
-  if (plan === "couple") return env.polarProductOneEvent;
+/** Authenticated call to the Whop REST API. Throws with Whop's own error body. */
+export async function whopRequest<T>(
+  path: string,
+  init: { method?: "GET" | "POST"; body?: unknown } = {},
+): Promise<T> {
+  if (!env.whopApiKey) throw new Error("PAYMENTS_NOT_CONFIGURED");
+  const res = await fetch(`${whopApiBase()}${path}`, {
+    method: init.method ?? "GET",
+    headers: {
+      Authorization: `Bearer ${env.whopApiKey}`,
+      "Api-Version-Date": WHOP_API_VERSION_DATE,
+      ...(init.body ? { "Content-Type": "application/json" } : {}),
+    },
+    body: init.body ? JSON.stringify(init.body) : undefined,
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    throw new Error(`Whop ${init.method ?? "GET"} ${path} failed (${res.status}): ${await res.text()}`);
+  }
+  return (await res.json()) as T;
+}
+
+/** Whop plan (`plan_…`) for a plan + cycle, or undefined when not configured. */
+export function getWhopPlanId(plan: CheckoutPlanId, cycle: BillingCycle): string | undefined {
+  if (plan === "couple") return env.whopPlanOneEvent;
   const map: Record<PlanId, Record<BillingCycle, string | undefined>> = {
-    solo: { monthly: env.polarProductSoloMonthly, yearly: env.polarProductSoloYearly },
-    pro: { monthly: env.polarProductProMonthly, yearly: env.polarProductProYearly },
+    solo: { monthly: env.whopPlanSoloMonthly, yearly: env.whopPlanSoloYearly },
+    pro: { monthly: env.whopPlanProMonthly, yearly: env.whopPlanProYearly },
   };
   return map[plan][cycle];
 }
 
-/** Reverse lookup: which plan + cycle does a Polar product id belong to? */
-export function planFromPolarProduct(productId: string): {
+/** Reverse lookup: which plan + cycle does a Whop plan id belong to? */
+export function planFromWhopPlan(planId: string | null | undefined): {
   plan: CheckoutPlanId;
   cycle: BillingCycle | "one_time";
 } | null {
-  if (!productId) return null;
-  if (productId === env.polarProductOneEvent) return { plan: "couple", cycle: "one_time" };
-  if (productId === env.polarProductSoloMonthly) return { plan: "solo", cycle: "monthly" };
-  if (productId === env.polarProductSoloYearly) return { plan: "solo", cycle: "yearly" };
-  if (productId === env.polarProductProMonthly) return { plan: "pro", cycle: "monthly" };
-  if (productId === env.polarProductProYearly) return { plan: "pro", cycle: "yearly" };
+  if (!planId) return null;
+  if (planId === env.whopPlanOneEvent) return { plan: "couple", cycle: "one_time" };
+  if (planId === env.whopPlanSoloMonthly) return { plan: "solo", cycle: "monthly" };
+  if (planId === env.whopPlanSoloYearly) return { plan: "solo", cycle: "yearly" };
+  if (planId === env.whopPlanProMonthly) return { plan: "pro", cycle: "monthly" };
+  if (planId === env.whopPlanProYearly) return { plan: "pro", cycle: "yearly" };
   return null;
 }
 
 /**
- * Every HMAC key a Polar signing secret could plausibly stand for.
+ * Create a Whop checkout configuration and return its hosted URL.
  *
- * Polar's dashboard shows the secret as `whsec_<base64>`, and there are three
- * conventions in circulation for turning that display string into a key:
- *
- *  - `utf8(prefixed)` — the bytes of the string as the dashboard shows it,
- *    `whsec_` included. This is what `validateEvent` in Polar's own SDK uses.
- *  - `utf8(bare)`     — the same, with the `whsec_` prefix stripped.
- *  - `base64(bare)`   — the Standard Webhooks convention: strip the prefix,
- *    then base64-decode, so the key is the 32 raw random bytes.
- *
- * They produce completely different keys, and picking the wrong one rejects
- * every delivery with no way to tell that from a wrong secret. Rather than bet
- * on one, the webhook route tries all three, whichever form the secret happens
- * to be configured in. They all derive from the same configured secret, so
- * accepting any of them loosens nothing — a caller still has to know the
- * secret to forge a signature under any convention.
+ * The buyer's account id travels in `metadata.userId`. Whop copies checkout
+ * metadata onto the payment and the membership it creates, so every webhook
+ * for this purchase — first payment, renewals, cancellation — names the exact
+ * account that started it, whatever email the buyer pays with.
  */
-export function polarWebhookKeys(secret: string): { label: string; key: Buffer }[] {
-  const PREFIX = "whsec_";
-  const bare = secret.startsWith(PREFIX) ? secret.slice(PREFIX.length) : secret;
-
-  const candidates = [
-    { label: "utf8(prefixed)", key: Buffer.from(`${PREFIX}${bare}`, "utf8") },
-    { label: "utf8(bare)", key: Buffer.from(bare, "utf8") },
-    { label: "base64(bare)", key: Buffer.from(bare, "base64") },
-  ];
-
-  const seen = new Set<string>();
-  return candidates.filter(({ key }) => {
-    if (key.length === 0) return false;
-    const fingerprint = key.toString("base64");
-    if (seen.has(fingerprint)) return false;
-    seen.add(fingerprint);
-    return true;
+export async function createWhopCheckout(opts: {
+  planId: string;
+  user: { id: string };
+  redirectUrl: string;
+}): Promise<string> {
+  const checkout = await whopRequest<{ purchase_url?: string | null }>("/checkout_configurations", {
+    method: "POST",
+    body: {
+      ...(env.whopAccountId ? { account_id: env.whopAccountId } : {}),
+      variant_id: opts.planId,
+      metadata: { userId: opts.user.id },
+      redirect_url: opts.redirectUrl,
+    },
   });
+  if (!checkout.purchase_url) throw new Error("Checkout URL missing in Whop response.");
+  return checkout.purchase_url;
 }
 
 /**
- * Create a Polar checkout session and return its hosted URL.
+ * Verify a Whop webhook delivery (Standard Webhooks).
  *
- * The buyer's account id travels in `metadata` and `externalCustomerId`, so the
- * webhook activates the exact account that started the purchase. This is the
- * main reason to prefer Polar over Payhip here: Payhip carried no metadata, so
- * activation depended on the buyer happening to pay with their account email.
+ * Whop signs `${webhook-id}.${webhook-timestamp}.${body}` with HMAC-SHA256,
+ * keyed on the literal UTF-8 bytes of the `ws_…` secret, prefix included —
+ * unlike Polar, nothing is stripped or base64-decoded (this is what
+ * `unwrapWebhook` in `@whop/sdk` does too). The header is a space-separated
+ * list of `v1,<base64 mac>`.
  */
-export async function createPolarCheckout(opts: {
-  productId: string;
-  user: { id: string; email: string };
-  successUrl: string;
-}): Promise<string> {
-  const checkout = await polarClient().checkouts.create({
-    products: [opts.productId],
-    customerEmail: opts.user.email || undefined,
-    externalCustomerId: opts.user.id,
-    metadata: { userId: opts.user.id },
-    successUrl: opts.successUrl,
-  });
+export function verifyWhopSignature(input: {
+  secret: string;
+  id: string;
+  timestamp: string;
+  body: string;
+  signatureHeader: string;
+}): boolean {
+  const expected = Buffer.from(
+    createHmac("sha256", Buffer.from(input.secret, "utf8"))
+      .update(`${input.id}.${input.timestamp}.${input.body}`)
+      .digest("base64"),
+    "utf8",
+  );
+  return input.signatureHeader
+    .split(" ")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => (part.includes(",") ? part.slice(part.indexOf(",") + 1) : part))
+    .some((candidate) => {
+      const provided = Buffer.from(candidate, "utf8");
+      return provided.length === expected.length && timingSafeEqual(provided, expected);
+    });
+}
 
-  if (!checkout.url) throw new Error("Checkout URL missing in Polar response.");
-  return checkout.url;
+/**
+ * Map a Whop membership status onto ours. `active`/`trialing` grant access and
+ * `past_due` is Whop's grace period; everything else (`canceled`, `expired`,
+ * `completed`, `unresolved`) means the subscription has ended.
+ */
+export function whopMembershipStatus(status: string | null | undefined): "active" | "trialing" | "past_due" | "canceled" {
+  if (status === "active" || status === "trialing" || status === "past_due") return status;
+  return "canceled";
 }
 
 // ── LemonSqueezy (dormant — kept for future re-activation) ───────────────────

@@ -52,11 +52,11 @@ describe("pricing", () => {
   });
 
   it("matches the one-time label to the number the marketing card shows", () => {
-    expect(ONE_EVENT_PRICE.polar.startsWith(String(ONE_EVENT_BAM))).toBe(true);
+    expect(ONE_EVENT_PRICE.whop.startsWith(String(ONE_EVENT_BAM))).toBe(true);
   });
 
   it("switches the whole table with the provider, never mixing currencies", () => {
-    expect(planPricingFor("polar")).toMatchObject({ pricing: PLAN_PRICING_BAM, currency: "BAM" });
+    expect(planPricingFor("whop")).toMatchObject({ pricing: PLAN_PRICING_BAM, currency: "BAM" });
     expect(planPricingFor("payhip").currency).toBe("EUR");
   });
 });
