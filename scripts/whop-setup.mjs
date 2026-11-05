@@ -1,16 +1,21 @@
 /**
- * Create the Confetti catalogue (3 products, 5 plans) and the billing webhook
- * on a Whop account, then write the resulting ids into .env.local.
+ * Create the Confetti catalogue (3 products, 5 plans) and, optionally, the
+ * billing webhook on a Whop account.
  *
  *   node scripts/whop-setup.mjs --env sandbox --webhook-url https://<public host>/api/billing/whop/webhook
  *   node scripts/whop-setup.mjs --env sandbox            # catalogue only, no webhook
+ *   node scripts/whop-setup.mjs --env production         # prints the ids for Vercel
  *
  * Reads the API key from .env.local: WHOP_SANDBOX_API_KEY for --env sandbox,
- * WHOP_API_KEY for --env production. Safe to run again: products and plans
- * that already exist (matched by title) are reused, not duplicated.
+ * WHOP_PRODUCTION_API_KEY for --env production. Sandbox ids are written into
+ * .env.local for local testing; production ids are only printed, so the local
+ * setup stays on the sandbox. Safe to run again: products and plans that
+ * already exist (matched by title) are reused, not duplicated.
  *
  * Secrets are never printed. The webhook signing secret is only shown by Whop
- * once, so it goes straight into .env.local as WHOP_WEBHOOK_SECRET.
+ * once; in sandbox it goes straight into .env.local as WHOP_WEBHOOK_SECRET.
+ * API keys without the developer:manage_webhook scope cannot create webhooks —
+ * create those in the dashboard instead.
  *
  * Prices must match src/lib/pricing.ts — BAM, tax inclusive, so the number on
  * the pricing page is the number on the checkout.
@@ -36,9 +41,10 @@ if (args.env !== "sandbox" && args.env !== "production") {
 }
 
 process.loadEnvFile(ENV_FILE);
-const apiKey = environment === "sandbox" ? process.env.WHOP_SANDBOX_API_KEY : process.env.WHOP_API_KEY;
+const KEY_NAME = environment === "sandbox" ? "WHOP_SANDBOX_API_KEY" : "WHOP_PRODUCTION_API_KEY";
+const apiKey = process.env[KEY_NAME];
 if (!apiKey) {
-  console.error(`Missing ${environment === "sandbox" ? "WHOP_SANDBOX_API_KEY" : "WHOP_API_KEY"} in .env.local.`);
+  console.error(`Missing ${KEY_NAME} in .env.local.`);
   process.exit(1);
 }
 const BASE = environment === "sandbox" ? "https://sandbox-api.whop.com/api/v1" : "https://api.whop.com/api/v1";
@@ -104,7 +110,8 @@ function writeEnv(values) {
   fs.writeFileSync(ENV_FILE, text);
 }
 
-const account = await whop("GET", "/accounts/me");
+// `--account biz_…` skips the lookup, for keys without the scope to read it.
+const account = typeof args.account === "string" ? { id: args.account } : await whop("GET", "/accounts/me");
 const accountId = account.id;
 console.log(`Account: ${account.title ?? "?"} (${accountId}), ${environment}`);
 
@@ -149,7 +156,11 @@ for (const product of CATALOGUE) {
   }
 }
 
-if (typeof args["webhook-url"] === "string") {
+if (typeof args["webhook-url"] === "string" && environment === "production") {
+  // Its secret would have nowhere safe to go: create it in the dashboard and
+  // paste the secret into Vercel yourself.
+  console.warn("  Skipping the webhook: create the production one in the Whop dashboard.");
+} else if (typeof args["webhook-url"] === "string") {
   const webhook = await whop("POST", "/webhooks", {
     url: args["webhook-url"],
     events: WEBHOOK_EVENTS,
@@ -162,7 +173,12 @@ if (typeof args["webhook-url"] === "string") {
   else console.warn("  Whop returned no webhook_secret — copy it from the dashboard into WHOP_WEBHOOK_SECRET.");
 }
 
-// The app reads WHOP_API_KEY; locally that is the sandbox key while testing.
-if (environment === "sandbox") ids.WHOP_API_KEY = apiKey;
-writeEnv(ids);
-console.log(`Wrote ${Object.keys(ids).filter((k) => !/KEY|SECRET/.test(k)).join(", ")} (and secrets) to .env.local`);
+if (environment === "production") {
+  console.log("\nSet these in Vercel (Production), together with WHOP_API_KEY and WHOP_WEBHOOK_SECRET:");
+  for (const [key, value] of Object.entries(ids)) console.log(`${key}=${value}`);
+} else {
+  // The app reads WHOP_API_KEY; locally that is the sandbox key while testing.
+  ids.WHOP_API_KEY = apiKey;
+  writeEnv(ids);
+  console.log(`Wrote ${Object.keys(ids).filter((k) => !/KEY|SECRET/.test(k)).join(", ")} (and secrets) to .env.local`);
+}
