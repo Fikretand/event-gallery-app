@@ -39,12 +39,22 @@ import type { SubscriptionStatus } from "@/lib/types";
  * Gate: returns 503 until WHOP_WEBHOOK_SECRET is set.
  */
 
+/*
+ * Whop sends the same object in two shapes. Webhook payloads carry flat ids
+ * (`variant_id`, `membership_id`, `payment_id`), as the OpenAPI spec says; the
+ * REST API, even pinned to the same date, nests them (`plan: { id }`,
+ * `membership: { id }`, `plan_id`, `payment: { id }`). Seen on 2026-11-05 in a
+ * real sandbox purchase and refund. Every field is read both ways below.
+ */
+
 type WhopPayment = {
   id: string;
   substatus?: string | null;
   metadata?: Record<string, unknown> | null;
   membership_id?: string | null;
+  membership?: { id?: string | null } | null;
   variant_id?: string | null;
+  plan?: { id?: string | null } | null;
   customer_email?: string | null;
   user?: { email?: string | null } | null;
   paid_at?: string | null;
@@ -56,6 +66,8 @@ type WhopMembership = {
   status?: string | null;
   metadata?: Record<string, unknown> | null;
   variant_id?: string | null;
+  plan_id?: string | null;
+  plan?: { id?: string | null } | null;
   cancel_at_period_end?: boolean | null;
   current_period_end?: string | null;
   updated_at?: string | null;
@@ -65,8 +77,22 @@ type WhopRefund = {
   id: string;
   status?: string | null;
   payment_id?: string | null;
+  payment?: { id?: string | null } | null;
+  created_at?: string | null;
   updated_at?: string | null;
 };
+
+function paymentPlanId(payment: WhopPayment): string | null {
+  return payment.variant_id ?? payment.plan?.id ?? null;
+}
+
+function paymentMembershipId(payment: WhopPayment): string | null {
+  return payment.membership_id ?? payment.membership?.id ?? null;
+}
+
+function paymentEmail(payment: WhopPayment): string | null {
+  return (payment.customer_email ?? payment.user?.email)?.trim().toLowerCase() || null;
+}
 
 type Resolution = {
   userId: string | null;
@@ -151,11 +177,11 @@ export async function POST(request: Request) {
   switch (type) {
     case "payment.succeeded": {
       const payment = event.data as WhopPayment;
-      email = (payment.customer_email ?? payment.user?.email)?.trim().toLowerCase() || null;
+      email = paymentEmail(payment);
       resolved = {
         userId: asMetadataUserId(payment.metadata),
-        planId: payment.variant_id ?? null,
-        externalId: payment.membership_id ?? payment.id,
+        planId: paymentPlanId(payment),
+        externalId: paymentMembershipId(payment) ?? payment.id,
         status: "active",
         renewsAt: undefined,
         eventAt: asDate(payment.paid_at) ?? asDate(payment.updated_at),
@@ -171,7 +197,7 @@ export async function POST(request: Request) {
       const renewing = (status === "active" || status === "trialing") && !membership.cancel_at_period_end;
       resolved = {
         userId: asMetadataUserId(membership.metadata),
-        planId: membership.variant_id ?? null,
+        planId: membership.variant_id ?? membership.plan_id ?? membership.plan?.id ?? null,
         externalId: membership.id,
         status,
         // A membership set to cancel keeps access until the period ends, but
@@ -184,23 +210,25 @@ export async function POST(request: Request) {
     case "refund.created":
     case "refund.updated": {
       const refund = event.data as WhopRefund;
-      if (refund.status !== "succeeded" || !refund.payment_id) {
+      const paymentId = refund.payment_id ?? refund.payment?.id ?? null;
+      if (refund.status !== "succeeded" || !paymentId) {
+        console.log("[whop-webhook] refund not acted on", { refundId: refund.id, status: refund.status, paymentId });
         return NextResponse.json({ received: true, event: type, note: `refund ${refund.status ?? "unknown"}` });
       }
-      const payment = await whopRequest<WhopPayment>(`/payments/${encodeURIComponent(refund.payment_id)}`);
+      const payment = await whopRequest<WhopPayment>(`/payments/${encodeURIComponent(paymentId)}`);
       if (payment.substatus === "partially_refunded") {
         // A goodwill partial refund is not a cancellation; log it for a human.
         console.log("[whop-webhook] partial refund left the account alone", { paymentId: payment.id });
         return NextResponse.json({ received: true, event: type, note: "partial refund" });
       }
-      email = (payment.customer_email ?? payment.user?.email)?.trim().toLowerCase() || null;
+      email = paymentEmail(payment);
       resolved = {
         userId: asMetadataUserId(payment.metadata),
-        planId: payment.variant_id ?? null,
-        externalId: payment.membership_id ?? payment.id,
+        planId: paymentPlanId(payment),
+        externalId: paymentMembershipId(payment) ?? payment.id,
         status: "canceled",
         renewsAt: null,
-        eventAt: asDate(refund.updated_at) ?? new Date(),
+        eventAt: asDate(refund.updated_at) ?? asDate(refund.created_at) ?? new Date(),
       };
       break;
     }

@@ -131,6 +131,27 @@ describe("POST /api/billing/whop/webhook", () => {
     ]);
   });
 
+  it("reads a payment whose ids are nested, as the REST API returns it", async () => {
+    await deliver(
+      "payment.succeeded",
+      payment({ variant_id: undefined, membership_id: undefined, plan: { id: "plan_solo_y" }, membership: { id: "mem_9" } }),
+    );
+    expect(mocks.updates[0]?.update).toMatchObject({ subscription_external_id: "mem_9", plan_tier: "solo" });
+  });
+
+  it("reads a membership's plan from plan_id", async () => {
+    await deliver("membership.activated", {
+      id: "mem_1",
+      status: "active",
+      metadata: { userId: "user-p" },
+      plan_id: "plan_pro_m",
+      cancel_at_period_end: false,
+      current_period_end: "2026-12-05T10:00:00.000Z",
+      updated_at: "2026-11-05T10:00:01.000Z",
+    });
+    expect(mocks.updates[0]?.update).toMatchObject({ plan_tier: "pro" });
+  });
+
   it("falls back to the payment email when metadata is missing", async () => {
     await deliver("payment.succeeded", payment({ metadata: null, customer_email: "Foto@Example.com" }));
     expect(mocks.updates[0]?.id).toBe("user-p");
@@ -208,16 +229,26 @@ describe("POST /api/billing/whop/webhook", () => {
     expect(mocks.updates).toHaveLength(0);
   });
 
-  it("cancels the purchase a succeeded refund belongs to", async () => {
+  it("cancels the purchase a succeeded refund belongs to (shapes seen in the sandbox)", async () => {
+    // The REST payment nests its ids, unlike the webhook payload.
     const fetchMock = vi.fn(async () =>
-      Response.json(payment({ metadata: { userId: "user-c" }, membership_id: "mem_2", variant_id: "plan_one", substatus: "refunded" })),
+      Response.json({
+        id: "pay_1",
+        status: "paid",
+        substatus: "refunded",
+        metadata: { userId: "user-c" },
+        plan: { id: "plan_one" },
+        membership: { id: "mem_2", status: "completed" },
+        user: { email: "par@example.com" },
+      }),
     );
     vi.stubGlobal("fetch", fetchMock);
-    await deliver("refund.updated", {
+    // And so does the refund: `payment: { id }`, no `payment_id`, no `updated_at`.
+    await deliver("refund.created", {
       id: "rf_1",
       status: "succeeded",
-      payment_id: "pay_1",
-      updated_at: "2026-11-07T00:00:00.000Z",
+      payment: { id: "pay_1", metadata: { userId: "user-c" } },
+      created_at: "2026-11-07T00:00:00.000Z",
     });
     expect(String((fetchMock.mock.calls[0] as unknown[])[0])).toBe("https://sandbox-api.whop.com/api/v1/payments/pay_1");
     expect(mocks.updates).toEqual([
