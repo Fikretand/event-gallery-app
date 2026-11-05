@@ -1,6 +1,6 @@
 # CLAUDE.md — Confetti Event Gallery App
 
-_Last updated: 2026-10-27._
+_Last updated: 2026-11-05._
 
 ---
 
@@ -424,13 +424,16 @@ thumbnails) is **done**. What is genuinely left:
    `add_upload_session_id_to_media.sql`. The billing one is not optional —
    without it every payment webhook and the admin "mark as paid" action fail
    silently and paying customers stay on the free trial.
-2. **Whop replaces Polar** (business `biz_1nkrffanR1jzik`,
-   see `WHOP_SETUP.md`). The code is on branch `claude/whop-payments`; going
-   live needs the production catalogue, the webhook and every `WHOP_*`
-   variable in Vercel, then a 100%-promo One Event test. Until those are set,
-   checkout falls back to Payhip, so set them in the same deploy that ships
-   the branch. Polar is removed from the code; its `POLAR_*` variables can
-   be deleted from Vercel. Payhip remains the fallback (the €39
+2. **Whop is live in production** since 2026-11-05 (business
+   `biz_1nkrffanR1jzik`, see `WHOP_SETUP.md`). Proven end to end on
+   www.confetti.ba: a One Event bought with a single-use 100% promo code
+   activated a fresh couple account through the production webhook. Left for
+   the owner: delete the three Whop test couple accounts (`a92d…`, `a0e8…`,
+   `978b…`) from the admin panel, delete the eight `POLAR_*` variables from
+   Vercel (no longer read), and watch the first real payout reach the BiH
+   bank account. Live plans are tax `exclusive` (Whop ignored `inclusive`);
+   BiH buyers see 79.00 BAM, EU buyers may see VAT added unless the
+   business's tax settings change. Payhip remains the fallback (the €39
    One Event product works); its Solo/Pro products were never created, and its
    webhook verification assumes a form-encoded `security_token` while the docs
    describe a newer JSON+signature scheme — see
@@ -692,6 +695,36 @@ src/
 ## 9. RECENT SESSION LOG
 
 Newest first — useful for picking back up.
+
+- **Polar → Whop** (PRs #1–#3, 2026-11-05). The owner had technical problems
+  with Polar and asked for Whop. Polar never had a real customer (production
+  held only 0 KM test orders; the "Pro yearly" subscription was in the Polar
+  sandbox), so it was removed entirely rather than kept for renewals.
+  - **Code:** checkout creates a Whop checkout configuration (plain `fetch`,
+    `metadata.userId`, `redirect_url`); `/api/billing/whop/webhook` verifies
+    Standard Webhooks keyed on the literal `ws_…` secret. 16 route tests.
+  - **Catalogue:** `scripts/whop-setup.mjs` made 3 products and 5 BAM plans
+    in the sandbox and in production. Old May-2026 EUR products on the live
+    business (no members, no payments) were deleted at the owner's request.
+  - **Tested on www.confetti.ba, not a tunnel** (ngrok was too old and
+    Defender blocked its update): first with `WHOP_ENVIRONMENT=sandbox` —
+    purchase → active, partial refund → unchanged, refund of the rest →
+    canceled — then live with a 100% promo code → active.
+  - **Bug found by the sandbox test (#2):** Whop's REST API nests the ids its
+    webhooks send flat (`payment: { id }`, `plan: { id }`, `membership: { id }`,
+    `plan_id` vs `payment_id`, `variant_id`, `membership_id`). The refund
+    path read only the flat ones and skipped every refund. Both are read now.
+  - **Traps hit:** sandbox API keys lack `developer:manage_webhook` (the
+    owner made the webhooks in the dashboard); the live key cannot read
+    `/accounts/me` (`--account biz_…`); one-time memberships report
+    `completed`; promo `amount_off` is a fraction (1 = 100%). The API key was
+    once pasted into `WHOP_WEBHOOK_SECRET` — the `signature rejected` log
+    prints `secretHead`, so `apik_` instead of `ws_` shows it immediately.
+    Whop retries failed deliveries for ~3 days, so a fixed secret plus a
+    redeploy recovered the purchase without buying again.
+  - Secrets never went through chat: the owner put both keys into
+    `.env.local` and Vercel; the script writes sandbox ids to `.env.local`
+    and only prints production ids.
 
 - **Hallmark redesign, whole site** (`18846ad`…, branch
   `claude/awesome-wright-gug3wk`). The owner asked to install
