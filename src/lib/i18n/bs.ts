@@ -936,6 +936,9 @@ export const dict: Dict = {
       checkoutError: "Nismo uspjeli otvoriti plaćanje. Pokušajte ponovo za trenutak.",
       onlineCheckoutSetup: "Online checkout se podešava. Javite nam se da aktiviramo plan za vaš nalog.",
       checkoutComingSoon: "Online plaćanje se podešava – uskoro.",
+      checkoutTitle: "Plaćanje",
+      checkoutClose: "Zatvori",
+      checkoutFailed: "Plaćanje nije prošlo i novac nije skinut. Možete pokušati ponovo, po potrebi drugom karticom.",
     },
   },
   coupleDashboard: {

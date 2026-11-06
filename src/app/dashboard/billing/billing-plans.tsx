@@ -5,6 +5,11 @@ import { useState, useTransition } from "react";
 import { track } from "@/lib/analytics";
 import { t, type Dict } from "@/lib/i18n/index";
 import { CheckIcon } from "@/components/ui/check-icon";
+import {
+  WhopCheckoutDialog,
+  type CheckoutDialogStrings,
+  type WhopCheckoutSession,
+} from "@/components/whop-checkout-dialog";
 
 type PlanId = "solo" | "pro";
 type Cycle = "monthly" | "yearly";
@@ -21,6 +26,8 @@ export function BillingPlans({
   pricing,
   currency,
   strings,
+  checkoutStrings,
+  buyerEmail,
 }: {
   currentPlan: PlanId;
   isActiveSub: boolean;
@@ -29,6 +36,9 @@ export function BillingPlans({
   /** Whop bills in BAM; the legacy providers bill in EUR. */
   currency: "BAM" | "EUR";
   strings: Dict["dashboard"]["billingPlans"];
+  checkoutStrings: CheckoutDialogStrings;
+  /** Prefills the email field of the embedded checkout. */
+  buyerEmail?: string;
 }) {
   const s = strings;
   const features: Record<PlanId, string[]> = { solo: s.soloFeatures, pro: s.proFeatures };
@@ -36,6 +46,7 @@ export function BillingPlans({
   const [pending, startTransition] = useTransition();
   const [busyPlan, setBusyPlan] = useState<PlanId | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [session, setSession] = useState<WhopCheckoutSession | null>(null);
 
   function choose(plan: PlanId) {
     setNotice(null);
@@ -49,9 +60,14 @@ export function BillingPlans({
           body: JSON.stringify({ plan, cycle }),
         });
         if (res.ok) {
-          const { url } = await res.json();
-          if (url) {
-            window.location.href = url;
+          const json = await res.json();
+          // Whop: pay in a dialog on this page. Other providers: their own page.
+          if (json.checkoutConfiguration && json.url) {
+            setSession(json as WhopCheckoutSession);
+            return;
+          }
+          if (json.url) {
+            window.location.href = json.url;
             return;
           }
         }
@@ -149,6 +165,15 @@ export function BillingPlans({
       </div>
 
       {!paymentsEnabled && <p className="meta">{s.paymentsUnavailable}</p>}
+
+      {session && (
+        <WhopCheckoutDialog
+          session={session}
+          buyerEmail={buyerEmail}
+          strings={checkoutStrings}
+          onClose={() => setSession(null)}
+        />
+      )}
     </div>
   );
 }

@@ -152,19 +152,23 @@ export function planFromWhopPlan(planId: string | null | undefined): {
 }
 
 /**
- * Create a Whop checkout configuration and return its hosted URL.
+ * Create a Whop checkout configuration; return its id and hosted URL.
  *
  * The buyer's account id travels in `metadata.userId`. Whop copies checkout
  * metadata onto the payment and the membership it creates, so every webhook
  * for this purchase — first payment, renewals, cancellation — names the exact
  * account that started it, whatever email the buyer pays with.
+ *
+ * The id is what the embedded Checkout element mounts from, so the metadata
+ * is set here on the server and never by the page; the URL is the hosted page
+ * the browser falls back to when the element cannot load.
  */
 export async function createWhopCheckout(opts: {
   planId: string;
   user: { id: string };
   redirectUrl: string;
-}): Promise<string> {
-  const checkout = await whopRequest<{ purchase_url?: string | null }>("/checkout_configurations", {
+}): Promise<{ id: string; url: string }> {
+  const checkout = await whopRequest<{ id?: string; purchase_url?: string | null }>("/checkout_configurations", {
     method: "POST",
     body: {
       ...(env.whopAccountId ? { account_id: env.whopAccountId } : {}),
@@ -173,8 +177,8 @@ export async function createWhopCheckout(opts: {
       redirect_url: opts.redirectUrl,
     },
   });
-  if (!checkout.purchase_url) throw new Error("Checkout URL missing in Whop response.");
-  return checkout.purchase_url;
+  if (!checkout.id || !checkout.purchase_url) throw new Error("Checkout id or URL missing in Whop response.");
+  return { id: checkout.id, url: checkout.purchase_url };
 }
 
 /**

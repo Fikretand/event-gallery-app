@@ -3,6 +3,7 @@
 import Script from "next/script";
 import { useCallback, useState } from "react";
 
+import { WhopCheckoutDialog, type WhopCheckoutSession } from "@/components/whop-checkout-dialog";
 import { track } from "@/lib/analytics";
 
 type PayhipCheckout = {
@@ -27,6 +28,8 @@ export type CoupleCheckoutStrings = {
   checkoutEmailHint: string;
   checkoutError: string;
   checkoutComingSoon: string;
+  checkoutTitle: string;
+  checkoutClose: string;
 };
 
 const FALLBACK: CoupleCheckoutStrings = {
@@ -36,6 +39,8 @@ const FALLBACK: CoupleCheckoutStrings = {
   checkoutEmailHint: "Use {{email}} at checkout so we can activate your plan automatically.",
   checkoutError: "We couldn't open the checkout. Please try again in a moment.",
   checkoutComingSoon: "Online checkout is being set up — coming soon.",
+  checkoutTitle: "Payment",
+  checkoutClose: "Close",
 };
 
 function fill(template: string, values: Record<string, string>) {
@@ -48,10 +53,11 @@ function fill(template: string, values: Record<string, string>) {
  * Two providers, chosen server-side:
  *
  * - **Whop** (preferred): POST to `/api/billing/checkout`, which creates a
- *   Whop checkout carrying the buyer's account id, then redirect to the
- *   returned hosted URL. Because the account id rides along in the checkout
- *   metadata, the webhook activates the right account no matter which email
- *   the buyer pays with — so no email hint is needed.
+ *   Whop checkout carrying the buyer's account id, then open it embedded in a
+ *   dialog on this page (`WhopCheckoutDialog`), with Whop's hosted page as the
+ *   fallback. Because the account id rides along in the checkout metadata,
+ *   the webhook activates the right account no matter which email the buyer
+ *   pays with — so no email hint is needed.
  * - **Payhip** (legacy): `window.Payhip.Checkout.open({ product })` opens the
  *   overlay in place. Payhip's overlay has no email-prefill option and its
  *   webhooks carry no custom metadata, so the buyer MUST use their account
@@ -77,6 +83,7 @@ export function CoupleCheckoutButton({
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [session, setSession] = useState<WhopCheckoutSession | null>(null);
 
   const isWhop = provider === "whop";
   const canCheckout = paymentsEnabled && (isWhop || Boolean(productKey));
@@ -94,6 +101,11 @@ export function CoupleCheckoutButton({
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || !json?.url) throw new Error(json?.error ?? "checkout failed");
+      if (json.checkoutConfiguration) {
+        setSession(json as WhopCheckoutSession);
+        setBusy(false);
+        return;
+      }
       window.location.href = json.url as string;
     } catch {
       setError(strings.checkoutError);
@@ -148,6 +160,14 @@ export function CoupleCheckoutButton({
         )}
         {error && <p role="alert" className="mt-2 text-sm font-medium text-error">{error}</p>}
       </div>
+      {session && (
+        <WhopCheckoutDialog
+          session={session}
+          buyerEmail={userEmail || undefined}
+          strings={{ title: strings.checkoutTitle, close: strings.checkoutClose }}
+          onClose={() => setSession(null)}
+        />
+      )}
     </>
   );
 }
