@@ -4,7 +4,7 @@ import { DashboardBilling } from "./DashboardBilling";
 export default async function BillingPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ success?: string }>;
+  searchParams?: Promise<{ success?: string; checkout?: string; status?: string }>;
 }) {
   await redirectIfPreferredLocale("/billing");
   const resolved = searchParams ? await searchParams : undefined;

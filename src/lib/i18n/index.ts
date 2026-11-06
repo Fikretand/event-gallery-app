@@ -897,6 +897,9 @@ export interface Dict {
       checkoutError: string;
       onlineCheckoutSetup: string;
       checkoutComingSoon: string;
+      checkoutTitle: string;         // heading of the embedded checkout dialog
+      checkoutClose: string;
+      checkoutFailed: string;        // back from 3D Secure etc. without a payment
     };
   };
   coupleDashboard: {

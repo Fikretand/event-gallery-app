@@ -6,7 +6,7 @@ export default async function BillingLocalePage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams?: Promise<{ success?: string }>;
+  searchParams?: Promise<{ success?: string; checkout?: string; status?: string }>;
 }) {
   const { locale } = await params;
   const resolved = searchParams ? await searchParams : undefined;
