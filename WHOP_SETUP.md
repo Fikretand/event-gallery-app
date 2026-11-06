@@ -61,6 +61,17 @@ Polar was removed entirely when Whop went in: it never had a real customer
 `POLAR_*` variables can be deleted from Vercel, and the Polar webhook endpoint
 in the Polar dashboard can be disabled.
 
+## Apple Pay and Google Pay
+The embedded checkout shows both wallets only once Apple Pay is ready on
+`www.confetti.ba` (one verification clears both). Whop registered the domain
+by itself the first time the element loaded (`dom_KKYWWWETyWX0l5`), but
+Apple could not verify it: the middleware redirected the association file to
+`/bs/…`. Now `next.config.ts` rewrites
+`/.well-known/apple-developer-merchantid-domain-association` to the file Whop
+hosts, and the middleware skips `/.well-known/`. After a deploy, re-run the
+check: dashboard → Websites → the domain → Fix Apple Pay → Check now (or
+`POST /payment_method_domains/{id}/verify`).
+
 ## Shapes: webhook vs REST
 Whop sends the same object in two shapes. Webhook payloads carry flat ids
 (`variant_id`, `membership_id`, `payment_id`); the REST API, even pinned to the
