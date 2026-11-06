@@ -126,7 +126,10 @@ export const config = {
      *  - _next/static  (static files)
      *  - _next/image   (image optimisation)
      *  - favicon.ico
+     *  - .well-known   (files other services fetch by exact path, such as
+     *                   Apple Pay's domain association: a locale redirect
+     *                   there fails their verification)
      */
-    "/((?!_next/static|_next/image|favicon.ico).*)",
+    "/((?!_next/static|_next/image|favicon.ico|\\.well-known/).*)",
   ],
 };

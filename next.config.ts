@@ -23,6 +23,19 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/api/events/[slug]/qr-poster": ["./public/fonts/poster/**/*.ttf"],
   },
+  async rewrites() {
+    // Apple Pay (and with it Google Pay) in the embedded Whop checkout needs
+    // this domain verified. Apple fetches the association file at this exact
+    // path; Whop hosts the file, and proxying it means it can never drift from
+    // the copy Whop registered with Apple. See WHOP_SETUP.md.
+    return [
+      {
+        source: "/.well-known/apple-developer-merchantid-domain-association",
+        destination:
+          "https://whop.com/.well-known/apple-platform-integrator/apple-developer-merchantid-domain-association",
+      },
+    ];
+  },
   async redirects() {
     // The christening page was replaced by prom night ("maturalna večer"),
     // which fits the BiH market better. Keep old links and search results
