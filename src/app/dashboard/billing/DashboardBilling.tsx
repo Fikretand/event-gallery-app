@@ -22,13 +22,21 @@ export async function DashboardBilling({
   searchParams,
 }: {
   locale: Locale;
-  searchParams?: { success?: string };
+  searchParams?: { success?: string; checkout?: string; status?: string };
 }) {
   const d = getDictionary(locale).dashboard;
   const b = d.billing;
   const prefix = localePrefix(locale);
 
   if (!hasSupabase) redirect(`${prefix}/dashboard`);
+
+  // Back from an off-site step of the embedded checkout (3D Secure, a bank
+  // page): Whop appends `status`. Anything but a failure goes to the
+  // dashboard's "activating" banner, which waits for the webhook rather than
+  // trusting this URL; a failure stays here to say no money was taken.
+  const checkoutFailed =
+    searchParams?.checkout === "1" && (searchParams.status === "failed" || searchParams.status === "canceled");
+  if (searchParams?.checkout === "1" && !checkoutFailed) redirect(`${prefix}/dashboard?paid=1`);
 
   const { user, supabase } = await getRequiredUser();
   const accountType = await getAccountTypeForUser(supabase, user.id, user.user_metadata?.account_type);
@@ -87,6 +95,9 @@ export async function DashboardBilling({
         {searchParams?.success === "1" && (
           <div role="status" className="notice notice-success">{b.paymentReceived}</div>
         )}
+        {checkoutFailed && (
+          <div role="alert" className="notice notice-error">{b.checkoutFailed}</div>
+        )}
 
         {/* Current status */}
         <div className="flex flex-wrap items-end justify-between gap-3 border-b border-rule pb-[var(--space-lg)]">
@@ -121,6 +132,8 @@ export async function DashboardBilling({
             pricing={planPricing}
             currency={planCurrency}
             strings={d.billingPlans}
+            checkoutStrings={{ title: b.checkoutTitle, close: b.checkoutClose }}
+            buyerEmail={user.email ?? undefined}
           />
         )}
         {!isAdmin && isCouple && (

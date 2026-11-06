@@ -12,7 +12,8 @@ and in your local `.env.local`.
 ## Code
 | What | Where |
 |---|---|
-| Checkout | `POST /api/billing/checkout` → `createWhopCheckout` in `src/lib/billing.ts`. It creates a checkout configuration with `variant_id` = the plan, `metadata.userId` and `redirect_url`, and returns its `purchase_url`. |
+| Checkout | `POST /api/billing/checkout` → `createWhopCheckout` in `src/lib/billing.ts`. It creates a checkout configuration with `variant_id` = the plan, `metadata.userId` and `redirect_url`, and returns its `purchase_url`. It returns the configuration id too. |
+| Embedded checkout | `WhopCheckoutDialog` (`src/components/whop-checkout-dialog.tsx`) mounts Whop's Checkout element (`@whop/elements-react`) from that `ch_…` id in a dialog on the billing page: full screen on a phone, a panel from `md`. Payment in the element → `/dashboard?paid=1`; an off-site step (3D Secure) returns to `/dashboard/billing?checkout=1&status=…`. If the element does not load in 15 s, the browser goes to `purchase_url`. |
 | Webhook | `POST /api/billing/whop/webhook`. Standard Webhooks, HMAC keyed on the literal `ws_…` secret (`verifyWhopSignature`). |
 | Catalogue script | `node scripts/whop-setup.mjs --env sandbox [--webhook-url …]` writes sandbox ids into `.env.local`; `--env production` (key in `WHOP_PRODUCTION_API_KEY`) only prints the ids for Vercel. |
 | Customer portal | Hosted by Whop (whop.com/@me). No app code. |

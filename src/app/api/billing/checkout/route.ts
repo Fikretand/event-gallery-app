@@ -62,15 +62,21 @@ export async function POST(request: Request) {
     // ── Whop — preferred when configured ─────────────────────────────────
     // Works for every plan; the buyer's account id rides along in metadata so
     // the webhook can activate the right account regardless of payment email.
+    // The page embeds the checkout from `checkoutConfiguration` and keeps
+    // `url` (the hosted page) as its fallback.
     if (hasWhop) {
       const whopPlanId = getWhopPlanId(plan, cycle);
       if (whopPlanId) {
-        const url = await createWhopCheckout({
+        const checkout = await createWhopCheckout({
           planId: whopPlanId,
           user: { id: user.id },
           redirectUrl: successUrl,
         });
-        return NextResponse.json({ url });
+        return NextResponse.json({
+          url: checkout.url,
+          checkoutConfiguration: checkout.id,
+          environment: env.whopEnvironment,
+        });
       }
       // No Whop plan for this one yet — fall through to the legacy paths.
     }

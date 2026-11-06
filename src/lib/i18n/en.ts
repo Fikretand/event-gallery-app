@@ -934,6 +934,9 @@ export const dict: Dict = {
       checkoutError: "We couldn't open the checkout. Please try again in a moment.",
       onlineCheckoutSetup: "Online checkout is being set up. Contact us to activate your plan – we'll switch it on for your account.",
       checkoutComingSoon: "Online checkout is being set up – coming soon.",
+      checkoutTitle: "Payment",
+      checkoutClose: "Close",
+      checkoutFailed: "The payment didn't go through and no money was taken. You can try again, with another card if needed.",
     },
   },
   coupleDashboard: {

@@ -280,6 +280,13 @@ LemonSqueezy otherwise. Setup, env and test checklist: `WHOP_SETUP.md`.
   checks it with `node:crypto` (`verifyWhopSignature`).
 - REST reads and the webhook are pinned to `Api-Version-Date 2026-08-14`
   (`WHOP_API_VERSION_DATE`).
+- **The buyer pays on confetti.ba**, in Whop's Checkout element embedded in
+  `WhopCheckoutDialog` (full screen on a phone). The element mounts from the
+  server-made `ch_…` configuration, so `metadata.userId` never comes from the
+  page; activation is still the webhook's job. Whop's hosted page is the
+  fallback when the element does not load. The element's UI has no Bosnian
+  (English), and Apple Pay / Google Pay show only once `www.confetti.ba` is a
+  registered payment method domain in Whop.
 - Prices are quoted in the currency the active provider charges. One Event is
   **79,00 KM** (`ONE_EVENT_PRICE`); Solo and Pro come from `PLAN_PRICING_BAM`
   — 49 / 39 KM and 99 / 79 KM per month, yearly billing twelve of those at
