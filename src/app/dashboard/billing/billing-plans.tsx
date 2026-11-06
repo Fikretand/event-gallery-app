@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 
+import { track } from "@/lib/analytics";
 import { t, type Dict } from "@/lib/i18n/index";
 import { CheckIcon } from "@/components/ui/check-icon";
 
@@ -39,6 +40,7 @@ export function BillingPlans({
   function choose(plan: PlanId) {
     setNotice(null);
     setBusyPlan(plan);
+    track("begin_checkout", { plan, cycle });
     startTransition(async () => {
       try {
         const res = await fetch("/api/billing/checkout", {

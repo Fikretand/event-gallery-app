@@ -1604,6 +1604,14 @@ export const dict: Dict = {
     oneTimeGroup: "For one event",
     oneTimeGroupNote: "Pay once, no subscription.",
   },
+  cookieConsent: {
+    label: "Cookie consent",
+    text: "With your consent we use Google Analytics to see how the site is used. Galleries and guests' photos are never measured.",
+    accept: "Accept",
+    decline: "Decline",
+    privacyLink: "More about privacy",
+    settings: "Cookie settings",
+  },
   testimonialsUi: {
     sectionEyebrow: "Social proof",
     sectionTitle: "Built to feel premium on both sides of the event.",

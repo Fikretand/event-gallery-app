@@ -18,6 +18,7 @@ export function MarketingButtonLink({
   tone = "accent",
   className,
   external = false,
+  track,
   "aria-label": ariaLabel,
 }: {
   href: string;
@@ -25,6 +26,8 @@ export function MarketingButtonLink({
   tone?: Tone;
   className?: string;
   external?: boolean;
+  /** Name sent as `cta_click` when analytics is on (see components/analytics.tsx). */
+  track?: string;
   "aria-label"?: string;
 }) {
   return (
@@ -33,6 +36,7 @@ export function MarketingButtonLink({
       target={external ? "_blank" : undefined}
       rel={external ? "noreferrer noopener" : undefined}
       aria-label={ariaLabel}
+      data-track={track}
       className={cn("btn", toneClasses[tone], className)}
     >
       {children}

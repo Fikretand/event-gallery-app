@@ -5,10 +5,11 @@ import { randomUUID } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { isValidPublicProfileUrl, normalizeAccountType, resolveAccountRedirect } from "@/lib/account";
+import { SIGNUP_COOKIE } from "@/lib/analytics";
 import { getAccountTypeForUser, getRequiredUser, getUserProfile } from "@/lib/auth";
 import { GALLERY_UNLOCK_RATE_LIMIT, PROFILE_AVATAR_MAX_MB } from "@/lib/constants";
 import { env } from "@/lib/env";
@@ -114,6 +115,10 @@ export async function signupAction(_: { error?: string } | undefined | void, for
   if (error) {
     return { error: error.message };
   }
+
+  // Read once by the analytics component, which sends `sign_up` only if the
+  // visitor agreed to analytics; otherwise it expires unread in ten minutes.
+  (await cookies()).set(SIGNUP_COOKIE, intent, { path: "/", maxAge: 600, sameSite: "lax", secure: process.env.NODE_ENV === "production" });
 
   if (!data.session) {
     redirect(`/signup/verify?intent=${intent}&email=${encodeURIComponent(email)}`);

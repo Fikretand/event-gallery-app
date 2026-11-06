@@ -69,7 +69,7 @@ const EN_PRIVACY: LegalDoc = {
         "Event data: event titles, dates, client/couple names, gallery and upload settings, and PINs (stored only as hashes).",
         "Uploaded media: photos and videos uploaded by you or by your guests, plus optional guest name/email and technical metadata (file type/size, timestamps, a hashed IP for rate-limiting and abuse prevention).",
         "Billing data: your plan and subscription status, and the email used at checkout. Payments are processed by our payment provider (Whop) — we do not receive or store your full card details.",
-        "Technical data: essential cookies (login/session and language preference) and standard server logs.",
+        "Technical data: essential cookies (login/session and language preference), standard server logs and, only if you agree, Google Analytics usage data.",
       ],
     },
     {
@@ -104,6 +104,7 @@ const EN_PRIVACY: LegalDoc = {
         "Cloudflare R2 — object storage for media.",
         "Vercel — application hosting and delivery.",
         "Whop — payment processing.",
+        "Google Analytics (Google Ireland Ltd.) — visit statistics on our public pages, only with your consent.",
         "An email delivery provider — transactional emails.",
         "These providers may process data outside your country, including outside the EU/EEA, under safeguards such as standard contractual clauses where required.",
       ],
@@ -139,7 +140,7 @@ const EN_PRIVACY: LegalDoc = {
     {
       heading: "10. Cookies",
       paragraphs: [
-        "We use essential cookies needed to keep you logged in and to remember your language preference. We do not use these for advertising. If we later add analytics or non-essential cookies, we will update this policy and, where required, ask for consent.",
+        "We use essential cookies needed to keep you logged in and to remember your language preference. We do not use these for advertising. With your consent, given in the banner on our public pages, we also use Google Analytics to count visits and see which pages and buttons are used. It sets the _ga cookies, never runs on galleries, guest upload pages or the event pages of the dashboard, receives no email addresses, and has its advertising features turned off. You can withdraw consent at any time under \"Cookie settings\" at the bottom of every page; we then delete those cookies.",
       ],
     },
     {
@@ -275,7 +276,7 @@ const BS_PRIVACY: LegalDoc = {
         "Podaci o događaju: nazivi događaja, datumi, imena klijenta/para, postavke galerije i prijenosa, te PIN-ovi (pohranjeni samo kao heševi).",
         "Učitani mediji: fotografije i videi koje učitate vi ili vaši gosti, uz opciono ime/email gosta i tehničke metapodatke (tip/veličina fajla, vremenske oznake, hešovana IP adresa za ograničavanje i sprječavanje zloupotrebe).",
         "Podaci o naplati: vaš plan i status pretplate te email korišten pri kupovini. Plaćanja obrađuje naš platni provajder (Whop) — mi ne primamo niti pohranjujemo pune podatke vaše kartice.",
-        "Tehnički podaci: neophodni kolačići (prijava/sesija i jezička preferenca) i standardni serverski zapisi.",
+        "Tehnički podaci: neophodni kolačići (prijava/sesija i jezička preferenca), standardni serverski zapisi i, samo uz vaš pristanak, podaci o korištenju iz Google Analyticsa.",
       ],
     },
     {
@@ -310,6 +311,7 @@ const BS_PRIVACY: LegalDoc = {
         "Cloudflare R2 — pohrana medija.",
         "Vercel — hosting i isporuka aplikacije.",
         "Whop — obrada plaćanja.",
+        "Google Analytics (Google Ireland Ltd.) — statistika posjeta na javnim stranicama, samo uz vaš pristanak.",
         "Provajder za slanje emailova — transakcijski emailovi.",
         "Ovi provajderi mogu obrađivati podatke izvan vaše zemlje, uključujući izvan EU/EEA, uz zaštitne mjere poput standardnih ugovornih klauzula gdje je to potrebno.",
       ],
@@ -345,7 +347,7 @@ const BS_PRIVACY: LegalDoc = {
     {
       heading: "10. Kolačići",
       paragraphs: [
-        "Koristimo neophodne kolačiće potrebne da ostanete prijavljeni i da zapamtimo vašu jezičku preferencu. Ne koristimo ih za oglašavanje. Ako kasnije dodamo analitiku ili neobavezne kolačiće, ažuriraćemo ovu politiku i, gdje je potrebno, zatražiti privolu.",
+        "Koristimo neophodne kolačiće potrebne da ostanete prijavljeni i da zapamtimo vašu jezičku preferencu. Ne koristimo ih za oglašavanje. Uz vaš pristanak, dat na traci na javnim stranicama, koristimo i Google Analytics da prebrojimo posjete i vidimo koje se stranice i dugmad koriste. On postavlja kolačiće _ga, nikad ne radi na galerijama, stranicama za slanje fotografija ni na stranicama događaja u dashboardu, ne prima email adrese, a funkcije za oglašavanje su mu isključene. Pristanak možete povući bilo kada preko \"Postavke kolačića\" na dnu svake stranice; tada brišemo te kolačiće.",
       ],
     },
     {

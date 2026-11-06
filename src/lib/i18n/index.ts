@@ -1086,6 +1086,14 @@ export interface Dict {
     oneTimeGroup: string;
     oneTimeGroupNote: string;
   };
+  cookieConsent: {
+    label: string;
+    text: string;
+    accept: string;
+    decline: string;
+    privacyLink: string;
+    settings: string;
+  };
   testimonialsUi: {
     sectionEyebrow: string;
     sectionTitle: string;

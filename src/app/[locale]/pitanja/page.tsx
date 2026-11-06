@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 
 import { ContentCta, ContentShell, EventTypeLinks } from "@/components/content-page";
+import { JsonLd } from "@/components/json-ld";
 import { getDictionary, type Locale } from "@/lib/i18n/index";
 import { publicMetadata } from "@/lib/seo";
+import { faqStructuredData } from "@/lib/structured-data";
 
 export async function generateMetadata({
   params,
@@ -31,6 +33,7 @@ export default async function FaqPage({ params }: { params: Promise<{ locale: st
       body={f.body}
       trail={[{ label: c.breadcrumbHome, href: `/${locale}` }, { label: f.seoTitle }]}
     >
+      <JsonLd data={faqStructuredData(locale as Locale)} />
       <div className="shell">
         {f.groups.map((group) => (
           <section

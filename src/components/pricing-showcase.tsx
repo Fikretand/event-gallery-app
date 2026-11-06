@@ -103,7 +103,7 @@ function Column({
         <p className={cn("mt-2 text-sm", c.note)}>{plan.note}</p>
       </div>
       <div className="self-start">
-        <MarketingButtonLink href={plan.href} tone={plan.buttonTone} className="w-full">
+        <MarketingButtonLink href={plan.href} tone={plan.buttonTone} track={`plan_${plan.key.toLowerCase().replace(/\s+/g, "_")}`} className="w-full">
           {plan.cta}
         </MarketingButtonLink>
       </div>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import localFont from "next/font/local";
 
+import { Analytics } from "@/components/analytics";
 import { SITE_NAME, siteUrl } from "@/lib/seo";
 import "./globals.css";
 
@@ -58,7 +59,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   // subtree instead, which is what a screen reader reads.
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable} ${jetbrainsMono.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }

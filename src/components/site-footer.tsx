@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { CookieSettingsButton } from "@/components/analytics";
 import { getDictionary, type Locale } from "@/lib/i18n/index";
 
 /**
@@ -8,7 +9,10 @@ import { getDictionary, type Locale } from "@/lib/i18n/index";
  * orphan the sitemap points at.
  */
 export function SiteFooter({ locale }: { locale: Locale }) {
-  const d = getDictionary(locale).landing;
+  const dict = getDictionary(locale);
+  const d = dict.landing;
+  const linkClass =
+    "inline-flex min-h-11 items-center text-ink-2 underline decoration-transparent underline-offset-4 transition-colors duration-[var(--dur-micro)] hover:text-ink hover:decoration-current focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus)]";
   const lp = (path: string) => `/${locale}${path}`;
 
   return (
@@ -24,14 +28,14 @@ export function SiteFooter({ locale }: { locale: Locale }) {
           <ul className="grid grid-cols-1 gap-x-[var(--gap-columns)] gap-y-1 min-[420px]:grid-cols-2 sm:grid-cols-3">
             {d.footerLinks.map((link) => (
               <li key={link.href}>
-                <Link
-                  href={lp(link.href)}
-                  className="inline-flex min-h-11 items-center text-ink-2 underline decoration-transparent underline-offset-4 transition-colors duration-[var(--dur-micro)] hover:text-ink hover:decoration-current focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus)]"
-                >
+                <Link href={lp(link.href)} className={linkClass}>
                   {link.label}
                 </Link>
               </li>
             ))}
+            <li>
+              <CookieSettingsButton label={dict.cookieConsent.settings} className={linkClass} />
+            </li>
           </ul>
         </nav>
       </div>

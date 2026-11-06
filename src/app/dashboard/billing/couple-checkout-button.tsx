@@ -3,6 +3,8 @@
 import Script from "next/script";
 import { useCallback, useState } from "react";
 
+import { track } from "@/lib/analytics";
+
 type PayhipCheckout = {
   open: (opts: {
     product: string;
@@ -83,6 +85,7 @@ export function CoupleCheckoutButton({
   const openWhopCheckout = useCallback(async () => {
     setBusy(true);
     setError(null);
+    track("begin_checkout", { plan: "couple", cycle: "one_time" });
     try {
       const res = await fetch("/api/billing/checkout", {
         method: "POST",
@@ -99,6 +102,7 @@ export function CoupleCheckoutButton({
   }, [strings.checkoutError]);
 
   const openPayhipCheckout = useCallback(() => {
+    track("begin_checkout", { plan: "couple", cycle: "one_time" });
     const checkout = window.Payhip?.Checkout;
     if (checkout) {
       checkout.open({

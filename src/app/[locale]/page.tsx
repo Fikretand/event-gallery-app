@@ -6,6 +6,7 @@ import { AudienceCtas } from "@/components/audience-ctas";
 import { ConfettiExplainer } from "@/components/explainer/confetti-explainer-lazy";
 import { HeroDevice } from "@/components/hero-device/hero-device";
 import { HowItWorks } from "@/components/how-it-works/how-it-works";
+import { JsonLd } from "@/components/json-ld";
 import { PricingShowcase } from "@/components/pricing-showcase";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteNav } from "@/components/site-nav";
@@ -15,6 +16,7 @@ import { PRO_ACTIVE_EVENT_LIMIT, SOLO_ACTIVE_EVENT_LIMIT, TRIAL_DURATION_DAYS, T
 import { ONE_EVENT_BAM, PLAN_PRICING_BAM, formatBam } from "@/lib/pricing";
 import { COUPLE_PURGE_GRACE_DAYS } from "@/lib/retention";
 import { publicMetadata } from "@/lib/seo";
+import { homeStructuredData } from "@/lib/structured-data";
 import { absoluteUrl } from "@/lib/utils";
 import { QR_COLORS } from "@/lib/brand-colors";
 
@@ -179,6 +181,7 @@ export default async function HomePage({
 
   return (
     <main>
+      <JsonLd data={homeStructuredData(locale as Locale)} />
       <SiteNav />
 
       {/* ─── Hero. Wide: the words and the two ways in on six columns, the
@@ -299,7 +302,7 @@ export default async function HomePage({
               <div className="flex flex-1 flex-col p-6 sm:p-8">
                 <h3 className="font-display text-[1.75rem] font-semibold leading-tight text-ink sm:text-[2rem]">{route.title}</h3>
                 <p className="mt-[var(--space-sm)] max-w-[44ch] flex-1 leading-relaxed text-ink-2">{route.body}</p>
-                <Link href={route.href} className={`btn ${route.primary ? "btn-primary" : "btn-ink"} mt-[var(--space-lg)] w-full sm:w-auto sm:self-start`}>
+                <Link href={route.href} data-track={route.primary ? "route_photographers" : "route_hosts"} className={`btn ${route.primary ? "btn-primary" : "btn-ink"} mt-[var(--space-lg)] w-full sm:w-auto sm:self-start`}>
                   {route.cta}
                 </Link>
               </div>

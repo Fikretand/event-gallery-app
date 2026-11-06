@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
+import { track } from "@/lib/analytics";
+
 export type PaymentBannerStrings = {
   activatedTitle: string;
   activatedBody: string; // "{{plan}}"
@@ -44,6 +46,18 @@ export function PaymentSuccessBanner({
   strings?: PaymentBannerStrings;
 }) {
   const router = useRouter();
+
+  // Counted once, when the webhook has really activated the account.
+  useEffect(() => {
+    if (!activated) return;
+    try {
+      if (window.sessionStorage.getItem("confetti-purchase-tracked")) return;
+      window.sessionStorage.setItem("confetti-purchase-tracked", "1");
+    } catch {
+      // Storage blocked: count it anyway; a duplicate is better than none.
+    }
+    track("purchase", { plan: planLabel, currency: "BAM" });
+  }, [activated, planLabel]);
 
   useEffect(() => {
     if (activated) return;

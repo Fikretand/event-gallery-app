@@ -1608,6 +1608,14 @@ export const dict: Dict = {
     oneTimeGroup: "Za jedan događaj",
     oneTimeGroupNote: "Plaćate jednom, bez pretplate.",
   },
+  cookieConsent: {
+    label: "Pristanak na kolačiće",
+    text: "Uz vaš pristanak koristimo Google Analytics da vidimo kako se stranica koristi. Galerije i fotografije gostiju se nikad ne mjere.",
+    accept: "Prihvatam",
+    decline: "Odbijam",
+    privacyLink: "Više o privatnosti",
+    settings: "Postavke kolačića",
+  },
   testimonialsUi: {
     sectionEyebrow: "Recenzije",
     sectionTitle: "Napravljeno da izgleda premium s obje strane događaja.",

@@ -342,6 +342,40 @@ LemonSqueezy code paths are present but dormant.
   layout; `[locale]/layout.tsx` marks the subtree with `<div lang={locale}
   className="contents">`, which is what a screen reader actually reads.
 
+### Analytics and AI search (2026-11-06)
+
+- **Google Analytics 4** (`G-3ZRH50NPCX`, `src/lib/analytics.ts` +
+  `src/components/analytics.tsx`, mounted in the root layout). Nothing loads
+  before the visitor clicks "Prihvatam" in the consent banner; "Odbijam" is
+  one click and clears `_ga` cookies; "Postavke kolačića" in the footer
+  reopens it. Runs only on `*.confetti.ba` (previews and local runs send
+  nothing; `NEXT_PUBLIC_ANALYTICS_DEBUG=1` turns it on locally).
+- **Never measured** (`isTrackedPath`, tested): galleries, upload pages,
+  admin, auth, API, and every dashboard page except `/dashboard`,
+  `/dashboard/couple` and `/dashboard/billing` (no slug or name in their
+  URLs). There the script is not even fetched and `ga-disable-<id>` is set.
+  `sanitizeUrl` strips `email`, `code`, `token`, `token_hash`, `next` and
+  `name` from every page URL; `/signup/verify` carries the email.
+- **Page views are sent by our code.** GA's Enhanced measurement option
+  "page changes based on browser history events" must stay **off**, or a
+  client-side hop into an event page would leak its URL before the code can
+  stop it.
+- Events: `cta_click` (any element with `data-track`, e.g. the audience
+  buttons, plan buttons, landing route buttons), `sign_up` (the signup action
+  sets a 10-minute `confetti_signup` cookie the component reads once),
+  `begin_checkout` (billing buttons), `purchase` (payment banner, once the
+  webhook has activated the account).
+- **Structured data** (`src/lib/structured-data.ts`, `components/json-ld.tsx`):
+  Organization + WebSite + WebApplication with every offer from `pricing.ts`
+  on the landing page; FAQPage on `/pitanja`.
+- **AI crawlers:** `robots.ts` names OAI-SearchBot, ChatGPT-User, GPTBot,
+  Claude-SearchBot, Claude-User, ClaudeBot, PerplexityBot, Perplexity-User,
+  Google-Extended and Applebot-Extended with the same private disallows as
+  `*`. `/llms.txt` (route handler) summarises the product from the dicts,
+  prices and limits, so it cannot drift.
+- The privacy draft (`legal.ts`, both languages) names Google Analytics as a
+  consent-based processor and describes the banner.
+
 ### Vercel deployment protection — a trap worth knowing
 
 The project had **Vercel Authentication** (`ssoProtection`) set to
@@ -695,6 +729,13 @@ src/
 ## 9. RECENT SESSION LOG
 
 Newest first — useful for picking back up.
+
+- **Analytics + search visibility (2026-11-06).** GA4 behind a consent banner
+  on public pages only, conversion events, JSON-LD, named AI crawlers and
+  `/llms.txt` (see §3 "Analytics and AI search"). Owner verified the domain
+  in Google Search Console. Owner still to do: turn off GA's history-based
+  page views, mark `sign_up` and `purchase` as key events, add the site to
+  Bing Webmaster Tools (import from Search Console), submit the sitemap there.
 
 - **Polar → Whop** (PRs #1–#3, 2026-11-05). The owner had technical problems
   with Polar and asked for Whop. Polar never had a real customer (production

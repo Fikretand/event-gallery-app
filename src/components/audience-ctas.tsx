@@ -44,7 +44,7 @@ export function AudienceCtas({
         )}
       >
         <li className="flex flex-col gap-2">
-          <Link href={lp("/signup?intent=photographer")} className="btn btn-primary w-full">
+          <Link href={lp("/signup?intent=photographer")} data-track="signup_photographer" className="btn btn-primary w-full">
             {s.photographerTitle}
           </Link>
           <span className={cn("meta px-1", onDark && "text-paper-3")}>
@@ -52,7 +52,7 @@ export function AudienceCtas({
           </span>
         </li>
         <li className="flex flex-col gap-2">
-          <Link href={lp("/signup?intent=couple")} className="btn btn-secondary w-full">
+          <Link href={lp("/signup?intent=couple")} data-track="signup_event" className="btn btn-secondary w-full">
             {s.eventTitle}
           </Link>
           <span className={cn("meta px-1", onDark && "text-paper-3")}>{t(s.eventBody, { price: couplePlan.price })}</span>
