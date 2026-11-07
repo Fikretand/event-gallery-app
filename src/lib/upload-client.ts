@@ -35,7 +35,7 @@ export function extractVideoThumbnail(file: File): Promise<Blob | null> {
       };
       video.onseeked = () => {
         try {
-          const maxW = 1200;
+          const maxW = 720; // grid poster; the video itself plays in full
           const scale = video.videoWidth > maxW ? maxW / video.videoWidth : 1;
           const canvas = document.createElement("canvas");
           canvas.width = Math.max(1, Math.round(video.videoWidth * scale));

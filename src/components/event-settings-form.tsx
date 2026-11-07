@@ -81,14 +81,17 @@ export function EventSettingsForm({
         )}
         <Input label={s.uploadPinLabel} name="uploadPin" placeholder={s.pinKeepPlaceholder} />
         <Input label={s.galleryPinLabel} name="galleryPin" placeholder={s.pinKeepPlaceholder} />
-        <Input
-          label={s.maxSizeLabel}
-          name="maxGuestUploadMb"
-          type="number"
-          min="10"
-          max="2048"
-          defaultValue={String(event.event_settings?.max_guest_upload_mb ?? 250)}
-        />
+        {/* One Event has a fixed limit (COUPLE_GUEST_UPLOAD_MB); only photographers choose. */}
+        {isCouple ? null : (
+          <Input
+            label={s.maxSizeLabel}
+            name="maxGuestUploadMb"
+            type="number"
+            min="10"
+            max="2048"
+            defaultValue={String(event.event_settings?.max_guest_upload_mb ?? 250)}
+          />
+        )}
 
         <div className="flex min-h-12 items-center text-sm text-ink-2">
           {s.galleryPinStatus}{" "}

@@ -7,6 +7,9 @@ import { signUploadConfirmToken } from "@/lib/security";
 import { createSignedDownloadUrl, createSignedUploadUrl, getStoredObjectBuffer, publicMediaUrl, putStoredObject } from "@/lib/storage";
 import type { EventRecord, MediaFileRecord, MediaPurpose, MediaSourceType, UploadGrant, UploadRequestFile } from "@/lib/types";
 
+/** Longest side of a grid thumbnail. Was 1200; tiles never need more than 720. */
+const THUMBNAIL_MAX_PX = 720;
+
 function normalizeExtension(fileName: string) {
   const parts = fileName.split(".");
   return parts.length > 1 ? parts.pop()!.toLowerCase() : "bin";
@@ -139,12 +142,14 @@ export async function processMediaRecord(media: MediaFileRecord) {
     metadata = await image.metadata();
     thumbnailBuffer = await image
       .clone()
-      .resize(1200, 1200, {
+      // Grid size only: a tile is at most ~360 css px wide, so 720 covers a
+      // 2x screen. The viewer and every download use the original.
+      .resize(THUMBNAIL_MAX_PX, THUMBNAIL_MAX_PX, {
         fit: "inside",
         withoutEnlargement: true,
       })
       .jpeg({
-        quality: 82,
+        quality: 80,
         mozjpeg: true,
       })
       .toBuffer();

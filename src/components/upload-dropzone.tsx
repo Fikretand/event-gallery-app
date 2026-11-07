@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 
 import type { AccountType } from "@/lib/types";
 import type { Dict } from "@/lib/i18n/index";
@@ -100,7 +100,11 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
   const [items, setItems]           = useState<UploadItem[]>([]);
   const [success, setSuccess]       = useState<string | null>(null);
   const [error, setError]           = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  // The upload's own flag, not a transition: a transition also waits for the
+  // router.refresh() that follows, and the owner's gallery page can take long
+  // to re-render with hundreds of files, so "Šaljem…" spun after the files
+  // had long arrived.
+  const [isPending, setSending] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
   // Picked files this device already sent to this event, held back until the
   // guest says "send anyway". The thumbnails of what was sent stay for the
@@ -246,8 +250,10 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
   async function uploadItems(targetItems: UploadItem[]) {
     setError(null);
     setSuccess(null);
+    setSending(true);
+    let refreshAfter = false;
 
-    startTransition(async () => {
+    try {
       let uploadedAny = false;
       let failedAny = false;
       const sentNow: File[] = [];
@@ -398,7 +404,7 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
           setSuccess(copy.partialLabel);
         }
         // The owner's page lists the gallery below; let it pick up the new files.
-        if (uploadedAny && target !== "guest") router.refresh();
+        refreshAfter = uploadedAny && target !== "guest";
       } catch (uploadError) {
         const message =
           uploadError instanceof TypeError
@@ -409,7 +415,11 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
         setError(message);
         targetItems.forEach((item) => updateItem(item.id, { status: "error", message }));
       }
-    });
+    } finally {
+      setSending(false);
+    }
+    // In the background: the files are in, the list below catches up when it can.
+    if (refreshAfter) startTransition(() => router.refresh());
   }
 
   function startUpload() {

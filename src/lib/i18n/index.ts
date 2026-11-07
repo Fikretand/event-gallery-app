@@ -796,6 +796,8 @@ export interface Dict {
       emptyBodyCouple: string;
       emptyFilterTitle: string; // {{filter}}
       reported: string; // {{count}}
+      reportReasonsLabel: string;
+      reasonUnspecified: string;
       dismissReports: string;
     };
     // Profile page

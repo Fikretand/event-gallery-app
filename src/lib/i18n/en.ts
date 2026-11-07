@@ -824,6 +824,8 @@ export const dict: Dict = {
       emptyBodyCouple: "Upload your gallery files or review guest uploads to start building the full event story.",
       emptyFilterTitle: "No {{filter}} files in this view yet",
       reported: "Reported ({{count}})",
+      reportReasonsLabel: "Why",
+      reasonUnspecified: "No reason given",
       dismissReports: "Dismiss reports",
     },
     profile: {

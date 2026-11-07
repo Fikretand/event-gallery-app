@@ -79,6 +79,8 @@ const DEFAULT_OWNER_STRINGS: OwnerStrings = {
   emptyBodyCouple: "Upload your gallery files or review guest uploads to start building the full event story.",
   emptyFilterTitle: "No {{filter}} files in this view yet",
   reported: "Reported ({{count}})",
+  reportReasonsLabel: "Why",
+  reasonUnspecified: "No reason given",
   dismissReports: "Dismiss reports",
 };
 
@@ -993,6 +995,20 @@ export function MediaGrid({
               </p>
             ) : null}
             {isDeleted && purgeMessage ? <p className="mt-2 text-sm text-error">{purgeMessage}</p> : null}
+            {reportCount > 0 && !isDeleted ? (
+              <p className="mt-1 text-sm text-error">
+                {os.reportReasonsLabel}:{" "}
+                {Object.entries(item.report_reasons ?? {})
+                  .map(([reason, n]) => {
+                    const label =
+                      reason === "unspecified"
+                        ? os.reasonUnspecified
+                        : vs.reportReasons[reason as keyof typeof vs.reportReasons] ?? reason;
+                    return `${label} (${n})`;
+                  })
+                  .join(", ")}
+              </p>
+            ) : null}
           </div>
 
           {ownerMode && sections.length > 0 && !isDeleted ? (

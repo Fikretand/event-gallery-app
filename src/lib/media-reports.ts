@@ -1,4 +1,5 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import type { ReportReasonCounts } from "@/lib/types";
 
 /**
  * "Report inappropriate" from the public gallery (table media_reports,
@@ -45,16 +46,29 @@ export async function recordMediaReport(input: {
 
 /** Reports per file for one event, for the owner's gallery. */
 export async function countReportsByMedia(eventId: string) {
-  const { data, error } = await admin().from("media_reports").select("media_id").eq("event_id", eventId);
+  const reasons = await reportReasonsByMedia(eventId);
+  const counts = new Map<string, number>();
+  for (const [id, byReason] of reasons) {
+    counts.set(id, Object.values(byReason).reduce((sum, n) => sum + (n ?? 0), 0));
+  }
+  return counts;
+}
+
+/** Per file, how many reports gave each reason, so the owner sees why, not only how many. */
+export async function reportReasonsByMedia(eventId: string) {
+  const { data, error } = await admin().from("media_reports").select("media_id, reason").eq("event_id", eventId);
   if (error) {
     throw new Error(error.message);
   }
-  const counts = new Map<string, number>();
+  const reasons = new Map<string, ReportReasonCounts>();
   for (const row of data ?? []) {
     const id = row.media_id as string;
-    counts.set(id, (counts.get(id) ?? 0) + 1);
+    const reason = ((row.reason as string | null) ?? "unspecified") as keyof ReportReasonCounts;
+    const current = reasons.get(id) ?? {};
+    current[reason] = (current[reason] ?? 0) + 1;
+    reasons.set(id, current);
   }
-  return counts;
+  return reasons;
 }
 
 /** The owner has looked and decided: the file stays. */

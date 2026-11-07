@@ -35,6 +35,7 @@ import {
   getCoupleAccessEndsAt,
   getOwnerEventBySlug,
   getPublicEventBySlug,
+  guestUploadLimitFor,
   incrementRateLimitCount,
   listOwnerEvents,
   permanentlyDeleteEventBySlug,
@@ -252,7 +253,7 @@ export async function createEventAction(_: { error?: string } | undefined | void
       allowGuestVideo: formData.get("allowGuestVideo") === "on",
       requirePinForUpload: formData.get("requirePinForUpload") === "on",
       requirePinForGallery: formData.get("requirePinForGallery") === "on",
-      maxGuestUploadMb: Number(formData.get("maxGuestUploadMb") ?? "250"),
+      maxGuestUploadMb: guestUploadLimitFor(accountType, Number(formData.get("maxGuestUploadMb") ?? "250")),
     });
 
   } catch (error) {
@@ -576,7 +577,8 @@ export async function updateEventCopyAction(slug: string, formData: FormData) {
     return { error: "SAVE_FAILED" as const };
   }
 
-  revalidatePath(`/dashboard/events/${slug}/gallery`);
+  revalidatePath(`/dashboard/events/${slug}/settings`);
+  revalidatePath(`/[locale]/dashboard/events/${slug}/settings`, "page");
   return { ok: true as const, saved: Object.keys(customCopy).length };
 }
 export async function updateEventAction(
@@ -634,7 +636,7 @@ export async function updateEventAction(
       allowVideoMessages: formData.get("allowVideoMessages") === "on",
       requirePinForUpload: formData.get("requirePinForUpload") === "on",
       requirePinForGallery: formData.get("requirePinForGallery") === "on",
-      maxGuestUploadMb: Number(formData.get("maxGuestUploadMb") ?? "250"),
+      maxGuestUploadMb: guestUploadLimitFor(accountType, Number(formData.get("maxGuestUploadMb") ?? "250")),
     });
   } catch (error) {
     return {

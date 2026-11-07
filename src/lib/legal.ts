@@ -1,10 +1,9 @@
 // Legal content — Privacy Policy + Terms of Service, EN + BS.
 //
-// ⚠ DRAFT / TEMPLATE. This is a starting point, NOT legal advice. Before going
-// live: (1) have it reviewed by a qualified lawyer for your jurisdiction, and
-// (2) fill in every [BRACKETED] placeholder (legal entity, address, contact
-// email, governing law). The <LegalDocView> renders a visible draft notice at
-// the top — delete `draftNotice` from each doc once finalized.
+// Published without the draft banner since 2026-11-07, naming Confetti and
+// podrska@confetti.ba as the provider (no legal entity yet). Still worth a
+// lawyer's read, and the provider block (EMAIL below, contact sections) must
+// name the company and its address once one exists. Visitors never see this.
 
 import { env } from "@/lib/env";
 import type { Locale } from "@/lib/i18n/index";
@@ -23,7 +22,8 @@ export interface LegalDoc {
   updated: string;
   intro: string[];
   sections: LegalSection[];
-  draftNotice: string;
+  /** A banner above the text, for a draft. None while the documents are published as final. */
+  draftNotice?: string;
   otherLabel: string; // link label to the sibling document
 }
 
@@ -35,17 +35,17 @@ function hostOf(url: string) {
   }
 }
 
-// ── Shared placeholders — fill these before publishing ──────────────────────
-const COMPANY = "[Naziv pravnog subjekta / Legal entity name]";
-const ADDRESS = "[Adresa / Registered address]";
-const EMAIL = "[kontakt@confetti.ba]";
-const LAW = "[Bosna i Hercegovina / your governing law]";
+// ── Who runs the service ─────────────────────────────────────────────────────
+// No legal entity yet (owner's choice, 2026-11-07): the documents name
+// Confetti and the support address. When a company or sole trader exists,
+// name it here and in the contact sections, with its address and ID.
+const EMAIL = "podrska@confetti.ba";
 const APP = "Confetti";
 // The host the documents name, read from the same variable the rest of the app
 // uses, so moving to confetti.ba is one env change instead of a code edit that
 // is easy to forget. It was the only hardcoded production hostname in src/.
 const DOMAIN = hostOf(env.appUrl);
-const UPDATED = "20.07.2026.";
+const UPDATED = "07.11.2026.";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ENGLISH
@@ -55,10 +55,8 @@ const EN_PRIVACY: LegalDoc = {
   title: "Privacy Policy",
   updated: `Last updated: ${UPDATED}`,
   otherLabel: "Terms of Service",
-  draftNotice:
-    "DRAFT — this policy is a template and is not legal advice. Have it reviewed by a lawyer and replace every [bracketed] placeholder before publishing.",
   intro: [
-    `This Privacy Policy explains how ${COMPANY} (“${APP}”, “we”, “us”) collects, uses and protects personal data when you use ${APP} at ${DOMAIN} and related services (the “Service”).`,
+    `This Privacy Policy explains how ${APP} (“we”, “us”) collects, uses and protects personal data when you use ${APP} at ${DOMAIN} and related services (the “Service”).`,
     `We act as the data controller for account and billing data. For photos and videos uploaded to a private event gallery, the event owner (the photographer or event host who created the event) is the controller of that content, and we process it on their behalf as a processor.`,
   ],
   sections: [
@@ -151,7 +149,7 @@ const EN_PRIVACY: LegalDoc = {
     },
     {
       heading: "12. Contact",
-      paragraphs: [`${COMPANY}, ${ADDRESS}. Email: ${EMAIL}.`],
+      paragraphs: [`${APP}, ${DOMAIN}. Email: ${EMAIL}.`],
     },
   ],
 };
@@ -161,10 +159,8 @@ const EN_TERMS: LegalDoc = {
   title: "Terms of Service",
   updated: `Last updated: ${UPDATED}`,
   otherLabel: "Privacy Policy",
-  draftNotice:
-    "DRAFT — these terms are a template and are not legal advice. Have them reviewed by a lawyer and replace every [bracketed] placeholder before publishing.",
   intro: [
-    `These Terms of Service (“Terms”) govern your use of ${APP}, provided by ${COMPANY}, at ${DOMAIN} and related services (the “Service”). By creating an account or using the Service, you agree to these Terms.`,
+    `These Terms of Service (“Terms”) govern your use of ${APP} at ${DOMAIN} and related services (the “Service”). By creating an account or using the Service, you agree to these Terms.`,
   ],
   sections: [
     {
@@ -212,7 +208,7 @@ const EN_TERMS: LegalDoc = {
     {
       heading: "7. Intellectual property",
       paragraphs: [
-        `The ${APP} name, branding, software and design are owned by ${COMPANY} and protected by law. These Terms do not grant you any rights to our trademarks or software beyond using the Service as intended.`,
+        `The ${APP} name, branding, software and design are ours and protected by law. These Terms do not grant you any rights to our trademarks or software beyond using the Service as intended.`,
       ],
     },
     {
@@ -242,13 +238,13 @@ const EN_TERMS: LegalDoc = {
     {
       heading: "12. Governing law",
       paragraphs: [
-        `These Terms are governed by the laws of ${LAW}, and disputes are subject to the competent courts there, without prejudice to any mandatory consumer-protection rights in your country of residence.`,
+        `These Terms are governed by the laws of Bosnia and Herzegovina, and disputes are subject to the competent courts there, without prejudice to any mandatory consumer-protection rights in your country of residence.`,
       ],
     },
     {
       heading: "13. Changes and contact",
       paragraphs: [
-        `We may update these Terms; material changes will be reflected by the updated date above. Questions: ${COMPANY}, ${ADDRESS}, ${EMAIL}.`,
+        `We may update these Terms; material changes will be reflected by the updated date above. Questions: ${EMAIL}.`,
       ],
     },
   ],
@@ -262,10 +258,8 @@ const BS_PRIVACY: LegalDoc = {
   title: "Politika privatnosti",
   updated: `Zadnje ažurirano: ${UPDATED}`,
   otherLabel: "Uslovi korištenja",
-  draftNotice:
-    "NACRT — ova politika je predložak i nije pravni savjet. Neka je pregleda pravnik i zamijeni svaki [placeholder u zagradama] prije objave.",
   intro: [
-    `Ova Politika privatnosti objašnjava kako ${COMPANY} („${APP}“, „mi“, „nas“) prikuplja, koristi i štiti lične podatke kada koristite ${APP} na ${DOMAIN} i povezane usluge („Usluga“).`,
+    `Ova Politika privatnosti objašnjava kako ${APP} („mi“, „nas“) prikuplja, koristi i štiti lične podatke kada koristite ${APP} na ${DOMAIN} i povezane usluge („Usluga“).`,
     `Za podatke o nalogu i naplati mi smo voditelj obrade. Za fotografije i videe učitane u privatnu galeriju događaja, vlasnik događaja (fotograf ili organizator koji je kreirao događaj) je voditelj obrade tog sadržaja, a mi ga obrađujemo u njegovo ime kao izvršitelj obrade.`,
   ],
   sections: [
@@ -358,7 +352,7 @@ const BS_PRIVACY: LegalDoc = {
     },
     {
       heading: "12. Kontakt",
-      paragraphs: [`${COMPANY}, ${ADDRESS}. Email: ${EMAIL}.`],
+      paragraphs: [`${APP}, ${DOMAIN}. Email: ${EMAIL}.`],
     },
   ],
 };
@@ -368,10 +362,8 @@ const BS_TERMS: LegalDoc = {
   title: "Uslovi korištenja",
   updated: `Zadnje ažurirano: ${UPDATED}`,
   otherLabel: "Politika privatnosti",
-  draftNotice:
-    "NACRT — ovi uslovi su predložak i nisu pravni savjet. Neka ih pregleda pravnik i zamijeni svaki [placeholder u zagradama] prije objave.",
   intro: [
-    `Ovi Uslovi korištenja („Uslovi“) uređuju vaše korištenje ${APP}, koji pruža ${COMPANY}, na ${DOMAIN} i povezanim uslugama („Usluga“). Kreiranjem naloga ili korištenjem Usluge prihvatate ove Uslove.`,
+    `Ovi Uslovi korištenja („Uslovi“) uređuju vaše korištenje ${APP} na ${DOMAIN} i povezanim uslugama („Usluga“). Kreiranjem naloga ili korištenjem Usluge prihvatate ove Uslove.`,
   ],
   sections: [
     {
@@ -419,7 +411,7 @@ const BS_TERMS: LegalDoc = {
     {
       heading: "7. Intelektualno vlasništvo",
       paragraphs: [
-        `Naziv ${APP}, brend, softver i dizajn vlasništvo su ${COMPANY} i zaštićeni zakonom. Ovi Uslovi vam ne daju nikakva prava na naše zaštitne znakove ili softver izvan namjenskog korištenja Usluge.`,
+        `Naziv ${APP}, brend, softver i dizajn su naše vlasništvo i zaštićeni su zakonom. Ovi Uslovi vam ne daju nikakva prava na naše zaštitne znakove ili softver izvan namjenskog korištenja Usluge.`,
       ],
     },
     {
@@ -449,13 +441,13 @@ const BS_TERMS: LegalDoc = {
     {
       heading: "12. Mjerodavno pravo",
       paragraphs: [
-        `Ovi Uslovi podliježu pravu ${LAW}, a sporovi su u nadležnosti tamošnjih nadležnih sudova, ne dirajući obavezna potrošačka prava u vašoj zemlji prebivališta.`,
+        `Ovi Uslovi podliježu pravu Bosne i Hercegovine, a sporovi su u nadležnosti tamošnjih nadležnih sudova, ne dirajući obavezna potrošačka prava u vašoj zemlji prebivališta.`,
       ],
     },
     {
       heading: "13. Izmjene i kontakt",
       paragraphs: [
-        `Možemo ažurirati ove Uslove; značajne izmjene biće označene ažuriranim datumom iznad. Pitanja: ${COMPANY}, ${ADDRESS}, ${EMAIL}.`,
+        `Možemo ažurirati ove Uslove; značajne izmjene biće označene ažuriranim datumom iznad. Pitanja: ${EMAIL}.`,
       ],
     },
   ],

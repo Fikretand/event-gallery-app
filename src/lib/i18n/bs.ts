@@ -826,6 +826,8 @@ export const dict: Dict = {
       emptyBodyCouple: "Prenesi svoje fajlove galerije ili pregledaj prijenose gostiju da započneš cijelu priču događaja.",
       emptyFilterTitle: "Nema {{filter}} fajlova u ovom prikazu",
       reported: "Prijavljeno ({{count}})",
+      reportReasonsLabel: "Razlog",
+      reasonUnspecified: "Bez razloga",
       dismissReports: "Odbaci prijave",
     },
     profile: {

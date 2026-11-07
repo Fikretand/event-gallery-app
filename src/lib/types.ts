@@ -139,7 +139,12 @@ export type MediaView = MediaFileRecord & {
   thumbnailUrl: string | null;
   /** Gallery visitors' reports on this file; owner views only. */
   report_count?: number;
+  /** The same reports by the reason the visitor picked. */
+  report_reasons?: ReportReasonCounts;
 };
+
+export type ReportReason = "inappropriate" | "private" | "other";
+export type ReportReasonCounts = Partial<Record<ReportReason | "unspecified", number>>;
 
 export type PublicPhotographerProfile = {
   id: string;

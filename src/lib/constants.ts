@@ -2,6 +2,10 @@ export const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/heic", "i
 export const ACCEPTED_VIDEO_TYPES = ["video/mp4", "video/quicktime"];
 export const MAX_PHOTOGRAPHER_UPLOAD_MB = 1024;
 export const DEFAULT_MAX_GUEST_UPLOAD_MB = 250;
+/** One Event: fixed per-file limit for guests; the host cannot change it. */
+export const COUPLE_GUEST_UPLOAD_MB = 300;
+/** Photographers choose their own guest limit within this range. */
+export const GUEST_UPLOAD_MB_RANGE = { min: 10, max: 2048 } as const;
 export const MAX_GUEST_FILES_PER_UPLOAD = 25;
 export const MAX_PHOTOGRAPHER_FILES_PER_UPLOAD = 150;
 export const SOLO_ACTIVE_EVENT_LIMIT = 5;

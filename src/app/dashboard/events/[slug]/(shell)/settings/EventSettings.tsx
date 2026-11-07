@@ -1,10 +1,13 @@
 
 import { EventLifecyclePanel } from "@/components/event-lifecycle-panel";
+import { GalleryCopyEditor } from "@/components/gallery-copy-editor";
 import { EventSettingsForm } from "@/components/event-settings-form";
 import { ChevronDownIcon } from "@/components/ui/icons";
 import { updateEventAction } from "@/lib/actions";
+import { COPY_FIELDS, COPY_GROUPS, defaultCopy, sanitizeCustomCopy } from "@/lib/custom-copy";
 import { getOwnerEventContext } from "@/lib/event-context";
 import {
+  eventLinks,
   getCoupleAccessEndsAt,
   getCoupleUploadEndsAt,
   listEventActivity,
@@ -38,6 +41,16 @@ export async function EventSettings({
   const activity = await listEventActivity(event.id);
   const coupleUploadEndsAt = isCouple ? getCoupleUploadEndsAt(event) : null;
   const coupleAccessEndsAt = isCouple ? getCoupleAccessEndsAt(event) : null;
+  const links = eventLinks(event.slug);
+  // The guest-facing wording is an advanced setting: most hosts never change
+  // it, so it waits here, closed, instead of on the gallery page.
+  const customCopy = sanitizeCustomCopy(event.custom_copy);
+  const copyFields = COPY_FIELDS.map((field) => ({
+    ...field,
+    label: e.copyEditor.fields[field.key] ?? field.key,
+    standard: defaultCopy(dict, field.key, event.title),
+    value: customCopy[field.key] ?? "",
+  }));
 
   return (
     <>
@@ -57,6 +70,31 @@ export async function EventSettings({
         }
         strings={d.settings}
       />
+
+      <section className="border-t border-rule pt-[var(--space-lg)]">
+        <details className="group">
+          <summary className="flex cursor-pointer list-none items-start justify-between gap-4 rounded-[var(--radius-inner)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus)] [&::-webkit-details-marker]:hidden">
+            <div>
+              <h2 className="app-section-title text-ink">{e.copyEditor.title}</h2>
+              <p className="mt-1 max-w-2xl text-ink-2">{e.copyEditor.body}</p>
+              <p className="meta mt-1">{e.copyEditor.languageNote}</p>
+            </div>
+            <span className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ring-1 ring-rule-2 transition-transform duration-[var(--dur-short)] group-open:rotate-180">
+              <ChevronDownIcon className="h-4 w-4" />
+            </span>
+          </summary>
+          <div className="mt-5">
+            <GalleryCopyEditor
+              slug={event.slug}
+              fields={copyFields}
+              groups={COPY_GROUPS}
+              strings={e.copyEditor}
+              galleryUrl={links.galleryUrl}
+              uploadUrl={links.uploadUrl}
+            />
+          </div>
+        </details>
+      </section>
 
       <section className="border-t border-rule pt-[var(--space-lg)]">
         <details className="group">

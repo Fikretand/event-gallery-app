@@ -1,6 +1,9 @@
 import QRCode from "qrcode";
 
 import {
+  COUPLE_GUEST_UPLOAD_MB,
+  DEFAULT_MAX_GUEST_UPLOAD_MB,
+  GUEST_UPLOAD_MB_RANGE,
   PRO_ACTIVE_EVENT_LIMIT,
   PRO_STORAGE_LIMIT_BYTES,
   SOLO_ACTIVE_EVENT_LIMIT,
@@ -1379,4 +1382,16 @@ export function computeTrialState(
     photosUsed,
     photosLimit: TRIAL_PHOTO_LIMIT,
   };
+}
+
+/**
+ * The per-file guest upload limit to store. One Event hosts get the fixed
+ * COUPLE_GUEST_UPLOAD_MB whatever the form sends (the field is not shown to
+ * them, and a crafted request must not lift it); photographers get what they
+ * chose, kept within GUEST_UPLOAD_MB_RANGE.
+ */
+export function guestUploadLimitFor(accountType: AccountType, requestedMb: number): number {
+  if (accountType === "couple") return COUPLE_GUEST_UPLOAD_MB;
+  if (!Number.isFinite(requestedMb)) return DEFAULT_MAX_GUEST_UPLOAD_MB;
+  return Math.min(GUEST_UPLOAD_MB_RANGE.max, Math.max(GUEST_UPLOAD_MB_RANGE.min, Math.round(requestedMb)));
 }
