@@ -634,6 +634,7 @@ export async function updateEventAction(
       allowGuestUpload: formData.get("allowGuestUpload") === "on",
       allowGuestVideo: formData.get("allowGuestVideo") === "on",
       allowVideoMessages: formData.get("allowVideoMessages") === "on",
+      requireUploadApproval: formData.get("requireUploadApproval") === "on",
       requirePinForUpload: formData.get("requirePinForUpload") === "on",
       requirePinForGallery: formData.get("requirePinForGallery") === "on",
       maxGuestUploadMb: guestUploadLimitFor(accountType, Number(formData.get("maxGuestUploadMb") ?? "250")),

@@ -90,6 +90,7 @@ export default async function UploadPage({
               allowVideo={settings?.allow_guest_video ?? false}
               pinRequired={settings?.require_pin_for_upload ?? false}
               strings={dict.uploadDropzone}
+              needsApproval={settings?.require_upload_approval === true}
             />
             {videoMessagesEnabled(settings) ? (
               <VideoMessage

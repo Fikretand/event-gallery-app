@@ -65,7 +65,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "The file has not arrived yet." }, { status: 409 });
     }
     const purpose = purposeFromObjectKey(objectKey);
-    const verdict = checkStoredUpload(stored, sourceType, await getEventSettingsById(eventId), purpose);
+    const settings = await getEventSettingsById(eventId);
+    const verdict = checkStoredUpload(stored, sourceType, settings, purpose);
     if (verdict !== "ok") {
       await deleteStoredObject(objectKey).catch(() => {});
       console.error("[upload-confirm] stored object refused", { objectKey, verdict, size: stored.size, type: stored.contentType });
@@ -85,6 +86,7 @@ export async function POST(request: Request) {
       sourceType,
       uploadSessionId: payload.uploadSessionId ? String(payload.uploadSessionId) : null,
       thumbnailKey,
+      requireApproval: settings?.require_upload_approval === true,
     });
 
     // The file is stored and recorded at this point. A thumbnail that cannot

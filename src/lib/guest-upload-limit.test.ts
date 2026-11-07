@@ -17,3 +17,20 @@ describe("guestUploadLimitFor", () => {
     expect(guestUploadLimitFor("photographer", Number.NaN)).toBe(250);
   });
 });
+
+import { guestUploadStartsHidden } from "./events";
+
+describe("guestUploadStartsHidden", () => {
+  it("shows guest photos at once unless the event asks for approval", () => {
+    expect(guestUploadStartsHidden({ sourceType: "guest", purpose: "media" })).toBe(false);
+    expect(guestUploadStartsHidden({ sourceType: "guest", purpose: "media", requireApproval: true })).toBe(true);
+  });
+
+  it("always holds a video message for the hosts", () => {
+    expect(guestUploadStartsHidden({ sourceType: "guest", purpose: "message" })).toBe(true);
+  });
+
+  it("never hides the photographer's own uploads", () => {
+    expect(guestUploadStartsHidden({ sourceType: "photographer", requireApproval: true })).toBe(false);
+  });
+});

@@ -717,6 +717,8 @@ export interface Dict {
       allowGuestUpload: string;
       allowGuestVideo: string;
       allowVideoMessages: string;
+      requireUploadApproval: string;
+      requireUploadApprovalHint: string;
       requirePinUpload: string;
       requirePinGalleryPhotographer: string;
       requirePinGalleryCouple: string;
@@ -1274,6 +1276,8 @@ export interface Dict {
     sendAnyway: string;
     sentTitle: string;
     sentPendingNote: string;
+    sentPublicNote: string;
+    successNextPublic: string;
     statuses: {
       queued: string;
       requesting: string;

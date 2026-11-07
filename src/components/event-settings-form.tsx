@@ -124,6 +124,18 @@ export function EventSettingsForm({
           />
           {s.allowVideoMessages}
         </label>
+        <label className="check-row md:col-span-2">
+          <input
+            type="checkbox"
+            name="requireUploadApproval"
+            defaultChecked={event.event_settings?.require_upload_approval ?? false}
+            className="size-4"
+          />
+          <span>
+            {s.requireUploadApproval}
+            <span className="mt-0.5 block text-sm font-normal text-ink-2">{s.requireUploadApprovalHint}</span>
+          </span>
+        </label>
         <label className="check-row">
           <input type="checkbox" name="requirePinForUpload" defaultChecked={event.event_settings?.require_pin_for_upload ?? false} className="size-4" />
           {s.requirePinUpload}

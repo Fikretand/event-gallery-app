@@ -47,7 +47,7 @@ export const dict: Dict = {
         notifTime: "now",
         notifText: "Guests just added 3 new photos",
         sheetEyebrow: "Guest uploads",
-        sheetTitle: "New uploads – hidden until you approve",
+        sheetTitle: "New guest uploads",
         hidden: "Hidden",
         approved: "Approved",
         galleryEyebrow: "Private gallery",
@@ -89,7 +89,7 @@ export const dict: Dict = {
       steps: [
         { label: "Create", title: "Create your event", body: "Name, date and an optional upload PIN. Done in under two minutes." },
         { label: "Share", title: "Share the QR code", body: "Print it for the tables or the entrance. Guests scan it with their phone camera and upload – no app, no account." },
-        { label: "Approve", title: "Review and approve", body: "Every upload arrives hidden, seen only by you. Show, hide or delete – nothing reaches the gallery without your OK." },
+        { label: "Approve", title: "Review and decide", body: "Guest photos go straight into the gallery and onto the venue TV, and you hide or delete what you don't want. Want to see everything first? Turn on approval." },
         { label: "Deliver", title: "Deliver the gallery", body: "Share one private link, with an optional PIN for extra protection. Everyone downloads the originals in full quality – not the shrunken, blurry copies WhatsApp and Viber send." },
       ],
       ui: {
@@ -231,7 +231,7 @@ export const dict: Dict = {
     cover: "Cover",
     byGuest: "by {{name}}",
     emptyTitle: "Nothing to show here yet",
-    emptyBody: "The host is still choosing photos. Once they approve them, they will appear here – on the same link.",
+    emptyBody: "No photos yet. They will appear here – on the same link.",
     swipeHint: "Swipe to browse",
     sectionEyebrow: "Section",
     moreMoments: "More moments",
@@ -459,9 +459,9 @@ export const dict: Dict = {
       guestUploadLink: "Guest link – this is the link in the QR code",
       guestUploadLinkBody: "Your QR code points here. Guests use it to send their photos; you can also share the same link by message.",
       clientGalleryLink: "Client gallery link",
-      clientGalleryLinkBody: "Send it to your client after the event, once you have chosen and prepared the photos. The gallery only shows what you uploaded or approved.",
+      clientGalleryLinkBody: "Send it to your client after the event, once you have chosen and prepared the photos. The gallery shows everything that is not hidden.",
       privateGalleryLink: "Your gallery link",
-      privateGalleryLinkBody: "This is where the photos you approved live. Share it after the event, once you have chosen what should be seen.",
+      privateGalleryLinkBody: "Every photo you have not hidden is here. Share it whenever you like.",
       copyLink: "Copy",
       linkCopied: "Copied",
       layout: {
@@ -478,8 +478,8 @@ export const dict: Dict = {
         guestLinkLabel: "QR code link",
         openGuestPage: "Open the guest page",
         afterTitle: "After the event",
-        afterBody: "Once you've chosen and edited the photos, send the client the gallery link. It shows only what you uploaded or approved.",
-        afterBodyCouple: "Once you've approved the photos you want to show, share the gallery link with whoever you like.",
+        afterBody: "Once you've chosen and edited the photos, send the client the gallery link. It shows everything you have not hidden.",
+        afterBodyCouple: "Hide what you don't want to show and share the gallery link with whoever you like.",
         galleryLinkLabel: "Gallery link",
         manageGallery: "Edit gallery",
         pendingReview: "Guest files not yet visible in the gallery: {{count}}",
@@ -554,7 +554,8 @@ export const dict: Dict = {
           "uploadDropzone.keepPageOpen": "While sending: note",
           "uploadDropzone.successTitle": "After sending: heading",
           "uploadDropzone.successBody": "After sending: text",
-          "uploadDropzone.successNext": "After sending: what next",
+          "uploadDropzone.successNext": "After sending: what next (with approval)",
+          "uploadDropzone.successNextPublic": "After sending: what next (without approval)",
           "uploadDropzone.uploadAnotherBtn": "Button: send more",
           "uploadDropzone.noAccountNeeded": "Small print under the button",
           "upload.chipNoAccount": "Tag: no account",
@@ -742,6 +743,8 @@ export const dict: Dict = {
       allowGuestUpload: "Allow guest uploads",
       allowGuestVideo: "Allow guest video uploads",
       allowVideoMessages: "Let guests record a video message",
+      requireUploadApproval: "Guest photos wait for my approval",
+      requireUploadApprovalHint: "Off: everything goes straight into the gallery and onto the live view, and you hide what you don't want. Video messages always wait for your approval.",
       requirePinUpload: "Require PIN for guest upload",
       requirePinGalleryPhotographer: "Require PIN for client gallery",
       requirePinGalleryCouple: "Require PIN for private gallery",
@@ -1058,7 +1061,7 @@ export const dict: Dict = {
       },
       {
         title: "Private delivery by default",
-        body: "PIN-protected galleries, hidden guest uploads, and moderation controls keep client delivery calm and controlled.",
+        body: "PIN-protected galleries, optional approval of guest uploads, and moderation controls keep client delivery calm and controlled.",
       },
       {
         title: "Storage matched to active work",
@@ -1088,7 +1091,7 @@ export const dict: Dict = {
       },
       {
         title: "Moderate before delivery",
-        body: "Keep guest uploads hidden until you approve them, then unhide, delete, or restore as you shape the gallery.",
+        body: "Let guest uploads go straight into the gallery or keep them hidden until you approve, then hide, delete, or restore as you shape the gallery.",
       },
       {
         title: "Deliver a polished gallery",
@@ -1191,7 +1194,7 @@ export const dict: Dict = {
       },
       {
         title: "Private by default",
-        body: "PIN-protected gallery, hidden guest uploads, controlled downloads.",
+        body: "PIN-protected gallery, optional upload approval, controlled downloads.",
       },
     ],
     coupleBenefits: [
@@ -1232,7 +1235,7 @@ export const dict: Dict = {
       {
         question: "Who can see the photos?",
         answer:
-          "Only the people you give the gallery link to – and with a PIN on, the link alone is not enough. The gallery is not on any public list or on Google. Everything guests send is seen by you first; only what you approve goes into the gallery.",
+          "Only the people you give the gallery link to – and with a PIN on, the link alone is not enough. The gallery is not on any public list or on Google. What guests send goes straight into the gallery and you hide what you don't want – or turn on approval, and nothing gets in without you.",
       },
       {
         question: "How long is the gallery available?",
@@ -1272,7 +1275,7 @@ export const dict: Dict = {
     ],
     photographerSwitchReasons: [
       "One private workflow instead of patching together upload links, folders, and follow-up messages.",
-      "Hidden-by-default guest uploads so you can review first and show only what belongs in the final gallery.",
+      "Guest uploads straight into the gallery or only after your approval – you choose per event.",
       "Stable QR and gallery links that still work after renaming the event or printing signage.",
       "A more premium client handoff that feels like part of your service, not an afterthought.",
     ],
@@ -1288,7 +1291,7 @@ export const dict: Dict = {
       { label: "No app installs", sub: "Guests upload from any phone browser" },
       { label: "PIN-protected", sub: "Only invited clients see the gallery" },
       { label: "Stable links", sub: "QR codes keep working after event renaming" },
-      { label: "Private by default", sub: "Guest uploads are hidden until you approve" },
+      { label: "Private by default", sub: "The gallery is never public, and guest uploads can wait for your approval" },
     ],
   },
   content: {
@@ -1519,7 +1522,7 @@ export const dict: Dict = {
             {
               question: "What if a guest uploads something inappropriate?",
               answer:
-                "Nobody else sees it. Everything guests send arrives hidden and is visible only to you, in your dashboard. Only what you choose to show goes into the gallery, and you can delete the rest.",
+                "Remove it with one tap: hide or delete it in your dashboard and it leaves the gallery and the live view. If you want nothing to get in without you, turn on approval for guest photos in the event settings.",
             },
           ],
         },
@@ -1623,7 +1626,7 @@ export const dict: Dict = {
         },
         {
           title: "You decide what is visible",
-          body: "Everything guests send reaches you first. Until you approve it, nobody else sees it. Deleted files first move to a state you can restore from, and only then disappear for good.",
+          body: "What guests send shows in the gallery right away, unless you turn on approval – then you see it first, and nobody else until you approve. You can hide or delete anything at any time. Deleted files first move to a state you can restore from, and only then disappear for good.",
         },
       ],
       legalNote: "This explains how the system works; it is not a legal document.",
@@ -1774,6 +1777,8 @@ export const dict: Dict = {
     sendAnyway: "Send anyway",
     sentTitle: "Just sent",
     sentPendingNote: "Only you can see these until the host approves them.",
+    sentPublicNote: "They are already in the gallery. Thank you!",
+    successNextPublic: "They are in the gallery already. Got more? Send them now.",
     statuses: {
       queued: "Waiting",
       requesting: "Preparing",

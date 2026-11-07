@@ -42,6 +42,8 @@ type Props = {
   strings?: Partial<Dict["uploadDropzone"]>;
   /** Shown beside "upload more" once everything has arrived — the next thing to press. */
   nextLink?: { href: string; label: string };
+  /** Guest uploads wait hidden for the host (the event's approval switch); changes what the guest is told. */
+  needsApproval?: boolean;
 };
 
 type ApiErrorCode = keyof Dict["uploadDropzone"]["apiErrors"];
@@ -93,7 +95,7 @@ function itemId(file: File) {
 type SentPreview = { id: string; url: string; isVideo: boolean };
 const SENT_PREVIEW_LIMIT = 24;
 
-export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audience = "photographer", strings, nextLink }: Props) {
+export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audience = "photographer", strings, nextLink, needsApproval = true }: Props) {
   const router = useRouter();
   const [guestName, setGuestName]   = useState("");
   const [pin, setPin]               = useState("");
@@ -139,7 +141,10 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
     pinPlaceholder:   strings?.pinPlaceholder   ?? "Enter the PIN from your host",
     orClickSelect:    strings?.orClickSelect    ?? "or tap to browse",
     partialLabel:   strings?.partialBody ?? "Some photos were sent, but a few didn't go through. Send them again with the button below.",
-    successNext:    strings?.successNext ?? (target === "guest" ? "The host reviews them before they appear in the gallery. Got more? Send them now." : ""),
+    successNext:
+      target === "guest" && !needsApproval
+        ? strings?.successNextPublic ?? "They are in the gallery already. Got more? Send them now."
+        : strings?.successNext ?? (target === "guest" ? "The host reviews them before they appear in the gallery. Got more? Send them now." : ""),
     optional:       strings?.optional ?? "(optional)",
     required:       strings?.required ?? "required",
     noAccountNeeded: strings?.noAccountNeeded ?? (target === "guest" ? "No app, no account needed" : "Originals are kept at full quality"),
@@ -154,7 +159,9 @@ export function UploadDropzone({ endpoint, target, allowVideo, pinRequired, audi
     duplicatesSkipped: strings?.duplicatesSkipped ?? "{{count}} already sent from this phone – skipped.",
     sendAnyway:     strings?.sendAnyway ?? "Send anyway",
     sentTitle:      strings?.sentTitle ?? "Just sent",
-    sentPendingNote: strings?.sentPendingNote ?? "Only you can see these until the host approves them.",
+    sentPendingNote: needsApproval
+      ? strings?.sentPendingNote ?? "Only you can see these until the host approves them."
+      : strings?.sentPublicNote ?? "They are already in the gallery. Thank you!",
     statuses: strings?.statuses ?? {
       queued: "Waiting", requesting: "Preparing", uploading: "Uploading",
       waiting: "Waiting for internet", retrying: "Trying again",

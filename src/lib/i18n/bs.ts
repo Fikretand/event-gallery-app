@@ -47,7 +47,7 @@ export const dict: Dict = {
         notifTime: "sada",
         notifText: "Gosti su upravo dodali 3 nove fotografije",
         sheetEyebrow: "Prijenosi gostiju",
-        sheetTitle: "Novi prijenosi – skriveni dok ih ne odobriš",
+        sheetTitle: "Novi prijenosi gostiju",
         hidden: "Skriveno",
         approved: "Odobreno",
         galleryEyebrow: "Privatna galerija",
@@ -89,7 +89,7 @@ export const dict: Dict = {
       steps: [
         { label: "Kreiraj", title: "Kreiraj događaj", body: "Naziv, datum i opcionalni PIN za prijenos. Gotovo za manje od dvije minute." },
         { label: "Podijeli", title: "Podijeli QR kod", body: "Odštampaj ga za stolove ili ulaz. Gosti ga skeniraju kamerom telefona i šalju – bez aplikacije, bez naloga." },
-        { label: "Odobri", title: "Pregledaj i odobri", body: "Svaki prijenos stiže skriven i vidiš ga samo ti. Prikaži, sakrij ili obriši – ništa ne ulazi u galeriju bez tvog odobrenja." },
+        { label: "Odobri", title: "Pregledaj i odluči", body: "Fotografije gostiju odmah stižu u galeriju i na TV u sali, a ti sakriješ ili obrišeš šta ne želiš. Želiš li sve prvo pregledati, uključi odobravanje." },
         { label: "Isporuči", title: "Isporuči galeriju", body: "Podijeli jedan privatni link, uz mogućnost dodatne zaštite PIN-om. Svi preuzimaju originale u punoj kvaliteti – ne smanjene i mutne kopije kakve stižu preko WhatsAppa i Vibera." },
       ],
       ui: {
@@ -232,7 +232,7 @@ export const dict: Dict = {
     cover: "Naslovna",
     byGuest: "od {{name}}",
     emptyTitle: "Ovdje još nema ničega",
-    emptyBody: "Domaćin još bira fotografije. Kad ih odobri, pojavit će se ovdje – na istom linku.",
+    emptyBody: "Još nema fotografija. Pojavit će se ovdje – na istom linku.",
     swipeHint: "Prevucite za pregled",
     sectionEyebrow: "Sekcija",
     moreMoments: "Više trenutaka",
@@ -461,9 +461,9 @@ export const dict: Dict = {
       guestUploadLink: "Link za goste – ovo je link iz QR koda",
       guestUploadLinkBody: "Na ovu adresu vodi vaš QR kod. Preko nje gosti šalju fotografije; isti link možete poslati i porukom.",
       clientGalleryLink: "Link galerije za klijenta",
-      clientGalleryLinkBody: "Šaljete ga klijentu nakon događaja, kada odaberete i pripremite fotografije. U galeriji se vidi samo ono što ste sami postavili ili odobrili.",
+      clientGalleryLinkBody: "Šaljete ga klijentu nakon događaja, kada odaberete i pripremite fotografije. U galeriji se vidi sve što nije sakriveno.",
       privateGalleryLink: "Link vaše galerije",
-      privateGalleryLinkBody: "Tu su fotografije koje ste odobrili. Podijelite ga nakon događaja, kada izaberete šta želite da se vidi.",
+      privateGalleryLinkBody: "Tu su sve fotografije koje niste sakrili. Podijelite ga kad god želite.",
       copyLink: "Kopiraj",
       linkCopied: "Kopirano",
       layout: {
@@ -480,8 +480,8 @@ export const dict: Dict = {
         guestLinkLabel: "Link iz QR koda",
         openGuestPage: "Otvori stranicu za goste",
         afterTitle: "Nakon događaja",
-        afterBody: "Kad odaberete i pripremite fotografije, klijentu pošaljete link galerije. U njoj se vidi samo ono što ste sami postavili ili odobrili.",
-        afterBodyCouple: "Kad odobrite fotografije koje želite pokazati, podijelite link galerije s kim god želite.",
+        afterBody: "Kad odaberete i pripremite fotografije, klijentu pošaljete link galerije. U njoj se vidi sve što niste sakrili.",
+        afterBodyCouple: "Sakrijte šta ne želite pokazati i podijelite link galerije s kim god želite.",
         galleryLinkLabel: "Link galerije",
         manageGallery: "Uredi galeriju",
         pendingReview: "Gostujući fajlovi koji još nisu vidljivi u galeriji: {{count}}",
@@ -556,7 +556,8 @@ export const dict: Dict = {
           "uploadDropzone.keepPageOpen": "Dok se šalje: napomena",
           "uploadDropzone.successTitle": "Nakon slanja: naslov",
           "uploadDropzone.successBody": "Nakon slanja: tekst",
-          "uploadDropzone.successNext": "Nakon slanja: šta dalje",
+          "uploadDropzone.successNext": "Nakon slanja: šta dalje (uz odobravanje)",
+          "uploadDropzone.successNextPublic": "Nakon slanja: šta dalje (bez odobravanja)",
           "uploadDropzone.uploadAnotherBtn": "Dugme: pošalji još",
           "uploadDropzone.noAccountNeeded": "Sitni tekst ispod dugmeta",
           "upload.chipNoAccount": "Oznaka: bez naloga",
@@ -744,6 +745,8 @@ export const dict: Dict = {
       allowGuestUpload: "Dozvoli prijenos gostiju",
       allowGuestVideo: "Dozvoli video prijenos gostiju",
       allowVideoMessages: "Dozvoli gostima da snime video poruku",
+      requireUploadApproval: "Fotografije gostiju čekaju moje odobrenje",
+      requireUploadApprovalHint: "Isključeno: sve odmah ide u galeriju i na TV prikaz, a vi sakrijete šta ne želite. Video poruke uvijek čekaju vaše odobrenje.",
       requirePinUpload: "Zahtijevaj PIN za prijenos gosta",
       requirePinGalleryPhotographer: "Zahtijevaj PIN za galeriju klijenta",
       requirePinGalleryCouple: "Zahtijevaj PIN za privatnu galeriju",
@@ -1060,7 +1063,7 @@ export const dict: Dict = {
       },
       {
         title: "Privatna isporuka od početka",
-        body: "Galerije zaštićene PIN-om, skriveni prijenosi gostiju i kontrole moderacije drže isporuku klijentima mirnom i kontroliranom.",
+        body: "Galerije zaštićene PIN-om, odobravanje prijenosa gostiju po želji i kontrole moderacije drže isporuku klijentima mirnom i kontroliranom.",
       },
       {
         title: "Prostor prilagođen aktivnom radu",
@@ -1090,7 +1093,7 @@ export const dict: Dict = {
       },
       {
         title: "Moderiraj prije isporuke",
-        body: "Drži prijenose gostiju skrivene dok ne odobriš, pa otkrij, obriši ili vrati dok uređuješ galeriju.",
+        body: "Pusti prijenose gostiju odmah u galeriju ili ih drži skrivene dok ne odobriš, pa sakrij, obriši ili vrati dok uređuješ galeriju.",
       },
       {
         title: "Isporuči dotjeranu galeriju",
@@ -1193,7 +1196,7 @@ export const dict: Dict = {
       },
       {
         title: "Privatno od početka",
-        body: "PIN zaštita, skriveni prijenosi gostiju, kontrolovana preuzimanja.",
+        body: "PIN zaštita, odobravanje prijenosa po želji, kontrolovana preuzimanja.",
       },
     ],
     coupleBenefits: [
@@ -1234,7 +1237,7 @@ export const dict: Dict = {
       {
         question: "Ko može vidjeti fotografije?",
         answer:
-          "Samo onaj kome daš link galerije – a ako uključiš PIN, ni link nije dovoljan. Galerija nije ni na jednom javnom popisu niti na Googleu. Sve što gosti pošalju prvo vidiš samo ti; u galeriju ide ono što odobriš.",
+          "Samo onaj kome daš link galerije – a ako uključiš PIN, ni link nije dovoljan. Galerija nije ni na jednom javnom popisu niti na Googleu. Ono što gosti pošalju odmah je u galeriji, a ti sakriješ šta ne želiš – ili uključiš odobravanje, pa ništa ne ulazi bez tebe.",
       },
       {
         question: "Koliko dugo je galerija dostupna?",
@@ -1274,7 +1277,7 @@ export const dict: Dict = {
     ],
     photographerSwitchReasons: [
       "Jedan privatni tok rada umjesto spajanja upload linkova, foldera i naknadnih poruka.",
-      "Prijenosi gostiju skriveni dok ih ne odobrite – pregledate prvo i prikažete samo ono što ide u finalnu galeriju.",
+      "Prijenosi gostiju odmah u galeriji ili tek nakon vašeg odobrenja – vi birate po događaju.",
       "Stabilni QR i linkovi galerije koji rade i nakon preimenovanja događaja ili štampanja natpisa.",
       "Profesionalnija predaja klijentima koja djeluje kao dio vaše usluge, a ne kao naknadna pomisao.",
     ],
@@ -1290,7 +1293,7 @@ export const dict: Dict = {
       { label: "Bez instaliranja aplikacije", sub: "Gosti šalju iz bilo kojeg mobilnog browsera" },
       { label: "PIN zaštita", sub: "Samo pozvani klijenti vide galeriju" },
       { label: "Stabilni linkovi", sub: "QR kodovi rade i nakon preimenovanja događaja" },
-      { label: "Privatno od početka", sub: "Gostujući prijenosi su skriveni dok vi ne odobrite" },
+      { label: "Privatno od početka", sub: "Galerija nije javna, a prijenose gostiju možete odobravati" },
     ],
   },
   content: {
@@ -1522,7 +1525,7 @@ export const dict: Dict = {
             {
               question: "Šta ako gost pošalje neprikladnu fotografiju?",
               answer:
-                "Neće je niko vidjeti. Sve što gosti pošalju stiže sakriveno i vidite ga samo vi, u svom dashboardu. U galeriju ide samo ono što sami prikažete, a ostalo možete obrisati.",
+                "Uklonite je jednim dodirom: sakrijte je ili obrišite u dashboardu, i nestaje iz galerije i s TV prikaza. Ako želite da ništa ne uđe bez vas, uključite u postavkama događaja da fotografije gostiju čekaju vaše odobrenje.",
             },
           ],
         },
@@ -1627,7 +1630,7 @@ export const dict: Dict = {
         },
         {
           title: "Vi odlučujete šta se vidi",
-          body: "Sve što gosti pošalju prvo vidite vi. Dok nešto ne odobrite, niko drugo to ne vidi. Obrisano prvo ide u stanje iz kojeg se može vratiti, pa tek onda nestaje trajno.",
+          body: "Ono što gosti pošalju odmah se vidi u galeriji, osim ako uključite odobravanje – tada prvo vidite vi, a niko drugi dok ne odobrite. Sakriti ili obrisati možete bilo kad. Obrisano prvo ide u stanje iz kojeg se može vratiti, pa tek onda nestaje trajno.",
         },
       ],
       legalNote: "Ovo je objašnjenje kako sistem radi, ne pravni dokument.",
@@ -1778,6 +1781,8 @@ export const dict: Dict = {
     sendAnyway: "Ipak pošalji",
     sentTitle: "Upravo poslano",
     sentPendingNote: "Vidiš ih samo ti dok ih organizator ne odobri.",
+    sentPublicNote: "Već su u galeriji. Hvala!",
+    successNextPublic: "Već su u galeriji. Imate još? Pošaljite ih odmah.",
     statuses: {
       queued: "Čeka",
       requesting: "Priprema",

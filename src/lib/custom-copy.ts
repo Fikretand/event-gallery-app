@@ -74,6 +74,7 @@ export const COPY_FIELDS: readonly CopyField[] = [
   { key: "uploadDropzone.successTitle", group: "guests", max: LINE },
   { key: "uploadDropzone.successBody", group: "guests", multiline: true, max: LONG },
   { key: "uploadDropzone.successNext", group: "guests", multiline: true, max: LONG },
+  { key: "uploadDropzone.successNextPublic", group: "guests", multiline: true, max: LONG },
   { key: "uploadDropzone.uploadAnotherBtn", group: "guests", max: SHORT },
   { key: "uploadDropzone.noAccountNeeded", group: "guests", max: LINE },
   { key: "upload.chipNoAccount", group: "guests", max: SHORT },

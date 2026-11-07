@@ -62,6 +62,12 @@ export type EventSettingsRecord = {
   max_guest_upload_mb: number;
   /** Guests may record a video message (added in round3_additive.sql). */
   allow_video_messages?: boolean;
+  /**
+   * Guest photos and videos wait hidden for the owner's approval. Off by
+   * default since 2026-11-07 (they show at once, also on the venue TV); video
+   * messages always wait. Added in round4_partners_and_approval.sql.
+   */
+  require_upload_approval?: boolean;
   gallery_visibility: "private";
   created_at?: string;
   updated_at?: string;

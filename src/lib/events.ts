@@ -340,6 +340,7 @@ export async function updateEvent(ownerUserId: string, slug: string, input: {
   allowGuestUpload: boolean;
   allowGuestVideo: boolean;
   allowVideoMessages?: boolean;
+  requireUploadApproval?: boolean;
   requirePinForUpload: boolean;
   requirePinForGallery: boolean;
   maxGuestUploadMb: number;
@@ -381,6 +382,7 @@ export async function updateEvent(ownerUserId: string, slug: string, input: {
       allow_guest_upload: input.allowGuestUpload,
       allow_guest_video: input.allowGuestVideo,
       ...(input.allowVideoMessages === undefined ? {} : { allow_video_messages: input.allowVideoMessages }),
+      ...(input.requireUploadApproval === undefined ? {} : { require_upload_approval: input.requireUploadApproval }),
       require_pin_for_upload: input.requirePinForUpload,
       require_pin_for_gallery: input.requirePinForGallery,
       max_guest_upload_mb: input.maxGuestUploadMb,
@@ -1054,13 +1056,15 @@ export async function recordCompletedUpload(input: {
   uploadSessionId?: string | null;
   thumbnailKey?: string | null;
   purpose?: MediaPurpose;
+  /** The event's "wait for my approval" switch (guest uploads only). */
+  requireApproval?: boolean;
 }) {
   const admin = createSupabaseAdminClient();
   if (!admin) {
     throw new Error("Supabase admin access is not configured.");
   }
 
-  const hiddenAt = input.sourceType === "guest" ? new Date().toISOString() : null;
+  const hiddenAt = guestUploadStartsHidden(input) ? new Date().toISOString() : null;
 
   const { data, error } = await admin
     .from("media_files")
@@ -1394,4 +1398,19 @@ export function guestUploadLimitFor(accountType: AccountType, requestedMb: numbe
   if (accountType === "couple") return COUPLE_GUEST_UPLOAD_MB;
   if (!Number.isFinite(requestedMb)) return DEFAULT_MAX_GUEST_UPLOAD_MB;
   return Math.min(GUEST_UPLOAD_MB_RANGE.max, Math.max(GUEST_UPLOAD_MB_RANGE.min, Math.round(requestedMb)));
+}
+
+/**
+ * Whether a new upload is recorded hidden. Photographer uploads never are.
+ * A guest's photo or video waits only when the owner turned on approval; a
+ * video message is personal and always waits for the hosts.
+ */
+export function guestUploadStartsHidden(input: {
+  sourceType: "guest" | "photographer";
+  purpose?: MediaPurpose;
+  requireApproval?: boolean;
+}): boolean {
+  if (input.sourceType !== "guest") return false;
+  if (input.purpose === "message") return true;
+  return Boolean(input.requireApproval);
 }
