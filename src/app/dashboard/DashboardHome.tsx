@@ -22,6 +22,7 @@ import { retentionSchedule } from "@/lib/retention";
 import type { TrialState } from "@/lib/types";
 import { cn, formatBytes } from "@/lib/utils";
 import { AlertIcon } from "@/components/ui/icons";
+import { PartnerOffers } from "@/components/partner-offers";
 
 type DashStrings = ReturnType<typeof getDictionary>["dashboard"];
 
@@ -165,6 +166,7 @@ export async function DashboardHome({
             })}
           />
         )}
+        <PartnerOffers placement="photographer_dashboard" locale={locale} className="mt-[var(--space-2xl)] max-w-xl" />
       </section>
     </main>
   );

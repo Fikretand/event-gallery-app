@@ -20,6 +20,7 @@ import {
 import { retentionSchedule } from "@/lib/retention";
 import type { TrialState } from "@/lib/types";
 import { absoluteUrl, cn, formatDate } from "@/lib/utils";
+import { PartnerOffers } from "@/components/partner-offers";
 
 export async function CoupleDashboard({
   locale,
@@ -154,6 +155,7 @@ export async function CoupleDashboard({
               {d.fullManageBtn}
             </Link>
           </section>
+          <PartnerOffers placement="couple_dashboard" locale={locale} className="mt-[var(--space-xl)] max-w-xl" />
         </section>
       </main>
     );

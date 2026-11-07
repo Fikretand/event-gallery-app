@@ -1682,6 +1682,12 @@ export const dict: Dict = {
     oneTimeGroup: "For one event",
     oneTimeGroupNote: "Pay once, no subscription.",
   },
+  partnerOffers: {
+    label: "Partner offer",
+    cta: "See the offer",
+    codeLabel: "Discount code:",
+    validUntil: "Valid until {{date}}",
+  },
   cookieConsent: {
     label: "Cookie consent",
     text: "With your consent we use Google Analytics to see how the site is used. Galleries and guests' photos are never measured.",

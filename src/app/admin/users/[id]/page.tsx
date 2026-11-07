@@ -7,6 +7,7 @@ import { computeTrialState, countUserMediaFiles, getAccountUsage, listOwnerEvent
 import { formatBytes } from "@/lib/utils";
 import type { UserRecord } from "@/lib/types";
 import { UserDetailActions } from "./user-detail-actions";
+import { UserSupportTools } from "./user-support-tools";
 import { requireAdminPage } from "@/lib/admin-guard";
 
 async function getUserDetail(id: string) {
@@ -185,8 +186,8 @@ export default async function UserDetailPage({
             <div className="overflow-hidden rounded-[var(--radius-inner)] border border-rule bg-card">
               <SectionHeader title={`Events (${events.length})`} />
               <div className="divide-y divide-rule">
-                {events.slice(0, 6).map((ev) => (
-                  <div key={ev.id} className="flex items-center gap-3 px-5 py-3.5">
+                {events.map((ev) => (
+                  <Link key={ev.id} href={`/admin/support/events/${ev.id}`} className="flex items-center gap-3 px-5 py-3.5 hover:bg-paper-2/50">
                                         <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-ink">{ev.title}</p>
                       {ev.event_date && (
@@ -202,14 +203,13 @@ export default async function UserDetailPage({
                     }`}>
                       {ev.status}
                     </span>
-                  </div>
+                  </Link>
                 ))}
-                {events.length > 6 && (
-                  <p className="px-5 py-2.5 text-xs text-muted">+{events.length - 6} more events</p>
-                )}
               </div>
             </div>
           )}
+
+          <UserSupportTools userId={user.id} />
 
           {/* Actions */}
           <UserDetailActions user={user} />

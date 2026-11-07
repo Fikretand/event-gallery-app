@@ -46,9 +46,28 @@ function IconArrowLeft() {
   );
 }
 
+function IconPartners() {
+  return (
+    <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round">
+      <path d="M3 8.5h14v8.5H3z" />
+      <path d="M2 5.5h16v3H2zM10 5.5V17M10 5.5C8 2.5 5 3.5 6.5 5.5M10 5.5c2-3 5-2 3.5 0" strokeLinecap="round" />
+    </svg>
+  );
+}
+function IconSupport() {
+  return (
+    <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+      <circle cx="10" cy="10" r="7.5" />
+      <path d="M10 6v4.5M10 13.5h.01" />
+    </svg>
+  );
+}
+
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: <IconDashboard /> },
   { href: "/admin/users", label: "Users", icon: <IconUsers /> },
+  { href: "/admin/support", label: "Support", icon: <IconSupport /> },
+  { href: "/admin/partners", label: "Partners", icon: <IconPartners /> },
 ];
 
 /** Strip a leading /en or /bs so route matching works regardless of locale prefix. */

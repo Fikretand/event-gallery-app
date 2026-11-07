@@ -1686,6 +1686,12 @@ export const dict: Dict = {
     oneTimeGroup: "Za jedan događaj",
     oneTimeGroupNote: "Plaćate jednom, bez pretplate.",
   },
+  partnerOffers: {
+    label: "Ponuda partnera",
+    cta: "Pogledaj ponudu",
+    codeLabel: "Kod za popust:",
+    validUntil: "Vrijedi do {{date}}",
+  },
   cookieConsent: {
     label: "Pristanak na kolačiće",
     text: "Uz vaš pristanak koristimo Google Analytics da vidimo kako se stranica koristi. Galerije i fotografije gostiju se nikad ne mjere.",

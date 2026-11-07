@@ -1170,6 +1170,12 @@ export interface Dict {
     oneTimeGroup: string;
     oneTimeGroupNote: string;
   };
+  partnerOffers: {
+    label: string;
+    cta: string;
+    codeLabel: string;
+    validUntil: string; // {{date}}
+  };
   cookieConsent: {
     label: string;
     text: string;

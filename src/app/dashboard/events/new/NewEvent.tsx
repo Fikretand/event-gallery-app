@@ -9,6 +9,7 @@ import { createEventAction } from "@/lib/actions";
 import { hasSupabase } from "@/lib/env";
 import { listOwnerEvents } from "@/lib/events";
 import { getDictionary, localePrefix, type Locale } from "@/lib/i18n/index";
+import { PartnerOffers } from "@/components/partner-offers";
 
 export async function NewEvent({
   locale,
@@ -65,6 +66,7 @@ export async function NewEvent({
               ))}
             </ol>
           </div>
+          <PartnerOffers placement="create_event" locale={locale} className="mt-[var(--space-lg)]" />
         </aside>
       </div>
     </main>
