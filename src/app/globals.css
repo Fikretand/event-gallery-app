@@ -529,3 +529,11 @@
     animation: none !important;
   }
 }
+
+/* The guest gallery ("Otisak"): Instrument Sans over the site's Inter, loaded
+   by the gallery route only (--font-gallery), and figures that line up. */
+.gallery-otisak {
+  font-family: var(--font-gallery), var(--font-body);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}

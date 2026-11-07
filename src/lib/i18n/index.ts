@@ -265,6 +265,62 @@ export interface Dict {
     messageFrom: string;
     filterMessages: string;
   };
+  /**
+   * The guest gallery's own chrome (the "Otisak" redesign): select bar, ZIP
+   * sheet, viewer controls, load states. Plurals come as `_one/_few/_many`
+   * (Bosnian needs three forms; English uses _one and _many).
+   */
+  guestGallery: {
+    coverAlt: string;
+    /** "{{date}}, {{count}}" header meta. */
+    metaLine: string;
+    cancel: string;
+    selectPhotos: string;
+    selectedCount: string; // {{count}}
+    preparingZip_one: string; // {{count}}
+    preparingZip_few: string;
+    preparingZip_many: string;
+    downloaded: string;
+    batchTitle_one: string; // {{count}}, {{size}}
+    batchTitle_few: string;
+    batchTitle_many: string;
+    batchDoneTitle: string;
+    batchBody: string; // {{size}}
+    partTitle: string; // {{n}}, {{total}}
+    partFiles_one: string; // {{count}}, {{size}}
+    partFiles_few: string;
+    partFiles_many: string;
+    statusWaiting: string;
+    statusPreparing: string;
+    statusFailed: string;
+    batchDone: string;
+    keepOpen: string;
+    cancelDownload: string;
+    retry: string;
+    offline: string;
+    notLoaded: string;
+    footer: string;
+    keysHint: string;
+    play: string;
+    pause: string;
+    photoLabel: string; // {{n}}, {{total}}
+    videoLabel: string; // {{n}}, {{total}}
+    videoTile: string; // {{n}}, {{total}}
+    photoTile: string; // {{n}}, {{total}}
+    selectedSuffix: string;
+    messageLabel: string; // {{name}}
+    failedTitle: string;
+    failedBody: string;
+    reported: string;
+    downloading: string;
+    saved: string;
+    reportBody: string;
+    reportSending: string;
+    reportThanksBody: string;
+    closedHint: string;
+    retryIn: string; // {{time}}
+    filterLabel: string;
+  };
   auth: {
     // Login page
     loginEyebrow: string;

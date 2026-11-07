@@ -52,6 +52,15 @@
   --color-night: oklch(20.5% 0.012 48);
   --color-night-2: oklch(27% 0.014 48);
   --color-night-ink: oklch(94% 0.012 76);
+  /* The guest gallery ("Otisak"): the ink's quieter line on night, a hover
+     step, and moss lifted for a done state on night. */
+  --color-night-3: oklch(32.6% 0.016 67);
+  --color-night-muted: oklch(83.3% 0.018 76);
+  --color-moss-night: oklch(74.1% 0.047 167);
+  /* Terracotta's two neighbours: deep for italic dates and links on paper,
+     light for the Confetti mark's window and a chosen radio on night. */
+  --color-accent-deep: oklch(50.7% 0.136 41);
+  --color-accent-light: oklch(68.7% 0.141 41);
   /* The phone in the hero and the "how it works" stage: a titanium frame,
      its glass, and the two system colours its camera screen shows. Used by
      the drawn device only. */
@@ -87,6 +96,12 @@
   --radius-pill: 999px;
   --shadow-card: 0 1px 2px oklch(24% 0.04 264 / 0.06);
   --shadow-overlay: 0 24px 48px -24px oklch(24% 0.04 264 / 0.32);
+  /* Guest gallery: the cover's print lifted off the paper, the select check
+     over a photo, a sheet over the page, a sheet over the night viewer. */
+  --shadow-print: 0 1px 2px oklch(24% 0.04 264 / 0.14), 0 18px 40px -24px oklch(24% 0.04 264 / 0.3);
+  --shadow-check: 0 1px 3px oklch(24% 0.04 264 / 0.3);
+  --shadow-sheet: 0 24px 48px -24px oklch(24% 0.04 264 / 0.32), 0 1px 2px oklch(24% 0.04 264 / 0.06);
+  --shadow-night: 0 24px 48px -24px oklch(0% 0 0 / 0.5);
   --tracking-display: -0.02em;
 }
 :root {
