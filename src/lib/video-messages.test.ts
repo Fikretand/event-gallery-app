@@ -22,6 +22,9 @@ describe("video messages", () => {
 
   it("accepts video for a message even when guest video is off", () => {
     expect(settingsForPurpose(settings, "message")?.allow_guest_video).toBe(true);
+    // A message is held to the small message ceiling, not the event's 250 MB.
+    expect(settingsForPurpose(settings, "message")?.max_guest_upload_mb).toBe(80);
+    expect(settingsForPurpose(settings, "media")?.max_guest_upload_mb).toBe(250);
     expect(settingsForPurpose(settings, "media")?.allow_guest_video).toBe(false);
   });
 

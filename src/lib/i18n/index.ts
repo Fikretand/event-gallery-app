@@ -1192,8 +1192,15 @@ export interface Dict {
     sending: string; // {{progress}}
     sentTitle: string;
     sentBody: string;
-    another: string;
     failed: string;
+    startBtn: string;
+    stopBtn: string;
+    cancelBtn: string;
+    secondsLeft: string; // {{seconds}}
+    cameraError: string;
+    fallbackBtn: string;
+    alreadySentTitle: string;
+    alreadySentBody: string;
   };
   uploadDropzone: {
     // Step indicator

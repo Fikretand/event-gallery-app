@@ -9,8 +9,19 @@ import type { EventSettingsRecord, MediaPurpose } from "@/lib/types";
  * event and the source. The client never says "this is a message" at confirm.
  */
 
-/** Longest message accepted, checked in the browser from the video's metadata. */
-export const MESSAGE_MAX_SECONDS = 90;
+/**
+ * Longest message: the in-page recorder stops itself at this many seconds, and
+ * a clip from the phone's own camera (the fallback) is refused in the browser
+ * from its metadata. The server cannot read a video's length, so it holds the
+ * line on size instead (MESSAGE_MAX_MB).
+ */
+export const MESSAGE_MAX_SECONDS = 20;
+
+/**
+ * Largest message file. The recorder makes about 5 MB for 20 s; the phone
+ * camera fallback can record 4K, which is the reason for the headroom.
+ */
+export const MESSAGE_MAX_MB = 80;
 
 const MESSAGE_KEY_RE = /^events\/[^/]+\/guest\/messages\//;
 
@@ -21,7 +32,11 @@ export function purposeFromObjectKey(key: string): MediaPurpose {
 /** Messages are videos by definition, whatever the event's guest-video switch says. */
 export function settingsForPurpose(settings: EventSettingsRecord | null | undefined, purpose: MediaPurpose) {
   if (purpose !== "message" || !settings) return settings;
-  return { ...settings, allow_guest_video: true };
+  return {
+    ...settings,
+    allow_guest_video: true,
+    max_guest_upload_mb: Math.min(settings.max_guest_upload_mb ?? MESSAGE_MAX_MB, MESSAGE_MAX_MB),
+  };
 }
 
 export function videoMessagesEnabled(settings: EventSettingsRecord | null | undefined) {

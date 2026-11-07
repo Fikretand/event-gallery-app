@@ -1,5 +1,7 @@
 export const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/heic", "image/heif"];
-export const ACCEPTED_VIDEO_TYPES = ["video/mp4", "video/quicktime"];
+// WebM: what Chrome and Firefox record in the browser (the video message
+// recorder) and what Android screen recorders save.
+export const ACCEPTED_VIDEO_TYPES = ["video/mp4", "video/quicktime", "video/webm"];
 export const MAX_PHOTOGRAPHER_UPLOAD_MB = 1024;
 export const DEFAULT_MAX_GUEST_UPLOAD_MB = 250;
 /** One Event: fixed per-file limit for guests; the host cannot change it. */

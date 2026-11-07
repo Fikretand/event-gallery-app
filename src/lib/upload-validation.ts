@@ -7,13 +7,14 @@ import {
   MAX_PHOTOGRAPHER_UPLOAD_MB,
 } from "@/lib/constants";
 import type { EventSettingsRecord, MediaPurpose, MediaSourceType, UploadRequestFile } from "@/lib/types";
+import { MESSAGE_MAX_MB } from "@/lib/video-messages";
 
 function extension(fileName: string) {
   const parts = fileName.split(".");
   return parts.length > 1 ? parts.pop()!.toLowerCase() : "";
 }
 
-const allowedExtensions = new Set(["jpg", "jpeg", "png", "heic", "heif", "mp4", "mov"]);
+const allowedExtensions = new Set(["jpg", "jpeg", "png", "heic", "heif", "mp4", "mov", "webm"]);
 
 export function uploadLimitsFor(sourceType: MediaSourceType, settings?: EventSettingsRecord | null) {
   const maxMb = sourceType === "photographer" ? MAX_PHOTOGRAPHER_UPLOAD_MB : settings?.max_guest_upload_mb ?? DEFAULT_MAX_GUEST_UPLOAD_MB;
@@ -33,7 +34,10 @@ export function checkStoredUpload(
   settings?: EventSettingsRecord | null,
   purpose: MediaPurpose = "media",
 ): "ok" | "too_large" | "empty" | "bad_type" {
-  const { maxBytes, allowVideo } = uploadLimitsFor(sourceType, settings);
+  const limits = uploadLimitsFor(sourceType, settings);
+  const { allowVideo } = limits;
+  // A message is a short clip: it gets its own, smaller ceiling.
+  const maxBytes = purpose === "message" ? Math.min(limits.maxBytes, MESSAGE_MAX_MB * 1024 * 1024) : limits.maxBytes;
   const type = stored.contentType.split(";")[0].trim().toLowerCase();
   const isImage = ACCEPTED_IMAGE_TYPES.includes(type);
   const isVideo = ACCEPTED_VIDEO_TYPES.includes(type);

@@ -90,4 +90,11 @@ describe("checkStoredUpload", () => {
     expect(checkStoredUpload({ size: 10, contentType: "video/mp4" }, "guest", settings)).toBe("bad_type");
     expect(checkStoredUpload({ size: 10, contentType: "video/mp4" }, "photographer", settings)).toBe("ok");
   });
+
+  it("holds a video message to its own ceiling and accepts a browser recording", () => {
+    const roomy = { ...settings, max_guest_upload_mb: 300 };
+    expect(checkStoredUpload({ size: 5 * 1024 * 1024, contentType: "video/webm;codecs=vp9,opus" }, "guest", roomy, "message")).toBe("ok");
+    expect(checkStoredUpload({ size: 81 * 1024 * 1024, contentType: "video/mp4" }, "guest", roomy, "message")).toBe("too_large");
+    expect(checkStoredUpload({ size: 10, contentType: "image/jpeg" }, "guest", roomy, "message")).toBe("bad_type");
+  });
 });
