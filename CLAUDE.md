@@ -1,6 +1,6 @@
 # CLAUDE.md — Confetti Event Gallery App
 
-_Last updated: 2026-11-05._
+_Last updated: 2026-11-07._
 
 ---
 
@@ -159,6 +159,9 @@ These are loaded server-side by Resvg for the poster API, and client-side via
   Lock). Access is the public gallery's (owner, or open/unexpired/PIN-unlocked).
 - The API returns slim slides only (id, kind, signed URL, poster) — never guest
   names, emails or storage keys.
+- Guest photos show at once since 2026-11-07 unless the owner turns on
+  `event_settings.require_upload_approval` (`guestUploadStartsHidden`); video
+  messages always wait. Older wording below describes the approval mode.
 - Guest uploads arrive hidden, so by default only approved files show. **Only
   the owner** can tick "show new guest photos before I approve them"
   (`?pending=1`); `isPendingGuestUpload` counts only files hidden at the moment
@@ -203,11 +206,38 @@ These are loaded server-side by Resvg for the poster API, and client-side via
   confirm grant (`src/lib/video-messages.ts`, tested). Confirm sets
   `media_files.purpose = 'message'` and accepts only a video there, even when
   the event's guest-video switch is off.
+- Since 2026-11-07: at most **20 s** (`MESSAGE_MAX_SECONDS`, `MESSAGE_MAX_MB`
+  80 as the server's guard, since duration cannot be checked there), recorded in
+  the page with MediaRecorder on the front camera with a countdown and auto
+  stop (the `capture="user"` input is the fallback), and **one per phone**
+  (localStorage `confetti-message-sent:<slug>`, client-side only).
 - Messages arrive hidden like every guest upload. Approved ones get their own
   "Video poruke" block in the public gallery (not in the photo grid, tabs or
   ZIP); the owner has a "Poruke" filter; the live view skips them (silent).
 - Setting `event_settings.allow_video_messages` (default on); card title/body
   and the gallery heading are in `COPY_FIELDS`.
+
+### Admin support and partner offers (2026-11-07)
+- **`/admin/support`** (`src/lib/support.ts`, `support-actions.ts`): search
+  accounts and events (email, name, title, slug, client), and "Needs a look":
+  every event with failed files, files stuck in processing > 15 min, or
+  reported photos. The event page shows file health, settings, reports with
+  reasons, the owner's recent activity, and fixes: retry processing (resets the
+  3-attempt counter, 25 at a time), hide a reported file, dismiss reports,
+  extend the gallery by 7/30/90 days (not clamped to the plan; the couple's
+  upload window is not reopened), switch guest uploads. Admin user page:
+  "Make reset link", a one-time recovery link to send by hand (never open it
+  yourself, it signs in as the customer); its events link to the support page.
+- **`/admin/partners`** (`src/lib/partners*.ts`, `partner-actions.ts`): partner
+  offers with name, headline, text, code, https link, picture (WebP 900 px in
+  R2 under `partners/<id>/`, ≤ 5 MB), placements (`create_event`,
+  `couple_dashboard`, `photographer_dashboard`), dates in Sarajevo days, order,
+  pause. `PartnerOffers` renders up to two live ones as "Ponuda partnera".
+  ⚠ `GET /api/partners/[id]/click` is **unauthenticated**: counts a click
+  (`increment_partner_click`, service role only) and redirects only to the
+  stored https link of a live offer, otherwise home. Table `partner_offers` is
+  service role only (migration `round4_partners_and_approval.sql`, applied
+  2026-11-07).
 
 ### Reports ("Prijavi")
 - The public viewer has a report button with a reason (inappropriate /
@@ -703,6 +733,9 @@ src/
 │       ├── en.ts, bs.ts             # Translations
 │       └── preference.ts            # redirectIfPreferredLocale
 │
+│   ├── support.ts, support-actions.ts # /admin/support reads + fixes
+│   ├── partners.ts, partners-shared.ts, partner-actions.ts # partner offers
+│
 ├── middleware.ts                    # Supabase session refresh
 ├── instrumentation.ts               # onRequestError → structured logs
 │
@@ -736,6 +769,20 @@ src/
 ## 9. RECENT SESSION LOG
 
 Newest first — useful for picking back up.
+
+- **Round 4: owner's ten points (2026-11-07).** Admin support and partner
+  offers (§3). Video messages 20 s, in-page recorder, one per phone. Gallery
+  thumbnails 720 px (originals on open and download). Legal pages: no
+  placeholders or draft banners, contact `podrska@confetti.ba`. The copy
+  editor moved to the event's Postavke (closed `<details>`). Create event is a
+  wizard, one question per step (`event-create-wizard.tsx`; PINs in settings).
+  One Event guest limit is fixed at 300 MB (`COUPLE_GUEST_UPLOAD_MB`), the
+  field shows for photographers only. The owner sees report reasons. Guest
+  uploads visible by default with an approval switch; marketing copy swept to
+  match. Bug fixed: the owner upload spun on "Šaljem fajlove" because the
+  pending state waited on `router.refresh()`. Migration
+  `round4_partners_and_approval.sql` applied; advisors show only the intended
+  no-policy tables.
 
 - **Analytics + search visibility (2026-11-06).** GA4 behind a consent banner
   on public pages only, conversion events, JSON-LD, named AI crawlers and
