@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { DashboardHeader } from "@/components/dashboard-header";
-import { EventCreateForm } from "@/components/event-create-form";
+import { EventCreateWizard } from "@/components/event-create-wizard";
 import { SetupNotice } from "@/components/setup-notice";
 import { normalizeAccountType } from "@/lib/account";
 import { getAccountTypeForUser, getRequiredUser } from "@/lib/auth";
@@ -42,11 +42,11 @@ export async function NewEvent({
         strings={d.header}
         profileHref={`${prefix}/dashboard/profile`}
       />
-      {/* The form, with the three things that happen next beside it. */}
+      {/* One question per screen; the rest waits in the event's settings. */}
       <div className="shell grid gap-[var(--space-xl)] lg:grid-cols-12">
         <section className="lg:col-span-8">
           {hasSupabase ? (
-            <EventCreateForm action={createEventAction} intent={intent} strings={d.create.form} />
+            <EventCreateWizard action={createEventAction} intent={intent} locale={locale} strings={d.create} />
           ) : (
             <SetupNotice />
           )}

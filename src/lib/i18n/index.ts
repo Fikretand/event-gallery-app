@@ -667,6 +667,27 @@ export interface Dict {
         submitCouple: string;
         submitting: string;
       };
+      // One question per screen
+      wizard: {
+        stepOf: string; // {{n}} {{total}}
+        next: string;
+        back: string;
+        skip: string;
+        titleQuestionPhotographer: string;
+        titleQuestionCouple: string;
+        titleHelp: string;
+        clientQuestionPhotographer: string;
+        clientQuestionCouple: string;
+        clientHelp: string;
+        dateQuestion: string;
+        dateHelpPhotographer: string;
+        reviewTitle: string;
+        reviewEmpty: string;
+        change: string;
+        settingsNote: string;
+        titleRequired: string;
+        dateRequired: string;
+      };
     };
     // Event settings form
     settings: {
