@@ -41,6 +41,20 @@ export function offerStatus(offer: Pick<PartnerOffer, "is_active" | "starts_at" 
   return "live";
 }
 
+/** Most offers one page carries in its slideshow. */
+export const MAX_OFFERS_PER_PAGE = 8;
+
+/**
+ * The slideshow keeps the admin's order but starts at a different offer for
+ * each visitor, so every partner is the first one someone sees about equally
+ * often, not only the one with the lowest number.
+ */
+export function rotateOffers<T>(offers: readonly T[], start: number): T[] {
+  if (offers.length < 2) return [...offers];
+  const at = ((Math.trunc(start) % offers.length) + offers.length) % offers.length;
+  return [...offers.slice(at), ...offers.slice(0, at)];
+}
+
 /** Partner images always sit under partners/<offer id>/; anything else is never signed. */
 export function isPartnerImageKey(key: string | null | undefined, offerId: string): key is string {
   if (typeof key !== "string") return false;

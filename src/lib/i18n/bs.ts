@@ -1691,6 +1691,11 @@ export const dict: Dict = {
     cta: "Pogledaj ponudu",
     codeLabel: "Kod za popust:",
     validUntil: "Vrijedi do {{date}}",
+    previous: "Prethodna ponuda",
+    next: "Sljedeća ponuda",
+    pause: "Zaustavi smjenjivanje",
+    play: "Pokreni smjenjivanje",
+    slideOf: "{{n}} od {{total}}",
   },
   cookieConsent: {
     label: "Pristanak na kolačiće",

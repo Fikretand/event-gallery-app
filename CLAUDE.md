@@ -232,7 +232,13 @@ These are loaded server-side by Resvg for the poster API, and client-side via
   offers with name, headline, text, code, https link, picture (WebP 900 px in
   R2 under `partners/<id>/`, ≤ 5 MB), placements (`create_event`,
   `couple_dashboard`, `photographer_dashboard`), dates in Sarajevo days, order,
-  pause. `PartnerOffers` renders up to two live ones as "Ponuda partnera".
+  pause. `PartnerOffers` shows the live ones as "Ponuda partnera": one card,
+  or a slideshow when there are several (`partner-offer-carousel.tsx`: up to 8
+  per page, `sort_order` then age, 7 s per slide, starts at a random offer per
+  visitor via `rotateOffers`; holds on hover/focus, hidden tab, reduced motion
+  or the pause button; arrows, dots, swipe; slides share one grid cell so the
+  page never jumps, and picture-less slides get a name panel when others have
+  a picture).
   ⚠ `GET /api/partners/[id]/click` is **unauthenticated**: counts a click
   (`increment_partner_click`, service role only) and redirects only to the
   stored https link of a live offer, otherwise home. Table `partner_offers` is

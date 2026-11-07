@@ -1,4 +1,6 @@
-import { isPartnerImageKey, type OfferPlacement, type PartnerOffer } from "@/lib/partners-shared";
+import { randomInt } from "node:crypto";
+
+import { MAX_OFFERS_PER_PAGE, isPartnerImageKey, type OfferPlacement, type PartnerOffer } from "@/lib/partners-shared";
 import { createSignedDownloadUrl } from "@/lib/storage";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
@@ -43,7 +45,7 @@ export type OfferView = PartnerOffer & { imageUrl: string | null };
  * The offers to show on one page right now, with signed image URLs. A failure
  * here never breaks the page it decorates: it shows no offers instead.
  */
-export async function listLiveOffers(placement: OfferPlacement, limit = 2): Promise<OfferView[]> {
+export async function listLiveOffers(placement: OfferPlacement, limit = MAX_OFFERS_PER_PAGE): Promise<OfferView[]> {
   const client = admin();
   if (!client) return [];
   const nowIso = new Date().toISOString();
@@ -55,6 +57,7 @@ export async function listLiveOffers(placement: OfferPlacement, limit = 2): Prom
     .lte("starts_at", nowIso)
     .or(`ends_at.is.null,ends_at.gt.${nowIso}`)
     .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true })
     .limit(limit);
   if (error) {
     console.error("[partners] live offers failed", error.message);
@@ -67,4 +70,9 @@ export async function listLiveOffers(placement: OfferPlacement, limit = 2): Prom
       imageUrl: isPartnerImageKey(offer.image_key, offer.id) ? await createSignedDownloadUrl(offer.image_key).catch(() => null) : null,
     })),
   );
+}
+
+/** Where this visitor's slideshow starts (see rotateOffers). */
+export function randomStart(count: number) {
+  return count > 1 ? randomInt(count) : 0;
 }

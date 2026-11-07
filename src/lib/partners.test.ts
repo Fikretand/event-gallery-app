@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { isPartnerImageKey, offerStatus, safeOfferLink } from "./partners-shared";
+import { isPartnerImageKey, offerStatus, rotateOffers, safeOfferLink } from "./partners-shared";
 
 const NOW = new Date("2026-11-07T12:00:00Z");
 const ID = "0b9f6c2e-1111-4222-8333-944455556666";
@@ -35,5 +35,16 @@ describe("safeOfferLink", () => {
     expect(safeOfferLink("javascript:alert(1)")).toBeNull();
     expect(safeOfferLink("not a url")).toBeNull();
     expect(safeOfferLink("")).toBeNull();
+  });
+});
+
+describe("rotateOffers", () => {
+  it("keeps the order and starts where it is told", () => {
+    expect(rotateOffers(["a", "b", "c"], 0)).toEqual(["a", "b", "c"]);
+    expect(rotateOffers(["a", "b", "c"], 1)).toEqual(["b", "c", "a"]);
+    expect(rotateOffers(["a", "b", "c"], 5)).toEqual(["c", "a", "b"]);
+    expect(rotateOffers(["a", "b", "c"], -1)).toEqual(["c", "a", "b"]);
+    expect(rotateOffers(["a"], 3)).toEqual(["a"]);
+    expect(rotateOffers([], 3)).toEqual([]);
   });
 });

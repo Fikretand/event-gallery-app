@@ -1175,6 +1175,11 @@ export interface Dict {
     cta: string;
     codeLabel: string;
     validUntil: string; // {{date}}
+    previous: string;
+    next: string;
+    pause: string;
+    play: string;
+    slideOf: string; // {{n}} {{total}}
   };
   cookieConsent: {
     label: string;

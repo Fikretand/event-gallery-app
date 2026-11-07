@@ -29,7 +29,7 @@ export default async function AdminPartnersPage({ searchParams }: { searchParams
         <div>
           <h1 className="app-title text-ink">Partners</h1>
           <p className="mt-1 max-w-2xl text-ink-2">
-            Offers from partners, shown on the pages you choose for the dates you set. Customers see them as &quot;Ponuda partnera&quot;.
+            Offers from partners, shown on the pages you choose for the dates you set. Customers see them as &quot;Ponuda partnera&quot;. When a page has several live offers they take turns in a slideshow (up to 8 per page), each visitor starting at a different one.
           </p>
         </div>
         <Link href="/admin/partners/new" className="btn btn-primary">

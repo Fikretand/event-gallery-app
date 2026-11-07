@@ -89,7 +89,7 @@ export function PartnerForm({
         <label className="flex flex-col gap-2">
           <span className="field-label">Order</span>
           <input name="sortOrder" type="number" defaultValue={offer?.sort_order ?? 0} className="field" />
-          <span className="field-hint">Lower shows first.</span>
+          <span className="field-hint">Place in the slideshow; lower comes first.</span>
         </label>
       </div>
 

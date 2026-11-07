@@ -1687,6 +1687,11 @@ export const dict: Dict = {
     cta: "See the offer",
     codeLabel: "Discount code:",
     validUntil: "Valid until {{date}}",
+    previous: "Previous offer",
+    next: "Next offer",
+    pause: "Pause the slideshow",
+    play: "Play the slideshow",
+    slideOf: "{{n}} of {{total}}",
   },
   cookieConsent: {
     label: "Cookie consent",

@@ -146,3 +146,28 @@ export function ChevronDownIcon(props: IconProps) {
     </Svg>
   );
 }
+
+export function ChevronLeftIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="m15 6-6 6 6 6" />
+    </Svg>
+  );
+}
+
+export function ChevronRightIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="m9 6 6 6-6 6" />
+    </Svg>
+  );
+}
+
+export function PauseIcon(props: IconProps) {
+  return (
+    <Svg {...props} filled>
+      <rect x="6.5" y="5" width="3.6" height="14" rx="1" />
+      <rect x="13.9" y="5" width="3.6" height="14" rx="1" />
+    </Svg>
+  );
+}
