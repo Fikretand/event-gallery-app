@@ -370,7 +370,10 @@ export async function updatePhotographerProfileAction(
     return { error: error.message };
   }
 
-  revalidatePath("/");
+  // The landing page that lists the spotlight is cached for ten minutes and
+  // lives at /en and /bs; "/" only redirects there. Refreshing "/" alone left
+  // a photographer who just opted out on the homepage until the cache ran out.
+  revalidatePath("/[locale]", "page");
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/profile");
 
