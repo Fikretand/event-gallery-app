@@ -203,6 +203,7 @@ export const dict: Dict = {
   liveSlideshow: {
     scanTitle: "Pošaljite svoje fotografije",
     scanBody: "Skenirajte kamerom – bez aplikacije",
+    scanAppear: "Vaše fotografije pojavit će se na ovom ekranu.",
     inGallery: "U galeriji: {{count}}",
     emptyTitle: "Čekamo prve fotografije",
     emptyBody: "Skenirajte kod i pošaljite svoje – pojavit će se ovdje.",
@@ -215,7 +216,7 @@ export const dict: Dict = {
     lockedBody: "Otvorite galeriju na ovom ekranu, unesite PIN, pa se vratite na prikaz uživo.",
     lockedCta: "Otvori galeriju",
     dashboardTitle: "Prikaz uživo za ekran u sali",
-    dashboardBody: "Otvorite ga na TV-u ili projektoru: fotografije se same smjenjuju, nove se pojave za par sekundi, a QR kod u uglu poziva goste da pošalju svoje.",
+    dashboardBody: "Otvorite ga na TV-u ili projektoru: fotografije se same smjenjuju, nove se pojave za par sekundi, a između njih se pojavljuje QR kod koji poziva goste da pošalju svoje.",
     dashboardCta: "Otvori prikaz uživo",
   },
   galleryViewer: {

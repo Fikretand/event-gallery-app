@@ -153,10 +153,16 @@ These are loaded server-side by Resvg for the poster API, and client-side via
 ### Live view for the venue screen
 - `/[locale]/gallery/[slug]/live` (`live-slideshow.tsx`, data from
   `src/lib/live-slides.ts`, polled from `/api/events/[slug]/live` every 12 s):
-  full-screen slideshow for a TV or projector. Photos change every 7 s, videos
-  play muted up to 20 s, new arrivals play next with a "Novo" badge, a QR code
-  in the corner opens the guest upload page, the screen is kept awake (Wake
-  Lock). Access is the public gallery's (owner, or open/unexpired/PIN-unlocked).
+  full-screen slideshow for a TV or projector. Pace follows the gallery size
+  (`src/lib/live-pacing.ts`, tested): 8 s a photo up to 10 photos, easing
+  logarithmically to 4 s at 200+ (30 → 6.5 s, 50 → 5.9 s, 100 → 4.9 s); videos
+  play muted up to 20 s; new arrivals play next with a "Novo" badge. The QR
+  code is **its own full-screen slide**, not an overlay: it opens the view,
+  stands in while the gallery is empty, and returns after every 5 photos
+  (10 from ~50, 15 from ~100; after each round when there are fewer), so
+  roughly every 30–75 s, and stays 4 s longer than a photo (≥ 10 s). A poll
+  that adds photos never restarts the slide on screen. The screen is kept
+  awake (Wake Lock). Access is the public gallery's (owner, or open/unexpired/PIN-unlocked).
 - The API returns slim slides only (id, kind, signed URL, poster) — never guest
   names, emails or storage keys.
 - Guest photos show at once since 2026-11-07 unless the owner turns on

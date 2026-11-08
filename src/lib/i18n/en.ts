@@ -202,6 +202,7 @@ export const dict: Dict = {
   liveSlideshow: {
     scanTitle: "Share your photos",
     scanBody: "Scan with your camera – no app needed",
+    scanAppear: "Your photos will appear on this screen.",
     inGallery: "{{count}} in the gallery",
     emptyTitle: "Waiting for the first photos",
     emptyBody: "Scan the code and send yours – they will appear here.",
@@ -214,7 +215,7 @@ export const dict: Dict = {
     lockedBody: "Open the gallery on this screen, enter the PIN, then come back to the live view.",
     lockedCta: "Open the gallery",
     dashboardTitle: "Live view for the venue screen",
-    dashboardBody: "Open it on a TV or projector: photos change by themselves, new ones appear within seconds, and a QR code in the corner invites guests to send theirs.",
+    dashboardBody: "Open it on a TV or projector: photos change by themselves, new ones appear within seconds, and between them a QR code invites guests to send theirs.",
     dashboardCta: "Open live view",
   },
   galleryViewer: {

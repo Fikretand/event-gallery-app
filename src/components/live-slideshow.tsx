@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 
 import type { Dict } from "@/lib/i18n/index";
+import { photoDurationMs, qrDurationMs, qrEvery } from "@/lib/live-pacing";
 import type { LiveSlide } from "@/lib/live-slides";
 
 type Props = {
@@ -16,7 +17,7 @@ type Props = {
   strings: Dict["liveSlideshow"];
 };
 
-const IMAGE_MS = 7_000;
+// Photo and QR timing follow the gallery's size: src/lib/live-pacing.ts.
 const VIDEO_MAX_MS = 20_000;
 const POLL_MS = 12_000;
 const CONTROLS_MS = 3_500;
@@ -30,6 +31,13 @@ type State = {
   fresh: string[];
   /** Bumped on every advance, so a one-slide playlist still restarts its timer. */
   tick: number;
+  /**
+   * The QR slide is on screen. It is not in the playlist: it plays between
+   * photos, after every qrEvery(count) of them, and the photo at `pos` follows.
+   */
+  showingQr: boolean;
+  /** Photos shown since the last QR slide. */
+  sinceQr: number;
 };
 
 type Action = { type: "sync"; slides: LiveSlide[] } | { type: "next" };
@@ -41,18 +49,26 @@ function init(slides: LiveSlide[]): State {
     pos: 0,
     fresh: [],
     tick: 0,
+    // Open on the QR: people look at the screen when it comes on.
+    showingQr: true,
+    sinceQr: 0,
   };
 }
 
 function reducer(state: State, action: Action): State {
   if (action.type === "next") {
     if (state.playlist.length === 0) return state;
+    if (state.showingQr) return { ...state, showingQr: false, tick: state.tick + 1 };
     const shown = state.playlist[state.pos];
+    const sinceQr = state.sinceQr + 1;
+    const qrDue = sinceQr >= qrEvery(state.playlist.length);
     return {
       ...state,
       pos: (state.pos + 1) % state.playlist.length,
       fresh: state.fresh.filter((id) => id !== shown),
       tick: state.tick + 1,
+      showingQr: qrDue,
+      sinceQr: qrDue ? 0 : sinceQr,
     };
   }
 
@@ -63,7 +79,19 @@ function reducer(state: State, action: Action): State {
   const slides = Object.fromEntries(action.slides.map((slide) => [slide.id, slide]));
 
   if (state.playlist.length === 0) {
-    return { ...state, slides, playlist: incomingIds, pos: 0, fresh: [...state.fresh, ...incomingIds], tick: state.tick + 1 };
+    // The first photos of the evening go straight up instead of waiting out
+    // the QR slide that stood in for them.
+    const first = incomingIds.length > 0;
+    return {
+      ...state,
+      slides,
+      playlist: incomingIds,
+      pos: 0,
+      fresh: [...state.fresh, ...incomingIds],
+      tick: state.tick + 1,
+      showingQr: first ? false : state.showingQr,
+      sinceQr: 0,
+    };
   }
 
   const known = new Set(state.playlist);
@@ -77,9 +105,10 @@ function reducer(state: State, action: Action): State {
 
   const playlist = [...kept];
   playlist.splice(currentRemoved ? pos : pos + 1, 0, ...added);
-  if (playlist.length === 0) return { ...state, slides, playlist, pos: 0, fresh: [] };
+  if (playlist.length === 0) return { ...state, slides, playlist, pos: 0, fresh: [], showingQr: true, sinceQr: 0 };
 
   return {
+    ...state,
     slides,
     playlist,
     pos: Math.min(pos, playlist.length - 1),
@@ -98,7 +127,16 @@ export function LiveSlideshow({ slug, title, initialSlides, initialIncludePendin
   const currentId = state.playlist[state.pos];
   const current = currentId ? state.slides[currentId] : undefined;
   const count = state.playlist.length;
+  const showQr = state.showingQr || !current;
   const advance = useCallback(() => dispatch({ type: "next" }), []);
+
+  // How long the slide now on screen stays. Read once when the slide starts
+  // (through a ref), so a poll that adds photos mid-slide does not restart it.
+  const durationMs = showQr ? (count > 0 ? qrDurationMs(count) : null) : current?.kind === "video" ? VIDEO_MAX_MS : photoDurationMs(count);
+  const duration = useRef(durationMs);
+  useEffect(() => {
+    duration.current = durationMs;
+  });
 
   // ── Poll for new files (and fresh signed URLs) ─────────────────────────────
   useEffect(() => {
@@ -123,22 +161,26 @@ export function LiveSlideshow({ slug, title, initialSlides, initialIncludePendin
     };
   }, [slug, includePending]);
 
-  // ── Advance photos on a timer; videos advance when they end (or at a cap) ──
+  // ── Advance on a timer; videos also advance when they end ──────────────────
+  // An empty gallery holds the QR slide until the first photo arrives.
   useEffect(() => {
-    if (!current) return;
-    const timer = window.setTimeout(advance, current.kind === "video" ? VIDEO_MAX_MS : IMAGE_MS);
+    const ms = duration.current;
+    if (ms === null) return;
+    const timer = window.setTimeout(advance, ms);
     return () => window.clearTimeout(timer);
-  }, [current, state.tick, advance]);
+  }, [currentId, state.tick, state.showingQr, advance]);
 
-  // ── Preload the next photo so the change is instant ────────────────────────
+  // ── Preload the photo that comes next so the change is instant ────────────
   useEffect(() => {
-    if (count < 2) return;
-    const next = state.slides[state.playlist[(state.pos + 1) % count]];
+    if (count === 0) return;
+    const nextPos = state.showingQr ? state.pos : (state.pos + 1) % count;
+    if (!state.showingQr && count < 2) return;
+    const next = state.slides[state.playlist[nextPos]];
     if (next?.kind === "image") {
       const img = new Image();
       img.src = next.src;
     }
-  }, [state.pos, state.playlist, state.slides, count]);
+  }, [state.pos, state.playlist, state.slides, state.showingQr, count]);
 
   // ── Keep the screen awake while the view is open ───────────────────────────
   useEffect(() => {
@@ -202,8 +244,31 @@ export function LiveSlideshow({ slug, title, initialSlides, initialIncludePendin
       `}</style>
       <h1 className="sr-only">{title}</h1>
 
-      {/* ── Current photo or video ── */}
-      {current ? (
+      {/* ── The QR slide, between photos (and alone while the gallery is empty) ── */}
+      {showQr ? (
+        <div key={`qr-${state.tick}`} className="live-in absolute inset-0 flex items-center justify-center px-[5vw] py-[5vh]">
+          <div className="flex w-full max-w-[1600px] flex-col items-center justify-center gap-[5vmin] text-center landscape:flex-row landscape:text-left">
+            <div className="shrink-0 rounded-[clamp(16px,2vmin,36px)] bg-card p-[3vmin]">
+              <div
+                className="aspect-square w-[min(56vh,42vw)] portrait:w-[min(70vw,46vh)] [&>svg]:h-full [&>svg]:w-full"
+                // Server-generated QR markup for our own upload URL.
+                dangerouslySetInnerHTML={{ __html: qrSvg }}
+              />
+            </div>
+            <div className="min-w-0 landscape:max-w-[min(44vw,820px)] portrait:max-w-[90vw]">
+              <p className="truncate text-[clamp(16px,2vmin,34px)] text-night-ink/75">{title}</p>
+              <p className="mt-[1.5vmin] font-display text-[clamp(30px,6.5vmin,110px)] font-semibold leading-[1.05]">
+                {current ? s.scanTitle : s.emptyTitle}
+              </p>
+              <p className="mt-[2vmin] text-[clamp(18px,3vmin,52px)] leading-snug text-night-ink/90">{current ? s.scanBody : s.emptyBody}</p>
+              {current ? <p className="mt-[1.2vmin] text-[clamp(16px,2.4vmin,40px)] leading-snug text-night-ink/75">{s.scanAppear}</p> : null}
+              {count > 0 ? (
+                <p className="mt-[3vmin] text-[clamp(14px,2vmin,32px)] text-night-ink/70">{s.inGallery.replace("{{count}}", String(count))}</p>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : current ? (
         <div key={`${current.id}-${state.tick}`} className="live-in absolute inset-0">
           {current.kind === "image" ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -225,32 +290,13 @@ export function LiveSlideshow({ slug, title, initialSlides, initialIncludePendin
               {s.newBadge}
             </span>
           ) : null}
-        </div>
-      ) : (
-        <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
-          <p className="font-display text-[clamp(28px,4vw,72px)] font-semibold">{s.emptyTitle}</p>
-          <p className="mt-3 max-w-[40ch] text-[clamp(16px,1.6vw,30px)] text-night-ink/80">{s.emptyBody}</p>
-        </div>
-      )}
-
-      {/* ── Bottom: title and count left, the QR card right ── */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-6 bg-gradient-to-t from-night/85 via-night/35 to-transparent px-[3vw] pb-[3vh] pt-[12vh]">
-        <div className="min-w-0">
-          <p className="truncate font-display text-[clamp(22px,2.6vw,52px)] font-semibold leading-tight">{title}</p>
-          <p className="mt-1 text-[clamp(14px,1.3vw,26px)] text-night-ink/80">{s.inGallery.replace("{{count}}", String(count))}</p>
-        </div>
-        <div className="flex shrink-0 items-center gap-[1.2vw] rounded-[clamp(14px,1.4vw,28px)] bg-card p-[clamp(10px,1vw,20px)] text-ink">
-          <div
-            className="aspect-square w-[clamp(96px,9vw,200px)] [&>svg]:h-full [&>svg]:w-full"
-            // Server-generated QR markup for our own upload URL.
-            dangerouslySetInnerHTML={{ __html: qrSvg }}
-          />
-          <div className="max-w-[22ch]">
-            <p className="font-display text-[clamp(15px,1.5vw,30px)] font-semibold leading-tight">{s.scanTitle}</p>
-            <p className="mt-1 text-[clamp(12px,1vw,20px)] leading-snug text-ink-2">{s.scanBody}</p>
+          {/* Title and count, small, over the bottom edge of the photo. */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-night/70 to-transparent px-[3vw] pb-[2.5vh] pt-[8vh]">
+            <p className="truncate font-display text-[clamp(18px,2vw,40px)] font-semibold leading-tight">{title}</p>
+            <p className="mt-0.5 text-[clamp(13px,1.1vw,22px)] text-night-ink/80">{s.inGallery.replace("{{count}}", String(count))}</p>
           </div>
         </div>
-      </div>
+      ) : null}
 
       {/* ── Controls: appear on movement ── */}
       <div

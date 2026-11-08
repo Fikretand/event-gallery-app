@@ -205,9 +205,10 @@ export interface Dict {
   };
   /** Full-screen slideshow for a TV or projector at the venue. */
   liveSlideshow: {
-    /** Corner card: what the QR code is for. */
+    /** The QR slide: what the code is for. */
     scanTitle: string;
     scanBody: string;
+    scanAppear: string;
     /** "{{count}}" photos and videos shown. */
     inGallery: string;
     /** Shown while there is nothing to show yet. */
