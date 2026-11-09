@@ -782,6 +782,20 @@ src/
 
 Newest first — useful for picking back up.
 
+- **Mobile LCP (2026-11-09).** PageSpeed mobile read 90 with LCP 3.6 s and
+  FCP 1.1 s; the LCP element is the hero headline. Two causes: `.settle`
+  faded the headline in from opacity 0, so Chrome dated LCP from the first
+  visible frame, after hydration; and the hero phone's ~150 KB of pictures
+  (plus five `<link rel=preload as=image>`) loaded before the headline, which
+  Lantern's slow-4G simulation charges to LCP. Fixes: `settle` is a rise only,
+  never a fade (don't add opacity back to anything wrapping an LCP element);
+  `HeroDevice` sets its image `src`s only after `load` + idle (the story
+  already waits for decode); the site's mono font is WOFF2
+  (`src/app/fonts/`, 22 KB, was the 58 KB poster TTF). Measured with
+  Lighthouse devtools throttling on a local production build, 3 runs each:
+  before LCP 3.5–4.0 s, score 80–85; after LCP 2.2–2.5 s (= FCP), 90–92.
+  The PSI API answers 429 without a key, so the real report is the owner's.
+
 - **Round 4: owner's ten points (2026-11-07).** Admin support and partner
   offers (§3). Video messages 20 s, in-page recorder, one per phone. Gallery
   thumbnails 720 px (originals on open and download). Legal pages: no

@@ -175,6 +175,29 @@ export function HeroDevice({ copy, qrSvg, align = "center" }: { copy: Copy; qrSv
   const [cue, setCue] = useState(0);
   const [s, setS] = useState(560 / DEV.h);
   const [tabRects, setTabRects] = useState<Rect[] | null>(null);
+  /**
+   * The phone's pictures load only after the page has: PageSpeed's mobile run
+   * simulates slow 4G and charges every byte requested before the headline
+   * paints to the headline's LCP, and these ~150 KB were most of it. The
+   * story already waits for them to decode, and the phone fades in, so nobody
+   * sees an empty screen.
+   */
+  const [media, setMedia] = useState(false);
+
+  useEffect(() => {
+    let idle: number | undefined;
+    const go = () => {
+      const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number };
+      idle = w.requestIdleCallback ? w.requestIdleCallback(() => setMedia(true), { timeout: 1500 }) : window.setTimeout(() => setMedia(true), 200);
+    };
+    if (document.readyState === "complete") go();
+    else window.addEventListener("load", go, { once: true });
+    return () => {
+      window.removeEventListener("load", go);
+      const w = window as Window & { cancelIdleCallback?: (id: number) => void };
+      if (idle !== undefined) (w.cancelIdleCallback ?? window.clearTimeout)(idle);
+    };
+  }, []);
 
   const stageRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
@@ -191,6 +214,27 @@ export function HeroDevice({ copy, qrSvg, align = "center" }: { copy: Copy; qrSv
   const visible = useRef(true);
   const reducedRef = useRef(false);
   const scheduleRef = useRef<() => void>(() => {});
+
+  // The story starts only once its first frames are decoded, so the camera
+  // scene never plays over a blank screen.
+  useEffect(() => {
+    if (!media) return;
+    let alive = true;
+    Promise.all(
+      [CAMERA_BG, ...GUEST].map((src) => {
+        const img = new Image();
+        img.src = src;
+        return img.decode().catch(() => {});
+      }),
+    ).then(() => {
+      if (!alive) return;
+      ready.current = true;
+      scheduleRef.current();
+    });
+    return () => {
+      alive = false;
+    };
+  }, [media]);
 
   // One-shot presses and pulses, fired when their cue arrives.
   const onCue = useCallback((t: number) => {
@@ -252,20 +296,7 @@ export function HeroDevice({ copy, qrSvg, align = "center" }: { copy: Copy; qrSv
     };
     document.addEventListener("visibilitychange", onVis);
 
-    // The story starts only once its first frames are decoded, so the camera
-    // scene never plays over a blank screen.
     let alive = true;
-    Promise.all(
-      [CAMERA_BG, ...GUEST].map((src) => {
-        const img = new Image();
-        img.src = src;
-        return img.decode().catch(() => {});
-      }),
-    ).then(() => {
-      if (!alive) return;
-      ready.current = true;
-      scheduleRef.current();
-    });
 
     // The sliding tab pill needs the real label widths, which depend on the font.
     (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => {
@@ -443,7 +474,7 @@ export function HeroDevice({ copy, qrSvg, align = "center" }: { copy: Copy; qrSv
                   {/* 1 · Camera scanning the QR on a table card */}
                   <div style={{ ...fill, background: "var(--color-device-black)" }}>
                     <img
-                      src={CAMERA_BG}
+                      src={media ? CAMERA_BG : undefined}
                       alt=""
                       style={{ ...abs, left: 0, top: 0, width: "100%", height: "100%", objectFit: "cover" }}
                     />
@@ -902,7 +933,7 @@ export function HeroDevice({ copy, qrSvg, align = "center" }: { copy: Copy; qrSv
                           >
                             {col.map((it, ii) => (
                               <div key={ii} style={{ position: "relative", height: it.h, borderRadius: 16, overflow: "hidden", background: "var(--color-paper-2)" }}>
-                                <img src={it.src} alt="" loading="lazy" decoding="async" style={cover} />
+                                <img src={media ? it.src : undefined} alt="" loading="lazy" decoding="async" style={cover} />
                                 <div
                                   style={{
                                     ...fill,
@@ -950,7 +981,7 @@ export function HeroDevice({ copy, qrSvg, align = "center" }: { copy: Copy; qrSv
                             style={{ width: 107, display: "flex", flexDirection: "column", gap: 8, transform: sp.tf, opacity: sp.op, transition: sp.tr }}
                           >
                             <div style={{ position: "relative", width: 107, height: 107, borderRadius: 20, overflow: "hidden" }}>
-                              <img src={sp.src} alt="" decoding="async" style={cover} />
+                              <img src={media ? sp.src : undefined} alt="" decoding="async" style={cover} />
                               <div
                                 style={{
                                   ...abs,
@@ -1073,7 +1104,7 @@ export function HeroDevice({ copy, qrSvg, align = "center" }: { copy: Copy; qrSv
                           {GUEST.map((g) => (
                             <img
                               key={g}
-                              src={g}
+                              src={media ? g : undefined}
                               alt=""
                               style={{ width: 44, height: 44, borderRadius: 10, objectFit: "cover", display: "block", boxShadow: "0 0 0 1px color-mix(in oklch, var(--color-device-black) 5%, transparent)" }}
                             />
@@ -1106,7 +1137,7 @@ export function HeroDevice({ copy, qrSvg, align = "center" }: { copy: Copy; qrSv
                         transition: f.tr,
                       }}
                     >
-                      <img src={f.src} alt="" style={cover} />
+                      <img src={media ? f.src : undefined} alt="" style={cover} />
                     </div>
                   ))}
 

@@ -402,12 +402,15 @@
 }
 
 /* ── Motion the components still use ──────────────────────────── */
-/* One settle on arrival, transform and opacity only. Visible by default:
-   the keyframes start from the end state's neighbour and run on their own,
-   so nothing waits on a script. */
+/* One settle on arrival, a short rise and nothing else. It never fades:
+   `.settle` wraps the hero headline, which is the page's Largest Contentful
+   Paint, and Chrome dates LCP from the first frame the text is visible. From
+   opacity 0 that frame waited on the main thread while the page hydrated, and
+   mobile LCP read 3.6 s with first paint at 1.1 s. Painted at full opacity
+   from the start, the headline counts the moment it is drawn. */
 @keyframes settle {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: none; }
+  from { transform: translateY(8px); }
+  to { transform: none; }
 }
 .settle {
   animation: settle var(--dur-long) var(--ease-out) both;

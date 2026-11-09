@@ -23,7 +23,7 @@ const playfair = Playfair_Display({
 // scenes. The same file the QR posters render with, so no extra download source;
 // not preloaded, so only a page that uses it fetches it.
 const jetbrainsMono = localFont({
-  src: "../../public/fonts/poster/jetbrains-mono-latin.ttf",
+  src: "./fonts/jetbrains-mono-latin.woff2", // WOFF2 of the poster TTF (58 KB → 22 KB)
   weight: "500",
   variable: "--font-jetbrains",
   display: "swap",
