@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: "6mb",
     },
+    // The site's CSS is ~23 KB. As separate files it blocked the first paint
+    // (PageSpeed: ~490 ms on mobile); inlined into the HTML it arrives with
+    // the document.
+    inlineCss: true,
   },
   // Native node modules can't be bundled by Turbopack (`.node` binaries fail
   // with "non-ecmascript placeable asset"). Mark them as external so they're

@@ -42,7 +42,8 @@ import type { Dict } from "@/lib/i18n/index";
 type Copy = Dict["landing"]["heroDevice"];
 
 const GP = "/gallery-preview/";
-const GUEST = ["/explainer/assets/phone-cake.webp", "/explainer/assets/phone-nana.webp", GP + "p7.jpg"];
+// 320 px copies: the phone shows them under 200 px wide.
+const GUEST = ["/landing/hero/phone-cake.webp", "/landing/hero/phone-nana.webp", GP + "p7.webp"];
 // Pre-blurred and darkened once (sharp, from p5.jpg) — a CSS blur filter on a
 // full-screen image was one of the most expensive things on the page.
 const CAMERA_BG = "/landing/camera-bg.webp";
@@ -94,17 +95,17 @@ const SIDE_BUTTONS: CSSProperties[] = [
 const COLS = [
   [
     { src: GUEST[0], h: 150, fresh: true },
-    { src: GP + "p1.jpg", h: 220 },
-    { src: GP + "p3.jpg", h: 176 },
-    { src: GP + "p5.jpg", h: 236 },
-    { src: GP + "p8.jpg", h: 200 },
+    { src: GP + "p1.webp", h: 220 },
+    { src: GP + "p3.webp", h: 176 },
+    { src: GP + "p5.webp", h: 236 },
+    { src: GP + "p8.webp", h: 200 },
   ],
   [
     { src: GUEST[1], h: 150, fresh: true },
-    { src: GP + "p2.jpg", h: 168 },
-    { src: GP + "p4.jpg", h: 230 },
-    { src: GP + "p6.jpg", h: 190 },
-    { src: GP + "p1.jpg", h: 214 },
+    { src: GP + "p2.webp", h: 168 },
+    { src: GP + "p4.webp", h: 230 },
+    { src: GP + "p6.webp", h: 190 },
+    { src: GP + "p1.webp", h: 214 },
   ],
 ];
 

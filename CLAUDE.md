@@ -795,6 +795,16 @@ Newest first — useful for picking back up.
   Lighthouse devtools throttling on a local production build, 3 runs each:
   before LCP 3.5–4.0 s, score 80–85; after LCP 2.2–2.5 s (= FCP), 90–92.
   The PSI API answers 429 without a key, so the real report is the owner's.
+  The owner's next PSI run read 99. Its leftovers, done the same day:
+  **`experimental.inlineCss`** (the 21 KB CSS file blocked first paint,
+  ~490 ms; trade-off: Next also repeats the CSS in the RSC payload, so the
+  document goes ~25 → ~89 KB gzipped and CSS is no longer cached across
+  pages), a 480 w variant for every landing photo with `sizes` matching the
+  real layout (rail `clamp(200px,22vw,300px)`, route cards
+  `calc(100vw - 32px)` on phones), the hero phone's previews as WebP
+  (`gallery-preview/*.webp`, the JPGs removed) and 320 px copies of its two
+  guest photos in `public/landing/hero/`. Devtools-throttled Lighthouse:
+  LCP 1.1–1.2 s, score 96–98 (was 2.2–2.5 s, 90–92).
 
 - **Round 4: owner's ten points (2026-11-07).** Admin support and partner
   offers (§3). Video messages 20 s, in-page recorder, one per phone. Gallery

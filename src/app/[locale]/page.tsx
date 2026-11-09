@@ -66,7 +66,8 @@ function PlusIcon() {
 // The owner's photos in /public/landing: the original (1600 px wide) plus a
 // 720 and a 1200 px copy, so a 300 px tile never downloads the full file.
 type LandingPhoto = { name: string; w: number; h: number; focus?: string };
-const landingSrcSet = (name: string) => `/landing/${name}-720.webp 720w, /landing/${name}-1200.webp 1200w`;
+const landingSrcSet = (name: string) =>
+  `/landing/${name}-480.webp 480w, /landing/${name}-720.webp 720w, /landing/${name}-1200.webp 1200w`;
 
 // Photos from real events, at the size a phone screen holds them. The rail
 // runs past the container's edge, so the next one is always cut: there are
@@ -265,7 +266,8 @@ export default async function HomePage({
               <img
                 src={`/landing/${photo.name}-720.webp`}
                 srcSet={landingSrcSet(photo.name)}
-                sizes="(min-width: 1024px) 300px, 60vw"
+                // The rail item is clamp(200px, 22vw, 300px).
+                sizes="(min-width: 1364px) 300px, (min-width: 910px) 22vw, 200px"
                 alt=""
                 width={photo.w}
                 height={photo.h}
@@ -290,7 +292,7 @@ export default async function HomePage({
               <img
                 src={`/landing/${route.photo.name}-720.webp`}
                 srcSet={landingSrcSet(route.photo.name)}
-                sizes="(min-width: 768px) 50vw, 100vw"
+                sizes="(min-width: 768px) 50vw, calc(100vw - 32px)"
                 alt=""
                 width={route.photo.w}
                 height={route.photo.h}
