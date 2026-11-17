@@ -782,6 +782,15 @@ src/
 
 Newest first — useful for picking back up.
 
+- **Favicon (2026-11-17).** The tab still showed Next's default Vercel
+  triangle. Now a "C" monogram in Playfair Display bold, paper on ink, with a
+  terracotta dot (a piece of confetti): `src/app/favicon.ico` (16/32/48 PNG
+  entries, hairlines thickened so the 16 px one reads), `src/app/icon.png`
+  (512) and `src/app/apple-icon.png` (180, square corners; iOS rounds them).
+  Next links all three from the file convention, no metadata needed. Drawn
+  with Resvg from `public/fonts/poster/playfair-bold-latin.ttf`; if the owner
+  sends a real logo file, replace these three.
+
 - **Mobile LCP (2026-11-09).** PageSpeed mobile read 90 with LCP 3.6 s and
   FCP 1.1 s; the LCP element is the hero headline. Two causes: `.settle`
   faded the headline in from opacity 0, so Chrome dated LCP from the first
