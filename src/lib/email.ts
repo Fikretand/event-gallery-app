@@ -18,10 +18,16 @@ export type OutgoingEmail = {
   idempotencyKey?: string;
 };
 
-export type SendResult = { ok: true; id: string } | { ok: false; error: string; retryable: boolean };
+/**
+ * `setup`: the failure is ours, not the recipient's: no key, a key Resend
+ * refuses, or a sending domain it has not verified yet (401/403). Nothing is
+ * wrong with the email itself, so it must wait for the fix rather than use up
+ * its tries.
+ */
+export type SendResult = { ok: true; id: string } | { ok: false; error: string; retryable: boolean; setup: boolean };
 
 export async function sendEmail(message: OutgoingEmail): Promise<SendResult> {
-  if (!env.resendApiKey) return { ok: false, error: "RESEND_API_KEY is not set.", retryable: true };
+  if (!env.resendApiKey) return { ok: false, error: "RESEND_API_KEY is not set.", retryable: true, setup: true };
 
   let response: Response;
   try {
@@ -45,7 +51,7 @@ export async function sendEmail(message: OutgoingEmail): Promise<SendResult> {
       signal: AbortSignal.timeout(15_000),
     });
   } catch (cause) {
-    return { ok: false, error: `Network: ${cause instanceof Error ? cause.message : String(cause)}`, retryable: true };
+    return { ok: false, error: `Network: ${cause instanceof Error ? cause.message : String(cause)}`, retryable: true, setup: false };
   }
 
   const body = (await response.json().catch(() => ({}))) as { id?: string; message?: string; name?: string };
@@ -54,5 +60,6 @@ export async function sendEmail(message: OutgoingEmail): Promise<SendResult> {
   // 4xx other than rate limits means the request itself is wrong (bad address,
   // unverified domain); trying again tomorrow will not fix it.
   const retryable = response.status === 429 || response.status >= 500;
-  return { ok: false, error, retryable };
+  const setup = response.status === 401 || response.status === 403;
+  return { ok: false, error, retryable, setup };
 }

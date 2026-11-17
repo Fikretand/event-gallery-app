@@ -49,6 +49,8 @@ export default async function AdminLeadsPage({ searchParams }: { searchParams: P
     hasWhop && !env.whopPlanOneEventOffer && `WHOP_PLAN_ONE_EVENT_OFFER is not set: the ${formatBam(OFFER_PRICE_BAM.offer)} price cannot be charged.`,
     hasWhop && !env.whopPlanOneEventOfferFinal && `WHOP_PLAN_ONE_EVENT_OFFER_FINAL is not set: the last-offer ${formatBam(OFFER_PRICE_BAM.final)} price cannot be charged.`,
     !settings.is_active && "The offer is switched off: /popust shows a closed message.",
+    stats.lastError &&
+      `${stats.failedEmails} email${stats.failedEmails === 1 ? "" : "s"} waiting. Last error from Resend: "${stats.lastError.error}". Failed emails are tried again every day at 09:00, or now with "Send due emails now"; a missing key or an unverified domain never uses up their tries.`,
   ].filter(Boolean) as string[];
 
   const conversion = stats.total ? Math.round(((stats.redeemed) / stats.total) * 100) : 0;

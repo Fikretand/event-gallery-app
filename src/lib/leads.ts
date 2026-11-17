@@ -217,7 +217,15 @@ export async function sendLeadEmail(lead: Lead, kind: LeadEmailKind, now = new D
     .update(
       result.ok
         ? { status: "sent", provider_id: result.id, error: null, sent_at: stamp, updated_at: stamp }
-        : { status: "failed", error: result.error, updated_at: stamp },
+        : {
+            status: "failed",
+            error: result.error,
+            updated_at: stamp,
+            // A setup failure (no key, unverified domain) does not use up a try:
+            // the email goes out on the first run after the fix, however long
+            // the fix takes, as long as the code has not expired.
+            ...(result.setup ? { attempts: attempts - 1 } : {}),
+          },
     )
     .eq("lead_id", lead.id)
     .eq("kind", kind);
@@ -447,6 +455,8 @@ export type LeadStats = {
   revenueBam: number;
   emails: Record<LeadEmailKind, number>;
   failedEmails: number;
+  /** The newest failure's message, so the admin sees why without opening a row. */
+  lastError: { error: string; at: string } | null;
   sources: { source: string; count: number; redeemed: number }[];
 };
 
@@ -461,13 +471,14 @@ export async function leadStats(): Promise<LeadStats> {
     revenueBam: 0,
     emails: { welcome: 0, reminder: 0, final: 0 },
     failedEmails: 0,
+    lastError: null,
     sources: [],
   };
   const client = admin();
   if (!client) return stats;
   const [{ data: leads }, { data: emails }] = await Promise.all([
     client.from("leads").select("status, created_at, unsubscribed_at, source, redeemed_price_bam").limit(50000),
-    client.from("lead_emails").select("kind, status").limit(150000),
+    client.from("lead_emails").select("kind, status, error, updated_at").limit(150000),
   ]);
   const weekAgo = Date.now() - 7 * 86_400_000;
   const bySource = new Map<string, { count: number; redeemed: number }>();
@@ -489,7 +500,11 @@ export async function leadStats(): Promise<LeadStats> {
   }
   for (const e of emails ?? []) {
     if (e.status === "sent") stats.emails[e.kind as LeadEmailKind] += 1;
-    if (e.status === "failed") stats.failedEmails += 1;
+    if (e.status === "failed") {
+      stats.failedEmails += 1;
+      const at = e.updated_at as string;
+      if (e.error && (!stats.lastError || at > stats.lastError.at)) stats.lastError = { error: e.error as string, at };
+    }
   }
   stats.sources = [...bySource.entries()]
     .map(([source, v]) => ({ source, ...v }))
