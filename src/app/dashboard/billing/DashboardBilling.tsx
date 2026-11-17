@@ -14,6 +14,12 @@ import {
 import { computeTrialState, countUserMediaFiles } from "@/lib/events";
 import { env, hasSupabase } from "@/lib/env";
 import { getDictionary, localePrefix, t, type Locale, daysWord } from "@/lib/i18n/index";
+import { OfferCodeBox } from "@/components/lead/offer-code-box";
+import { formatEmailDate } from "@/lib/lead-emails";
+import { OFFER_FULL_PRICE_BAM } from "@/lib/lead-sequence";
+import { resolveOffer } from "@/lib/leads";
+import { readOfferCode } from "@/lib/offer-cookie";
+import { formatBam } from "@/lib/pricing";
 import { BillingPlans } from "./billing-plans";
 import { CoupleCheckoutButton } from "./couple-checkout-button";
 
@@ -59,7 +65,21 @@ export async function DashboardBilling({
   // Whop is preferred for the One Event purchase when its plan is set up;
   // otherwise fall back to the legacy Payhip overlay.
   const oneEventProvider = hasWhop && env.whopPlanOneEvent ? "whop" : "payhip";
-  const oneEventPrice = ONE_EVENT_PRICE[oneEventProvider];
+  // A lead's discount code (src/lib/leads.ts) works through Whop only. The
+  // same resolveOffer() decides the checkout's plan, so this price is the one
+  // charged.
+  const offerCode = isCouple && oneEventProvider === "whop" ? await readOfferCode() : null;
+  const offer = offerCode ? await resolveOffer(offerCode) : null;
+  const oneEventPrice = offer?.ok ? formatBam(offer.priceBam) : ONE_EVENT_PRICE[oneEventProvider];
+  const leadStrings = getDictionary(locale).leadOffer;
+  const offerApplied = offer?.ok
+    ? t(leadStrings.codeApplied, {
+        code: offer.lead.code,
+        price: formatBam(offer.priceBam),
+        full: formatBam(OFFER_FULL_PRICE_BAM),
+        date: formatEmailDate(offer.lead.expires_at, locale),
+      })
+    : null;
   // Photographer plans follow whichever provider will take the payment.
   const subscriptionProvider = hasWhop && env.whopPlanSoloMonthly ? "whop" : "payhip";
   const { pricing: planPricing, currency: planCurrency } = planPricingFor(subscriptionProvider);
@@ -142,6 +162,7 @@ export async function DashboardBilling({
             <div className="card mt-[var(--space-md)] max-w-xl p-[var(--space-lg)]">
               <p className="font-semibold text-ink">{b.oneEvent}</p>
               <p className="mt-2 flex items-baseline gap-1.5">
+                {offer?.ok ? <s className="num text-lg text-muted">{formatBam(OFFER_FULL_PRICE_BAM)}</s> : null}
                 <span className="num font-display text-[2.25rem] font-semibold leading-none text-ink">{oneEventPrice}</span>
                 <span className="text-sm text-muted">{b.oneTime}</span>
               </p>
@@ -165,6 +186,14 @@ export async function DashboardBilling({
                 priceLabel={oneEventPrice}
                 strings={b}
               />
+              {oneEventProvider === "whop" ? (
+                <OfferCodeBox
+                  locale={locale}
+                  strings={leadStrings}
+                  applied={offerApplied}
+                  storedError={offer && !offer.ok ? offer.reason : null}
+                />
+              ) : null}
             </div>
           </section>
         )}

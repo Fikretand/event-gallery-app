@@ -251,6 +251,47 @@ These are loaded server-side by Resvg for the poster API, and client-side via
   service role only (migration `round4_partners_and_approval.sql`, applied
   2026-11-07).
 
+### Lead offer: emails for a discount code (2026-11-17)
+- **`/[locale]/popust`** is where the Instagram/TikTok ads land: an email, a
+  consent box (its wording is stored with the lead), a honeypot, 6 tries an
+  hour per address hash. `utm_source/medium/campaign` from the ad's URL are
+  kept as the lead's source. One lead per email; signing up again re-sends the
+  code (at most hourly). Not in the sitemap or footer: ad traffic only.
+- **Emails via Resend** (`src/lib/email.ts`, plain fetch; `RESEND_API_KEY`,
+  `EMAIL_FROM`, `EMAIL_REPLY_TO`). Templates in `src/lib/lead-emails.ts` (bs +
+  en, table HTML + text, tested). Rules in `src/lib/lead-sequence.ts` (pure,
+  tested): code at once (69 KM), reminder on day 10 if unused, last offer 3
+  days before expiry with a further 5 KM off (64 KM), expiry on day 30. Each
+  lead stores its own dates at signup, so a settings change never moves a
+  promised date. `lead_emails` has unique (lead, kind): a row is claimed
+  before Resend is called, so no email goes out twice; failures retry on
+  later runs up to 4 tries. Every email has List-Unsubscribe + one-click POST
+  (⚠ `POST /api/leads/unsubscribe`, unauthenticated, random 32-char token) and
+  a confirm page `/popust/odjava` (one click, so mail scanners can't
+  unsubscribe people). Unsubscribing stops emails; the code still works.
+- **Daily run** rides on the `process-media` cron, moved to `0 8 * * *`
+  (Hobby allows two crons): expire codes, then send what is due, 50 a run.
+  `/admin/leads` → "Send due emails now" runs it by hand.
+- **Redeeming:** the email button is `/popust/iskoristi?kod=…`, which sets the
+  httpOnly `confetti_offer` cookie and sends the person to signup (couple) or
+  billing. The billing page's One Event card shows the code applied (old price
+  struck) or why not, and has a "Imate kod za popust?" field.
+  `resolveOffer()` decides both the shown price and the checkout's Whop plan
+  (`WHOP_PLAN_ONE_EVENT_OFFER` 69 KM / `_OFFER_FINAL` 64 KM, hidden plans; see
+  WHOP_SETUP.md), so the price shown is the price charged. The checkout puts
+  `leadCode` in Whop metadata; the webhook's `payment.succeeded` marks the
+  lead redeemed (tested). Prices: `ONE_EVENT_OFFER_BAM` /
+  `ONE_EVENT_OFFER_FINAL_BAM` in pricing.ts.
+- **`/admin/leads`:** readiness warnings (no Resend key, no offer plans,
+  offer off), totals, conversion, revenue through codes, emails sent per kind,
+  failures, sources, settings (on/off, valid days, reminder day, last-offer
+  days), the list with each email's state and errors, "bought without code"
+  (a paying couple account with the lead's email), resend code, delete
+  (GDPR), CSV export (`/api/admin/leads/export`, formula-safe).
+- Tables `lead_settings`, `leads`, `lead_emails` (migration
+  `round5_leads.sql`, applied 2026-11-17), service role only. Privacy draft
+  names Resend and the offer emails.
+
 ### Reports ("Prijavi")
 - The public viewer has a report button with a reason (inappropriate /
   private / other). `POST /api/media/[id]/report` — **unauthenticated** —
@@ -609,7 +650,11 @@ wrappers trust the URL and never redirect.
 - Flag any new unauthenticated API endpoint loudly. Current ones beyond the
   guest pages: guest upload session, upload confirm (signed grant), the
   gallery media/download routes (gallery access), the live view API, and
-  ⚠ `POST /api/media/[id]/report` (gallery access + 10/15 min per address).
+  ⚠ `POST /api/media/[id]/report` (gallery access + 10/15 min per address),
+  ⚠ `GET /api/partners/[id]/click` (redirects only to a live offer's stored
+  link), ⚠ `POST /api/leads/unsubscribe` (random per-lead token, can only stop
+  that lead's emails) and the `/popust` capture action (honeypot + 6/hour per
+  address hash).
 
 ### Supabase free-tier ceiling
 500 MB DB + 2 GB bandwidth. Media bytes live in R2 and never count against
@@ -781,6 +826,15 @@ src/
 ## 9. RECENT SESSION LOG
 
 Newest first — useful for picking back up.
+
+- **Lead offer (2026-11-17).** The owner wants Instagram/TikTok ads to collect
+  emails for a discount: 79 → 69 KM for One Event, reminder after 10 days,
+  a last offer with 5 KM more off 3 days before the 30-day code expires, all
+  tracked from the admin. Built as in §3 "Lead offer". Owner's choices: Resend,
+  One Event only, the 30-day schedule, migration applied. Owner still to do:
+  Resend account + domain DNS + `RESEND_API_KEY`; the two hidden Whop plans +
+  their env vars; then a real end-to-end test (sign up on /popust with their
+  own email, use the code with a 100% Whop promo on top, watch /admin/leads).
 
 - **Favicon (2026-11-17).** The tab still showed Next's default Vercel
   triangle. Now a "C" monogram in Playfair Display bold, paper on ink, with a

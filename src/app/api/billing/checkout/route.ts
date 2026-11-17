@@ -14,6 +14,8 @@ import {
 } from "@/lib/billing";
 import { getAccountTypeForUser } from "@/lib/auth";
 import { env } from "@/lib/env";
+import { resolveOffer } from "@/lib/leads";
+import { readOfferCode } from "@/lib/offer-cookie";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { BillingCycle } from "@/lib/types";
 
@@ -65,12 +67,25 @@ export async function POST(request: Request) {
     // The page embeds the checkout from `checkoutConfiguration` and keeps
     // `url` (the hosted page) as its fallback.
     if (hasWhop) {
-      const whopPlanId = getWhopPlanId(plan, cycle);
+      let whopPlanId = getWhopPlanId(plan, cycle);
+      // A lead's discount code (remembered in a cookie) swaps in the offer
+      // plan. resolveOffer is what the billing page showed, so the price on
+      // the button is the price Whop charges; a code that has gone bad since
+      // falls back to the regular price, and the page will say why on reload.
+      let leadCode: string | undefined;
+      if (plan === "couple") {
+        const offer = await resolveOffer(await readOfferCode());
+        if (offer.ok) {
+          whopPlanId = offer.planId;
+          leadCode = offer.lead.code;
+        }
+      }
       if (whopPlanId) {
         const checkout = await createWhopCheckout({
           planId: whopPlanId,
           user: { id: user.id },
           redirectUrl: successUrl,
+          leadCode,
         });
         return NextResponse.json({
           url: checkout.url,

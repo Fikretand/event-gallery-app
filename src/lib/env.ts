@@ -44,6 +44,14 @@ export const env = {
   whopPlanSoloYearly: optional(process.env.WHOP_PLAN_SOLO_YEARLY),
   whopPlanProMonthly: optional(process.env.WHOP_PLAN_PRO_MONTHLY),
   whopPlanProYearly: optional(process.env.WHOP_PLAN_PRO_YEARLY),
+  /** One Event at the lead-offer prices (ONE_EVENT_OFFER_BAM / _FINAL_BAM). */
+  whopPlanOneEventOffer: optional(process.env.WHOP_PLAN_ONE_EVENT_OFFER),
+  whopPlanOneEventOfferFinal: optional(process.env.WHOP_PLAN_ONE_EVENT_OFFER_FINAL),
+  // ── Email (Resend) ──
+  resendApiKey: optional(process.env.RESEND_API_KEY),
+  /** The sender, on a domain verified in Resend. */
+  emailFrom: optional(process.env.EMAIL_FROM) ?? "Confetti <ponuda@confetti.ba>",
+  emailReplyTo: optional(process.env.EMAIL_REPLY_TO) ?? "podrska@confetti.ba",
   /** "sandbox" while testing, "production" once live. */
   whopEnvironment: (optional(process.env.WHOP_ENVIRONMENT) === "sandbox" ? "sandbox" : "production") as
     | "sandbox"
@@ -57,6 +65,8 @@ export const hasR2 = Boolean(
 );
 /** Whop can create checkouts once an API key is present. */
 export const hasWhop = Boolean(env.whopApiKey);
+/** Lead emails can go out once Resend has a key. */
+export const hasEmail = Boolean(env.resendApiKey);
 /** True once any payment provider is configured — gates live checkout. */
 export const hasPayments = Boolean(env.payhipWebhookSecret || env.whopApiKey);
 

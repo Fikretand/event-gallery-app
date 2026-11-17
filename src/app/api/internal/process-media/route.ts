@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { processMediaById } from "@/lib/events";
 import { isInternalRequest } from "@/lib/internal-auth";
+import { runLeadSequence, type SequenceReport } from "@/lib/leads";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 // Media/render work (sharp, resvg, pdf, zip) can exceed the 10s default.
@@ -67,7 +68,19 @@ async function handle(request: Request) {
     }
   }
 
-  return NextResponse.json({ processed, failed: failed.length });
+  // The lead offer's daily emails ride on this cron: Vercel Hobby allows two
+  // crons, once a day each, and this one runs at a decent hour for email
+  // (08:00 UTC, 9 or 10 in Sarajevo). A failure here never fails the media run.
+  let leads: SequenceReport | { error: string };
+  try {
+    // 50 a run keeps media + email work inside the 60 s limit; any rest goes tomorrow.
+    leads = await runLeadSequence({ limit: 50 });
+  } catch (cause) {
+    leads = { error: cause instanceof Error ? cause.message : String(cause) };
+    console.error("[process-media] lead sequence failed", leads);
+  }
+
+  return NextResponse.json({ processed, failed: failed.length, leads });
 }
 
 export async function GET(request: Request) {

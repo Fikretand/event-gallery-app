@@ -144,6 +144,10 @@ export function planFromWhopPlan(planId: string | null | undefined): {
 } | null {
   if (!planId) return null;
   if (planId === env.whopPlanOneEvent) return { plan: "couple", cycle: "one_time" };
+  // One Event bought with a lead's discount code (src/lib/leads.ts).
+  if (planId === env.whopPlanOneEventOffer || planId === env.whopPlanOneEventOfferFinal) {
+    return { plan: "couple", cycle: "one_time" };
+  }
   if (planId === env.whopPlanSoloMonthly) return { plan: "solo", cycle: "monthly" };
   if (planId === env.whopPlanSoloYearly) return { plan: "solo", cycle: "yearly" };
   if (planId === env.whopPlanProMonthly) return { plan: "pro", cycle: "monthly" };
@@ -167,13 +171,15 @@ export async function createWhopCheckout(opts: {
   planId: string;
   user: { id: string };
   redirectUrl: string;
+  /** A lead's discount code; the webhook marks it used once the payment lands. */
+  leadCode?: string;
 }): Promise<{ id: string; url: string }> {
   const checkout = await whopRequest<{ id?: string; purchase_url?: string | null }>("/checkout_configurations", {
     method: "POST",
     body: {
       ...(env.whopAccountId ? { account_id: env.whopAccountId } : {}),
       variant_id: opts.planId,
-      metadata: { userId: opts.user.id },
+      metadata: { userId: opts.user.id, ...(opts.leadCode ? { leadCode: opts.leadCode } : {}) },
       redirect_url: opts.redirectUrl,
     },
   });

@@ -69,7 +69,14 @@ const CATALOGUE = [
     title: "Confetti – One Event",
     description:
       "Privatna galerija za jedan događaj: gosti šalju fotografije i videe preko QR koda, vi ih odobravate i dijelite.",
-    plans: [{ key: "WHOP_PLAN_ONE_EVENT", title: "Jedan događaj", billing_type: "one_time", price: 79 }],
+    plans: [
+      { key: "WHOP_PLAN_ONE_EVENT", title: "Jedan događaj", billing_type: "one_time", price: 79 },
+      // The lead offer's prices (src/lib/pricing.ts ONE_EVENT_OFFER_BAM /
+      // _FINAL_BAM). Hidden: reachable only through a checkout our server
+      // makes for a valid code, never from the Whop storefront.
+      { key: "WHOP_PLAN_ONE_EVENT_OFFER", title: "Jedan događaj – ponuda", billing_type: "one_time", price: 69, hidden: true },
+      { key: "WHOP_PLAN_ONE_EVENT_OFFER_FINAL", title: "Jedan događaj – zadnja ponuda", billing_type: "one_time", price: 64, hidden: true },
+    ],
   },
   {
     title: "Confetti Solo",
@@ -143,6 +150,7 @@ for (const product of CATALOGUE) {
         currency: "bam",
         billing_type: plan.billing_type,
         release_method: "buy_now",
+        ...(plan.hidden ? { visibility: "hidden" } : {}),
         override_tax_type: "inclusive",
         ...(plan.billing_type === "one_time"
           ? { initial_price: plan.price }

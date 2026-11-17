@@ -68,6 +68,7 @@ const EN_PRIVACY: LegalDoc = {
         "Uploaded media: photos and videos uploaded by you or by your guests, plus optional guest name/email and technical metadata (file type/size, timestamps, a hashed IP for rate-limiting and abuse prevention).",
         "Billing data: your plan and subscription status, and the email used at checkout. Payments are processed by our payment provider (Whop) — we do not receive or store your full card details.",
         "Technical data: essential cookies (login/session and language preference), standard server logs and, only if you agree, Google Analytics usage data.",
+        "Discount offer: if you leave your email on our offer page, we store the address, the code we send you, when you agreed and which ad brought you (if the link said so), and whether the code was used.",
       ],
     },
     {
@@ -78,12 +79,13 @@ const EN_PRIVACY: LegalDoc = {
         "To operate billing, plan limits and trial logic.",
         "For security, abuse prevention, rate-limiting and troubleshooting.",
         "To communicate with you about your account and, where you have opted in, the optional homepage photographer spotlight.",
+        "To send the discount code you asked for and at most two reminders about it. Every such email has a one-click unsubscribe; the data is deleted on request.",
       ],
     },
     {
       heading: "3. Legal bases (GDPR)",
       paragraphs: [
-        "Where the GDPR applies, we rely on: performance of a contract (providing the Service to account holders); our legitimate interests (security, service improvement, preventing abuse); consent (guest uploads, and appearing in the photographer spotlight — which you can withdraw at any time); and compliance with legal obligations.",
+        "Where the GDPR applies, we rely on: performance of a contract (providing the Service to account holders); our legitimate interests (security, service improvement, preventing abuse); consent (guest uploads, emails about the discount offer, and appearing in the photographer spotlight — which you can withdraw at any time); and compliance with legal obligations.",
       ],
     },
     {
@@ -103,7 +105,7 @@ const EN_PRIVACY: LegalDoc = {
         "Vercel — application hosting and delivery.",
         "Whop — payment processing.",
         "Google Analytics (Google Ireland Ltd.) — visit statistics on our public pages, only with your consent.",
-        "An email delivery provider — transactional emails.",
+        "Resend — sending emails, including the discount offer emails.",
         "These providers may process data outside your country, including outside the EU/EEA, under safeguards such as standard contractual clauses where required.",
       ],
     },
@@ -271,6 +273,7 @@ const BS_PRIVACY: LegalDoc = {
         "Učitani mediji: fotografije i videi koje učitate vi ili vaši gosti, uz opciono ime/email gosta i tehničke metapodatke (tip/veličina fajla, vremenske oznake, hešovana IP adresa za ograničavanje i sprječavanje zloupotrebe).",
         "Podaci o naplati: vaš plan i status pretplate te email korišten pri kupovini. Plaćanja obrađuje naš platni provajder (Whop) — mi ne primamo niti pohranjujemo pune podatke vaše kartice.",
         "Tehnički podaci: neophodni kolačići (prijava/sesija i jezička preferenca), standardni serverski zapisi i, samo uz vaš pristanak, podaci o korištenju iz Google Analyticsa.",
+        "Ponuda s popustom: ako ostavite email na stranici s ponudom, čuvamo adresu, kod koji vam šaljemo, kada ste dali pristanak i preko koje reklame ste došli (ako je link to sadržavao), te da li je kod iskorišten.",
       ],
     },
     {
@@ -281,12 +284,13 @@ const BS_PRIVACY: LegalDoc = {
         "Za naplatu, ograničenja plana i logiku probnog perioda.",
         "Za sigurnost, sprječavanje zloupotrebe, ograničavanje zahtjeva i rješavanje problema.",
         "Za komunikaciju o vašem nalogu i, ako ste to izabrali, opcioni izlog fotografa na naslovnoj stranici.",
+        "Za slanje koda za popust koji ste tražili i najviše dva podsjetnika o njemu. Svaki takav mail ima odjavu jednim klikom, a podatke brišemo na zahtjev.",
       ],
     },
     {
       heading: "3. Pravni osnovi (GDPR)",
       paragraphs: [
-        "Gdje se primjenjuje GDPR, oslanjamo se na: izvršenje ugovora (pružanje Usluge korisnicima naloga); naše legitimne interese (sigurnost, unapređenje usluge, sprječavanje zloupotrebe); privolu (prijenosi gostiju i pojavljivanje u izlogu fotografa — koju možete povući u bilo kojem trenutku); te ispunjenje zakonskih obaveza.",
+        "Gdje se primjenjuje GDPR, oslanjamo se na: izvršenje ugovora (pružanje Usluge korisnicima naloga); naše legitimne interese (sigurnost, unapređenje usluge, sprječavanje zloupotrebe); privolu (prijenosi gostiju, mailovi o ponudi s popustom i pojavljivanje u izlogu fotografa — koju možete povući u bilo kojem trenutku); te ispunjenje zakonskih obaveza.",
       ],
     },
     {
@@ -306,7 +310,7 @@ const BS_PRIVACY: LegalDoc = {
         "Vercel — hosting i isporuka aplikacije.",
         "Whop — obrada plaćanja.",
         "Google Analytics (Google Ireland Ltd.) — statistika posjeta na javnim stranicama, samo uz vaš pristanak.",
-        "Provajder za slanje emailova — transakcijski emailovi.",
+        "Resend — slanje emailova, uključujući mailove o ponudi s popustom.",
         "Ovi provajderi mogu obrađivati podatke izvan vaše zemlje, uključujući izvan EU/EEA, uz zaštitne mjere poput standardnih ugovornih klauzula gdje je to potrebno.",
       ],
     },

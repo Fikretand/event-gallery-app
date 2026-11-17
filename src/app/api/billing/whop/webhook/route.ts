@@ -9,6 +9,7 @@ import {
   whopRequest,
 } from "@/lib/billing";
 import { env } from "@/lib/env";
+import { markLeadRedeemed } from "@/lib/leads";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { SubscriptionStatus } from "@/lib/types";
 
@@ -324,6 +325,19 @@ export async function POST(request: Request) {
       details: updateError.details,
     });
     return NextResponse.json({ error: updateError.message }, { status: 500 });
+  }
+
+  // A purchase made with a lead's discount code: mark the code used, so the
+  // emails stop and /admin/leads counts it. Failing here never fails the
+  // activation above.
+  if (type === "payment.succeeded") {
+    const payment = event.data as WhopPayment;
+    const leadCode = payment.metadata?.leadCode;
+    if (typeof leadCode === "string" && leadCode) {
+      await markLeadRedeemed({ code: leadCode, userId: account.id, planId: resolved.planId, paymentId: payment.id }).catch((cause) =>
+        console.error("[whop-webhook] lead not marked", { leadCode, cause: cause instanceof Error ? cause.message : cause }),
+      );
+    }
   }
 
   return NextResponse.json({

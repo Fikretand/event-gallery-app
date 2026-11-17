@@ -52,6 +52,8 @@ Names only.
 | `WHOP_PLAN_SOLO_YEARLY` | `plan_…`, 468 KM / 365 days |
 | `WHOP_PLAN_PRO_MONTHLY` | `plan_…`, 99 KM / 30 days |
 | `WHOP_PLAN_PRO_YEARLY` | `plan_…`, 948 KM / 365 days |
+| `WHOP_PLAN_ONE_EVENT_OFFER` | `plan_…`, 69 KM one-time, hidden (lead discount code) |
+| `WHOP_PLAN_ONE_EVENT_OFFER_FINAL` | `plan_…`, 64 KM one-time, hidden (code's last days) |
 
 Switch every `WHOP_*` variable together. A mix of sandbox and production
 values fails every checkout.
@@ -60,6 +62,20 @@ Polar was removed entirely when Whop went in: it never had a real customer
 (only 0 KM test orders in production and a sandbox test subscription). The
 `POLAR_*` variables can be deleted from Vercel, and the Polar webhook endpoint
 in the Polar dashboard can be disabled.
+
+## Lead offer plans (discount codes from /popust)
+
+A code from the lead emails (src/lib/leads.ts) buys One Event through one of
+two extra plans: 69 KM, and 64 KM in the code's last days. They are ordinary
+one-time plans on the One Event product, set to **Hidden** so the storefront
+never shows them; only a checkout our server creates for a valid code uses
+them. `scripts/whop-setup.mjs` creates both (it reuses plans that exist by
+title). By hand: Whop dashboard → the One Event product → Add plan → One-time,
+69.00 BAM, visibility Hidden; again for 64.00 BAM. Put the two `plan_…` ids in
+Vercel as `WHOP_PLAN_ONE_EVENT_OFFER` and `WHOP_PLAN_ONE_EVENT_OFFER_FINAL`
+and redeploy. Until both are set, /admin/leads warns and the billing page says
+the discount cannot be applied (nobody is charged a price they were not shown).
+The prices live in `src/lib/pricing.ts`; change both together.
 
 ## Apple Pay and Google Pay
 The embedded checkout shows both wallets only once Apple Pay is ready on

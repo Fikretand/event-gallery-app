@@ -9,6 +9,8 @@ export const BRAND_HEX = {
   paper: "#fffaf2", // the QR card editor's warm paper
   paper2: "#f2eadf", // --color-paper-2
   accent: "#e27952", // the light terracotta for marks drawn large
+  accentStrong: "#b44821", // --color-accent, for filled buttons in email (AA under white)
+  muted: "#5b6170", // body-secondary grey in email
   moss: "#38584d", // --color-moss
   blush: "#f8e6da", // the share card's gradient, paper-2 into accent-soft
   blushDeep: "#f3d9c8",

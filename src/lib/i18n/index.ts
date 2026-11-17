@@ -1171,6 +1171,46 @@ export interface Dict {
     oneTimeGroup: string;
     oneTimeGroupNote: string;
   };
+  /** The lead offer: /popust, its unsubscribe page and the code on the billing page. */
+  leadOffer: {
+    seoTitle: string;
+    seoDescription: string;
+    title: string; // {{off}}
+    lead: string; // {{price}} {{full}} {{days}}
+    points: string[];
+    emailLabel: string;
+    emailPlaceholder: string;
+    consent: string;
+    submit: string;
+    submitting: string;
+    note: string;
+    privacyLink: string;
+    successTitle: string;
+    successBody: string; // {{email}}
+    existingBody: string; // {{email}}
+    errorEmail: string;
+    errorConsent: string;
+    errorRate: string;
+    errorGeneric: string;
+    closedTitle: string;
+    closedBody: string;
+    closedCta: string;
+    photoAlt: string;
+    unsubTitle: string;
+    unsubBody: string;
+    unsubButton: string;
+    unsubDone: string;
+    unsubInvalid: string;
+    codeLabel: string;
+    codePlaceholder: string;
+    codeApply: string;
+    codeApplied: string; // {{code}} {{price}} {{full}} {{date}}
+    codeRemove: string;
+    codeInvalid: string;
+    codeExpired: string;
+    codeRedeemed: string;
+    codeUnavailable: string;
+  };
   partnerOffers: {
     label: string;
     cta: string;

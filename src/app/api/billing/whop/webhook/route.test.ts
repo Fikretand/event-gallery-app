@@ -9,6 +9,13 @@ const { SECRET } = vi.hoisted(() => ({
 const mocks = vi.hoisted(() => ({
   rows: [] as Record<string, unknown>[],
   updates: [] as { id: string; update: Record<string, unknown> }[],
+  redeemed: [] as Record<string, unknown>[],
+}));
+
+vi.mock("@/lib/leads", () => ({
+  markLeadRedeemed: async (input: Record<string, unknown>) => {
+    mocks.redeemed.push(input);
+  },
 }));
 
 vi.mock("@/lib/env", async (importOriginal) => {
@@ -21,6 +28,8 @@ vi.mock("@/lib/env", async (importOriginal) => {
       whopWebhookSecret: SECRET,
       whopEnvironment: "sandbox",
       whopPlanOneEvent: "plan_one",
+      whopPlanOneEventOffer: "plan_one_offer",
+      whopPlanOneEventOfferFinal: "plan_one_final",
       whopPlanSoloMonthly: "plan_solo_m",
       whopPlanSoloYearly: "plan_solo_y",
       whopPlanProMonthly: "plan_pro_m",
@@ -96,9 +105,25 @@ describe("POST /api/billing/whop/webhook", () => {
   beforeEach(() => {
     mocks.rows = [{ ...photographer }, { ...couple }];
     mocks.updates = [];
+    mocks.redeemed = [];
   });
   afterEach(() => {
     vi.unstubAllGlobals();
+  });
+
+  it("activates One Event bought with a lead's code and marks the code used", async () => {
+    const response = await deliver(
+      "payment.succeeded",
+      payment({ metadata: { userId: "user-c", leadCode: "CONF-ABCD-2345" }, variant_id: "plan_one_offer" }),
+    );
+    expect(response.status).toBe(200);
+    expect(mocks.updates[0]).toMatchObject({ id: "user-c", update: { subscription_status: "active" } });
+    expect(mocks.redeemed).toEqual([{ code: "CONF-ABCD-2345", userId: "user-c", planId: "plan_one_offer", paymentId: "pay_1" }]);
+  });
+
+  it("marks no code when the payment carries none", async () => {
+    await deliver("payment.succeeded", payment());
+    expect(mocks.redeemed).toEqual([]);
   });
 
   it("refuses a delivery signed with another secret", async () => {

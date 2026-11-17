@@ -46,6 +46,15 @@ function IconArrowLeft() {
   );
 }
 
+function IconLeads() {
+  return (
+    <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round">
+      <rect x="2.5" y="4.5" width="15" height="11" rx="1.5" />
+      <path d="M3 5.5l7 5.5 7-5.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function IconPartners() {
   return (
     <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round">
@@ -67,6 +76,7 @@ const NAV = [
   { href: "/admin", label: "Dashboard", icon: <IconDashboard /> },
   { href: "/admin/users", label: "Users", icon: <IconUsers /> },
   { href: "/admin/support", label: "Support", icon: <IconSupport /> },
+  { href: "/admin/leads", label: "Leads", icon: <IconLeads /> },
   { href: "/admin/partners", label: "Partners", icon: <IconPartners /> },
 ];
 

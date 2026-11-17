@@ -37,6 +37,15 @@ export const ONE_EVENT_PRICE = { whop: "79,00 KM", payhip: "€39" } as const;
 /** The bare number behind the Whop One Event price, for arithmetic and copy. */
 export const ONE_EVENT_BAM = 79;
 
+/**
+ * One Event with a lead's discount code (src/lib/leads.ts): the price from the
+ * first email, and the lower one in the last few days before the code
+ * expires. Each is a Whop plan of its own (WHOP_PLAN_ONE_EVENT_OFFER /
+ * _OFFER_FINAL), so changing a number here means changing that plan too.
+ */
+export const ONE_EVENT_OFFER_BAM = 69;
+export const ONE_EVENT_OFFER_FINAL_BAM = 64;
+
 export function formatBam(amount: number): string {
   return `${amount} KM`;
 }
