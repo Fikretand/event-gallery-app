@@ -831,10 +831,16 @@ Newest first — useful for picking back up.
   emails for a discount: 79 → 69 KM for One Event, reminder after 10 days,
   a last offer with 5 KM more off 3 days before the 30-day code expires, all
   tracked from the admin. Built as in §3 "Lead offer". Owner's choices: Resend,
-  One Event only, the 30-day schedule, migration applied. Owner still to do:
-  Resend account + domain DNS + `RESEND_API_KEY`; the two hidden Whop plans +
-  their env vars; then a real end-to-end test (sign up on /popust with their
-  own email, use the code with a 100% Whop promo on top, watch /admin/leads).
+  One Event only, the 30-day schedule, migration applied. Offer plans made by
+  the owner in the Whop dashboard ("Hide from store page"): 69 KM
+  `plan_jgvxHMzifu6Lu`, 64 KM `plan_jAKWGh20PchEj`, set in Vercel as
+  `WHOP_PLAN_ONE_EVENT_OFFER(_FINAL)`. The company key the owner gave this
+  session (proxy-injected for api.whop.com) can read products but gets 401 on
+  `/plans` reads and writes, and hidden plans are left out of a product's
+  `variants`: to read a hidden plan's id, un-hide it for a minute. Owner still
+  to do: `RESEND_API_KEY` in Vercel (domain done in Resend) + redeploy, then
+  the end-to-end test (sign up on /popust, use the code with a 100% Whop promo
+  on top, watch /admin/leads).
 
 - **Favicon (2026-11-17).** The tab still showed Next's default Vercel
   triangle. Now a "C" monogram in Playfair Display bold, paper on ink, with a
