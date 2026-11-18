@@ -14,12 +14,14 @@ import {
 } from "@/lib/billing";
 import { getAccountTypeForUser } from "@/lib/auth";
 import { env } from "@/lib/env";
-import { resolveOffer } from "@/lib/leads";
+import { recordOfferCheckoutError, resolveOffer } from "@/lib/leads";
 import { readOfferCode } from "@/lib/offer-cookie";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { BillingCycle } from "@/lib/types";
 
 export async function POST(request: Request) {
+  // Set once a lead's code is in play, so a failure can be kept on the lead.
+  let leadCode: string | undefined;
   try {
     const supabase = await createSupabaseServerClient();
     if (!supabase) {
@@ -72,7 +74,6 @@ export async function POST(request: Request) {
       // plan. resolveOffer is what the billing page showed, so the price on
       // the button is the price Whop charges; a code that has gone bad since
       // falls back to the regular price, and the page will say why on reload.
-      let leadCode: string | undefined;
       if (plan === "couple") {
         const offer = await resolveOffer(await readOfferCode());
         if (offer.ok) {
@@ -138,6 +139,7 @@ export async function POST(request: Request) {
       whopEnvironment: env.whopEnvironment,
       detail: error instanceof Error ? (error.cause ?? error.stack?.slice(0, 500)) : error,
     });
+    if (leadCode) await recordOfferCheckoutError(leadCode, message);
     const status = message.includes("NOT_CONFIGURED") ? 503 : 400;
     return NextResponse.json({ error: message }, { status });
   }

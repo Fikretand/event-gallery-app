@@ -52,6 +52,8 @@ export type Lead = {
   redeemed_user_id: string | null;
   redeemed_price_bam: number | null;
   redeemed_payment_id: string | null;
+  last_checkout_error: string | null;
+  last_checkout_error_at: string | null;
 };
 
 export type LeadEmailRow = {
@@ -113,6 +115,20 @@ export async function resolveOffer(rawCode: string | null | undefined, now = new
   const planId = offerPlanId(tier);
   if (!planId) return { ok: false, reason: "unavailable" };
   return { ok: true, lead, tier, priceBam: OFFER_PRICE_BAM[tier], planId };
+}
+
+/**
+ * A checkout with this code failed at the payment provider. Kept on the lead
+ * so /admin/leads shows the provider's reason after the runtime log is gone.
+ */
+export async function recordOfferCheckoutError(code: string, message: string) {
+  const client = admin();
+  if (!client) return;
+  const { error } = await client
+    .from("leads")
+    .update({ last_checkout_error: message.slice(0, 900), last_checkout_error_at: new Date().toISOString() })
+    .eq("code", code);
+  if (error) console.error("[leads] could not record checkout error", { code, message: error.message });
 }
 
 /** Called by the Whop webhook once a purchase made with a code is paid. */

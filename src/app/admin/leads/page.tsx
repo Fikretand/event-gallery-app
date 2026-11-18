@@ -186,6 +186,11 @@ export default async function AdminLeadsPage({ searchParams }: { searchParams: P
                       {lead.source ? `, from ${lead.source}${lead.campaign ? ` (${lead.campaign})` : ""}` : ""}
                       {lead.redeemed_at ? `, used ${day(lead.redeemed_at)}` : ""}
                     </p>
+                    {lead.last_checkout_error && lead.status !== "redeemed" ? (
+                      <p className="text-sm text-error">
+                        Checkout failed {day(lead.last_checkout_error_at)}: {lead.last_checkout_error}
+                      </p>
+                    ) : null}
                     <div className="flex flex-wrap gap-1.5">
                       {KINDS.map(({ kind, label }) => {
                         const e = lead.emails.find((x) => x.kind === kind);
