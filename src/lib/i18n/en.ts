@@ -379,6 +379,11 @@ export const dict: Dict = {
       success: "Your password has been changed. You can now log in with it.",
       goToLogin: "Log in",
     },
+    offerLoginNotice: "Your discount code is saved. Sign in and the Payment page opens with the discount already applied.",
+    offerSignupNotice:
+      "Your discount code is saved. Create the account with the address your code came to, and the Payment page opens right after with the discount already applied.",
+    passwordShow: "Show",
+    passwordHide: "Hide",
     confirmLinkFailed:
       "That confirmation link has expired or was already used. If your account is confirmed, just log in. If not, sign up again with the same email and we will send you a fresh link.",
     passwordRules: {
@@ -1701,7 +1706,7 @@ export const dict: Dict = {
     note: "The code is for the one-event plan. We use your address for this offer only.",
     privacyLink: "Privacy policy",
     successTitle: "Your code is on its way",
-    successBody: "We sent it to {{email}}. If you don't see it within a few minutes, check Promotions or Spam.",
+    successBody: "We sent it to {{email}}, with step-by-step instructions for using it. If you don't see it within a few minutes, check Promotions or Spam.",
     existingBody: "A code was already made for {{email}}. If it is still valid, we sent it again; check your inbox, Promotions or Spam.",
     errorEmail: "Enter a valid email address.",
     errorConsent: "Tick the box to agree to emails about the offer, or we can't send you the code.",
@@ -1720,6 +1725,8 @@ export const dict: Dict = {
     codePlaceholder: "CONF-XXXX-XXXX",
     codeApply: "Apply",
     codeApplied: "Code {{code}} applied: {{price}} instead of {{full}}. Valid until {{date}}.",
+    dashboardNotice: "A discount is waiting for you: the One Event plan for {{price}} instead of {{full}}, until {{date}}.",
+    dashboardCta: "Use the discount",
     codeRemove: "Remove code",
     codeInvalid: "That code doesn't exist. Check it's typed exactly as in the email.",
     codeExpired: "This code has expired.",

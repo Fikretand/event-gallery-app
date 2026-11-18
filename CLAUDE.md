@@ -291,6 +291,31 @@ These are loaded server-side by Resvg for the poster API, and client-side via
 - Tables `lead_settings`, `leads`, `lead_emails` (migration
   `round5_leads.sql`, applied 2026-11-17), service role only. Privacy draft
   names Resend and the offer emails.
+- **Account-aware (2026-11-18).** Every email reads at send time who holds
+  the address (`accountForEmail`: none / couple / photographer / paid) and
+  says what to do: no account, sign up with this same address (steps, CTA
+  "Napravi nalog…"); a one-event account, sign in, the discount is already
+  on Plaćanje; a photographer or paid account, a new account with another
+  address and the code typed in. `/popust/iskoristi` follows the same split
+  (billing if signed in, `/login?offer=1&email=` for an account,
+  `/signup?intent=couple&offer=1&email=` for none); login and signup go on to
+  `/dashboard/billing` while the cookie holds a code. `currentOffer()`
+  (`offer-current.ts`) is the one place the billing page, the checkout and
+  the couple dashboard's "Čeka vas popust" notice get the discount: the
+  cookie's code, else the live code made for the account's own email.
+  "Ukloni kod" sets the cookie to `none`, which turns both off. The /popust
+  page never says whether an account exists (no enumeration); the email does.
+- **After-trial offer.** `createTrialOffers` (start of the daily run) makes a
+  lead with `offer_type = 'trial'` for each one-event account whose 7-day
+  trial ended in the last 3 days unpaid (not admin, no lead for that email
+  yet): one email (kind `trial`), the 69 KM offer plan, valid
+  `trial_valid_days` (5), no reminder or last offer. Switch and days in
+  /admin/leads. Couples only: photographers would need discounted Solo/Pro
+  Whop plans. Migration `round6_trial_offer.sql` (applied 2026-11-18).
+- A failed checkout with a code stores Whop's message on the lead
+  (`last_checkout_error`, `round5b`), shown in /admin/leads: runtime logs on
+  Hobby last an hour. The 2026-11-18 failure was a 401: the production
+  `WHOP_API_KEY` had been revoked in Whop; the owner made a new one.
 
 ### Reports ("Prijavi")
 - The public viewer has a report button with a reason (inappropriate /
@@ -826,6 +851,13 @@ src/
 ## 9. RECENT SESSION LOG
 
 Newest first — useful for picking back up.
+
+- **Offer by account, after-trial offer, password field (2026-11-18).** See
+  §3 "Lead offer". Password fields (signup, login, reset, change) are
+  `PasswordInput`: a "Prikaži/Sakrij" button inside the field that never
+  takes focus (the phone keyboard stays up), autocorrect and capitals off,
+  and while focused the field plus the rules checklist are scrolled above the
+  on-screen keyboard using `visualViewport`.
 
 - **Lead offer (2026-11-17).** The owner wants Instagram/TikTok ads to collect
   emails for a discount: 79 → 69 KM for One Event, reminder after 10 days,

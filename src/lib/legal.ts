@@ -69,6 +69,7 @@ const EN_PRIVACY: LegalDoc = {
         "Billing data: your plan and subscription status, and the email used at checkout. Payments are processed by our payment provider (Whop) — we do not receive or store your full card details.",
         "Technical data: essential cookies (login/session and language preference), standard server logs and, only if you agree, Google Analytics usage data.",
         "Discount offer: if you leave your email on our offer page, we store the address, the code we send you, when you agreed and which ad brought you (if the link said so), and whether the code was used.",
+        "After the trial: if you have a one-event account and its free trial ends without a purchase, we send you one email with a discount code for the same plan, valid for a few days, and store that code and whether it was used. Every such email has a one-click unsubscribe.",
       ],
     },
     {
@@ -274,6 +275,7 @@ const BS_PRIVACY: LegalDoc = {
         "Podaci o naplati: vaš plan i status pretplate te email korišten pri kupovini. Plaćanja obrađuje naš platni provajder (Whop) — mi ne primamo niti pohranjujemo pune podatke vaše kartice.",
         "Tehnički podaci: neophodni kolačići (prijava/sesija i jezička preferenca), standardni serverski zapisi i, samo uz vaš pristanak, podaci o korištenju iz Google Analyticsa.",
         "Ponuda s popustom: ako ostavite email na stranici s ponudom, čuvamo adresu, kod koji vam šaljemo, kada ste dali pristanak i preko koje reklame ste došli (ako je link to sadržavao), te da li je kod iskorišten.",
+        "Nakon probnog perioda: ako imate nalog za jedan događaj i njegov besplatni probni period istekne bez kupovine, šaljemo vam jedan mail s kodom za popust na isti paket, koji vrijedi nekoliko dana, i čuvamo taj kod i da li je iskorišten. Svaki takav mail ima odjavu jednim klikom.",
       ],
     },
     {

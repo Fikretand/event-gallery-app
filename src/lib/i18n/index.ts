@@ -401,6 +401,12 @@ export interface Dict {
       goToLogin: string;
     };
     /** Shown on the login page when an email confirmation link fails. */
+    /** Arrived from a discount email: what happens after signing in / up. */
+    offerLoginNotice: string;
+    offerSignupNotice: string;
+    /** The password field's show/hide button. */
+    passwordShow: string;
+    passwordHide: string;
     confirmLinkFailed: string;
     /** One line per rule, ticked off live under the password field. */
     passwordRules: { length: string; upper: string; lower: string; digit: string; symbol: string };
@@ -1205,6 +1211,9 @@ export interface Dict {
     codePlaceholder: string;
     codeApply: string;
     codeApplied: string; // {{code}} {{price}} {{full}} {{date}}
+    /** One-event dashboard, when a discount is waiting. */
+    dashboardNotice: string;
+    dashboardCta: string;
     codeRemove: string;
     codeInvalid: string;
     codeExpired: string;

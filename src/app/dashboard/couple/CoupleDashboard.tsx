@@ -17,6 +17,10 @@ import {
   getRetentionAccessEndsAt,
   listOwnerEvents,
 } from "@/lib/events";
+import { formatEmailDate } from "@/lib/lead-emails";
+import { OFFER_FULL_PRICE_BAM } from "@/lib/lead-sequence";
+import { currentOffer } from "@/lib/offer-current";
+import { formatBam } from "@/lib/pricing";
 import { retentionSchedule } from "@/lib/retention";
 import type { TrialState } from "@/lib/types";
 import { absoluteUrl, cn, formatDate } from "@/lib/utils";
@@ -69,6 +73,24 @@ export async function CoupleDashboard({
     ? computeTrialState(profile.created_at, profile.plan_tier, photosUsed, profile.role, profile.subscription_status)
     : null;
 
+  // A discount waiting for this account (its email's code, or one from a
+  // discount email in the cookie): said once, at the top, with the way to it.
+  const offer = profile && !hasActiveSubscription(profile) ? await currentOffer(user.email) : null;
+  const offerBanner = offer?.ok ? (
+    <div role="status" className="notice notice-success flex flex-wrap items-center justify-between gap-3">
+      <p>
+        {t(dict.leadOffer.dashboardNotice, {
+          price: formatBam(offer.priceBam),
+          full: formatBam(OFFER_FULL_PRICE_BAM),
+          date: formatEmailDate(offer.lead.expires_at, locale),
+        })}
+      </p>
+      <Link href={`${localePrefix(locale)}/dashboard/billing`} className="btn btn-sm btn-primary shrink-0">
+        {dict.leadOffer.dashboardCta}
+      </Link>
+    </div>
+  ) : null;
+
   if (event) {
     const status = getEventLifecycleStatus(event);
     const guestUploadUrl = absoluteUrl(`/upload/${event.slug}`);
@@ -96,6 +118,7 @@ export async function CoupleDashboard({
 
         <section className="shell grid gap-[var(--space-xl)]">
           {paymentBanner}
+          {offerBanner}
           {trial && <TrialBanner trial={trial} d={d} locale={locale} />}
           {profile ? (
             <RetentionNotice
@@ -168,6 +191,7 @@ export async function CoupleDashboard({
 
       <section className="shell grid gap-[var(--space-xl)]">
         {paymentBanner}
+        {offerBanner}
         {trial && <TrialBanner trial={trial} d={d} locale={locale} />}
 
         <section className="well p-[var(--space-xl)]">

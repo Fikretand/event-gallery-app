@@ -5,6 +5,8 @@ import { formatEmailDate, renderLeadEmail, type LeadEmailInput } from "./lead-em
 const base: LeadEmailInput = {
   locale: "bs",
   code: "CONF-ABCD-2345",
+  email: "ana@primjer.ba",
+  account: "none",
   priceBam: 69,
   fullPriceBam: 79,
   finalPriceBam: 64,
@@ -42,13 +44,55 @@ describe("renderLeadEmail", () => {
   });
 
   it("never doubles the full stop after a Bosnian date", () => {
-    for (const kind of ["welcome", "reminder", "final"] as const) expect(renderLeadEmail(kind, base).text).not.toContain("..");
+    for (const kind of ["welcome", "reminder", "final", "trial"] as const) {
+      for (const account of ["none", "couple", "photographer", "paid"] as const) {
+        expect(renderLeadEmail(kind, { ...base, account }).text).not.toContain("..");
+      }
+    }
   });
 
   it("never uses an em dash", () => {
-    for (const kind of ["welcome", "reminder", "final"] as const) {
+    for (const kind of ["welcome", "reminder", "final", "trial"] as const) {
       for (const locale of ["bs", "en"] as const) expect(renderLeadEmail(kind, { ...base, locale }).text).not.toContain("—");
     }
+  });
+});
+
+describe("instructions by account", () => {
+  it("tells someone without an account to sign up with this same address", () => {
+    const e = renderLeadEmail("welcome", base);
+    expect(e.cta).toBe("Napravi nalog i iskoristi popust");
+    expect(e.steps[0]).toContain("ana@primjer.ba");
+    expect(e.steps[0]).toContain("istom na koju vam je stigao");
+    expect(e.text).toContain("1. Kliknite dugme");
+    expect(e.text).toContain("u polje „Imate kod za popust?“");
+  });
+
+  it("tells an account holder to sign in, not to sign up", () => {
+    const e = renderLeadEmail("welcome", { ...base, account: "couple" });
+    expect(e.cta).toBe("Prijavi se i iskoristi popust");
+    expect(e.text).toContain("već imate Confetti nalog");
+    expect(e.text).not.toContain("napravite nalog");
+    expect(renderLeadEmail("reminder", { ...base, account: "couple" }).text).toContain("Prijavite se svojim nalogom (ana@primjer.ba)");
+  });
+
+  it("explains that a photographer or a paid account needs another account for this code", () => {
+    expect(renderLeadEmail("welcome", { ...base, account: "photographer" }).text).toContain("nalog za fotografe");
+    expect(renderLeadEmail("welcome", { ...base, account: "paid" }).text).toContain("već ima plaćen paket");
+  });
+
+  it("prices the last email's steps at the last-offer price", () => {
+    expect(renderLeadEmail("final", { ...base, account: "couple", daysLeft: 3 }).text).toContain("64 KM umjesto 79 KM");
+  });
+});
+
+describe("after-trial email", () => {
+  it("offers 10 KM off for the days left and sends the account holder to sign in", () => {
+    const e = renderLeadEmail("trial", { ...base, account: "couple", daysLeft: 5, expiresAt: "2026-11-23T08:00:00Z" });
+    expect(e.subject).toBe("Probni period je završio: 69 KM umjesto 79 KM, još 5 dana");
+    expect(e.cta).toBe("Prijavi se i iskoristi popust");
+    for (const part of ["10 KM manje", "23. 11. 2026.", "CONF-ABCD-2345", "Šaljemo ga samo jednom"]) expect(e.text).toContain(part);
+    expect(renderLeadEmail("trial", { ...base, locale: "en", daysLeft: 5 }).subject).toBe("Your trial has ended: 69 KM instead of 79 KM, 5 days left");
   });
 });
 

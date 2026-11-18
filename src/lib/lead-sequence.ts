@@ -16,19 +16,33 @@ import { ONE_EVENT_BAM, ONE_EVENT_OFFER_BAM, ONE_EVENT_OFFER_FINAL_BAM } from "@
  *
  * The schedule is copied onto each lead when it signs up, so changing the
  * settings later never moves a date an email has already promised.
+ *
+ * A second kind of offer, `trial`, goes to a one-event account whose 7-day
+ * trial ended without a purchase: one email ("trial"), the same 69 KM, valid
+ * for `trial_valid_days`. No reminder and no last offer.
  */
 
-export type LeadEmailKind = "welcome" | "reminder" | "final";
+export type LeadEmailKind = "welcome" | "reminder" | "final" | "trial";
 export type LeadStatus = "active" | "redeemed" | "expired";
+export type OfferType = "lead" | "trial";
 
 export type LeadSettings = {
   is_active: boolean;
   valid_days: number;
   reminder_day: number;
   final_days_before: number;
+  trial_is_active: boolean;
+  trial_valid_days: number;
 };
 
-export const DEFAULT_LEAD_SETTINGS: LeadSettings = { is_active: true, valid_days: 30, reminder_day: 10, final_days_before: 3 };
+export const DEFAULT_LEAD_SETTINGS: LeadSettings = {
+  is_active: true,
+  valid_days: 30,
+  reminder_day: 10,
+  final_days_before: 3,
+  trial_is_active: true,
+  trial_valid_days: 5,
+};
 
 /** No 0/O or 1/I: a code read off a phone screen and typed in must not be ambiguous. */
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -65,6 +79,9 @@ export function validSettings(s: LeadSettings): string | null {
   if (s.reminder_day >= s.valid_days - s.final_days_before) {
     return "The reminder must come before the last offer starts.";
   }
+  if (!Number.isInteger(s.trial_valid_days) || s.trial_valid_days < 2 || s.trial_valid_days > 14) {
+    return "The after-trial offer must be valid for 2 to 14 days.";
+  }
   return null;
 }
 
@@ -80,6 +97,7 @@ export function leadSchedule(settings: LeadSettings, now = new Date()) {
 
 export type LeadTiming = {
   status: LeadStatus;
+  offer_type?: OfferType;
   reminder_at: string;
   final_at: string;
   expires_at: string;
@@ -97,6 +115,7 @@ export function isExpired(lead: Pick<LeadTiming, "expires_at">, now = new Date()
  */
 export function dueLeadEmail(lead: LeadTiming, sent: ReadonlySet<LeadEmailKind>, now = new Date()): LeadEmailKind | null {
   if (lead.status !== "active" || lead.unsubscribed_at || isExpired(lead, now)) return null;
+  if (lead.offer_type === "trial") return sent.has("trial") ? null : "trial";
   if (!sent.has("welcome")) return "welcome";
   const t = now.getTime();
   if (t >= new Date(lead.final_at).getTime()) return sent.has("final") ? null : "final";
@@ -107,10 +126,45 @@ export function dueLeadEmail(lead: LeadTiming, sent: ReadonlySet<LeadEmailKind>,
 export type OfferTier = "offer" | "final";
 
 /** Which price a code buys right now: the last offer is a window, not an email. */
-export function offerTier(lead: Pick<LeadTiming, "final_at" | "expires_at">, now = new Date()): OfferTier | null {
+export function offerTier(lead: Pick<LeadTiming, "final_at" | "expires_at" | "offer_type">, now = new Date()): OfferTier | null {
   const t = now.getTime();
   if (t >= new Date(lead.expires_at).getTime()) return null;
+  // The after-trial offer has one price for its whole (short) life.
+  if (lead.offer_type === "trial") return "offer";
   return t >= new Date(lead.final_at).getTime() ? "final" : "offer";
+}
+
+/** The first email of an offer: the code for a lead, the trial offer for an account. */
+export function firstEmailKind(lead: { offer_type?: OfferType }): LeadEmailKind {
+  return lead.offer_type === "trial" ? "trial" : "welcome";
+}
+
+/**
+ * The dates of an after-trial offer. It has no reminder or last offer, but the
+ * table keeps the order reminder < final < expiry for every row, so both sit
+ * just before expiry; offerTier() and dueLeadEmail() ignore them for "trial".
+ */
+export function trialOfferSchedule(validDays: number, now = new Date()) {
+  const expires = now.getTime() + validDays * DAY_MS;
+  return {
+    reminder_at: new Date(expires - 2000).toISOString(),
+    final_at: new Date(expires - 1000).toISOString(),
+    expires_at: new Date(expires).toISOString(),
+  };
+}
+
+/**
+ * Which one-event accounts the after-trial offer is for, as a window on
+ * `created_at`: the trial ended (TRIAL_DURATION_DAYS ago) at most
+ * `lookbackDays` ago. The window keeps the first run from mailing every old
+ * account at once; a day the sender misses is caught up the next day.
+ */
+export function trialEndedWindow(trialDays: number, lookbackDays: number, now = new Date()) {
+  const endedBy = now.getTime() - trialDays * DAY_MS;
+  return {
+    createdFrom: new Date(endedBy - lookbackDays * DAY_MS).toISOString(),
+    createdTo: new Date(endedBy).toISOString(),
+  };
 }
 
 export const OFFER_PRICE_BAM: Record<OfferTier, number> = { offer: ONE_EVENT_OFFER_BAM, final: ONE_EVENT_OFFER_FINAL_BAM };

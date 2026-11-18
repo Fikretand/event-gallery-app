@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { normalizeAccountType } from "@/lib/account";
 import { passwordMeetsPolicy, WEAK_PASSWORD } from "@/lib/password-policy";
 import type { AccountType } from "@/lib/types";
+import { PasswordInput } from "@/components/password-input";
 import { PasswordRequirements } from "@/components/password-requirements";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +29,8 @@ type AuthStrings = Pick<
   | "formEmail"
   | "formEmailPlaceholder"
   | "formPassword"
+  | "passwordShow"
+  | "passwordHide"
   | "formPasswordPlaceholder"
   | "formPasswordRule"
   | "passwordRules"
@@ -53,6 +56,8 @@ const EN_STRINGS: AuthStrings = {
   formEmail: "Email",
   formEmailPlaceholder: "you@example.com",
   formPassword: "Password",
+  passwordShow: "Show",
+  passwordHide: "Hide",
   formPasswordPlaceholder: "At least 8 characters",
   formPasswordRule:
     "At least 8 characters, with an upper and a lower case letter, a number, and one symbol (e.g. ! ? # @).",
@@ -79,6 +84,7 @@ export function AuthForm({
   mode,
   intent = "photographer",
   plan = "solo",
+  defaultEmail,
   strings,
 }: {
   action: (
@@ -88,6 +94,8 @@ export function AuthForm({
   mode: "login" | "signup";
   intent?: AccountType;
   plan?: "solo" | "pro";
+  /** Filled in when the person arrives from a discount email. */
+  defaultEmail?: string;
   strings?: Partial<AuthStrings>;
 }) {
   const pathname = usePathname();
@@ -148,21 +156,32 @@ export function AuthForm({
             required
           />
         ) : null}
-        <Input label={s.formEmail} name="email" type="email" autoComplete="email" inputMode="email" placeholder={s.formEmailPlaceholder} required />
         <Input
+          label={s.formEmail}
+          name="email"
+          type="email"
+          autoComplete="email"
+          inputMode="email"
+          placeholder={s.formEmailPlaceholder}
+          defaultValue={defaultEmail}
+          required
+        />
+        <PasswordInput
           label={s.formPassword}
+          showLabel={s.passwordShow}
+          hideLabel={s.passwordHide}
           name="password"
-          type="password"
           placeholder={s.formPasswordPlaceholder}
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           aria-describedby={isSignup ? "password-requirements" : undefined}
           autoComplete={isSignup ? "new-password" : "current-password"}
           required
-        />
-        {isSignup ? (
-          <PasswordRequirements id="password-requirements" password={password} labels={s.passwordRules} />
-        ) : null}
+        >
+          {isSignup ? (
+            <PasswordRequirements id="password-requirements" password={password} labels={s.passwordRules} />
+          ) : null}
+        </PasswordInput>
 
         {mode === "login" ? (
           <div className="flex justify-end">

@@ -17,8 +17,7 @@ import { getDictionary, localePrefix, t, type Locale, daysWord } from "@/lib/i18
 import { OfferCodeBox } from "@/components/lead/offer-code-box";
 import { formatEmailDate } from "@/lib/lead-emails";
 import { OFFER_FULL_PRICE_BAM } from "@/lib/lead-sequence";
-import { resolveOffer } from "@/lib/leads";
-import { readOfferCode } from "@/lib/offer-cookie";
+import { currentOffer } from "@/lib/offer-current";
 import { formatBam } from "@/lib/pricing";
 import { BillingPlans } from "./billing-plans";
 import { CoupleCheckoutButton } from "./couple-checkout-button";
@@ -66,10 +65,9 @@ export async function DashboardBilling({
   // otherwise fall back to the legacy Payhip overlay.
   const oneEventProvider = hasWhop && env.whopPlanOneEvent ? "whop" : "payhip";
   // A lead's discount code (src/lib/leads.ts) works through Whop only. The
-  // same resolveOffer() decides the checkout's plan, so this price is the one
-  // charged.
-  const offerCode = isCouple && oneEventProvider === "whop" ? await readOfferCode() : null;
-  const offer = offerCode ? await resolveOffer(offerCode) : null;
+  // same currentOffer() decides the checkout's plan, so this price is the one
+  // charged. It also finds the code made for this account's own address.
+  const offer = isCouple && oneEventProvider === "whop" ? await currentOffer(user.email) : null;
   const oneEventPrice = offer?.ok ? formatBam(offer.priceBam) : ONE_EVENT_PRICE[oneEventProvider];
   const leadStrings = getDictionary(locale).leadOffer;
   const offerApplied = offer?.ok

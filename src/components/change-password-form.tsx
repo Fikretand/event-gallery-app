@@ -2,9 +2,9 @@
 
 import { useActionState, useState, useTransition, type FormEvent } from "react";
 
+import { PasswordInput } from "@/components/password-input";
 import { PasswordRequirements } from "@/components/password-requirements";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import type { Dict } from "@/lib/i18n/index";
 import {
   CURRENT_PASSWORD_WRONG,
@@ -18,6 +18,8 @@ import {
 type Strings = Dict["dashboard"]["profile"]["changePassword"] & {
   rule: string;
   rules: Dict["auth"]["passwordRules"];
+  show: string;
+  hide: string;
   working: string;
 };
 
@@ -68,25 +70,35 @@ export function ChangePasswordForm({
 
   return (
     <form action={formAction} onSubmit={handleSubmit} className="grid max-w-md gap-4">
-      <Input
+      <PasswordInput
         label={s.current}
+        showLabel={s.show}
+        hideLabel={s.hide}
         name="currentPassword"
-        type="password"
         autoComplete="current-password"
         required
       />
-      <Input
+      <PasswordInput
         label={s.next}
+        showLabel={s.show}
+        hideLabel={s.hide}
         name="password"
-        type="password"
         value={password}
         onChange={(event) => setPassword(event.target.value)}
         aria-describedby="change-password-requirements"
         autoComplete="new-password"
         required
+      >
+        <PasswordRequirements id="change-password-requirements" password={password} labels={s.rules} />
+      </PasswordInput>
+      <PasswordInput
+        label={s.confirm}
+        showLabel={s.show}
+        hideLabel={s.hide}
+        name="confirmPassword"
+        autoComplete="new-password"
+        required
       />
-      <PasswordRequirements id="change-password-requirements" password={password} labels={s.rules} />
-      <Input label={s.confirm} name="confirmPassword" type="password" autoComplete="new-password" required />
 
       {errorText ? (
         <div role="alert" className="notice notice-error">{errorText}</div>

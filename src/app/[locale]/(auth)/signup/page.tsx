@@ -5,13 +5,19 @@ import { AuthScreen } from "@/components/auth-screen";
 import { normalizeAccountType } from "@/lib/account";
 import { signupAction } from "@/lib/actions";
 import { getDictionary, type Locale } from "@/lib/i18n/index";
+import { normalizeEmail } from "@/lib/lead-sequence";
+
+/** Only a plausible address is put back into the field. */
+function cleanEmail(raw: string | undefined) {
+  return raw ? (normalizeEmail(raw) ?? undefined) : undefined;
+}
 
 export default async function SignupPage({
   params,
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams?: Promise<{ intent?: string; plan?: string }>;
+  searchParams?: Promise<{ intent?: string; plan?: string; offer?: string; email?: string }>;
 }) {
   const { locale } = await params;
   const dict = getDictionary(locale as Locale);
@@ -36,7 +42,19 @@ export default async function SignupPage({
         </p>
       }
     >
-      <AuthForm action={signupAction} mode="signup" intent={intent} plan={plan} strings={d} />
+      {resolvedSearchParams?.offer === "1" && isCouple ? (
+        <p role="status" className="notice notice-success mb-[var(--space-md)] max-w-md">
+          {d.offerSignupNotice}
+        </p>
+      ) : null}
+      <AuthForm
+        action={signupAction}
+        mode="signup"
+        intent={intent}
+        plan={plan}
+        defaultEmail={cleanEmail(resolvedSearchParams?.email)}
+        strings={d}
+      />
     </AuthScreen>
   );
 }

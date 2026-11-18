@@ -7,7 +7,7 @@ import { incrementRateLimitCount } from "@/lib/events";
 import { localePrefix, type Locale } from "@/lib/i18n/index";
 import { captureLead, resolveOffer, unsubscribeLead } from "@/lib/leads";
 import { cleanUtm, normalizeEmail, normalizeLeadCode } from "@/lib/lead-sequence";
-import { OFFER_COOKIE, OFFER_COOKIE_OPTIONS } from "@/lib/offer-cookie";
+import { OFFER_COOKIE, OFFER_COOKIE_OPTIONS, OFFER_OPTED_OUT } from "@/lib/offer-cookie";
 import { isRateLimited } from "@/lib/rate-limit";
 import { hashIp } from "@/lib/security";
 
@@ -66,8 +66,9 @@ export async function applyOfferCodeAction(locale: Locale, _prev: CodeState, for
   redirect(`${localePrefix(locale)}/dashboard/billing`);
 }
 
+/** Also stops the code made for the account's own address from applying by itself. */
 export async function removeOfferCodeAction(locale: Locale) {
-  (await cookies()).delete(OFFER_COOKIE);
+  (await cookies()).set(OFFER_COOKIE, OFFER_OPTED_OUT, OFFER_COOKIE_OPTIONS);
   redirect(`${localePrefix(locale)}/dashboard/billing`);
 }
 

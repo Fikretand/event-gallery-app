@@ -24,6 +24,7 @@ import {
   SAME_PASSWORD,
   WEAK_PASSWORD,
 } from "@/lib/password-policy";
+import { readOfferCode } from "@/lib/offer-cookie";
 
 const GALLERY_PIN_WRONG = "GALLERY_PIN_WRONG";
 const GALLERY_PIN_RATE_LIMITED = "GALLERY_PIN_RATE_LIMITED";
@@ -66,6 +67,8 @@ export async function loginAction(_: { error?: string } | undefined | void, form
   }
 
   const accountType = await getAccountTypeForUser(supabase, data.user.id, data.user.user_metadata?.account_type);
+  // Came from a discount email: straight to where the discount is applied.
+  if (accountType === "couple" && (await readOfferCode())) redirect("/dashboard/billing");
   redirect(resolveAccountRedirect(accountType));
 }
 
@@ -92,7 +95,8 @@ export async function signupAction(_: { error?: string } | undefined | void, for
     return { error: WEAK_PASSWORD };
   }
 
-  const nextPath = resolveAccountRedirect(intent);
+  // Came from a discount email: the new account lands where the discount is applied.
+  const nextPath = intent === "couple" && (await readOfferCode()) ? "/dashboard/billing" : resolveAccountRedirect(intent);
   const redirectTo = `${env.appUrl.replace(/\/$/, "")}/auth/confirm?next=${encodeURIComponent(nextPath)}`;
 
   const { data, error } = await supabase.auth.signUp({

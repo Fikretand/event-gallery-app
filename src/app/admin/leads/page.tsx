@@ -21,6 +21,7 @@ const KINDS = [
   { kind: "welcome", label: "Code" },
   { kind: "reminder", label: "Reminder" },
   { kind: "final", label: "Last offer" },
+  { kind: "trial", label: "After-trial offer" },
 ] as const;
 
 function day(iso: string | null) {
@@ -62,7 +63,7 @@ export default async function AdminLeadsPage({ searchParams }: { searchParams: P
     ["Paid with codes", formatBam(stats.revenueBam)],
     ["Expired", String(stats.expired)],
     ["Unsubscribed", String(stats.unsubscribed)],
-    ["Emails sent", `${stats.emails.welcome} / ${stats.emails.reminder} / ${stats.emails.final}`],
+    ["Emails sent (code / reminder / last / after trial)", `${stats.emails.welcome} / ${stats.emails.reminder} / ${stats.emails.final} / ${stats.emails.trial}`],
     ["Failed emails", String(stats.failedEmails)],
   ];
   const exportHref = `/api/admin/leads/export${status ? `?status=${status}` : ""}`;
@@ -179,6 +180,7 @@ export default async function AdminLeadsPage({ searchParams }: { searchParams: P
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="truncate font-medium text-ink">{lead.email}</p>
                       <span className={`chip ${chip.chip}`}>{chip.label}</span>
+                      {lead.offer_type === "trial" ? <span className="chip">After trial</span> : null}
                       {lead.unsubscribed_at ? <span className="chip">Unsubscribed</span> : null}
                     </div>
                     <p className="meta">

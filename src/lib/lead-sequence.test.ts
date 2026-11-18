@@ -10,14 +10,17 @@ import {
   newLeadCode,
   normalizeEmail,
   normalizeLeadCode,
+  firstEmailKind,
   offerTier,
+  trialEndedWindow,
+  trialOfferSchedule,
   validSettings,
   type LeadEmailKind,
 } from "./lead-sequence";
 
 const START = new Date("2026-11-17T09:00:00Z");
 const day = (n: number) => new Date(START.getTime() + n * 86_400_000);
-const lead = { status: "active" as const, unsubscribed_at: null, ...leadSchedule(DEFAULT_LEAD_SETTINGS, START) };
+const lead = { status: "active" as const, offer_type: "lead" as const, unsubscribed_at: null, ...leadSchedule(DEFAULT_LEAD_SETTINGS, START) };
 const sent = (...kinds: LeadEmailKind[]) => new Set<LeadEmailKind>(kinds);
 
 describe("codes", () => {
@@ -106,5 +109,38 @@ describe("offerTier and daysLeft", () => {
     expect(daysLeft(lead.expires_at, day(10))).toBe(20);
     expect(daysLeft(lead.expires_at, day(27.5))).toBe(3);
     expect(daysLeft(lead.expires_at, day(31))).toBe(0);
+  });
+});
+
+describe("after-trial offer", () => {
+  const trial = { status: "active" as const, offer_type: "trial" as const, unsubscribed_at: null, ...trialOfferSchedule(5, START) };
+
+  it("sends its one email once and nothing else", () => {
+    expect(firstEmailKind(trial)).toBe("trial");
+    expect(firstEmailKind(lead)).toBe("welcome");
+    expect(dueLeadEmail(trial, sent(), START)).toBe("trial");
+    expect(dueLeadEmail(trial, sent("trial"), day(4.99))).toBeNull();
+    expect(dueLeadEmail(trial, sent(), day(5))).toBeNull();
+  });
+
+  it("keeps one price until it expires after 5 days", () => {
+    expect(trial.expires_at).toBe(day(5).toISOString());
+    expect(offerTier(trial, day(4.9999))).toBe("offer");
+    expect(offerTier(trial, day(5))).toBeNull();
+  });
+
+  it("keeps the row's date order the table checks", () => {
+    expect(trial.reminder_at < trial.final_at && trial.final_at < trial.expires_at).toBe(true);
+  });
+
+  it("picks accounts whose 7-day trial ended in the last 3 days", () => {
+    const w = trialEndedWindow(7, 3, START);
+    expect(w.createdTo).toBe(day(-7).toISOString());
+    expect(w.createdFrom).toBe(day(-10).toISOString());
+  });
+
+  it("refuses an after-trial window outside 2 to 14 days", () => {
+    expect(validSettings({ ...DEFAULT_LEAD_SETTINGS, trial_valid_days: 1 })).not.toBeNull();
+    expect(validSettings({ ...DEFAULT_LEAD_SETTINGS, trial_valid_days: 15 })).not.toBeNull();
   });
 });

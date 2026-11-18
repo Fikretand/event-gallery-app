@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 
 import { getRequiredUser } from "@/lib/auth";
 import { resendWelcome, runLeadSequence, sendLeadEmail, type Lead } from "@/lib/leads";
-import { validSettings, type LeadSettings } from "@/lib/lead-sequence";
+import { firstEmailKind, validSettings, type LeadSettings } from "@/lib/lead-sequence";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 /** What /admin/leads can change. Each action checks the admin role itself. */
@@ -30,6 +30,8 @@ export async function saveLeadSettingsAction(_prev: SettingsState, formData: For
     valid_days: Number.parseInt(String(formData.get("valid_days") ?? ""), 10),
     reminder_day: Number.parseInt(String(formData.get("reminder_day") ?? ""), 10),
     final_days_before: Number.parseInt(String(formData.get("final_days_before") ?? ""), 10),
+    trial_is_active: formData.get("trial_is_active") === "on",
+    trial_valid_days: Number.parseInt(String(formData.get("trial_valid_days") ?? ""), 10),
   };
   const problem = validSettings(settings);
   if (problem) return { error: problem };
@@ -57,8 +59,9 @@ export async function resendLeadWelcomeAction(leadId: string) {
   const { data } = await admin.from("leads").select("*, lead_emails(kind, status)").eq("id", leadId).maybeSingle();
   if (!data) throw new Error("Lead not found.");
   const { lead_emails, ...lead } = data as Lead & { lead_emails: { kind: string; status: string }[] };
-  const welcomeSent = lead_emails.some((e) => e.kind === "welcome" && e.status === "sent");
-  const outcome = welcomeSent ? await resendWelcome(lead) : await sendLeadEmail(lead, "welcome");
+  const first = firstEmailKind(lead);
+  const welcomeSent = lead_emails.some((e) => e.kind === first && e.status === "sent");
+  const outcome = welcomeSent ? await resendWelcome(lead) : await sendLeadEmail(lead, first);
   revalidatePath("/admin/leads");
   if (outcome === "failed") throw new Error("Resend refused it; see the error in the row.");
   if (outcome === "skipped") throw new Error("Not sent: the code is used, expired or unsubscribed, or a copy went out in the last hour.");

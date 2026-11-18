@@ -10,15 +10,15 @@ import {
   RESET_SESSION_EXPIRED,
   WEAK_PASSWORD,
 } from "@/lib/password-policy";
+import { PasswordInput } from "@/components/password-input";
 import { PasswordRequirements } from "@/components/password-requirements";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Panel } from "@/components/ui/panel";
 import type { Dict } from "@/lib/i18n/index";
 
 type ResetStrings = Pick<
   Dict["auth"],
-  "resetForm" | "formPasswordPlaceholder" | "formPasswordRule" | "passwordRules" | "formWorking"
+  "resetForm" | "formPasswordPlaceholder" | "formPasswordRule" | "passwordRules" | "formWorking" | "passwordShow" | "passwordHide"
 >;
 
 export function ResetPasswordForm({
@@ -66,22 +66,25 @@ export function ResetPasswordForm({
           <h2 className="title text-ink">{f.title}</h2>
         </div>
 
-        <Input
+        <PasswordInput
           label={f.newPassword}
+          showLabel={strings.passwordShow}
+          hideLabel={strings.passwordHide}
           name="password"
-          type="password"
           placeholder={strings.formPasswordPlaceholder}
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           aria-describedby="password-requirements"
           autoComplete="new-password"
           required
-        />
-        <PasswordRequirements id="password-requirements" password={password} labels={strings.passwordRules} />
-        <Input
+        >
+          <PasswordRequirements id="password-requirements" password={password} labels={strings.passwordRules} />
+        </PasswordInput>
+        <PasswordInput
           label={f.confirmPassword}
+          showLabel={strings.passwordShow}
+          hideLabel={strings.passwordHide}
           name="confirmPassword"
-          type="password"
           placeholder={f.confirmPlaceholder}
           autoComplete="new-password"
           required

@@ -2,21 +2,26 @@ import { randomBytes } from "node:crypto";
 
 import { sendEmail } from "@/lib/email";
 import { env } from "@/lib/env";
-import { renderLeadEmail } from "@/lib/lead-emails";
+import { TRIAL_DURATION_DAYS } from "@/lib/constants";
+import { renderLeadEmail, type LeadAccount } from "@/lib/lead-emails";
 import {
   DEFAULT_LEAD_SETTINGS,
   OFFER_FULL_PRICE_BAM,
   OFFER_PRICE_BAM,
   daysLeft,
   dueLeadEmail,
+  firstEmailKind,
   leadSchedule,
   newLeadCode,
   normalizeLeadCode,
   offerTier,
+  trialEndedWindow,
+  trialOfferSchedule,
   type LeadEmailKind,
   type LeadSettings,
   type LeadStatus,
   type OfferTier,
+  type OfferType,
 } from "@/lib/lead-sequence";
 import type { Locale } from "@/lib/i18n/index";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -54,6 +59,10 @@ export type Lead = {
   redeemed_payment_id: string | null;
   last_checkout_error: string | null;
   last_checkout_error_at: string | null;
+  /** "lead": signed up on /popust. "trial": a one-event account whose trial ended unpaid. */
+  offer_type: OfferType;
+  /** The account a "trial" offer was made for. */
+  user_id: string | null;
 };
 
 export type LeadEmailRow = {
@@ -82,8 +91,52 @@ function siteUrl() {
 export async function getLeadSettings(): Promise<LeadSettings> {
   const client = admin();
   if (!client) return DEFAULT_LEAD_SETTINGS;
-  const { data } = await client.from("lead_settings").select("is_active, valid_days, reminder_day, final_days_before").eq("id", 1).maybeSingle();
-  return (data as LeadSettings | null) ?? DEFAULT_LEAD_SETTINGS;
+  const { data } = await client
+    .from("lead_settings")
+    .select("is_active, valid_days, reminder_day, final_days_before, trial_is_active, trial_valid_days")
+    .eq("id", 1)
+    .maybeSingle();
+  return { ...DEFAULT_LEAD_SETTINGS, ...((data as Partial<LeadSettings> | null) ?? {}) };
+}
+
+/** `%` and `_` are wildcards in ilike; an address can contain `_`. */
+function exactIlike(value: string) {
+  return value.replace(/[\\%_]/g, (c) => `\\${c}`);
+}
+
+/**
+ * What kind of account, if any, holds this address right now. Read at send
+ * time, so an email written after someone signs up tells them to sign in.
+ */
+export async function accountForEmail(email: string): Promise<LeadAccount> {
+  const client = admin();
+  if (!client) return "none";
+  const { data } = await client
+    .from("users")
+    .select("account_type, subscription_status")
+    .ilike("email", exactIlike(email))
+    .limit(1)
+    .maybeSingle();
+  if (!data) return "none";
+  if (data.account_type !== "couple") return "photographer";
+  return data.subscription_status === "active" || data.subscription_status === "trialing" ? "paid" : "couple";
+}
+
+/**
+ * The live code made for this address, if any: a one-event account signed up
+ * with the address its code came to gets the discount without typing it.
+ */
+export async function activeLeadCodeForEmail(email: string | null | undefined): Promise<string | null> {
+  const client = admin();
+  if (!client || !email) return null;
+  const { data } = await client
+    .from("leads")
+    .select("code")
+    .eq("email", email.trim().toLowerCase())
+    .eq("status", "active")
+    .gt("expires_at", new Date().toISOString())
+    .maybeSingle();
+  return (data?.code as string | undefined) ?? null;
 }
 
 // ─── Offer at checkout ─────────────────────────────────────────────────────
@@ -165,10 +218,12 @@ export function unsubscribeUrl(lead: Pick<Lead, "locale" | "unsubscribe_token">)
   return `${siteUrl()}/${lead.locale}/popust/odjava?t=${encodeURIComponent(lead.unsubscribe_token)}`;
 }
 
-function buildEmail(lead: Lead, kind: LeadEmailKind, now: Date) {
+async function buildEmail(lead: Lead, kind: LeadEmailKind, now: Date) {
   return renderLeadEmail(kind, {
     locale: lead.locale,
     code: lead.code,
+    email: lead.email,
+    account: await accountForEmail(lead.email),
     priceBam: OFFER_PRICE_BAM.offer,
     fullPriceBam: OFFER_FULL_PRICE_BAM,
     finalPriceBam: OFFER_PRICE_BAM.final,
@@ -213,7 +268,7 @@ export async function sendLeadEmail(lead: Lead, kind: LeadEmailKind, now = new D
     if (!taken?.length) return "skipped";
   }
 
-  const email = buildEmail(lead, kind, now);
+  const email = await buildEmail(lead, kind, now);
   const result = await sendEmail({
     to: lead.email,
     subject: email.subject,
@@ -256,7 +311,7 @@ export async function resendWelcome(lead: Lead): Promise<"sent" | "skipped" | "f
   const client = admin();
   if (!client) return "failed";
   await client.from("leads").update({ welcome_resent_at: new Date().toISOString() }).eq("id", lead.id);
-  const email = buildEmail(lead, "welcome", new Date());
+  const email = await buildEmail(lead, firstEmailKind(lead), new Date());
   const result = await sendEmail({
     to: lead.email,
     subject: email.subject,
@@ -299,9 +354,9 @@ export async function captureLead(input: {
     const { lead_emails, ...lead } = existingRow as Lead & { lead_emails: { kind: string; status: string }[] };
     // The first welcome never went out: retry that one (claimed, so the daily
     // run cannot send it a second time). Otherwise send a copy.
-    const welcomeSent = lead_emails.some((e) => e.kind === "welcome" && e.status === "sent");
+    const welcomeSent = lead_emails.some((e) => e.kind === firstEmailKind(lead) && e.status === "sent");
     if (welcomeSent) await resendWelcome(lead);
-    else if (lead.status === "active" && !lead.unsubscribed_at) await sendLeadEmail(lead, "welcome");
+    else if (lead.status === "active" && !lead.unsubscribed_at) await sendLeadEmail(lead, firstEmailKind(lead));
     return "existing";
   }
 
@@ -341,18 +396,89 @@ export async function captureLead(input: {
 
 // ─── The daily run ─────────────────────────────────────────────────────────
 
-export type SequenceReport = { expired: number; sent: Record<LeadEmailKind, number>; failed: number; skipped: number; remaining: number };
+export type SequenceReport = {
+  expired: number;
+  trialOffers: number;
+  sent: Record<LeadEmailKind, number>;
+  failed: number;
+  skipped: number;
+  remaining: number;
+};
+
+/** How far back the after-trial offer reaches: trials that ended in the last 3 days. */
+const TRIAL_OFFER_LOOKBACK_DAYS = 3;
 
 /**
- * Expire old codes, then send every email that is due, oldest leads first.
+ * Make an after-trial offer for every one-event account whose trial ended in
+ * the last few days without a purchase. One per address, ever: an address
+ * that already has a lead (from /popust or an earlier trial offer) is skipped.
+ * The email itself goes out with the rest of the run.
+ */
+export async function createTrialOffers(settings: LeadSettings, now = new Date()): Promise<number> {
+  const client = admin();
+  if (!client || !settings.trial_is_active) return 0;
+  const { createdFrom, createdTo } = trialEndedWindow(TRIAL_DURATION_DAYS, TRIAL_OFFER_LOOKBACK_DAYS, now);
+  const { data: users } = await client
+    .from("users")
+    .select("id, email, preferred_locale, role, subscription_status")
+    .eq("account_type", "couple")
+    .gte("created_at", createdFrom)
+    .lte("created_at", createdTo)
+    .limit(500);
+  const candidates = (users ?? []).filter(
+    (u) => u.email && u.role !== "admin" && u.subscription_status !== "active" && u.subscription_status !== "trialing",
+  );
+  if (!candidates.length) return 0;
+
+  const emails = candidates.map((u) => (u.email as string).trim().toLowerCase());
+  const { data: existing } = await client.from("leads").select("email").in("email", emails);
+  const taken = new Set((existing ?? []).map((l) => l.email as string));
+
+  let made = 0;
+  for (const user of candidates) {
+    const email = (user.email as string).trim().toLowerCase();
+    if (taken.has(email)) continue;
+    const { error } = await client.from("leads").insert({
+      email,
+      locale: user.preferred_locale === "en" ? "en" : "bs",
+      code: newLeadCode(),
+      offer_type: "trial",
+      user_id: user.id,
+      ...trialOfferSchedule(settings.trial_valid_days, now),
+      consent_at: now.toISOString(),
+      // Not a consent given on a form: an offer to an existing customer about
+      // the product they signed up for, one email, with an unsubscribe link.
+      consent_text: "Existing account: one-event trial ended unpaid; one offer email (existing customer, unsubscribe in every email).",
+      source: "trial",
+      unsubscribe_token: randomBytes(24).toString("base64url"),
+    });
+    // A code collision or a race with /popust: tomorrow's run tries again.
+    if (error) console.error("[leads] trial offer not saved", { userId: user.id, message: error.message });
+    else made += 1;
+  }
+  return made;
+}
+
+/**
+ * Make after-trial offers, expire old codes, then send every email that is due,
+ * oldest leads first.
  * `limit` keeps a run inside the function's time and Resend's daily quota;
  * whatever is left goes out on the next run.
  */
 export async function runLeadSequence({ limit = 80, now = new Date() }: { limit?: number; now?: Date } = {}): Promise<SequenceReport> {
-  const report: SequenceReport = { expired: 0, sent: { welcome: 0, reminder: 0, final: 0 }, failed: 0, skipped: 0, remaining: 0 };
+  const report: SequenceReport = {
+    expired: 0,
+    trialOffers: 0,
+    sent: { welcome: 0, reminder: 0, final: 0, trial: 0 },
+    failed: 0,
+    skipped: 0,
+    remaining: 0,
+  };
   const client = admin();
   if (!client) return report;
   const nowIso = now.toISOString();
+
+  report.trialOffers = await createTrialOffers(await getLeadSettings(), now);
 
   const { data: expired } = await client
     .from("leads")
@@ -485,7 +611,7 @@ export async function leadStats(): Promise<LeadStats> {
     expired: 0,
     unsubscribed: 0,
     revenueBam: 0,
-    emails: { welcome: 0, reminder: 0, final: 0 },
+    emails: { welcome: 0, reminder: 0, final: 0, trial: 0 },
     failedEmails: 0,
     lastError: null,
     sources: [],

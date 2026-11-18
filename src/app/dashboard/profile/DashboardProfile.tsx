@@ -76,6 +76,8 @@ export async function DashboardProfile({
                 rule: dict.auth.formPasswordRule,
                 rules: dict.auth.passwordRules,
                 working: dict.auth.formWorking,
+                show: dict.auth.passwordShow,
+                hide: dict.auth.passwordHide,
               }}
             />
           </div>

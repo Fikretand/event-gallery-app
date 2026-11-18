@@ -381,6 +381,11 @@ export const dict: Dict = {
       success: "Lozinka je promijenjena. Sada se možete prijaviti novom lozinkom.",
       goToLogin: "Prijavite se",
     },
+    offerLoginNotice: "Vaš kod za popust je sačuvan. Prijavite se i otvoriće se stranica Plaćanje s popustom već primijenjenim.",
+    offerSignupNotice:
+      "Vaš kod za popust je sačuvan. Napravite nalog s adresom na koju vam je stigao kod i odmah zatim otvara se stranica Plaćanje s popustom već primijenjenim.",
+    passwordShow: "Prikaži",
+    passwordHide: "Sakrij",
     confirmLinkFailed:
       "Link za potvrdu je istekao ili je već iskorišten. Ako je nalog već potvrđen, samo se prijavite. Ako nije, registrujte se ponovo istim emailom i poslat ćemo vam novi link.",
     passwordRules: {
@@ -1705,7 +1710,7 @@ export const dict: Dict = {
     note: "Kod važi za paket za jedan događaj. Vašu adresu koristimo samo za ovu ponudu.",
     privacyLink: "Politika privatnosti",
     successTitle: "Kod je na putu",
-    successBody: "Poslali smo ga na {{email}}. Ako ga ne vidite za par minuta, pogledajte folder Promocije ili Spam.",
+    successBody: "Poslali smo ga na {{email}}, s uputama korak po korak kako ga iskoristiti. Ako ga ne vidite za par minuta, pogledajte folder Promocije ili Spam.",
     existingBody: "Za {{email}} je kod već napravljen. Ako još vrijedi, poslali smo ga ponovo, pogledajte inbox, Promocije ili Spam.",
     errorEmail: "Upišite ispravnu email adresu.",
     errorConsent: "Označite da pristajete na mailove o ponudi, inače vam kod ne možemo poslati.",
@@ -1724,6 +1729,8 @@ export const dict: Dict = {
     codePlaceholder: "CONF-XXXX-XXXX",
     codeApply: "Primijeni",
     codeApplied: "Kod {{code}} je primijenjen: {{price}} umjesto {{full}}. Vrijedi do {{date}}",
+    dashboardNotice: "Čeka vas popust: paket Jedan događaj za {{price}} umjesto {{full}}, do {{date}}",
+    dashboardCta: "Iskoristi popust",
     codeRemove: "Ukloni kod",
     codeInvalid: "Taj kod ne postoji. Provjerite da ste ga upisali tačno kao u mailu.",
     codeExpired: "Ovaj kod je istekao.",
