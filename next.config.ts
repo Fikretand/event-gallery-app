@@ -50,6 +50,12 @@ const nextConfig: NextConfig = {
         destination: "/:locale/dogadjaji/maturalna-vecer",
         permanent: true,
       },
+      // Short links for the discount page, for profile bios and stories.
+      // Temporary (307), so the target can change without browsers keeping
+      // the old one. /ig and /tt tag the source, which /admin/leads shows.
+      { source: "/popust", destination: "/bs/popust", permanent: false },
+      { source: "/ig", destination: "/bs/popust?utm_source=instagram&utm_medium=bio", permanent: false },
+      { source: "/tt", destination: "/bs/popust?utm_source=tiktok&utm_medium=bio", permanent: false },
     ];
   },
   async headers() {
